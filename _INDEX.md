@@ -43,7 +43,7 @@ FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
   Referrals_Main/OnUserInput__Facility_Phone__Format.dg
     trigger: On User Input  | per docs: WORKING (live) | extraction: DONE 2026-06-25 | verified: YES (copied from live)
   Referrals_Main/OnUserInput__Partner_POC_Phone__Format.dg
-    trigger: On User Input  | per docs: WORKING (live, aka "Referral Partner POC Phone Format") | extraction: PENDING (field link name unconfirmed) | verified: NO
+    trigger: On User Input  | per docs: WORKING (live, aka "Referral Partner POC Phone Format") | extraction: DONE 2026-06-25 | verified: YES (copied from live)
 
 FUNCTIONS (Functions tab, standalone)
   functions/fn_resolveUserIdentity.dg
