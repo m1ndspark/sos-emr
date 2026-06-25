@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Secrets and credentials (must never be committed per CLAUDE.md)
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+*credentials*
+*token*
+
+# Logs / temp
+*.log
+*.tmp
