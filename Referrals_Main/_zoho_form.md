@@ -153,6 +153,9 @@ FLAGS (confirm against intent; do not change the integration without Neil's appr
           mis-mapping: the decision maker's last name gets the patient's last name.
           Decision Maker First Name maps correctly. This is an identity field in a
           medical/legal context. Verify and fix the integration mapping.
+          CONFIRMED an error by the field-mapping sheet (2026-06-25): the intended
+          mapping is DM_Last_Name <- "Decision Maker Last Name". The live integration
+          sourcing "Patient Last Name" is the bug to fix.
   FLAG 2  RESOLVED (Neil, 2026-06-25): Partner Billing ID and the form's "Hospice
           ID" are the same identifier. Mapping is correct, no change needed.
 

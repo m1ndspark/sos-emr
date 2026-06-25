@@ -41,6 +41,9 @@ FIELD CONVENTIONS
   Encounter_PatientVisit and Referrals_Main: PAR_Organization, PAR_Branch,
   PAR_POC_Team, PAR_POC_First_Name, PAR_POC_Last_Name, PAR_POC_Title,
   PAR_POC_Full_Name (computed, display only; the First/Last/Title parts hidden).
+  CORRECTION (2026-06-25): live Referrals_Main uses a Partner_ prefix, NOT PAR_
+  (Partner_Organization, Partner_Branch, Partner_POC_Team, Partner_POC_First_Name,
+  etc.). See context/06_field_link_names.md. Confirm whether PVS still uses PAR_.
 - Other_Charges renamed to Other_Charges_Amount.
 - Partner_ID present in System_Fields_Section on Encounter_PatientVisit.
 - Employee_Initials in Provider_Signature_Section, read from an input field,
