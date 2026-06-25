@@ -16,10 +16,10 @@ Creator, see _INDEX.md NOTE 7).
 RULE CATEGORIES PRESENT (Zoho Forms > Rules)
 --------------------------------------------------------------------------------
 - Field Rules               show/hide fields based on input  (all 6 captured below)
-- Choice-based Field Rules  show/hide choices in a field     (not reviewed yet)
-- Form Rules                actions on form submission        (not reviewed yet)
-- Page Rules                skip to pages based on input      (not reviewed yet)
-- Deny Submissions          block submission based on input   (not reviewed yet)
+- Page Rules                skip to pages based on input      (captured below)
+- Choice-based Field Rules  show/hide choices in a field      (none configured yet)
+- Form Rules                actions on form submission         (none configured yet)
+- Deny Submissions          block submission based on input    (none configured yet)
 
 --------------------------------------------------------------------------------
 FIELD RULES (all 6 captured)
@@ -55,11 +55,42 @@ Action key: Show = reveal field (eye icon); Hide = conceal field (eye-slash icon
      THEN Show "Facility Name, Grid - Facility Phone & Room #"
 
 --------------------------------------------------------------------------------
+PAGE RULES (page-skip navigation; grouped by source page)
+--------------------------------------------------------------------------------
+Routing field is "Service Requested". Form pages seen: Patient Details, Patient
+Location, Patient Medical Info, General Information, X-Ray Request Details, Lab
+Request Details, Legal Decision Maker, Referral Partner Authentication.
+
+PAGE: Patient Details
+  Rule 1: NOT CAPTURED (cut off above Rule 2 in screenshot; re-capture)
+  Rule 2: IF Service Requested Is "X-Ray Order (only)"  -> skip to X-Ray Request Details
+  Rule 3: IF Service Requested Is "Lab Draw (only)"     -> skip to Lab Request Details
+  Finally (no rule matches):                            -> skip to Legal Decision Maker
+
+PAGE: Patient Location
+  Rule 1: IF Service Requested Is "3008"                -> skip to General Information
+  Finally (no rule matches):                            -> skip to Patient Medical Info
+
+PAGE: General Information
+  Rule 1: IF Service Requested Is "3008"                -> skip to Referral Partner Authentication
+  Finally (no rule matches):                            -> skip to Referral Partner Authentication
+  NOTE: Rule 1 and Finally share the same destination, so this rule is currently a
+        no-op (both paths reach Referral Partner Authentication). Possibly a
+        placeholder for future divergence; confirm intent.
+
+CONNECTS TO open contradiction 4-D (radiology/lab handling): the intake form has
+dedicated X-Ray Request Details and Lab Request Details pages and routes to them
+by Service Requested. Evidence that X-Ray and Lab are distinct intake flows. Does
+not resolve 4-D (that is about the Creator form/section structure) but is input.
+
+--------------------------------------------------------------------------------
 OPEN ITEMS
 --------------------------------------------------------------------------------
-- Other rule categories not reviewed yet: Choice-based Field Rules, Form Rules,
-  Page Rules, Deny Submissions.
+- Patient Details page Rule 1 was cut off (only Rules 2-3 captured). Re-capture it.
+- No Choice-based Field Rules, Form Rules, or Deny Submissions configured yet
+  (confirmed by Neil). Revisit if any are added.
 - Field mapping: Neil to provide the actual form/field list separately. Map each
   Zoho Form field to its Creator Referrals_Main link name (labels here are Zoho
   Form display labels, which may differ from Creator link names).
-- Confirm rule 5 intent ("Is Not Empty" vs "Is Home").
+- Confirm field-rule 5 intent ("Is Not Empty" vs "Is Home").
+- Confirm General Information page-rule intent (Rule 1 and Finally same destination).
