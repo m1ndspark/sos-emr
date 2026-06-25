@@ -33,11 +33,17 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
   Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg
     trigger: On Success     | per docs: WORKING (Script 011) | extraction: PENDING | verified: NO
 
-FORM: Referrals_Main
+FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
+  Referrals_Main/OnUserInput__Decision_Maker_Phone__Format.dg
+    trigger: On User Input  | per docs: WORKING (live) | extraction: DONE 2026-06-25 | verified: YES (copied from live)
   Referrals_Main/OnUserInput__Patient_SSN__Format.dg
     trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
   Referrals_Main/OnUserInput__Patient_Phone__Format.dg
     trigger: On User Input  | per docs: BLOCKED (Zoho Forms raw value unknown) | extraction: PENDING | verified: NO
+  Referrals_Main/OnUserInput__Facility_Phone__Format.dg
+    trigger: On User Input  | per docs: WORKING (live) | extraction: PENDING (field link name unconfirmed) | verified: NO
+  Referrals_Main/OnUserInput__Partner_POC_Phone__Format.dg
+    trigger: On User Input  | per docs: WORKING (live, aka "Referral Partner POC Phone Format") | extraction: PENDING (field link name unconfirmed) | verified: NO
 
 FUNCTIONS (Functions tab, standalone)
   functions/fn_resolveUserIdentity.dg
@@ -74,3 +80,12 @@ NOTE 4  Object ID format. May 7 v1.2 reference is authoritative (per-object
 
 NOTE 5  Secrets and data. Never commit keys, tokens, secrets, test records, or
         PHI. Code only.
+
+NOTE 6  Referrals_Main has 5 On-User-Input formatters live (Decision_Maker_Phone,
+        Patient_Phone, Patient_SSN, Facility_Phone, Partner_POC_Phone), not the 2
+        previously tracked. Each appears under both a "Created" trigger group and a
+        "Created or Edited" group; the "Created or Edited" copies are the enabled
+        canonical set (extract those). Decision Maker Phone Format is enabled under
+        BOTH groups, but the contains("(") idempotency guard makes a double-fire
+        harmless. The 4 phone formatters share one pattern: guard on "(", strip to
+        digits, take the last 10, reformat to (AAA) MMM-LLLL.
