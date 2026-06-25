@@ -98,7 +98,9 @@ Direction: Zoho Forms field (source) flows INTO Creator Referrals_Main field
 (destination). Listed as: Creator field  <-  Zoho Forms field. Names are the
 integration UI display labels; Creator link names may differ (partner contact
 fields are PAR_-prefixed per context/02; confirmed phone/SSN link names are in
-the .dg files). "..." marks a label truncated in the screenshot.
+the .dg files). "..." marks a label truncated in the screenshot. Label wording
+differences between the Creator and form sides are cosmetic (form layout/column
+width, friendlier respondent-facing wording) and expected, not errors (per Neil).
 
 Service Requested                        <- Service Requested
 Requested Priority                       <- Requested Priority
@@ -151,9 +153,8 @@ FLAGS (confirm against intent; do not change the integration without Neil's appr
           mis-mapping: the decision maker's last name gets the patient's last name.
           Decision Maker First Name maps correctly. This is an identity field in a
           medical/legal context. Verify and fix the integration mapping.
-  FLAG 2  Partner Billing ID (Creator) is mapped FROM "Hospice ID" (form). Labels
-          differ substantially. Confirm Hospice ID is the intended source for the
-          billing identifier, or correct the mapping.
+  FLAG 2  RESOLVED (Neil, 2026-06-25): Partner Billing ID and the form's "Hospice
+          ID" are the same identifier. Mapping is correct, no change needed.
 
 --------------------------------------------------------------------------------
 OPEN ITEMS
@@ -161,8 +162,7 @@ OPEN ITEMS
 - No Choice-based Field Rules, Form Rules, or Deny Submissions configured yet
   (confirmed by Neil). Revisit if any are added.
 - FLAG 1 (mapping): Decision Maker Last Name sourced from form "Patient Last Name".
-  Likely mis-mapping; verify and fix.
-- FLAG 2 (mapping): Partner Billing ID sourced from form "Hospice ID". Confirm intent.
+  Likely mis-mapping; verify and fix. STILL OPEN.
 - Confirm field-rule 5 intent ("Is Not Empty" vs "Is Home").
 - Confirm General Information page-rule intent (Rule 1 and Finally same destination).
 - Some labels are truncated in the screenshots ("Has the patient been seen by SOS...",
