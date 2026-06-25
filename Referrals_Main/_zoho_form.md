@@ -62,7 +62,7 @@ Location, Patient Medical Info, General Information, X-Ray Request Details, Lab
 Request Details, Legal Decision Maker, Referral Partner Authentication.
 
 PAGE: Patient Details
-  Rule 1: NOT CAPTURED (cut off above Rule 2 in screenshot; re-capture)
+  Rule 1: IF Service Requested Is "3008"                -> skip to Patient Location
   Rule 2: IF Service Requested Is "X-Ray Order (only)"  -> skip to X-Ray Request Details
   Rule 3: IF Service Requested Is "Lab Draw (only)"     -> skip to Lab Request Details
   Finally (no rule matches):                            -> skip to Legal Decision Maker
@@ -78,6 +78,11 @@ PAGE: General Information
         no-op (both paths reach Referral Partner Authentication). Possibly a
         placeholder for future divergence; confirm intent.
 
+3008 PATH TRACE: a 3008 service routes Patient Details -> Patient Location ->
+General Information -> Referral Partner Authentication, bypassing Patient Medical
+Info, X-Ray Request Details, Lab Request Details, and Legal Decision Maker. This
+matches field-rule 4 (3008 hides the email + X-Ray/Lab reason grid).
+
 CONNECTS TO open contradiction 4-D (radiology/lab handling): the intake form has
 dedicated X-Ray Request Details and Lab Request Details pages and routes to them
 by Service Requested. Evidence that X-Ray and Lab are distinct intake flows. Does
@@ -86,7 +91,6 @@ not resolve 4-D (that is about the Creator form/section structure) but is input.
 --------------------------------------------------------------------------------
 OPEN ITEMS
 --------------------------------------------------------------------------------
-- Patient Details page Rule 1 was cut off (only Rules 2-3 captured). Re-capture it.
 - No Choice-based Field Rules, Form Rules, or Deny Submissions configured yet
   (confirmed by Neil). Revisit if any are added.
 - Field mapping: Neil to provide the actual form/field list separately. Map each
