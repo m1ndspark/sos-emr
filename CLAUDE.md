@@ -88,3 +88,4 @@ CONTEXT FILES
 - `context/03_id_conventions.md`   object ID patterns and charge codes
 - `context/04_open_contradictions.md` the four unresolved items
 - `context/05_deluge_learnings.md` confirmed works and does-not-work
+- `context/06_field_link_names.md` Creator field link names per form (confirm before referencing)
