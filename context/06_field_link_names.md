@@ -13,9 +13,11 @@ FORM: Referrals_Main   (display name "Referrals Main")
 Source: sos-referrals-main-form-field-mapping.xlsx (Neil, 2026-06-25), the Zoho
 Forms "Patient Referral" -> Creator "Referrals Main" mapping. Grouped by section.
 Format:  Creator_Link_Name   Type   <- Zoho Forms label   [choices]
-Notes: the source sheet had some rows visually misaligned; fields below are matched
-by meaning. Types marked (text) for the phone/SSN fields are confirmed by the
-extracted .dg formatters, which treat them as Single Line text.
+Notes: an earlier version of the sheet had rows misaligned; the corrected file
+(2026-06-25) aligns properly and all link-name rows below are verified. The sheet's
+Creator-side Field Type column still has a few residual shifts (see DISCREPANCIES);
+the types below are the corrected ones. Phone/SSN fields are Single Line text,
+confirmed by the extracted .dg formatters.
 
 SECTION  Referral_Type_Section
   Referral_Type            Radio    <- Service Requested   [Patient Visit, 3008, X-Ray Order (only), Lab Draw (only)]
@@ -74,7 +76,8 @@ SECTION  Lab_Request_Reason_Section
   Upload_Lab_Request_Files     Multi File Upload <- Upload Lab Request Files
 
 SECTION  Referral Partner Details   (Forms pages 10-11; partner authentication + details)
-  Partner_POC_Email        Email    <- Your Email / Referral POC Email   (prefilled by webhook on page 10)
+  Partner_POC_Email        Email    <- Your Email   (page 10, prefilled by webhook)
+                                    note: page 11 "Referral POC Email" is unmapped in the sheet; confirm if it should also feed Partner_POC_Email
   Partner_Organization     text     <- Referral Partner Organization
   Partner_Branch           text     <- Partner Branch/Location
   Partner_POC_Team         text     <- Partner Clinical Team
@@ -108,3 +111,8 @@ DISCREPANCIES / NOTES
 - System_Fields_Section has Referral_ID / Referral_ID_Stamp / Partner_ID /
   Partner_ID_Stamp (Custom script) and a Partners lookup. Relevant to the object-ID
   and Sequence_Tracker work (contradictions 4-B, 4-C).
+- Source-sheet type-column artifacts (link names correct, Field Type cell shifted):
+  Patient_Gender (sheet: Single Line; actual: Radio), Patient_Address (sheet: Single
+  Line; actual: Address), Patient_Room_Number (sheet: Address; actual: Single Line),
+  Advanced_Directives_Details (sheet: Radio/No,Yes; actual: Multi Line). Types above
+  are corrected.
