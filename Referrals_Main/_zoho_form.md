@@ -9,6 +9,9 @@ Creator side is not rebuilt to duplicate it. This is reference only, not Deluge.
 Zoho Form name: "Patient Referral"  (link name: PatientReferralsHCO; org: SOSReferralForm)
 URL: forms.zoho.com/SOSReferralForm/form/PatientReferralsHCO
 Maps to Creator form: Referrals_Main
+Integration (Zoho Forms > Integrations > Zoho Creator): Workspace "sosmmc",
+Application "SOS Referrals App", Form "Referrals Main". A submission automatically
+adds a record to the Creator Referrals_Main form.
 Front-end formatting handled by Zoho Forms: phone (NOT SSN; SSN is formatted in
 Creator, see _INDEX.md NOTE 7).
 
@@ -89,12 +92,79 @@ by Service Requested. Evidence that X-Ray and Lab are distinct intake flows. Doe
 not resolve 4-D (that is about the Creator form/section structure) but is input.
 
 --------------------------------------------------------------------------------
+FIELD MAPPING (Zoho Forms > Integrations > Zoho Creator)
+--------------------------------------------------------------------------------
+Direction: Zoho Forms field (source) flows INTO Creator Referrals_Main field
+(destination). Listed as: Creator field  <-  Zoho Forms field. Names are the
+integration UI display labels; Creator link names may differ (partner contact
+fields are PAR_-prefixed per context/02; confirmed phone/SSN link names are in
+the .dg files). "..." marks a label truncated in the screenshot.
+
+Service Requested                        <- Service Requested
+Requested Priority                       <- Requested Priority
+Has the patient been seen by SOS...      <- Has the patient been seen by SOS...
+Patient First Name                       <- Patient First Name
+Patient MI                               <- Patient MI
+Patient Last Name                        <- Patient Last Name
+Patient DOB                              <- Patient DOB
+Patient Biological Sex                   <- Biological Sex
+Patient SSN                              <- Patient SSN
+Patient Phone                            <- Patient Phone
+Patient Email                            <- Patient Email
+Is the patient self responsible?         <- Is the patient self responsible?
+Decision Maker First Name                <- Decision Maker First Name
+Decision Maker Last Name                 <- Patient Last Name           [SEE FLAG 1]
+Decision Maker Phone                     <- Decision Maker Phone
+Decision Maker Email                     <- Decision Maker Email
+Decision Maker Relationship to Patient   <- Relationship to Patient
+Patient Location                         <- Where is the patient currently located?
+Facility Name                            <- Facility Name
+Facility Phone                           <- Facility Phone
+Patient Room Number                      <- Room #
+Patient Address                          <- Patient Address
+Reason for Referral                      <- What is the reason for... (truncated)
+Goals of Care                            <- Goals of Care
+Will an X-Ray be needed for this ref...  <- Will an X-Ray be needed... (truncated)
+Does this patient have allergies?        <- Does the patient have allergies?
+List Patient Allergies                   <- List all allergies
+Does the patient take anticoagulants     <- Does the patient use anticoagulant meds?
+List Patient Anticoagulants              <- List anticoagulant medications
+Does the patient have Advanced Direc...  <- Does the patient have Advanced Directives?
+Advanced Directives Details              <- Advanced Directives Details
+Additional Information                   <- Provide any additional... (truncated)
+Reason for X-Ray Request                 <- Reason for X-Ray Request
+Reason for Lab Request                   <- Reason for Lab Request
+Requested Lab Vendor                     <- Requested Lab Vendor
+Partner Organization                     <- Referral Partner Organization
+Partner Branch/Location                  <- Partner Branch/Location
+Partner Billing ID                       <- Hospice ID                  [SEE FLAG 2]
+Partner POC First Name                   <- Referral POC First Name
+Partner POC Last Name                    <- Referral POC Last Name
+Partner POC Title                        <- Referral POC Title
+Partner POC Team                         <- Partner Clinical Team
+Partner POC Phone                        <- Referral POC Phone
+Partner POC Email                        <- Referral POC Email
+
+FLAGS (confirm against intent; do not change the integration without Neil's approval):
+  FLAG 1  Decision Maker Last Name (Creator) is mapped FROM the form's "Patient
+          Last Name", not from a decision-maker last-name field. Almost certainly a
+          mis-mapping: the decision maker's last name gets the patient's last name.
+          Decision Maker First Name maps correctly. This is an identity field in a
+          medical/legal context. Verify and fix the integration mapping.
+  FLAG 2  Partner Billing ID (Creator) is mapped FROM "Hospice ID" (form). Labels
+          differ substantially. Confirm Hospice ID is the intended source for the
+          billing identifier, or correct the mapping.
+
+--------------------------------------------------------------------------------
 OPEN ITEMS
 --------------------------------------------------------------------------------
 - No Choice-based Field Rules, Form Rules, or Deny Submissions configured yet
   (confirmed by Neil). Revisit if any are added.
-- Field mapping: Neil to provide the actual form/field list separately. Map each
-  Zoho Form field to its Creator Referrals_Main link name (labels here are Zoho
-  Form display labels, which may differ from Creator link names).
+- FLAG 1 (mapping): Decision Maker Last Name sourced from form "Patient Last Name".
+  Likely mis-mapping; verify and fix.
+- FLAG 2 (mapping): Partner Billing ID sourced from form "Hospice ID". Confirm intent.
 - Confirm field-rule 5 intent ("Is Not Empty" vs "Is Home").
 - Confirm General Information page-rule intent (Rule 1 and Finally same destination).
+- Some labels are truncated in the screenshots ("Has the patient been seen by SOS...",
+  "What is the reason for...", "Provide any additional..."). Expand if exact full
+  names are needed for link-name confirmation.
