@@ -1,4 +1,4 @@
-# SOS EMR Code Archive — Master Index
+# SOS EMR Code Archive - Master Index
 
 Last updated: June 25, 2026
 Source of truth: the live Zoho Creator app. This archive mirrors it.

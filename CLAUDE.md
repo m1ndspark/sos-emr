@@ -1,4 +1,4 @@
-# CLAUDE.md — SOS EMR Code Repository
+# CLAUDE.md - SOS EMR Code Repository
 
 This file briefs Claude Code at the start of every session in this repo. Read it
 first, then read `_INDEX.md` for current code status, then the files in `context/`.
