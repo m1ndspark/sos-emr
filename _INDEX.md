@@ -37,7 +37,7 @@ FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
   Referrals_Main/OnUserInput__Decision_Maker_Phone__Format.dg
     trigger: On User Input  | per docs: WORKING (live) | extraction: DONE 2026-06-25 | verified: YES (copied from live)
   Referrals_Main/OnUserInput__Patient_SSN__Format.dg
-    trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
+    trigger: On User Input  | per docs: WORKING (live) | extraction: DONE 2026-06-25 | verified: YES (copied from live)
   Referrals_Main/OnUserInput__Patient_Phone__Format.dg
     trigger: On User Input  | per docs: WORKING (live; prior BLOCKED note resolved, formatter strips to digits + last 10) | extraction: DONE 2026-06-25 | verified: YES (copied from live)
   Referrals_Main/OnUserInput__Facility_Phone__Format.dg
@@ -89,3 +89,20 @@ NOTE 6  Referrals_Main has 5 On-User-Input formatters live (Decision_Maker_Phone
         BOTH groups, but the contains("(") idempotency guard makes a double-fire
         harmless. The 4 phone formatters share one pattern: guard on "(", strip to
         digits, take the last 10, reformat to (AAA) MMM-LLLL.
+
+NOTE 7  Referrals_Main is NOT entered by humans in Creator. The public form is a
+        Zoho Form mapped into this Creator form; the Creator form only stores data
+        for backend processing. Implications for the 5 formatters:
+        - SSN Format is load-bearing: Zoho Forms cannot format SSN, and the reporting
+          dashboard needs XXX-XX-XXXX, so Creator is the only place SSN gets
+          normalized. Keep it. Pattern is format-on-write (normalize once at save).
+        - The 4 phone formatters are a backstop: Zoho Forms can format phone on its
+          front end, so inbound phone may already be formatted (the contains("(")
+          guard then no-ops). Kept as insurance for any non-Zoho-Form entry path
+          (manual, import, API). Low stakes to disable if trimming.
+        - OPEN: trigger type unconfirmed. The .dg filenames say OnUserInput, but the
+          live workflow list grouped these under "Created" / "Created or Edited",
+          which would fire on the Zoho Form integration (On User Input would NOT,
+          since no one types in the Creator form). If confirmed On Create / On Create
+          or Edit, rename files to OnCreateOrEdit__*. VERIFY by opening one real
+          inbound record and checking whether the SSN/phone value is formatted or raw.

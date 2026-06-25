@@ -1,1 +1,10 @@
-/* PENDING EXTRACTION - replace this entire file with the verified Deluge copied from Creator, then update _INDEX.md */
+v_SSN = input.Patient_SSN.toString();
+if(v_SSN.contains("-"))
+{
+	return;
+}
+v_SSN = v_SSN.replaceAll("[^0-9]","");
+if(v_SSN.length() == 9)
+{
+	input.Patient_SSN = v_SSN.subString(0,3) + "-" + v_SSN.subString(3,5) + "-" + v_SSN.subString(5,9);
+}
