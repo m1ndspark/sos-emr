@@ -91,3 +91,17 @@ CONTEXT FILES
 - `context/05_deluge_learnings.md` confirmed works and does-not-work
 - `context/06_field_link_names.md` Creator field link names per form (confirm before referencing)
 - `context/07_partner_billing_and_rates.md` rate model, partner billing hierarchy, ID format, sequencing redesign, collision safety (June 25, 2026 design)
+
+--------------------------------------------------------------------------------
+REFERENCE / DOCUMENTATION URLS
+--------------------------------------------------------------------------------
+- https://help.zoho.com/portal/en/kb/creator/developer-guide
+    Library of articles for the Zoho Creator developer guide.
+- https://help.zoho.com/portal/en/kb/creator
+    Zoho Creator knowledge base (general help articles).
+- https://www.zoho.com/books/api/v3/oauth/#overview
+    Zoho Books API v3, OAuth overview.
+- https://www.zoho.com/developer/rest-api.html
+    Zoho developer REST API reference.
+- https://www.zoho.com/creator/help/api/v2.1/
+    Zoho Creator API v2.1 help.
