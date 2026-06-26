@@ -75,8 +75,9 @@ SECRETS AND PHI (CRITICAL)
 START HERE EACH SESSION
 --------------------------------------------------------------------------------
 1. Read `_INDEX.md` for the extraction checklist and per-workflow status.
-2. Read `context/04_open_contradictions.md`. Four items are unresolved and must
-   not be silently decided. They affect any code that touches those areas.
+2. Read `context/04_open_contradictions.md`. Three items remain unresolved (4-A,
+   4-B, 4-D; 4-C resolved June 25) and must not be silently decided. They affect
+   any code that touches those areas.
 3. The repo is being seeded by manual extraction from Creator. Many `.dg` files
    are still placeholders marked PENDING. Do not treat a placeholder as live code.
 
@@ -86,7 +87,7 @@ CONTEXT FILES
 - `context/01_standing_rules.md`   full standing rules
 - `context/02_form_architecture.md` forms, PVS, fields
 - `context/03_id_conventions.md`   object ID patterns and charge codes
-- `context/04_open_contradictions.md` the four unresolved items
+- `context/04_open_contradictions.md` the remaining unresolved items (4-A, 4-B, 4-D)
 - `context/05_deluge_learnings.md` confirmed works and does-not-work
 - `context/06_field_link_names.md` Creator field link names per form (confirm before referencing)
 - `context/07_partner_billing_and_rates.md` rate model, partner billing hierarchy, ID format, sequencing redesign, collision safety (June 25, 2026 design)
