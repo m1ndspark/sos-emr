@@ -1,8 +1,12 @@
 # Open Contradictions (resolve during extraction, do not silently decide)
 
-Four items conflict between documents of different vintages. Each must be
-confirmed against the live Creator app before any code touches that area. Do not
-pick a side silently. The live app is ground truth.
+Items conflict between documents of different vintages. Each must be confirmed
+against the live Creator app before any code touches that area. Do not pick a
+side silently. The live app is ground truth.
+
+NOTE (June 25, 2026): the app is being REBUILT in a new Creator instance. ID,
+stamp, sequencing, and billing design are now decided fresh in
+context/07_partner_billing_and_rates.md, not extracted. See that file.
 
 --------------------------------------------------------------------------------
 4-A  FORM NAME: Encounter_PatientVisit vs Encounters_Main
@@ -26,13 +30,13 @@ pick a side silently. The live app is ground truth.
 - Action: confirm live stamp generators emit the v1.2 format.
 
 --------------------------------------------------------------------------------
-4-C  SEQUENCE_TRACKER: per-object counters vs single global counter
+4-C  SEQUENCE_TRACKER: per-object counters vs single global counter  [RESOLVED]
 --------------------------------------------------------------------------------
-- v1.2 reference: each object has its own counter from 1001; lock on REF only.
-- Standing Rules section 11 and task T003: single global counter; lock on all
-  generators.
-- These cannot both be live. Action: confirm how the live Sequence_Tracker is
-  actually structured before writing or reconciling any stamp generator.
+- RESOLVED June 25, 2026: per-object counters. The live tracker shows one row
+  per object, each with its own Object_Sequence at 1001. The single-global-counter
+  model (Standing Rules section 11 / T003) is dead.
+- See context/07_partner_billing_and_rates.md for the full sequencing redesign
+  (sequenced vs inheriting objects, PVS inherits, MPR path, starting numbers).
 
 --------------------------------------------------------------------------------
 4-D  RADIOLOGY / LAB HANDLING

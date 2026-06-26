@@ -89,3 +89,4 @@ CONTEXT FILES
 - `context/04_open_contradictions.md` the four unresolved items
 - `context/05_deluge_learnings.md` confirmed works and does-not-work
 - `context/06_field_link_names.md` Creator field link names per form (confirm before referencing)
+- `context/07_partner_billing_and_rates.md` rate model, partner billing hierarchy, ID format, sequencing redesign, collision safety (June 25, 2026 design)
