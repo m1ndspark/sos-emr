@@ -1,0 +1,21 @@
+v_partnerCode = input.Partner_Code;
+if(v_partnerCode == null)
+{
+	v_partnerCode = "";
+}
+v_partnerCode = v_partnerCode.trim();
+input.Partner_Code = v_partnerCode;
+if(v_partnerCode == "")
+{
+	alert "Partner Code is required before this partner can be created.";
+	cancel submit;
+}
+else
+{
+	dupes = Partners[Partner_Code == v_partnerCode && ID != input.ID];
+	if(dupes.count() > 0)
+	{
+		alert "Partner Code \"" + v_partnerCode + "\" is already assigned to another partner. Each partner must have a unique code — enter a different one.";
+		cancel submit;
+	}
+}

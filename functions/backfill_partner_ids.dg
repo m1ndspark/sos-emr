@@ -1,0 +1,16 @@
+void backfill_partner_ids()
+{
+	parts = Partners[ID != 0];
+	for each rec in parts
+	{
+		existing = rec.Partner_ID;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "" || existing.startsWith("PAR-REVIEW-"))
+		{
+			mint_partner_id(rec.ID);
+		}
+	}
+}

@@ -1,0 +1,16 @@
+void backfill_referral_ids()
+{
+	refs = Referrals_Main[ID != 0];
+	for each rec in refs
+	{
+		existing = rec.Referral_ID;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "")
+		{
+			mint_referral_id(rec.ID);
+		}
+	}
+}

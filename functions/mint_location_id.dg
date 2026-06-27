@@ -1,0 +1,48 @@
+void mint_location_id(int recId)
+{
+	rec = Partner_Locations[ID == recId];
+	if(rec != null)
+	{
+		existing = rec.Partner_Location_ID;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "" || existing.startsWith("LOC-REVIEW-"))
+		{
+			partnerRec = Partners[ID == rec.Partner_Link];
+			v_partnerCode = "";
+			if(partnerRec != null)
+			{
+				v_partnerCode = partnerRec.Partner_Code;
+			}
+			if(v_partnerCode == null)
+			{
+				v_partnerCode = "";
+			}
+			v_branchCode = rec.Partner_Location_Code;
+			if(v_branchCode == null)
+			{
+				v_branchCode = "";
+			}
+			rec.Partner_Location_ID_Stamp = recId.toString();
+			if(v_partnerCode.trim() == "" || v_branchCode.trim() == "")
+			{
+				rec.Partner_Location_ID = "LOC-REVIEW-" + recId.toString();
+			}
+			else
+			{
+				v_seq = 0;
+				for each trk in Sequence_Tracker[Object_Prefix == "LOC"]
+				{
+					v_seq = trk.Object_Sequence;
+				}
+				rec.Partner_Location_ID = "LOC-" + v_partnerCode + v_branchCode + "-" + v_seq;
+				for each trk in Sequence_Tracker[Object_Prefix == "LOC"]
+				{
+					trk.Object_Sequence = v_seq + 1;
+				}
+			}
+		}
+	}
+}

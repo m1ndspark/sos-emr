@@ -1,0 +1,33 @@
+if(input.Partner_Link == null)
+{
+	alert "Select a Partner before saving this location.";
+	cancel submit;
+}
+else
+{
+	partnerRec = Partners[ID == input.Partner_Link];
+	v_partnerCode = "";
+	if(partnerRec != null)
+	{
+		v_partnerCode = partnerRec.Partner_Code;
+	}
+	if(v_partnerCode == null)
+	{
+		v_partnerCode = "";
+	}
+	v_branchCode = input.Partner_Location_Code;
+	if(v_branchCode == null)
+	{
+		v_branchCode = "";
+	}
+	if(v_branchCode.trim() == "")
+	{
+		alert "Branch Code is required before this location can be created.";
+		cancel submit;
+	}
+	else if(v_partnerCode.trim() == "")
+	{
+		alert "The selected Partner has no Partner Code. Add it on the Partner record before creating this location.";
+		cancel submit;
+	}
+}

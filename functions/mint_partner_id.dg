@@ -1,0 +1,38 @@
+void mint_partner_id(int recId)
+{
+	rec = Partners[ID == recId];
+	if(rec != null)
+	{
+		existing = rec.Partner_ID;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "" || existing.startsWith("PAR-REVIEW-"))
+		{
+			v_partnerCode = rec.Partner_Code;
+			if(v_partnerCode == null)
+			{
+				v_partnerCode = "";
+			}
+			rec.Partner_ID_Stamp = recId.toString();
+			if(v_partnerCode.trim() == "")
+			{
+				rec.Partner_ID = "PAR-REVIEW-" + recId.toString();
+			}
+			else
+			{
+				v_seq = 0;
+				for each trk in Sequence_Tracker[Object_Prefix == "PAR"]
+				{
+					v_seq = trk.Object_Sequence;
+				}
+				rec.Partner_ID = "PAR-" + v_partnerCode + "-" + v_seq;
+				for each trk in Sequence_Tracker[Object_Prefix == "PAR"]
+				{
+					trk.Object_Sequence = v_seq + 1;
+				}
+			}
+		}
+	}
+}

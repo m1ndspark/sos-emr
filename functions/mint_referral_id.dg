@@ -1,0 +1,26 @@
+void mint_referral_id(int recId)
+{
+	rec = Referrals_Main[ID == recId];
+	if(rec != null)
+	{
+		existing = rec.Referral_ID;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "")
+		{
+			v_seq = 0;
+			for each trk in Sequence_Tracker[Object_Prefix == "REF"]
+			{
+				v_seq = trk.Object_Sequence;
+			}
+			rec.Referral_ID = "REF-" + v_seq;
+			rec.Referral_ID_Stamp = recId.toString();
+			for each trk in Sequence_Tracker[Object_Prefix == "REF"]
+			{
+				trk.Object_Sequence = v_seq + 1;
+			}
+		}
+	}
+}

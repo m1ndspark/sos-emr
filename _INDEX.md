@@ -13,9 +13,9 @@ Session 4 status legend (Partner Cluster ID work, 2026-06-27):
   BUILT    = compiles, live test pending
   ADDITIVE = built, NOT wired into a live trigger yet
   PENDING  = do not make live yet (gated on a prior step)
-Extraction note: the Session 4 entries below are registered from the session
-summary. The .dg files are AWAITING PASTE of the verified live Deluge; until
-extraction reads DONE, treat each as a tracked target, not archived code.
+Extraction note: the Session 4 entries below were extracted 2026-06-27 from the
+live Creator build (Session 4 export). The per-docs status (PROVEN / BUILT /
+ADDITIVE / PENDING) reflects live-test state, not extraction state.
 
 --------------------------------------------------------------------------------
 EXTRACTION CHECKLIST
@@ -58,25 +58,25 @@ FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
 
 FORM: Partners   [Session 4, 2026-06-27]
   Partners/OnSuccess__PAR_ID_Generator.dg
-    trigger: On Success (Created) | per docs: PROVEN | extraction: PENDING | verified: NO
+    trigger: On Success (Created) | per docs: PROVEN | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
   Partners/OnValidate__PAR_Required_Code.dg
-    trigger: Validation on submit (Created or Edited) | per docs: PROVEN (blank + duplicate) | extraction: PENDING | verified: NO
+    trigger: Validation on submit (Created or Edited) | per docs: PROVEN (blank + duplicate) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
 
 FORM: Partner_Locations   [Session 4, 2026-06-27]
   Partner_Locations/OnSuccess__LOC_ID_Generator.dg
-    trigger: On Success (Created) | per docs: PROVEN | extraction: PENDING | verified: NO
+    trigger: On Success (Created) | per docs: PROVEN | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
   Partner_Locations/OnValidate__LOC_Required_Codes.dg
-    trigger: Validation on submit (Created) | per docs: PROVEN | extraction: PENDING | verified: NO
+    trigger: Validation on submit (Created) | per docs: PROVEN | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
   Partner_Locations/OnValidate__Primary_Office_OnePerPartner.dg
-    trigger: Validation on submit (Created or Edited) | per docs: PROVEN | extraction: PENDING | verified: NO
+    trigger: Validation on submit (Created or Edited) | per docs: PROVEN | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
 
 FORM: Partner_Rates   [Session 4, 2026-06-27]
   Partner_Rates/OnSuccess__Partner_Rate_Stamp_Generator.dg
-    trigger: On Success | per docs: BUILT (live test pending) | extraction: PENDING | verified: NO
+    trigger: On Success | per docs: BUILT (live test pending) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
 
 FORM: Partner_Billing_Contacts   [Session 4, 2026-06-27]
   Partner_Billing_Contacts/OnSuccess__Partner_Billing_Contact_Stamp_Generator.dg
-    trigger: On Success | per docs: BUILT (live test pending) | extraction: PENDING | verified: NO
+    trigger: On Success | per docs: BUILT (live test pending) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
 
   PENDING (do NOT make live until backfill + REF tested):
   Referrals_Main/OnSuccess__REF_ID_Generator.PENDING.dg
@@ -93,22 +93,22 @@ FUNCTIONS (Functions tab, standalone)
   (one-liner) AND a backfill sweep. Idempotency guard: act only when ID is blank or
   "<PREFIX>-REVIEW-"; never overwrite a valid ID.
   functions/mint_location_id.dg
-    sig: mint_location_id(int recId) | per docs: PROVEN | extraction: PENDING | verified: NO
+    sig: mint_location_id(int recId) | per docs: PROVEN | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
     LOC-<PartnerCode><BranchCode>-seq; reads Partner_Code across Partner_Link; LOC-REVIEW- fallback
   functions/backfill_location_ids.dg
-    sig: backfill_location_ids() | per docs: BUILT | extraction: PENDING | verified: NO
+    sig: backfill_location_ids() | per docs: BUILT | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
     sweep; mints blank/LOC-REVIEW- only; idempotent
   functions/mint_partner_id.dg
-    sig: mint_partner_id(int recId) | per docs: PROVEN | extraction: PENDING | verified: NO
+    sig: mint_partner_id(int recId) | per docs: PROVEN | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
     PAR-<PartnerCode>-seq; PAR-REVIEW- fallback
   functions/backfill_partner_ids.dg
-    sig: backfill_partner_ids() | per docs: BUILT | extraction: PENDING | verified: NO
+    sig: backfill_partner_ids() | per docs: BUILT | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
     sweep
   functions/mint_referral_id.dg
-    sig: mint_referral_id(int recId) | per docs: ADDITIVE (not wired live yet) | extraction: PENDING | verified: NO
+    sig: mint_referral_id(int recId) | per docs: ADDITIVE (not wired live yet) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
     REF-seq
   functions/backfill_referral_ids.dg
-    sig: backfill_referral_ids() | per docs: ADDITIVE | extraction: PENDING | verified: NO
+    sig: backfill_referral_ids() | per docs: ADDITIVE | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
     sweep
 
 SEQUENCE_TRACKER (stamp / sequence scripts)
