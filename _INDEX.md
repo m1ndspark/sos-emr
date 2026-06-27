@@ -1,12 +1,21 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: June 26, 2026
+Last updated: June 27, 2026
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
 
 Rule: .dg files hold pure Deluge only, no comment headers, so they round-trip
 cleanly back into Creator. All status and metadata live here, not in code files.
+
+Session 4 status legend (Partner Cluster ID work, 2026-06-27):
+  PROVEN   = ran clean live in this Creator instance
+  BUILT    = compiles, live test pending
+  ADDITIVE = built, NOT wired into a live trigger yet
+  PENDING  = do not make live yet (gated on a prior step)
+Extraction note: the Session 4 entries below are registered from the session
+summary. The .dg files are AWAITING PASTE of the verified live Deluge; until
+extraction reads DONE, treat each as a tracked target, not archived code.
 
 --------------------------------------------------------------------------------
 EXTRACTION CHECKLIST
@@ -47,9 +56,60 @@ FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
   Referrals_Main/OnUserInput__Partner_POC_Phone__Format.dg
     trigger: On User Input  | per docs: WORKING (live, aka "Referral Partner POC Phone Format") | extraction: DONE 2026-06-25 | verified: YES (copied from live)
 
+FORM: Partners   [Session 4, 2026-06-27]
+  Partners/OnSuccess__PAR_ID_Generator.dg
+    trigger: On Success (Created) | per docs: PROVEN | extraction: PENDING | verified: NO
+  Partners/OnValidate__PAR_Required_Code.dg
+    trigger: Validation on submit (Created or Edited) | per docs: PROVEN (blank + duplicate) | extraction: PENDING | verified: NO
+
+FORM: Partner_Locations   [Session 4, 2026-06-27]
+  Partner_Locations/OnSuccess__LOC_ID_Generator.dg
+    trigger: On Success (Created) | per docs: PROVEN | extraction: PENDING | verified: NO
+  Partner_Locations/OnValidate__LOC_Required_Codes.dg
+    trigger: Validation on submit (Created) | per docs: PROVEN | extraction: PENDING | verified: NO
+  Partner_Locations/OnValidate__Primary_Office_OnePerPartner.dg
+    trigger: Validation on submit (Created or Edited) | per docs: PROVEN | extraction: PENDING | verified: NO
+
+FORM: Partner_Rates   [Session 4, 2026-06-27]
+  Partner_Rates/OnSuccess__Partner_Rate_Stamp_Generator.dg
+    trigger: On Success | per docs: BUILT (live test pending) | extraction: PENDING | verified: NO
+
+FORM: Partner_Billing_Contacts   [Session 4, 2026-06-27]
+  Partner_Billing_Contacts/OnSuccess__Partner_Billing_Contact_Stamp_Generator.dg
+    trigger: On Success | per docs: BUILT (live test pending) | extraction: PENDING | verified: NO
+
+  PENDING (do NOT make live until backfill + REF tested):
+  Referrals_Main/OnSuccess__REF_ID_Generator.PENDING.dg
+    note: Session 4 retrofit target. Replaces the June 26 inline REF generator with
+    a one-liner that calls mint_referral_id(input.ID), then run backfill_referral_ids().
+    The current live REF_ID_Generator.dg (above) stays canonical until this is tested.
+
 FUNCTIONS (Functions tab, standalone)
   functions/fn_resolveUserIdentity.dg
     per docs: DESIGNED (Apr 18, 2026), confirm whether deployed | extraction: PENDING | verified: NO
+
+  Session 4 mint + backfill functions (2026-06-27). One mint function per ID type =
+  single source of truth for the format; called by BOTH the On Success generator
+  (one-liner) AND a backfill sweep. Idempotency guard: act only when ID is blank or
+  "<PREFIX>-REVIEW-"; never overwrite a valid ID.
+  functions/mint_location_id.dg
+    sig: mint_location_id(int recId) | per docs: PROVEN | extraction: PENDING | verified: NO
+    LOC-<PartnerCode><BranchCode>-seq; reads Partner_Code across Partner_Link; LOC-REVIEW- fallback
+  functions/backfill_location_ids.dg
+    sig: backfill_location_ids() | per docs: BUILT | extraction: PENDING | verified: NO
+    sweep; mints blank/LOC-REVIEW- only; idempotent
+  functions/mint_partner_id.dg
+    sig: mint_partner_id(int recId) | per docs: PROVEN | extraction: PENDING | verified: NO
+    PAR-<PartnerCode>-seq; PAR-REVIEW- fallback
+  functions/backfill_partner_ids.dg
+    sig: backfill_partner_ids() | per docs: BUILT | extraction: PENDING | verified: NO
+    sweep
+  functions/mint_referral_id.dg
+    sig: mint_referral_id(int recId) | per docs: ADDITIVE (not wired live yet) | extraction: PENDING | verified: NO
+    REF-seq
+  functions/backfill_referral_ids.dg
+    sig: backfill_referral_ids() | per docs: ADDITIVE | extraction: PENDING | verified: NO
+    sweep
 
 SEQUENCE_TRACKER (stamp / sequence scripts)
   Sequence_Tracker/Scripts_001_006__Object_Prefix_Queries.dg
@@ -75,19 +135,33 @@ NOTE 3  Known drift. May 8 log flagged Scripts 001-006 as updated in the old
         archive but NOT pushed to Creator. Extract what is actually live; note any
         archive-only version separately. Do not assume they match.
 
-NOTE 4  Object ID format. See context/07 (the late-session reversal is canonical).
-        Branch is DECOUPLED from referral identity: Referral_ID = REF-SEQ only
-        (REF-1001), no branch token, no PHI. PVS likewise carries a clean sequence
-        identity (branch not in the string). The fused token PREFIX-PARTNERBRANCH-SEQ
-        applies ONLY where branch is genuine identity: Partner (PAR-ACC-1001) and
-        Location (LOC-ACCJAX-1001). Branch lives as a Billing_Branch lookup on the
-        referral, populated by the territory resolver, not built into the ID.
-        Partner and branch codes are stored fields assigned at onboarding. The v1.2
-        suffix and T011 formats are dead. STATUS: REF_ID_Generator is built and
-        verified in the fresh instance (June 26): sequence read, native stamp
-        capture, loop increment, backed by a No-duplicate-values constraint on
-        Referral_ID. PAR, LOC, and PVS generators are not yet built. Read file 07
-        before any ID or sequence work.
+NOTE 4  Object ID format. SUPERSEDED by Session 4 (2026-06-27); see NOTE 8 for the
+        canonical architecture. Branch stays DECOUPLED from referral identity:
+        Referral_ID = REF-seq only, no branch token, no PHI. Session 4 settled the
+        partner/location formats as PAR-<Partner_Code>-seq and
+        LOC-<Partner_Code><Partner_Location_Code>-seq (Partner_Code read across
+        Partner_Link). The v1.2 suffix and T011 formats are dead. The June 26 inline
+        REF_ID_Generator stays canonical until the Session 4 mint_referral_id retrofit
+        is tested. Read context/07 and NOTE 8 before any ID or sequence work.
+
+NOTE 8  Partner Cluster ID architecture (Session 4, 2026-06-27). One standalone mint
+        function per ID type is the single source of truth for that ID's format. Each
+        mint is called by BOTH the form On Success generator (a one-liner) AND a
+        backfill sweep, so API/import paths that bypass form workflows are still
+        covered. Idempotency guard: act only when the ID is blank or "<PREFIX>-REVIEW-";
+        never overwrite a valid ID. Form validations (cancel submit) hard-block at the
+        form; the REVIEW- mint branch is the backstop for non-form creation paths.
+        ID formats: REF-seq | PAR-<Partner_Code>-seq |
+        LOC-<Partner_Code><Partner_Location_Code>-seq.
+        Field settings applied: No-duplicate-values on Partner_ID, Partner_Location_ID,
+        Partner_Code (Referral_ID already had it). Sequence_Tracker rows REF, PAR, LOC
+        seeded at 1001.
+        OPEN / next session:
+        - Report: add Partner Code column to Partner_Locations Report, group by partner
+        - Auto-demote primary on new Primary_Office=Yes
+        - Lock Partner_Link after creation (UI read-only on edit + validation backstop)
+        - Live-test stamp generators; run backfill sweeps (LOC, PAR); idempotency check
+        - REF retrofit: REF On Success calls mint_referral_id(input.ID), then backfill
 
 NOTE 5  Secrets and data. Never commit keys, tokens, secrets, test records, or
         PHI. Code only.
