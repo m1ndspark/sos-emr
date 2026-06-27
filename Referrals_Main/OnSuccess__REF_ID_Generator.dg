@@ -1,0 +1,11 @@
+v_seq = 0;
+for each rec in Sequence_Tracker[Object_Prefix == "REF"]
+{
+	v_seq = rec.Object_Sequence;
+}
+input.Referral_ID = "REF-" + v_seq;
+input.Referral_ID_Stamp = input.ID.toString();
+for each rec in Sequence_Tracker[Object_Prefix == "REF"]
+{
+	rec.Object_Sequence = v_seq + 1;
+}

@@ -1,6 +1,6 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: June 25, 2026
+Last updated: June 26, 2026
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
@@ -34,6 +34,8 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
     trigger: On Success     | per docs: WORKING (Script 011) | extraction: PENDING | verified: NO
 
 FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
+  Referrals_Main/OnSuccess__REF_ID_Generator.dg
+    trigger: On Success (Created) | per docs: WORKING (verified live June 26) | extraction: DONE 2026-06-26 | verified: YES (matches live)
   Referrals_Main/OnUserInput__Decision_Maker_Phone__Format.dg
     trigger: On User Input  | per docs: WORKING (live) | extraction: DONE 2026-06-25 | verified: YES (copied from live)
   Referrals_Main/OnUserInput__Patient_SSN__Format.dg
@@ -73,10 +75,19 @@ NOTE 3  Known drift. May 8 log flagged Scripts 001-006 as updated in the old
         archive but NOT pushed to Creator. Extract what is actually live; note any
         archive-only version separately. Do not assume they match.
 
-NOTE 4  Object ID format. May 7 v1.2 reference is authoritative (per-object
-        counters from 1001, no date embedded). The older T011 format (global
-        counter from 1313, date embedded) is deprecated. Confirm against live
-        stamp generators.
+NOTE 4  Object ID format. See context/07 (the late-session reversal is canonical).
+        Branch is DECOUPLED from referral identity: Referral_ID = REF-SEQ only
+        (REF-1001), no branch token, no PHI. PVS likewise carries a clean sequence
+        identity (branch not in the string). The fused token PREFIX-PARTNERBRANCH-SEQ
+        applies ONLY where branch is genuine identity: Partner (PAR-ACC-1001) and
+        Location (LOC-ACCJAX-1001). Branch lives as a Billing_Branch lookup on the
+        referral, populated by the territory resolver, not built into the ID.
+        Partner and branch codes are stored fields assigned at onboarding. The v1.2
+        suffix and T011 formats are dead. STATUS: REF_ID_Generator is built and
+        verified in the fresh instance (June 26): sequence read, native stamp
+        capture, loop increment, backed by a No-duplicate-values constraint on
+        Referral_ID. PAR, LOC, and PVS generators are not yet built. Read file 07
+        before any ID or sequence work.
 
 NOTE 5  Secrets and data. Never commit keys, tokens, secrets, test records, or
         PHI. Code only.

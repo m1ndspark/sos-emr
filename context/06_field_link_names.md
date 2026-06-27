@@ -90,7 +90,15 @@ SECTION  Referral Partner Details   (Forms pages 10-11; partner authentication +
 SECTION  System_Fields_Section   (no Forms counterpart; backend / generated)
   Referral_ID              text     Custom script
   Referral_ID_Stamp        text     Custom script
-  Partners                 Lookup   (lookup to Partners form)
+  Partner_Link             Lookup   (lookup to Partners form)
+                                    UPDATED June 26, 2026: this field was renamed
+                                    from "Partners" to Partner_Link to match the
+                                    other lookups. Deluge must use Partner_Link.
+  Partner_Location         Lookup   PENDING (June 26, 2026): not yet built. Approved
+                                    in principle. Lookup to Partner_Locations. The
+                                    On Success resolver writes it from the matched
+                                    POC record; the REF ID generator reads Branch_Code
+                                    from it. See context/07.
   Partner_ID               text     Custom script
   Partner_ID_Stamp         text     Custom script
 

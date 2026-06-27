@@ -1,7 +1,18 @@
 # Object ID Conventions (EMR)
 
-Source: SOS EMR Object ID Pattern Master Reference v1.2 (May 7, 2026). This is
-the authoritative format. The older T011 format is deprecated (see contradiction 4-B).
+STALE NOTICE (June 26, 2026): the ID LAYOUT in this file is SUPERSEDED by
+context/07_partner_billing_and_rates.md. The canonical layout is now the FUSED
+token PREFIX-PARTNERBRANCH-SEQ (REF-ACCHIL-1001), not the v1.2 trailing-suffix
+format below (REF-1001-VIT01). Also superseded: the no-referral path is now an M
+suffix (PVS-ACCHIL-1001M), the MPR token is retired; partner+branch is FUSED (no
+dash); Branch_Code is a descriptive 3-char code on the Location (HIL), not a
+2-digit Partner_Branch_ID (01); several objects (Partner_Rates, Billing_Contacts,
+Partner_Portal_Users) now use the native stamp only and have NO custom ID. The
+charge-type codes and the deprecated-formats list below are still valid. Read
+file 07 first for anything ID-related.
+
+Source: SOS EMR Object ID Pattern Master Reference v1.2 (May 7, 2026). Layout now
+superseded by file 07 (see notice above). The older T011 format is deprecated (see contradiction 4-B).
 
 UNIVERSAL PATTERN
   [XXX]-[seq]-[suffix]
