@@ -1,0 +1,8 @@
+if(input.Primary_Office == "Yes")
+{
+	others = Partner_Locations[Partner_Link == input.Partner_Link && Primary_Office == "Yes" && ID != input.ID];
+	for each o in others
+	{
+		o.Primary_Office = "No";
+	}
+}

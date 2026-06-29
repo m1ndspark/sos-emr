@@ -1,0 +1,6 @@
+oldRec = Partner_Locations[ID == input.ID];
+if(oldRec != null && oldRec.Partner_Link != input.Partner_Link)
+{
+	alert "A location's Partner cannot be changed after creation. To move a location, deactivate it and create a new one under the correct partner.";
+	cancel submit;
+}

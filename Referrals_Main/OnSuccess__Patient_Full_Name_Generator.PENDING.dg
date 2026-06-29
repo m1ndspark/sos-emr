@@ -1,0 +1,22 @@
+v_full = "";
+if(input.Patient_First_Name != null && input.Patient_First_Name.trim() != "")
+{
+	v_full = input.Patient_First_Name.trim();
+}
+if(input.Patient_MI != null && input.Patient_MI.trim() != "")
+{
+	if(v_full != "")
+	{
+		v_full = v_full + " ";
+	}
+	v_full = v_full + input.Patient_MI.trim();
+}
+if(input.Patient_Last_Name != null && input.Patient_Last_Name.trim() != "")
+{
+	if(v_full != "")
+	{
+		v_full = v_full + " ";
+	}
+	v_full = v_full + input.Patient_Last_Name.trim();
+}
+input.Patient_Full_Name = v_full;
