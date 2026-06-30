@@ -1,0 +1,22 @@
+v_name = "";
+if(input.Employee_First_Name != null && input.Employee_First_Name.trim() != "")
+{
+	v_name = input.Employee_First_Name.trim();
+}
+if(input.Employee_Last_Name != null && input.Employee_Last_Name.trim() != "")
+{
+	if(v_name != "")
+	{
+		v_name = v_name + " ";
+	}
+	v_name = v_name + input.Employee_Last_Name.trim();
+}
+if(input.Employee_Title != null && input.Employee_Title.trim() != "")
+{
+	if(v_name != "")
+	{
+		v_name = v_name + ", ";
+	}
+	v_name = v_name + input.Employee_Title.trim();
+}
+input.Employee_Name_Title = v_name;

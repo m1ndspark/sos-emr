@@ -1,0 +1,26 @@
+void mint_employee_id(int recId)
+{
+	rec = Employees[ID == recId];
+	if(rec != null)
+	{
+		existing = rec.Employee_ID;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "")
+		{
+			v_seq = 0;
+			for each trk in Sequence_Tracker[Object_Prefix == "EMP"]
+			{
+				v_seq = trk.Object_Sequence;
+			}
+			rec.Employee_ID = "EMP-" + v_seq;
+			rec.Employee_ID_Stamp = recId.toString();
+			for each trk in Sequence_Tracker[Object_Prefix == "EMP"]
+			{
+				trk.Object_Sequence = v_seq + 1;
+			}
+		}
+	}
+}

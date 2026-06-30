@@ -1,0 +1,22 @@
+v_name = "";
+if(input.Partner_POC_First_Name != null && input.Partner_POC_First_Name.trim() != "")
+{
+	v_name = input.Partner_POC_First_Name.trim();
+}
+if(input.Partner_POC_Last_Name != null && input.Partner_POC_Last_Name.trim() != "")
+{
+	if(v_name != "")
+	{
+		v_name = v_name + " ";
+	}
+	v_name = v_name + input.Partner_POC_Last_Name.trim();
+}
+if(input.Partner_POC_Title != null && input.Partner_POC_Title.trim() != "")
+{
+	if(v_name != "")
+	{
+		v_name = v_name + ", ";
+	}
+	v_name = v_name + input.Partner_POC_Title.trim();
+}
+input.Partner_POC_Name_Title = v_name;

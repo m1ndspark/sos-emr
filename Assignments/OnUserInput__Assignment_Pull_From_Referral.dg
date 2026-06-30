@@ -1,0 +1,26 @@
+refRec = Referrals_Main[ID == input.Referral_Link];
+if(refRec != null)
+{
+	input.Patient_First_Name = refRec.Patient_First_Name;
+	input.Patient_MI = refRec.Patient_MI;
+	input.Patient_Last_Name = refRec.Patient_Last_Name;
+	input.Patient_DOB = refRec.Patient_DOB;
+	input.Patient_Address = refRec.Patient_Address;
+	input.Referral_Date = refRec.Added_Time;
+	input.Patient_Location = refRec.Patient_Location;
+	input.Facility_Name = refRec.Facility_Name;
+	input.Facility_Phone = refRec.Facility_Phone;
+	input.Facility_Room_Number = refRec.Facility_Room_Number;
+}
+if(input.Patient_Location == "Facility")
+{
+	show Facility_Name;
+	show Facility_Phone;
+	show Facility_Room_Number;
+}
+else
+{
+	hide Facility_Name;
+	hide Facility_Phone;
+	hide Facility_Room_Number;
+}

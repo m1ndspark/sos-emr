@@ -1,0 +1,10 @@
+if(input.Referral_Link == null)
+{
+	alert "Select a referral before creating this assignment.";
+	cancel submit;
+}
+else if(input.Employee_Link == null)
+{
+	alert "Select an employee to assign before saving.";
+	cancel submit;
+}

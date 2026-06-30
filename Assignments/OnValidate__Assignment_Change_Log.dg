@@ -1,0 +1,66 @@
+oldRec = Assignments[ID == input.ID];
+v_user = zoho.loginuser;
+v_rid = input.ID.toString();
+v_did = input.Assignment_ID;
+if(v_did == null)
+{
+	v_did = "";
+}
+v_emp_old = "";
+if(oldRec.Employee_Link != null)
+{
+	eOld = Employees[ID == oldRec.Employee_Link];
+	if(eOld != null)
+	{
+		v_emp_old = eOld.Employee_Name_Title;
+	}
+}
+v_emp_new = "";
+if(input.Employee_Link != null)
+{
+	eNew = Employees[ID == input.Employee_Link];
+	if(eNew != null)
+	{
+		v_emp_new = eNew.Employee_Name_Title;
+	}
+}
+log_change("Assignments", v_rid, v_did, "Employee", v_emp_old, v_emp_new, v_user);
+v_ad_old = "";
+if(oldRec.Accepted_Date != null)
+{
+	v_ad_old = oldRec.Accepted_Date.toString();
+}
+v_ad_new = "";
+if(input.Accepted_Date != null)
+{
+	v_ad_new = input.Accepted_Date.toString();
+}
+log_change("Assignments", v_rid, v_did, "Accepted Date", v_ad_old, v_ad_new, v_user);
+v_sv_old = "";
+if(oldRec.Scheduled_Visit_Date != null)
+{
+	v_sv_old = oldRec.Scheduled_Visit_Date.toString();
+}
+v_sv_new = "";
+if(input.Scheduled_Visit_Date != null)
+{
+	v_sv_new = input.Scheduled_Visit_Date.toString();
+}
+log_change("Assignments", v_rid, v_did, "Scheduled Visit Date", v_sv_old, v_sv_new, v_user);
+v_addr_old = "";
+if(oldRec.Patient_Address != null)
+{
+	v_addr_old = oldRec.Patient_Address.toString();
+}
+v_addr_new = "";
+if(input.Patient_Address != null)
+{
+	v_addr_new = input.Patient_Address.toString();
+}
+log_change("Assignments", v_rid, v_did, "Patient Address", v_addr_old, v_addr_new, v_user);
+log_change("Assignments", v_rid, v_did, "Assignment Status", oldRec.Assignment_Status, input.Assignment_Status, v_user);
+log_change("Assignments", v_rid, v_did, "Assignment Notes", oldRec.Assignment_Notes, input.Assignment_Notes, v_user);
+log_change("Assignments", v_rid, v_did, "Patient Location", oldRec.Patient_Location, input.Patient_Location, v_user);
+log_change("Assignments", v_rid, v_did, "Facility Name", oldRec.Facility_Name, input.Facility_Name, v_user);
+log_change("Assignments", v_rid, v_did, "Facility Phone", oldRec.Facility_Phone, input.Facility_Phone, v_user);
+log_change("Assignments", v_rid, v_did, "Facility Room Number", oldRec.Facility_Room_Number, input.Facility_Room_Number, v_user);

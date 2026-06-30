@@ -1,0 +1,16 @@
+void backfill_employee_ids()
+{
+	emps = Employees[ID != 0];
+	for each rec in emps
+	{
+		existing = rec.Employee_ID;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "")
+		{
+			mint_employee_id(rec.ID);
+		}
+	}
+}

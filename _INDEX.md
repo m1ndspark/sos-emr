@@ -1,6 +1,6 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: June 27, 2026
+Last updated: June 29, 2026
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
@@ -48,6 +48,8 @@ FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
   Referrals_Main/OnSuccess__Patient_Full_Name_Generator.PENDING.dg
     trigger: On Success (Created or Edited) | per docs: PENDING (staged, not live; concat First+MI+Last -> Patient_Full_Name, blank-aware) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
     note: CONFIRM the four field link names (Patient_First_Name, Patient_MI, Patient_Last_Name, Patient_Full_Name) before enabling; rename off .PENDING when live.
+  Referrals_Main/OnSuccess__Partner_POC_Name_Title_Generator.dg
+    trigger: On Success (Created or Edited) | per docs: BUILT (concat Partner_POC First+Last+Title -> Partner_POC_Name_Title for display on other forms/reports) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
   Referrals_Main/OnUserInput__Decision_Maker_Phone__Format.dg
     trigger: On User Input  | per docs: WORKING (live) | extraction: DONE 2026-06-25 | verified: YES (copied from live)
   Referrals_Main/OnUserInput__Patient_SSN__Format.dg
@@ -85,6 +87,34 @@ FORM: Partner_Billing_Contacts   [Session 4, 2026-06-27]
   Partner_Billing_Contacts/OnSuccess__Partner_Billing_Contact_Stamp_Generator.dg
     trigger: On Success (Created) | per docs: PROVEN (tested live 2026-06-27) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
 
+FORM: Assignments   [Session 5, 2026-06-29; one Employee assigned a Referral. See NOTE 10]
+  Assignments/OnSuccess__Assignment_ID_Generator.dg
+    trigger: On Success (Created) | per docs: BUILT (calls mint_assignment_id(input.ID); ASG-seq) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+  Assignments/OnUserInput__Assignment_Pull_From_Referral.dg
+    trigger: On User Input (Referral_Link) | per docs: PROVEN (pull) (pulls patient/location/facility from referral + facility show/hide; whole-copy address & Added_Time->Date are watch-items) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+  Assignments/OnValidate__Assignment_Required_Referral.dg
+    trigger: Validation on submit (Created or Edited) | per docs: BUILT (requires Referral_Link AND Employee_Link) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+  Assignments/OnLoad__Assignment_Lock_Immutable_Fields.dg
+    trigger: On Load | per docs: DONE (disables identity fields + Referral_Date; read-only, pull still sets them) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+  Assignments/OnValidate__Assignment_Change_Log.dg
+    trigger: Validation on submit (EDITED only) | per docs: BUILT (diffs old vs new, calls log_change per operational field; identity fields excluded) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+  Assignments/ShowHide_Facility_block.dg
+    trigger: condition block (lives in 3 places: end of pull script, On User Input of Patient_Location, On Load) | per docs: BUILT | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+
+FORM: Employees   [Session 5, 2026-06-29. See NOTE 10]
+  Employees/OnSuccess__Employee_ID_Generator.dg
+    trigger: On Success (Created) | per docs: PROVEN (calls mint_employee_id(input.ID); EMP-seq) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+  Employees/OnSuccess__Employee_Name_Title_Generator.dg
+    trigger: On Success (Created or Edited) | per docs: PROVEN ("First Last, Title" -> Employee_Name_Title) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+  Employees/OnLoadAndOnInput__Employee_Term_Date_Visibility.dg
+    trigger: On Load AND On User Input (Employee_Status) [same block in two workflows] | per docs: BUILT (show Employee_Term_Date when Employee_Status == "Inactive", else hide) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+
+FORM: Change_Log   [Session 5, 2026-06-29; shared audit form, no .dg of its own]
+  note: Data form populated ONLY by functions/log_change. Fields: Source_Form,
+  Source_Record_ID, Source_Display_ID, Field_Changed, Old_Value, New_Value,
+  Changed_By, Change_Log_ID_Stamp. Native Added Time = change timestamp. Reusable
+  by any mutable form (one row per changed field).
+
 FUNCTIONS (Functions tab, standalone)
   functions/fn_resolveUserIdentity.dg
     per docs: DESIGNED (Apr 18, 2026), confirm whether deployed | extraction: PENDING | verified: NO
@@ -111,6 +141,24 @@ FUNCTIONS (Functions tab, standalone)
   functions/backfill_referral_ids.dg
     sig: backfill_referral_ids() | per docs: BUILT (pattern proven via LOC) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
     sweep
+
+  Session 5 functions (2026-06-29). New prefixes ASG (Assignments) and EMP (Employees);
+  plus a shared change-logging helper.
+  functions/mint_assignment_id.dg
+    sig: mint_assignment_id(int recId) | per docs: BUILT | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+    ASG-seq clean sequence
+  functions/backfill_assignment_ids.dg
+    sig: backfill_assignment_ids() | per docs: BUILT (live test pending) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+    sweep
+  functions/mint_employee_id.dg
+    sig: mint_employee_id(int recId) | per docs: PROVEN | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+    EMP-seq
+  functions/backfill_employee_ids.dg
+    sig: backfill_employee_ids() | per docs: PROVEN (ran clean) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+    sweep
+  functions/log_change.dg
+    sig: log_change(string source_form, source_rec_id, source_display_id, field_label, old_val, new_val, changed_by) | per docs: BUILT | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
+    inserts a Change_Log row only when old != new; single source for all change logging
 
 SEQUENCE_TRACKER (stamp / sequence scripts)
   Sequence_Tracker/Scripts_001_006__Object_Prefix_Queries.dg
@@ -180,6 +228,37 @@ NOTE 9  NEXT MODULE: Assignments -> PVS (spec, not built; Session 4 2026-06-27).
         filter to unassigned/open referrals. DECISION 2026-06-27: add a dedicated
         Referral_Date field to Referrals_Main (distinct from native Added Time). This is
         why Patient_Full_Name_Generator exists (feeds the lookup display).
+        STATUS: Assignments + Employees forms BUILT in Session 5 (2026-06-29); see NOTE 10.
+
+NOTE 10 Session 5 (2026-06-29): Assignments + Employees + Change_Log built. New ID
+        prefixes ASG (Assignments) and EMP (Employees), same mint+backfill pattern.
+        - Assignments: one Employee assigned a Referral. Assignment_Status = Pending
+          (default) / Accepted. One-per-referral via No-duplicate on Referral_Link.
+          On user input of Referral_Link pulls patient/location/facility from the
+          referral. Identity fields (Patient name/MI/last/DOB) are immutable-from-
+          referral: read-only (On Load disable) and NOT change-logged. Patient_Hospice_ID
+          removed from Assignments (flows referral -> PVS). No-duplicate on Assignment_ID;
+          Sequence_Tracker ASG row at 1001.
+        - Employees: Employee_Name_Title = "First Last, Title". Employee_Term_Date shows
+          only when Employee_Status == Inactive. License_Expiration_Date always-visible/
+          optional (no renewal management). No-duplicate on Employee_ID; Tracker EMP at 1001.
+        - Change_Log: shared audit form, populated only by log_change (one row per changed
+          field, only when old != new). Reusable by any mutable form.
+        WATCH-ITEMS: Assignment pull does a whole-copy of Patient_Address and maps
+        Added_Time -> Referral_Date; confirm these behave on real data.
+        OPEN / NEXT:
+        - VERIFY (load-bearing): do Creator On Success / Validation workflows fire on
+          ZOHO-FORM-mapped referrals? If not, REF ID, Patient Full Name, and Partner POC
+          Name Title generators will NOT run on partner submissions -> scheduled backfills
+          needed. Ties directly to NOTE 7.
+        - Assignment notifications: SMS (Twilio outbound) + email on creation, each linking
+          to a new EMPLOYEE PORTAL; acknowledge via portal (no reply-YES). Build portal +
+          My Assignments page.
+        - Remap Zoho Form -> Referrals_Main for new fields (Referral_Source, Patient_Hospice_ID).
+        - PVS build (launch from assignment; pull from referral; field-tiered immutability;
+          draft invoice + fax + email on submit). See PVS/Billing design notes.
+        - Referral_Source unify decision (Contracted Partner / SOS Internal): conditional
+          partner section, M-marker, billing branch.
 
 NOTE 5  Secrets and data. Never commit keys, tokens, secrets, test records, or
         PHI. Code only.

@@ -1,0 +1,5 @@
+disable Patient_First_Name;
+disable Patient_MI;
+disable Patient_Last_Name;
+disable Patient_DOB;
+disable Referral_Date;

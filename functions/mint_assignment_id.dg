@@ -1,0 +1,26 @@
+void mint_assignment_id(int recId)
+{
+	rec = Assignments[ID == recId];
+	if(rec != null)
+	{
+		existing = rec.Assignment_ID;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "")
+		{
+			v_seq = 0;
+			for each trk in Sequence_Tracker[Object_Prefix == "ASG"]
+			{
+				v_seq = trk.Object_Sequence;
+			}
+			rec.Assignment_ID = "ASG-" + v_seq;
+			rec.Assignment_ID_Stamp = recId.toString();
+			for each trk in Sequence_Tracker[Object_Prefix == "ASG"]
+			{
+				trk.Object_Sequence = v_seq + 1;
+			}
+		}
+	}
+}

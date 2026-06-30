@@ -1,0 +1,26 @@
+void log_change(string source_form, string source_rec_id, string source_display_id, string field_label, string old_val, string new_val, string changed_by)
+{
+	v_old = old_val;
+	if(v_old == null)
+	{
+		v_old = "";
+	}
+	v_new = new_val;
+	if(v_new == null)
+	{
+		v_new = "";
+	}
+	if(v_old.trim() != v_new.trim())
+	{
+		insert into Change_Log
+		[
+			Source_Form = source_form
+			Source_Record_ID = source_rec_id
+			Source_Display_ID = source_display_id
+			Field_Changed = field_label
+			Old_Value = v_old
+			New_Value = v_new
+			Changed_By = changed_by
+		];
+	}
+}
