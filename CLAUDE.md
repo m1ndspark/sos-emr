@@ -17,10 +17,12 @@ its history here.
 
 The working loop:
 1. A workflow is designed or finalized.
-2. Claude writes or edits the `.dg` file here and commits with a clear message.
-3. Neil copies the function out of the repo and pastes it into Creator.
-4. Neil tests in Creator and reports pass or fail.
-5. Claude updates the status row in `_INDEX.md`. History lives in git.
+2. Claude writes or edits the `.dg` file here.
+3. Claude runs the pre-commit audit (`context/08_code_review_checklist.md`)
+   before staging, then commits and pushes. Neil does not run git himself.
+4. Neil copies the function out of the repo and pastes it into Creator.
+5. Neil tests in Creator and reports pass or fail.
+6. Claude updates the status row in `_INDEX.md`. History lives in git.
 
 --------------------------------------------------------------------------------
 HARD RULES (NON-NEGOTIABLE)
@@ -50,6 +52,18 @@ CODE DELIVERY RULES
 - ID generation always lives in its own workflow, never inline in On User Input.
 - Confirm the exact field link name before referencing it. Display labels and
   link names often differ.
+
+--------------------------------------------------------------------------------
+PRE-COMMIT AUDIT (QA GATE)
+--------------------------------------------------------------------------------
+- Before any Deluge or workflow change is committed, run the checklist in
+  `context/08_code_review_checklist.md` and present the result. This runs
+  automatically whenever Neil asks to commit or push. Nothing is staged while a
+  FLAG is open. VERIFY LIVE items (assumptions only Neil can confirm in the live
+  Creator app) are listed but do not block the commit.
+- Neil handles no git himself. Claude does review, stage, commit, and push.
+  Neil can override per change with "just commit, skip the audit".
+- Docs-only changes (context files, `_INDEX.md`) are exempt from the audit.
 
 --------------------------------------------------------------------------------
 REPO CONVENTIONS
@@ -91,6 +105,7 @@ CONTEXT FILES
 - `context/05_deluge_learnings.md` confirmed works and does-not-work
 - `context/06_field_link_names.md` Creator field link names per form (confirm before referencing)
 - `context/07_partner_billing_and_rates.md` rate model, partner billing hierarchy, ID format, sequencing redesign, collision safety (June 25, 2026 design)
+- `context/08_code_review_checklist.md` pre-commit QA gate: what Claude audits before any code is committed
 
 --------------------------------------------------------------------------------
 REFERENCE / DOCUMENTATION URLS
