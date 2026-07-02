@@ -1,0 +1,29 @@
+void set_current_rate(int rateId)
+{
+	rate = Partner_Rates[ID == rateId];
+	v_partner = rate.Partner_Link;
+	v_loc = rate.Partner_Location_Link;
+	v_cat = rate.Rate_Category;
+	v_type = rate.Rate_Type;
+	v_latestDate = null;
+	v_latestRec = null;
+	for each r in Partner_Rates[Partner_Link == v_partner && Partner_Location_Link == v_loc && Rate_Category == v_cat && Rate_Type == v_type && Partner_Rate_Status == "Active"]
+	{
+		if(v_latestDate == null || r.Partner_Rates_Effective_Date >= v_latestDate)
+		{
+			v_latestDate = r.Partner_Rates_Effective_Date;
+			v_latestRec = r.ID;
+		}
+	}
+	for each r in Partner_Rates[Partner_Link == v_partner && Partner_Location_Link == v_loc && Rate_Category == v_cat && Rate_Type == v_type]
+	{
+		if(r.ID == v_latestRec)
+		{
+			r.Current_Rate = "Yes";
+		}
+		else
+		{
+			r.Current_Rate = "No";
+		}
+	}
+}

@@ -288,3 +288,38 @@ NOTE 7  Referrals_Main is NOT entered by humans in Creator. The public form is a
           since no one types in the Creator form). If confirmed On Create / On Create
           or Edit, rename files to OnCreateOrEdit__*. VERIFY by opening one real
           inbound record and checking whether the SSN/phone value is formatted or raw.
+
+================================================================================
+SESSION 6 ADDITIONS (2026-07-02)
+================================================================================
+Partner_Rates/
+  OnSuccess__Partner_Rate_Current_Flag_Generator.dg  - calls set_current_rate(input.ID). Created or Edited. PROVEN.
+  OnValidate__Partner_Rate_Branch_Match.dg           - blocks branch not under selected partner. PROVEN.
+  (form config, no .dg) DEPENDENT LOCATION FILTER on Partner_Location_Link:
+      Set filter -> Field = "ID" under the Partner Link heading -> equals -> Value = input.Partner_Link. PROVEN.
+  NEW field: Current_Rate (radio No/Yes).
+Partner_Locations/
+  OnSuccess__Location_Label_Generator.dg  - Partner_Location_Label = Partner_Display_Name + " - " + Partner_Location_Code.
+  NEW field: Partner_Location_Label. NOTE: Partner_Link_Lock repo copy already guarded; live app was behind, now synced.
+Partner_Contracts/  (NEW form/object)
+  OnSuccess__Partner_Contract_ID_Stamp_Generator.dg  - native stamp.
+  OnValidate__Partner_Contract_Branch_Match.dg        - blocks branch not under selected partner.
+  Fields: Partner_Link, Partner_Location_Link, Partner Contract Upload (file), Partner Contract Effective Date,
+          Partner Contract Term Date, Partner Contract Status, Contract Notes (RTF), Partner_Contract_ID_Stamp.
+  TODO: add dependent location filter (ID equals input.Partner_Link).
+functions/
+  set_current_rate.dg          - recomputes Current_Rate for a rate's group (latest Active Eff.Date = Yes).
+  backfill_current_rate.dg     - sweep -> set_current_rate for all rates. Idempotent.
+  backfill_location_labels.dg  - sweep -> sets Partner_Location_Label on existing locations.
+NOTES:
+  - Rates keep native ID only (Partner_Rate_ID_Stamp); no partner-id stamp (Neil wants partner/branch VISIBLE via lookups/label).
+  - Partner_Locations has NO Partner_ID field (partner only via Partner_Link).
+  - Branch code field link name = Partner_Location_Code (NOT Partner_Loc_Code).
+  - Partners: Partner_Legal_Name (invoice bill-to) + Partner_Display_Name (friendly).
+  - Billing Contacts: links via Partner_Location_Link (partner derivable); has Partner_Link w/ existing workflows (review).
+TODO (next): dependent filter on Partner_Contracts + Partner_Billing_Contacts location lookups; enter real rate card.
+
+--- Session 6 addendum (2026-07-02) ---
+Partner_Billing_Contacts/OnValidate__Partner_Billing_Contact_Branch_Match.dg  - added (blocks branch not under selected partner).
+DECISION: location lookups (Rates, Contracts, Billing Contacts) DISPLAY = "Partner Loc Name" (always populated),
+NOT Partner_Location_Label (blank on un-backfilled locations -> caused "No matches found"). Label field optional / reports only.

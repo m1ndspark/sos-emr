@@ -45,3 +45,33 @@ CREDENTIALS
   value never appears in a field, record, export, or script.
 - Human and infrastructure logins live in a password manager.
 - Never store secrets in a Creator form, field, or record, or in this repo.
+
+================================================================================
+DEPENDENT LOOKUP FILTER / DEPENDENT DROPDOWN  (PROVEN 2026-07-02)
+================================================================================
+Filter a child lookup by a parent selected on the SAME form (e.g. show only the
+selected partner's locations in Partner_Location_Link on Partner_Rates):
+- Child lookup field -> Field Properties -> Choices -> check "Set filter" -> criteria:
+    Field    = "ID" nested UNDER the parent-lookup heading (e.g. under "Partner Link")
+    Operator = equals
+    Value    = input.<ParentLookupLinkName>   e.g.  input.Partner_Link   (TYPE it)
+- KEY: the value box accepts a TYPED field reference  input.<FieldLinkName>  (not just static text).
+- Lookup fields do NOT appear as top-level filter criteria; drill into the lookup heading and pick its ID.
+- An EMPTY Set filter (checkbox on, no criteria row) applies NO filtering -> shows everything.
+- Mirrors Zoho KB "Dynamically Filter Lookup Options Based on Another Lookup Field's Selection"
+  (their example: Asset Name filtered by ID equals input.Category).
+
+================================================================================
+LOOKUP DISPLAY FIELD MUST BE RELIABLY POPULATED  (2026-07-02)
+================================================================================
+Symptom: a lookup dropdown shows "No matches found" (or blanks) even for records
+that clearly exist and pass the filter.
+Cause: the lookup's DISPLAY field was set to a value that is empty on the target
+records. Example - Partner_Location_Link display set to Partner_Location_Label,
+but that label is populated only by the Location Label Generator (On Success,
+Created/Edited); existing locations created earlier had a BLANK label (backfill
+never run) -> the dropdown had nothing to display -> "No matches".
+Fix: set the lookup display to an always-populated field (Partner Loc Name), OR
+run the backfill so the label field is filled before using it as a display field.
+Rule: only use a generator-populated field as a lookup DISPLAY after its backfill
+has run for all existing records.

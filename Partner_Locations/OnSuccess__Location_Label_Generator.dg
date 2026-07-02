@@ -1,0 +1,6 @@
+v_partnerName = "";
+for each p in Partners[ID == input.Partner_Link]
+{
+	v_partnerName = p.Partner_Display_Name;
+}
+input.Partner_Location_Label = v_partnerName + " - " + input.Partner_Location_Code;

@@ -1,0 +1,7 @@
+void backfill_current_rate()
+{
+	for each r in Partner_Rates[ID != null]
+	{
+		set_current_rate(r.ID);
+	}
+}

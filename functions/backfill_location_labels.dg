@@ -1,0 +1,12 @@
+void backfill_location_labels()
+{
+	for each loc in Partner_Locations[ID != null]
+	{
+		v_partnerName = "";
+		for each p in Partners[ID == loc.Partner_Link]
+		{
+			v_partnerName = p.Partner_Display_Name;
+		}
+		loc.Partner_Location_Label = v_partnerName + " - " + loc.Partner_Location_Code;
+	}
+}

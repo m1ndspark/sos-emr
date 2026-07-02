@@ -1,0 +1,13 @@
+if(input.Partner_Location_Link != null)
+{
+	v_branchPartner = null;
+	for each loc in Partner_Locations[ID == input.Partner_Location_Link]
+	{
+		v_branchPartner = loc.Partner_Link;
+	}
+	if(input.Partner_Link != v_branchPartner)
+	{
+		alert "The selected branch does not belong to the selected partner. Pick a branch under this partner.";
+		cancel submit;
+	}
+}
