@@ -1,0 +1,34 @@
+void set_patient_full_name(int recId)
+{
+	rec = Referrals_Main[ID == recId];
+	if(rec != null)
+	{
+		v_last = rec.Patient_Last_Name;
+		if(v_last == null)
+		{
+			v_last = "";
+		}
+		if(v_last.trim() != "")
+		{
+			v_full = "";
+			if(rec.Patient_First_Name != null && rec.Patient_First_Name.trim() != "")
+			{
+				v_full = rec.Patient_First_Name.trim();
+			}
+			if(rec.Patient_MI != null && rec.Patient_MI.trim() != "")
+			{
+				if(v_full != "")
+				{
+					v_full = v_full + " ";
+				}
+				v_full = v_full + rec.Patient_MI.trim();
+			}
+			if(v_full != "")
+			{
+				v_full = v_full + " ";
+			}
+			v_full = v_full + v_last.trim();
+			rec.Patient_Full_Name = v_full;
+		}
+	}
+}

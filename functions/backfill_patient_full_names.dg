@@ -1,0 +1,16 @@
+void backfill_patient_full_names()
+{
+	refs = Referrals_Main[ID != 0];
+	for each rec in refs
+	{
+		existing = rec.Patient_Full_Name;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "")
+		{
+			set_patient_full_name(rec.ID);
+		}
+	}
+}
