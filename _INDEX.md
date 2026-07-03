@@ -1,6 +1,6 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: June 29, 2026
+Last updated: July 3, 2026
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
@@ -45,9 +45,9 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
 FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
   Referrals_Main/OnSuccess__REF_ID_Generator.dg
     trigger: On Success (Created) | per docs: PROVEN (LIVE; retrofit complete 2026-06-27, body now calls mint_referral_id(input.ID), supersedes old inline) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
-  Referrals_Main/OnSuccess__Patient_Full_Name_Generator.PENDING.dg
-    trigger: On Success (Created or Edited) | per docs: PENDING (staged, not live; concat First+MI+Last -> Patient_Full_Name, blank-aware) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
-    note: CONFIRM the four field link names (Patient_First_Name, Patient_MI, Patient_Last_Name, Patient_Full_Name) before enabling; rename off .PENDING when live.
+  Referrals_Main/OnSuccess__Patient_Full_Name_Generator.dg
+    trigger: On Success (Created or Edited) | per docs: PROVEN (LIVE; enabled in Creator "Created or Edited -> Successful form submission"; concat First+MI+Last -> Patient_Full_Name, blank-aware) | extraction: DONE 2026-06-27 | verified: YES
+    note (2026-07-03): 4 link names CONFIRMED against the Zoho Form -> Referrals_Main field mapping (Patient_First_Name, Patient_MI, Patient_Last_Name, Patient_Full_Name). .PENDING dropped. Confirmed live that an On-Success ("Successful form submission") stage DOES persist an input.<field> assignment in this Creator instance. DOES NOT fire on CSV/API import -> July backfill still needed (missing-only, require-last-name; see Session 7 block).
   Referrals_Main/OnSuccess__Partner_POC_Name_Title_Generator.dg
     trigger: On Success (Created or Edited) | per docs: BUILT (concat Partner_POC First+Last+Title -> Partner_POC_Name_Title for display on other forms/reports) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
   Referrals_Main/OnUserInput__Decision_Maker_Phone__Format.dg
@@ -323,3 +323,68 @@ TODO (next): dependent filter on Partner_Contracts + Partner_Billing_Contacts lo
 Partner_Billing_Contacts/OnValidate__Partner_Billing_Contact_Branch_Match.dg  - added (blocks branch not under selected partner).
 DECISION: location lookups (Rates, Contracts, Billing Contacts) DISPLAY = "Partner Loc Name" (always populated),
 NOT Partner_Location_Label (blank on un-backfilled locations -> caused "No matches found"). Label field optional / reports only.
+
+================================================================================
+SESSION 7 ADDITIONS (2026-07-03)
+================================================================================
+PARTNER BILLING CONTACTS — COMPLETE.
+  - ID stamp generator: pre-existing (Partner Billing Contact Stamp, Created -> Successful form submission).
+  - Dependent location filter (ID equals input.Partner_Link): DONE.
+  - Partner_Billing_Contact_Branch_Match (Created or Edited -> Validations on form submission): block CONFIRMED live 2026-07-03.
+  - Only two workflows on the form (Stamp On Success + Branch Match Validate) -> no collision; resolves the "review Partner_Link workflows" open item.
+  - Note: on a partner with no locations (e.g. ABC Hospice), the dependent filter clears the branch, so Branch Match correctly skips (nothing to catch). Branch Match is the backstop for non-UI writes (Zoho Form / API / import) where the filter does not apply.
+
+PATIENT_FULL_NAME GENERATOR — promoted off .PENDING (see Referrals_Main section). Live, Created or Edited -> Successful form submission.
+
+ACCENTCARE RATE CARD — entered LIVE (6 rates on AccentCare - TPA). Current_Rate=Yes set by the generator (each is sole rate in its group).
+  Categorization (Rate_Category -> Rate_Type $): 
+    Acuity Level -> Low Complexity $150 / Moderate Complexity $343 / High Complexity $545
+    Service      -> Telemedicine $55
+    Premium      -> After Hours (7pm-7am) $100 / Super STAT (within 90 min) $250
+  CLEANUP TODO: delete two dummy "Partner Legal Name" rate rows ($375 Moderate, $545 High; one has no ID stamp / Current_Rate).
+  TODO: InnoVage rate rows have blank location -> assign Tampa/Orlando (or a "Main") once locations-always-exist is enforced.
+  Rate-entry ergonomics: CSV import is the pragmatic bulk-entry path now; Rate Sheet + subform (fan-out to Partner_Rates via set_current_rate) parked as a post-Friday enhancement.
+
+REFERRALS IMPORT TEMPLATE (one-time Cognito July load) — built SOS_Referrals_Import_Template.xlsx (downloadable; not committed to repo).
+  Source = uploaded mapping "sos-referrals-main-form-field-mapping-07032026.csv" (authoritative Creator field LINK names).
+  44 importable fields; headers = Creator link names in form order. EXCLUDES section headings, the 3 file-upload fields,
+  and custom-script/system fields (Referral_ID, Referral_ID_Stamp, Partners lookup, Partner_ID, Partner_ID_Stamp = backfilled).
+  Import gotchas: workflows DON'T fire on import -> backfills needed (REF-ID, Patient_Full_Name, partner-match); lookups match by value
+  (Partner_Organization text must match a Creator Partner); dates yyyy-MM-dd; decide a dupe key (Cognito ref id) if re-importing.
+  Data-integrity flags from the mapping to VERIFY on the live form:
+    - Advanced_Directives_Details typed Radio(No,Yes) but source is Multi Line free text -> likely misconfig (can't hold details).
+    - Patient_Gender is Single Line in Creator vs Radio Female/Male in the form -> import exactly "Female"/"Male".
+    - Patient_Room_Number typed "Address" (source "Room #" Single Line) -> confirm it accepts a plain room number.
+
+DECISION — REFERRALS_MASTER ARCHITECTURE (hub-and-spoke, AGREED 2026-07-03):
+  - Referrals_Master = PASSIVE aggregate hub for referral tracking. NO ID/stamp/generator workflows on it; it only receives.
+  - Spokes (Referrals_Main/Patient Visit, and future short forms X-ray, Lab, 3008) own their detail + ID generation and, on CREATE, insert one row into Master.
+  - GUARDRAIL 1: every Master row carries a back-reference = Referral_Type + spoke record ID (+ spoke REF ID) so it is traceable to its authoritative spoke.
+  - GUARDRAIL 2: spoke->Master insert is CREATE-ONLY or idempotent (no duplicate hub rows on edits).
+  - NATURE: Master is a create-time SNAPSHOT / tracking index; spokes stay authoritative for live values. Optional On-Edit sync later (Data-Quality initiative).
+  - Short type forms built as CREATOR forms (not Zoho Forms) would get native Deluge alert() MODALS (attention-grab) and write straight into Creator.
+    Zoho Forms cannot do per-question modals. Non-Zoho builders (Jotform/Typeform/Formstack) reach Creator only via Zoho Flow/Zapier/webhook+API
+    (no native connector) and gate on HIPAA BAA. Not pursuing a builder switch now. (Neil "thinking about it".)
+
+PARKED / NICE-TO-HAVES (revisit later, not built):
+  - Completeness Checker (referrals): review vital fields -> Complete/Incomplete status + missing-fields summary -> email flag.
+    Auto-fill ONLY deterministic derivations (full name, age from DOB, formatting, DM=patient when self-responsible); NEVER fabricate patient data. Route real gaps to a human.
+  - Referral Data-Quality initiative: address validation (NOTE: Patient Referral Zoho Form ALREADY uses Google Maps validation; gaps = non-form paths like import,
+    valid-but-wrong entries, and propagation of corrections to already-created vendor orders); reference-based (lookup) vendor orders so pre-dispatch corrections propagate;
+    re-sync for open not-yet-dispatched orders; pre-dispatch verification checkpoint; phone verification (Twilio Lookup / NumVerify) OPTIONAL (validates active number, not that it's the patient's).
+    Distinction: completeness = "is it filled?" vs correctness = "is it right?".
+  - Single/Multi-Unit partner flag (UX): more elegant than always-create-a-location, but blank-branch downstream handling deferred. Kept locations-always-exist for now.
+  - Live dashboards: SOS build-tracker (from Open Items) and a Billing/AR dashboard once invoices flow (Zoho Books currently has 1 draft invoice, $575 Loyola Hospice).
+
+OPEN / NEXT (carry forward):
+  1. Patient_Full_Name BACKFILL function (missing-only, REQUIRE-LAST-NAME) — standalone, rec. accessors + updateRecord; for the July import (On Success won't fire on import). NOT built yet.
+  2. REF-ID backfill + partner-match backfill for July import — verify/exist before load.
+  3. Finalize Cognito->Creator crosswalk once July export headers provided.
+  4. Enter remaining partners' rate cards (CSV import path).
+  5. Delete dummy "Partner Legal Name" rate rows; assign InnoVage rate locations.
+  6. VERIFY (load-bearing, ties to NOTE 7/10): do Creator On Success/Validation workflows fire on Zoho-Form-mapped referrals? If not -> scheduled backfills.
+  7. PVS build.
+  8. Build X-ray/Lab/3008 spoke forms + Referrals_Master hub + spoke->Master create-only insert.
+  9. Verify Advanced_Directives_Details field type (radio vs multi-line).
+  ENV NOTE: repo reachable this session at /Users/neilheird/Claude/GitHub/sos-emr (memory's /Users/neilheird/GitHub/sos-emr path is stale).
+  GOAL: parallel-test new app vs Cognito Forms — target FRIDAY.
