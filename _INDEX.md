@@ -1,6 +1,6 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: July 3, 2026
+Last updated: July 3, 2026 (Session 8)
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
@@ -376,6 +376,9 @@ PARKED / NICE-TO-HAVES (revisit later, not built):
   - Single/Multi-Unit partner flag (UX): more elegant than always-create-a-location, but blank-branch downstream handling deferred. Kept locations-always-exist for now.
   - Live dashboards: SOS build-tracker (from Open Items) and a Billing/AR dashboard once invoices flow (Zoho Books currently has 1 draft invoice, $575 Loyola Hospice).
 
+functions/set_partner_poc_name_title.dg + functions/backfill_partner_poc_name_title.dg - BUILT 2026-07-03. Backfill for Partner_POC_Name_Title ("First Last, Title" e.g. "John Smith, RN"), mirrors the live OnSuccess__Partner_POC_Name_Title_Generator. Missing-only sweep; deploy set_ first. For the Cognito import.
+functions/backfill_referral_id_stamp.dg - BUILT 2026-07-03. Sets Referral_ID_Stamp = rec.ID.toString() where blank. Needed for imported records (Option A kept Cognito Referral_ID, so mint_referral_id did NOT run -> stamp blank). Missing-only; won't disturb mint_referral_id-stamped records.
+
 OPEN / NEXT (carry forward):
   1. Patient_Full_Name BACKFILL — BUILT 2026-07-03, BACKFILL NOT YET RUN. functions/set_patient_full_name.dg (builder, require-last-name; arg recId int, Default namespace) + functions/backfill_patient_full_names.dg (missing-only sweep; no args, Default namespace). Deploy set_ FIRST (backfill line 13 calls it; "function not found" if missing/other namespace). NOTE: REF-1006 ("Fat Albert") confirmed the LIVE On-Success generator populates Patient_Full_Name on NEW records; the backfill function itself is still UNTESTED (execute after July import, spot-check one with/one without last name). DIVERGENCE: live On-Success generator is permissive (first-name-only when no last name); backfill/builder require last name. Optional follow-up (needs approval): refactor live generator to call set_patient_full_name for consistency.
   2. REF-ID backfill + partner-match backfill for July import — verify/exist before load.
@@ -389,3 +392,37 @@ OPEN / NEXT (carry forward):
   9. Verify Advanced_Directives_Details field type (radio vs multi-line).
   ENV NOTE: repo reachable this session at /Users/neilheird/Claude/GitHub/sos-emr (memory's /Users/neilheird/GitHub/sos-emr path is stale).
   GOAL: parallel-test new app vs Cognito Forms — target FRIDAY.
+
+================================================================================
+SESSION 8 ADDITIONS (2026-07-03, resumed)
+================================================================================
+COGNITO IMPORT - records loaded + backfilled.
+  - 32 referrals imported into Referrals_Main. Cognito Referral IDs kept (Option A):
+    Referral_ID = REF-MMDDYY-#### (do NOT run backfill_referral_ids on these). Added via
+    SOS_Referrals_Cognito_July_Filled_2c.xlsx (Referral_ID col, comma cleaned), incrementally uploaded.
+  - SSN + Patient Email import blank = CORRECT (Cognito has no SSN column; patient email 0/32).
+  - Ran 3 backfills on the imports: backfill_patient_full_names, backfill_partner_poc_name_title,
+    backfill_referral_id_stamp. STILL TO RUN: partner-match (needs Partner records + Empath model).
+functions/set_partner_poc_name_title.dg + backfill_partner_poc_name_title.dg - BUILT. "First Last, Title".
+functions/backfill_referral_id_stamp.dg - BUILT. Referral_ID_Stamp = rec.ID.toString() where blank.
+  (Deployed live + the 3 backfills were run by Neil.)
+
+COGNITO FILE ATTACHMENTS (open). Linked folder "PatientReferral (4)": 39 files across 23 records,
+  in PatientAdvancedDirectivesUpload (4) + PatientFilesUpload (35). Filenames prefixed with the Cognito
+  entry number = numeric suffix of Referral_ID -> clean key. Manifest: SOS_Cognito_File_Manifest.xlsx.
+  OPEN: field targets (which Creator file fields); upload method (Creator import-with-attachments vs
+  v2.1 API vs manual); FLAG #1255 = 2 files with NO matching referral in the export.
+
+PVS DESIGN - see context/10_pvs_design.md (new). Key decisions:
+  - PVS = NATIVE CREATOR PORTAL FORM (not Zoho Forms) - prefill patient + provider, provider signs.
+  - Two creation methods (portal lookup; referral-email deep-link, Referral_ID-only in URL).
+  - Two pulls to build: patient-from-referral, provider-from-login (Employees).
+  - PVS_ID = "PVS-"+Referral_ID (2nd Final PVS -> -v2); walk-in = PVS-1001-M. ADD PVS_ID_Stamp.
+    KEEP PVS_Referral_ID (load-bearing: 4 workflows incl. PVS Stamp Generator).
+  - Type_of_Entry: partner-determined, LOCKED when pulled; change via addendum. Align option lists.
+  - ARCH CONFIRMED: one referral form + one PVS form, both conditional by type; all -> Referrals_Master.
+  - OPEN: review PVS Stamp Generator; Patient Details additions; Complexity_Level<->Rate_Type; charges
+    auto-vs-manual; Referral Partner POC fields; Employee_Initials/signature; PVS_ID generator build.
+
+CARRY FLAGS: DM Last Name integration bug (Creator DM_Last_Name <- Forms Patient Last Name; SOS Web fix);
+  Advanced_Directives_Details field type; confirm Empath-as-parent before partner-match.

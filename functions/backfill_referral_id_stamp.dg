@@ -1,0 +1,16 @@
+void backfill_referral_id_stamp()
+{
+	refs = Referrals_Main[ID != 0];
+	for each rec in refs
+	{
+		existing = rec.Referral_ID_Stamp;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "")
+		{
+			rec.Referral_ID_Stamp = rec.ID.toString();
+		}
+	}
+}

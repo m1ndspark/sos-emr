@@ -1,0 +1,16 @@
+void backfill_partner_poc_name_title()
+{
+	refs = Referrals_Main[ID != 0];
+	for each rec in refs
+	{
+		existing = rec.Partner_POC_Name_Title;
+		if(existing == null)
+		{
+			existing = "";
+		}
+		if(existing.trim() == "")
+		{
+			set_partner_poc_name_title(rec.ID);
+		}
+	}
+}

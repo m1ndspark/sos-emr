@@ -1,0 +1,29 @@
+void set_partner_poc_name_title(int recId)
+{
+	rec = Referrals_Main[ID == recId];
+	if(rec != null)
+	{
+		v_name = "";
+		if(rec.Partner_POC_First_Name != null && rec.Partner_POC_First_Name.trim() != "")
+		{
+			v_name = rec.Partner_POC_First_Name.trim();
+		}
+		if(rec.Partner_POC_Last_Name != null && rec.Partner_POC_Last_Name.trim() != "")
+		{
+			if(v_name != "")
+			{
+				v_name = v_name + " ";
+			}
+			v_name = v_name + rec.Partner_POC_Last_Name.trim();
+		}
+		if(rec.Partner_POC_Title != null && rec.Partner_POC_Title.trim() != "")
+		{
+			if(v_name != "")
+			{
+				v_name = v_name + ", ";
+			}
+			v_name = v_name + rec.Partner_POC_Title.trim();
+		}
+		rec.Partner_POC_Name_Title = v_name;
+	}
+}
