@@ -1,0 +1,43 @@
+name: sos-emr mechanical checks
+
+# Cloud backstop for the local pre-commit hook: re-runs the same content
+# checks on every push and pull request, so nothing bad reaches GitHub even
+# if a commit was made with --no-verify or from a clone without the hook
+# enabled. Judgment checks (link names, collisions, triggers) are NOT run
+# here - those stay with the sos-precommit-audit subagent.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  mechanical-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine changed files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          head="${{ github.sha }}"
+          # First push / new branch: before is all-zeros or unknown - fall back
+          # to the repo root so we scan this push's own files rather than error.
+          if [ -z "$base" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            base=$(git rev-list --max-parents=0 "$head" | tail -n1)
+          fi
+          git diff --name-only --diff-filter=ACM "$base" "$head" > changed.txt || true
+          echo "Changed files:"; cat changed.txt || true
+
+      - name: Run mechanical checks
+        run: |
+          if [ ! -s changed.txt ]; then
+            echo "No changed files to scan."
+            exit 0
+          fi
+          tr '\n' '\0' < changed.txt | xargs -0 --no-run-if-empty ./.githooks/sos-checks.sh

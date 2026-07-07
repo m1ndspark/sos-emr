@@ -1,0 +1,52 @@
+#!/bin/sh
+# sos-emr local pre-commit gate (mechanical checks only).
+#
+# Enable once per clone with:  git config core.hooksPath .githooks
+# Runs on every commit, whether made from the CLI or GitHub Desktop.
+# Bypass (discouraged for Deluge/PHI code):  git commit --no-verify
+#
+# This gate catches mechanical mistakes only. The sos-precommit-audit
+# subagent (judgment) and the live Creator test remain required.
+
+here=$(dirname "$0")
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+# --- Content checks (shared with CI) ---
+out=$(printf '%s\n' "$staged" | tr '\n' '\0' | xargs -0 "$here/sos-checks.sh")
+rc=$?
+[ -n "$out" ] && printf '%s\n' "$out"
+
+warn=0
+
+# --- WARN: .dg filename convention ---
+# Emit "<basename>\t<path>", drop rows whose basename starts with a known
+# On<Event>__ prefix, keep the path of the rest. (Avoids `case`, which trips
+# bash 3.2's parser inside this command substitution.)
+bad=$(printf '%s\n' "$staged" | grep -E '\.dg$' | while IFS= read -r f; do
+  printf '%s\t%s\n' "${f##*/}" "$f"
+done | grep -vE '^(OnValidate__|OnSuccess__|OnUserInput__|OnLoad__)' | cut -f2)
+if [ -n "$bad" ]; then
+  echo "WARN   .dg filename(s) without a known On<Event>__ prefix (exceptions exist; confirm intentional):"
+  printf '%s\n' "$bad" | sed 's/^/  /'
+  warn=1
+fi
+
+# --- WARN: _INDEX.md coupling ---
+if printf '%s\n' "$staged" | grep -qE '\.dg$'; then
+  if ! printf '%s\n' "$staged" | grep -qE '(^|/)_INDEX\.md$'; then
+    echo "WARN   A .dg is staged but _INDEX.md is not (is its status row updated?)"
+    warn=1
+  fi
+fi
+
+if [ "$rc" -ne 0 ]; then
+  echo
+  echo "Commit BLOCKED by sos-emr checks. Fix the BLOCK items above."
+  echo "(Override with 'git commit --no-verify' - avoid for PHI/Deluge code.)"
+  exit 1
+fi
+
+[ "$warn" -ne 0 ] && printf '\nWarnings only - commit allowed.\n'
+exit 0
