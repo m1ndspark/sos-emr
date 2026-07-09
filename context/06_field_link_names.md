@@ -7,6 +7,16 @@ references it (CLAUDE.md rule). Source of truth is the live Creator app.
 
 Keep this PHI-clean: field metadata only, never data values.
 
+NOTE (2026-07-09): schema/Referrals_Main.md is now the AUTO-GENERATED authoritative
+field mirror (link name, type, mandatory, unique, choices), refreshed by the schema
+monitor. THIS file adds the Zoho Forms mapping + human context the mirror can't hold.
+On any conflict, schema/Referrals_Main.md wins. Corrections applied 2026-07-09 from
+the live schema: added Referral_Source (live first field); Patient_Room_Number ->
+Facility_Room_Number; DM Relationship "Other" choice removed (not in live field).
+Also: the live patient-hospice field is Patient_Hospice_ID (patient section), NOT the
+"Partner_Billing_ID" listed under Referral Partner Details below -- treat that row as
+stale (per context/09 the values Hospice ID / Patient_Hospice_ID are equivalent).
+
 ================================================================================
 FORM: Referrals_Main   (display name "Referrals Main")
 ================================================================================
@@ -20,6 +30,7 @@ the types below are the corrected ones. Phone/SSN fields are Single Line text,
 confirmed by the extracted .dg formatters.
 
 SECTION  Referral_Type_Section
+  Referral_Source          Radio    <- Referral Source     [Contracted Parnter (sic), SOS Internal]  (live first field; classifies sender)
   Referral_Type            Radio    <- Service Requested   [Patient Visit, 3008, X-Ray Order (only), Lab Draw (only)]
   Requested_Priority       Radio    <- Requested Priority  [Routine, Priority]
   SOS_Prior_Service        Radio    <- Has the patient been seen by SOS Mobile Medical Care before?  [No, Yes]
@@ -40,13 +51,13 @@ SECTION  Decision_Maker_Section
   DM_Last_Name                         text      <- Decision Maker Last Name           [see _zoho_form.md FLAG 1]
   Decision_Maker_Phone                 text      <- Decision Maker Phone   [formatter: OnUserInput__Decision_Maker_Phone__Format.dg]
   Decision_Maker_Email                 Email     <- Decision Maker Email
-  Decision_Maker_Relationship_to_Patient Dropdown <- Relationship to Patient  [Advocate, Family/Friend, Legal Representative, Other]
+  Decision_Maker_Relationship_to_Patient Dropdown <- Relationship to Patient  [Advocate, Family/Friend, Legal Representative]  (live: no "Other")
 
 SECTION  Patient_Location_Section
   Patient_Location         Radio    <- Where is the patient currently located?  [Home, Facility]
   Facility_Name            text     <- Facility Name
   Facility_Phone           text     <- Facility Phone   [formatter: OnUserInput__Facility_Phone__Format.dg]
-  Patient_Room_Number      text     <- Room #
+  Facility_Room_Number     text     <- Room #   (live link name; was Patient_Room_Number in older sheet; max 8)
   Patient_Address          Address  <- Patient Address
 
 SECTION  Patient_Medical_Details_Section
@@ -121,7 +132,7 @@ DISCREPANCIES / NOTES
   and Sequence_Tracker work (contradictions 4-B, 4-C).
 - Source-sheet type-column artifacts (link names correct, Field Type cell shifted):
   Patient_Gender (sheet: Single Line; actual: Radio), Patient_Address (sheet: Single
-  Line; actual: Address), Patient_Room_Number (sheet: Address; actual: Single Line),
+  Line; actual: Address), Facility_Room_Number (live link name; sheet said Patient_Room_Number typed Address; actual: Single Line),
   Advanced_Directives_Details (sheet: Radio/No,Yes; actual: Multi Line). Types above
   are corrected. Patient_Has_Advanced_Directives = Radio [No, Yes] and
   Advanced_Directives_Details = Multi Line both CONFIRMED live by Neil 2026-07-04.

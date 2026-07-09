@@ -427,3 +427,60 @@ PVS DESIGN - see context/10_pvs_design.md (new). Key decisions:
 CARRY FLAGS: confirm Empath-as-parent before partner-match.
   RESOLVED 2026-07-04: DM Last Name integration bug FIXED (now maps to Decision Maker Last Name);
   Advanced_Directives_Details field type confirmed Multi Line.
+
+================================================================================
+SESSION 9-10 ADDITIONS (2026-07-07 / 2026-07-09)
+================================================================================
+SCHEMA MONITOR SYSTEM (new infrastructure) - PROVEN end-to-end 2026-07-09.
+  Purpose: auto-mirror the live Creator field schema to the repo so field lists
+  never have to be recalled manually. Creator cannot write to disk, so it commits
+  to GitHub; you pull to sync down.
+  Connections (Zoho Connections, not in code):
+    - sos_schema_monitor : Zoho Creator, Get Forms + Get Fields (Meta API read).
+    - sos_github_sync    : GitHub OAuth (custom app, personal acct), commits to
+                           m1ndspark/sos-emr. Token never in a field/script.
+  Form: Schema_Snapshot (Snapshot_Data, Captured_On, Change_Summary, Added_User) -
+    stores compressed schema snapshots for diffing. Storage only, no workflow.
+  Functions (Default namespace, standalone):
+    - run_schema_monitor  : called by schedule "SOS Schema Monitor (Daily)" 06:00.
+      Pulls all forms/fields via Meta API, diffs vs latest snapshot; on change,
+      commits per-form schema files to schema/<Form>.md, TOMBSTONES removed forms,
+      emails a grouped HTML change alert (adds/removes/changes + active-form list).
+      Has a false-removal guard (aborts if >30% of forms vanish in one run).
+    - seed_schema_to_github : one-time backfill; wrote all 20 schema/ files 07-09.
+    - test_schema_connection / test_github_commit : proof/test helpers.
+  schema/ folder = AUTO-GENERATED per-form field mirror (link name, type, mandatory,
+    unique, choices, subfields). Authoritative for FIELD LISTS. Pull after a monitor
+    run to read current schema locally. context/06 adds Zoho-Form mapping + context;
+    on conflict, schema/ wins.
+
+FORM INVENTORY RECONCILED (live vs the 16-form master list at top of this file):
+  - RETIRED 2026-07-09: Partner_Branch_Territory. Redundant with Partner_Locations
+    (branch identity already covered); no workflows attached. Deleted from Creator,
+    tombstoned + removed from repo. Full schema recoverable in git (commit 3b53a34).
+  - NOT LIVE (in master list, never built / dropped): Partner_Portal_Users,
+    Charge_Types.
+  - LIVE but added since the master list: Partner_Billing_Contacts, Partner_Contracts,
+    Change_Log, Encounters_PVSAddendum, X_Ray_Orders.
+  - X_Ray_Orders = live, built spoke (13 fields; own X_Ray_Order_ID + _Stamp;
+    Referral_Link, Provider_Signature_Link, results fax/email). NOTE: no Sequence_
+    Tracker prefix confirmed for it yet.
+  - Encounter_RadiologyRequest = EMPTY SHELL (0 fields live). Radiology consolidation
+    candidate: X_Ray_Orders appears to supersede it. Confirm which is canonical;
+    likely retire the empty one (tests the tombstone flow again).
+
+REFERRAL FLOW + BILLING ARCHITECTURE: see context/11_referral_flow_and_billing.md
+  (new 2026-07-09). Referrals_Main full walkthrough, partner data model
+  (Partners -> Partner_Locations -> rates/contracts/billing at LOCATION level),
+  the billing boundary (NOTHING charged at referral; all charges originate at PVS),
+  and the branch-reconciliation gap.
+
+KEY OPEN ITEMS (from Session 10 walkthrough):
+  1. BRANCH RECONCILIATION (load-bearing): typed free-text Partner_Branch must
+     resolve to a real Partner_Locations billing-location record, since rates are
+     location-keyed. Runs on EVERY Referrals_Main submit (alongside REF-ID gen).
+     Mechanism TBD. Unmatched is safe (PVS invoices default Draft; review dashboard
+     approves single/bulk before billing). Same crosswalk as Cognito import (ctx 09).
+  2. SOS Internal (non-hospice) billing basis - partner->location->rate chain assumes
+     a contracted partner; internal/subscription referrals bill differently. TBD.
+  3. Encounter_RadiologyRequest empty-shell cleanup (see above).
