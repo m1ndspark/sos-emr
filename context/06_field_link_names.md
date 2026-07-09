@@ -60,7 +60,7 @@ SECTION  Patient_Medical_Details_Section
 
 SECTION  Patient_Advanced_Directives_Section
   Patient_Has_Advanced_Directives  Radio       <- Does the patient have Advanced Directives?  [No, Yes]
-  Advanced_Directives_Details      Multi Line  <- Advanced Directives Details   (sheet showed Radio; treat as Multi Line)
+  Advanced_Directives_Details      Multi Line  <- Advanced Directives Details   (CONFIRMED Multi Line, Neil 2026-07-04)
 
 SECTION  General_Information_Section
   Additional_Information   Multi Line        <- Provide any additional details that may relate to this referral.
@@ -123,4 +123,5 @@ DISCREPANCIES / NOTES
   Patient_Gender (sheet: Single Line; actual: Radio), Patient_Address (sheet: Single
   Line; actual: Address), Patient_Room_Number (sheet: Address; actual: Single Line),
   Advanced_Directives_Details (sheet: Radio/No,Yes; actual: Multi Line). Types above
-  are corrected.
+  are corrected. Patient_Has_Advanced_Directives = Radio [No, Yes] and
+  Advanced_Directives_Details = Multi Line both CONFIRMED live by Neil 2026-07-04.

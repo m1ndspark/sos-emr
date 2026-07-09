@@ -77,7 +77,7 @@ Cognito repeats field labels across sections, so map by DATA, not by header:
 - Does the patient currently take blood thinning medication? -> Patient_Has_Anticoagulants (normalize case)
 - List Meds                              -> List_Patient_Anticoagulants
 - Does the patient have Advanced Directives? -> Patient_Has_Advanced_Directives
-- Advanced Directives                    -> Advanced_Directives_Details (Creator field mistyped as Radio - VERIFY)
+- Advanced Directives                    -> Advanced_Directives_Details (Multi Line, CONFIRMED Neil 2026-07-04)
 - (no source)                            -> Additional_Information = blank
 - (no source)                            -> Reason_for_X_Ray_Request / Reason_for_Lab_Request / Requested_Lab_Vendor = blank
 - Email.1 (referrer/"Your Email")        -> Partner_POC_Email
@@ -140,24 +140,40 @@ Cognito "Organization/Affiliate Name" is free text with many variants. Parse int
 parent Partner + Branch; set Partner_Organization = parent, Partner_Branch = branch.
 Use canonical Creator spellings (AccentCare, InnoVage, Empath Health).
 
-Crosswalk established 2026-07-03 (confirm the parent model each run):
+Crosswalk (parent model RESOLVED with Neil 2026-07-04; confirm counts each run):
   AccentCare              <- Accentcare
-  AccentCare / Hospice    <- Accentcare Hospice                 [confirm branch]
-  Empath Health           <- Empath Health
+  AccentCare / <branch>   <- Accentcare Hospice   (AccentCare is PARENT with MULTIPLE
+                             locations; Neil sets the Locations up, then we INFER each
+                             referral's branch after. Do not collapse to plain AccentCare.)
+  Empath Health           <- Empath Health   (PARENT org; a branch/"Main" for Empath's
+                             own direct hospice ops)
   Empath Health / Suncoast Hospice of Hillsborough <- "Empath Health/Suncoast Hospice of Hillsborough", "Suncoast Hospice of Hillsborough"
   Empath Health / Hospice of Marion County <- "Empath [,] Hospice of Marion [county]"
   Empath Health / Tidewell Hospice <- "Empath/Tidewell", "Tidewell Hospice"
-  Empath Health / Suncoast Hospice <- "Suncoast Hospice"
-  Empath Health / Trustbridge <- "Trustbridge"                  [confirm parent]
-  InnoVage / PACE         <- "Innovage PACE", "Innovage Pace", "PACE" [confirm standalone PACE]
+  Empath Health / Suncoast Hospice (Pinellas) <- "Suncoast Hospice"
+  Empath Health / Trustbridge <- "Trustbridge"   [STILL CONFIRM: Neil listed Empath's
+                             owned hospices as Tidewell, Marion County, Suncoast
+                             Hillsborough, Suncoast Pinellas; Trustbridge NOT named -
+                             verify it is an Empath branch vs its own Partner]
+  InnoVage / PACE         <- "Innovage PACE", "Innovage Pace", "PACE"
 
-OPEN QUESTIONS (must be settled before partner-match backfill links records):
-1. Is Empath Health the PARENT for Suncoast / Tidewell / Trustbridge, or are those
-   their own top-level Partners? (Defines the Partner records.)
-2. "AccentCare Hospice": a branch "Hospice" or just AccentCare?
-3. Standalone "PACE" = InnoVage?
-4. "Empath Health" rows with no branch: assign a branch / "Main" (locations always exist)?
-Also: confirm these Partners + branches EXIST as records in Creator before matching.
+RESOLVED 2026-07-04 (partner structure for this import):
+1. Empath Health = ONE Partner; Suncoast Hillsborough, Hospice of Marion County,
+   Tidewell, Suncoast (Pinellas) = LOCATIONS/branches under it. ONE contract for all
+   branches right now -> Rate_Structure = Uniform (may go Per Branch later; if a hospice
+   ever contracts separately it can be split into its own Partner). NOT separate Partners.
+2. AccentCare = PARENT with multiple Locations; branches inferred after Neil creates them.
+3. Standalone "PACE" = InnoVage / PACE (InnoVage parent, PACE branch).
+4. "Empath Health" rows with no branch = link Partner_Link to Empath at PARENT level,
+   branch HELD for manual assignment (do not auto-assign a branch).
+STILL OPEN: Trustbridge parent (above). Confirm all Partners + Locations EXIST as records
+in Creator before running partner-match.
+
+DATA-KEYING CONSEQUENCE (from the branches decision): the 16 Empath rows were imported
+with Partner_Organization = "Empath Health" (parent) and the hospice name in
+Partner_Branch. Empath links at the PARENT (Partner_Organization = "Empath Health"), so
+partner-match keys Partner_Link off Partner_Organization as normal; the branch/Location
+is resolved separately (from Partner_Branch or territory), not via Partner_Link.
 
 --------------------------------------------------------------------------------
 5. IMPORT GOTCHAS (Creator)
@@ -187,8 +203,8 @@ LESSONS FROM THE FIRST IMPORT (2026-07-03):
   dropdown to real relationships (recommended), skip the column and backfill, or map
   into the 4 buckets. Check other restricted dropdowns similarly before import.
 - Zoho Form -> Creator INTEGRATION mapping is separate from CSV import mapping and does
-  NOT affect imports. (While there, found a LIVE BUG: Creator "DM Last Name" is mapped
-  to Forms "Patient Last Name" -> fix to "Decision Maker Last Name"; SOS Web task.)
+  NOT affect imports. (FIXED 2026-07-04: the LIVE BUG where Creator "DM Last Name" was
+  mapped to Forms "Patient Last Name" is resolved; now maps to "Decision Maker Last Name".)
 
 --------------------------------------------------------------------------------
 6. POST-IMPORT BACKFILL SEQUENCE
