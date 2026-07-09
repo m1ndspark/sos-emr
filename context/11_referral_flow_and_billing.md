@@ -160,14 +160,98 @@ dashboard that evaluates performance across three lenses:
   - Billing / receivables (AR)
 
 --------------------------------------------------------------------------------
+10. PVS (Encounter_PatientVisit) - THE VISIT + CHARGE ENGINE
+--------------------------------------------------------------------------------
+PVS is the clinical note completed after a visit, and the ONLY place charges
+originate. Two creation paths, toggled by `Has_Referral_ID` (UI branch only):
+  - Yes -> provider sees `Referral_Link` lookup; picking the referral AUTO-PULLS
+    everything that can come from it (referral info, patient name/location/contact,
+    partner details, reason). Provider only completes: Final Clinical Note, Type of
+    Procedure, Visit Cost Drivers, Charges, Files Upload, Diversion Tracking, and
+    (when applicable) Imaging Order / Lab Order / Cares 3008 Completion.
+  - No -> no lookup; standalone manual/provider-initiated entry (the exception;
+    usually a referral must exist first - a referral is what tells SOS a patient
+    needs seeing).
+
+TWO SOURCES feed a referral-linked PVS (do not conflate):
+  - PARTNER info (org, branch, POC name/title/team/phone/email) comes FROM
+    Referrals_Main, passed by Referral_ID. This is why PVS partner field LINK
+    NAMES were renamed to match Referrals_Main (2026-07-09): the pull maps
+    field-to-field by name, no PAR_->Partner_ translation.
+  - PROVIDER info (Employee_First/Last_Name, Employee_Title, Employee_Initials)
+    comes FROM the logged-in user, resolved to the Employees table by EMAIL.
+
+PROVIDER RESOLVE (design, not built):
+  - The Creator custom portal add-on exposes only NAME + EMAIL for a portal user.
+    But each PVS is electronically SIGNED, so title + initials are also needed;
+    those live ONLY in Employees. So a function/workflow resolves login email ->
+    Employees record -> stamps provider fields onto PVS. Employees is the source
+    of truth for provider identity; the portal only says WHO is logged in.
+  - Must be CONTEXT-AGNOSTIC: works for admin (backend) AND provider (portal)
+    login. Same PVS form runs in both runtimes; admins (Neil/Josh) also create
+    PVS entries directly from the backend and still need provider fields to
+    populate from their own Employees record. Keyed on full email, not domain.
+  - EMAIL DOMAIN SPLIT: admins = @sosmmc.com (licensed system users); providers =
+    @sosreferrals.com (deliberate workaround so employees don't consume license
+    seats). Resolver must match on the WHOLE email, not assume one domain.
+    (Ties to fn_resolveUserIdentity in _INDEX.md - confirm it isn't hard-coded to
+    a single domain.)
+  - BUILD-TIME CHECK (Inferred): verify `zoho.loginuserid` returns the expected
+    email in BOTH backend and portal context before building the resolve on it.
+    Admins must have Employees records or the lookup returns blank for them.
+
+PVS_ID (generator built): referral-linked PVS derives its ID from the referral
+(PVS-<Referral_ID>). Self-generated/manual PVS appends an "M" suffix (sequential
+via Sequence_Tracker) so a PVS with no corresponding referral is visually
+recognizable. System fields present live: PVS_ID, Referral_ID + Stamp, Partner_ID
++ Stamp, Invoice_Status (Draft/Final = the billing gate).
+
+--------------------------------------------------------------------------------
+11. PVS -> BILLING -> BOOKS -> QUICKBOOKS (model set; mechanism unscoped)
+--------------------------------------------------------------------------------
+PVS holds BOTH clinical fields (PHI) and financial fields (charge calc). The
+division of destinations:
+  - ZOHO BOOKS = the invoicing VESSEL. Generates + distributes partner invoices
+    WITH full PHI (patient, DOS, reason, DOB, SSN/billing ID) because partners
+    REQUIRE PHI on each invoice and Books is BAA-covered. Books does the
+    invoicing work. Invoices are recorded back into Creator via a custom
+    report/dashboard (AR/receivables view).
+  - QUICKBOOKS = formal company bookkeeping. NO patient-level detail wanted or
+    allowed (no BAA). A custom workflow STRIPS PHI from the billing record and
+    sends only de-identified data (invoice #, date, partner org, amount, generic
+    line, GL category). The invoice NUMBER is the QB matching key - never the
+    PVS_ID (it encodes a patient identifier).
+  - BANK FEED = PLAID (reconnected 2026-07-09). SUPERSEDES the Achieva-via-Yodlee
+    note in the billing module. Purpose: link Books to the bank so invoices AND
+    deposits are tracked in one interface. Plaid has better credit-union coverage
+    than Yodlee; still verify the live Achieva-via-Plaid feed pulls cleanly, and
+    confirm HOW Books consumes Plaid (native Books bank-feed vs. other path).
+
+SCOPE SPLIT: the de-identification workflow + Books<->QB transport + bank-feed
+verification are SOS Code (technical integration). The BILLING RULES (what's PHI
+vs. safe, consolidation logic, GL mapping) defer to SOS Finance. Build the PHI-
+strip workflow to a Finance-approved spec. Consolidation rule (from billing
+module): one invoice per partner per billing cycle, one line per visit - PVS
+entries accumulate into a cycle invoice, NOT 1:1 per PVS.
+
+--------------------------------------------------------------------------------
 OPEN ITEMS (from this walkthrough)
 --------------------------------------------------------------------------------
 1. Branch reconciliation mechanism (Section 8) - DESIGN NEEDED. Runs on referral
    submit; maps typed Partner_Branch -> Partner_Locations billing location.
 2. SOS Internal billing basis (Section 2) - how non-hospice/subscription
    referrals bill without a contracted partner.
-3. Priority -> which premium: Priority unlocks Super STAT; After Hours is
-   time-driven. Mapping to the specific Partner_Rates.Rate_Type applied happens
-   at PVS/billing, not 1:1 from the referral.
-4. Confirm exact Routine/Priority time windows.
-5. Partner POC auto-recall (reduce retyping) - low priority.
+3. Provider resolve function (Section 10) - build + verify zoho.loginuserid in
+   both backend and portal context; confirm fn_resolveUserIdentity domain logic.
+4. PVS -> Books invoice mechanism (Section 11) - Deluge/Books API vs. Flow;
+   charge assembly (Complexity->Acuity rate + manual fees) into line items.
+5. PHI-strip workflow Books -> QuickBooks (Section 11) - to a Finance-approved
+   spec. QB matching key = invoice number, never PVS_ID.
+6. Verify live Achieva-via-Plaid bank feed into Books pulls cleanly.
+7. Two custom Creator dashboards: AR/receivables (invoices back from Books) and
+   the partner-portal performance dashboard (referrals / PVS / billing).
+8. Confirm exact Routine/Priority time windows.
+9. Partner POC auto-recall (reduce retyping) - low priority.
+
+NOTE: billing rules / AR reconciliation are owned by SOS Finance, not SOS Code.
+This file records the technical flow; defer billing-rule specifics to Finance.
