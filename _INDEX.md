@@ -327,16 +327,16 @@ NOT Partner_Location_Label (blank on un-backfilled locations -> caused "No match
 ================================================================================
 SESSION 7 ADDITIONS (2026-07-03)
 ================================================================================
-PARTNER BILLING CONTACTS — COMPLETE.
+PARTNER BILLING CONTACTS - COMPLETE.
   - ID stamp generator: pre-existing (Partner Billing Contact Stamp, Created -> Successful form submission).
   - Dependent location filter (ID equals input.Partner_Link): DONE.
   - Partner_Billing_Contact_Branch_Match (Created or Edited -> Validations on form submission): block CONFIRMED live 2026-07-03.
   - Only two workflows on the form (Stamp On Success + Branch Match Validate) -> no collision; resolves the "review Partner_Link workflows" open item.
   - Note: on a partner with no locations (e.g. ABC Hospice), the dependent filter clears the branch, so Branch Match correctly skips (nothing to catch). Branch Match is the backstop for non-UI writes (Zoho Form / API / import) where the filter does not apply.
 
-PATIENT_FULL_NAME GENERATOR — promoted off .PENDING (see Referrals_Main section). Live, Created or Edited -> Successful form submission.
+PATIENT_FULL_NAME GENERATOR - promoted off .PENDING (see Referrals_Main section). Live, Created or Edited -> Successful form submission.
 
-ACCENTCARE RATE CARD — entered LIVE (6 rates on AccentCare - TPA). Current_Rate=Yes set by the generator (each is sole rate in its group).
+ACCENTCARE RATE CARD - entered LIVE (6 rates on AccentCare - TPA). Current_Rate=Yes set by the generator (each is sole rate in its group).
   Categorization (Rate_Category -> Rate_Type $): 
     Acuity Level -> Low Complexity $150 / Moderate Complexity $343 / High Complexity $545
     Service      -> Telemedicine $55
@@ -345,18 +345,18 @@ ACCENTCARE RATE CARD — entered LIVE (6 rates on AccentCare - TPA). Current_Rat
   TODO: InnoVage rate rows have blank location -> assign Tampa/Orlando (or a "Main") once locations-always-exist is enforced.
   Rate-entry ergonomics: CSV import is the pragmatic bulk-entry path now; Rate Sheet + subform (fan-out to Partner_Rates via set_current_rate) parked as a post-Friday enhancement.
 
-REFERRALS IMPORT TEMPLATE (one-time Cognito July load) — built SOS_Referrals_Import_Template.xlsx (downloadable; not committed to repo).
+REFERRALS IMPORT TEMPLATE (one-time Cognito July load) - built SOS_Referrals_Import_Template.xlsx (downloadable; not committed to repo).
   Source = uploaded mapping "sos-referrals-main-form-field-mapping-07032026.csv" (authoritative Creator field LINK names).
   44 importable fields; headers = Creator link names in form order. EXCLUDES section headings, the 3 file-upload fields,
   and custom-script/system fields (Referral_ID, Referral_ID_Stamp, Partners lookup, Partner_ID, Partner_ID_Stamp = backfilled).
   Import gotchas: workflows DON'T fire on import -> backfills needed (REF-ID, Patient_Full_Name, partner-match); lookups match by value
   (Partner_Organization text must match a Creator Partner); dates yyyy-MM-dd; decide a dupe key (Cognito ref id) if re-importing.
   Data-integrity flags from the mapping to VERIFY on the live form:
-    - Advanced_Directives_Details typed Radio(No,Yes) but source is Multi Line free text -> likely misconfig (can't hold details).
+    - Advanced_Directives_Details RESOLVED 2026-07-04: field is Multi Line in Creator (CONFIRMED Neil); Patient_Has_Advanced_Directives is Radio [No, Yes].
     - Patient_Gender is Single Line in Creator vs Radio Female/Male in the form -> import exactly "Female"/"Male".
     - Patient_Room_Number typed "Address" (source "Room #" Single Line) -> confirm it accepts a plain room number.
 
-DECISION — REFERRALS_MASTER ARCHITECTURE (hub-and-spoke, AGREED 2026-07-03):
+DECISION - REFERRALS_MASTER ARCHITECTURE (hub-and-spoke, AGREED 2026-07-03):
   - Referrals_Master = PASSIVE aggregate hub for referral tracking. NO ID/stamp/generator workflows on it; it only receives.
   - Spokes (Referrals_Main/Patient Visit, and future short forms X-ray, Lab, 3008) own their detail + ID generation and, on CREATE, insert one row into Master.
   - GUARDRAIL 1: every Master row carries a back-reference = Referral_Type + spoke record ID (+ spoke REF ID) so it is traceable to its authoritative spoke.
@@ -380,18 +380,18 @@ functions/set_partner_poc_name_title.dg + functions/backfill_partner_poc_name_ti
 functions/backfill_referral_id_stamp.dg - BUILT 2026-07-03. Sets Referral_ID_Stamp = rec.ID.toString() where blank. Needed for imported records (Option A kept Cognito Referral_ID, so mint_referral_id did NOT run -> stamp blank). Missing-only; won't disturb mint_referral_id-stamped records.
 
 OPEN / NEXT (carry forward):
-  1. Patient_Full_Name BACKFILL — BUILT 2026-07-03, BACKFILL NOT YET RUN. functions/set_patient_full_name.dg (builder, require-last-name; arg recId int, Default namespace) + functions/backfill_patient_full_names.dg (missing-only sweep; no args, Default namespace). Deploy set_ FIRST (backfill line 13 calls it; "function not found" if missing/other namespace). NOTE: REF-1006 ("Fat Albert") confirmed the LIVE On-Success generator populates Patient_Full_Name on NEW records; the backfill function itself is still UNTESTED (execute after July import, spot-check one with/one without last name). DIVERGENCE: live On-Success generator is permissive (first-name-only when no last name); backfill/builder require last name. Optional follow-up (needs approval): refactor live generator to call set_patient_full_name for consistency.
-  2. REF-ID backfill + partner-match backfill for July import — verify/exist before load.
+  1. Patient_Full_Name BACKFILL - BUILT 2026-07-03, BACKFILL NOT YET RUN. functions/set_patient_full_name.dg (builder, require-last-name; arg recId int, Default namespace) + functions/backfill_patient_full_names.dg (missing-only sweep; no args, Default namespace). Deploy set_ FIRST (backfill line 13 calls it; "function not found" if missing/other namespace). NOTE: REF-1006 ("Fat Albert") confirmed the LIVE On-Success generator populates Patient_Full_Name on NEW records; the backfill function itself is still UNTESTED (execute after July import, spot-check one with/one without last name). DIVERGENCE: live On-Success generator is permissive (first-name-only when no last name); backfill/builder require last name. Optional follow-up (needs approval): refactor live generator to call set_patient_full_name for consistency.
+  2. REF-ID backfill + partner-match backfill for July import - verify/exist before load.
   3. Finalize Cognito->Creator crosswalk once July export headers provided.
   4. Enter remaining partners' rate cards (CSV import path).
   5. Delete dummy "Partner Legal Name" rate rows; assign InnoVage rate locations.
-  6. RESOLVED 2026-07-03 (load-bearing, NOTE 7/10): Creator ON-SUCCESS workflows DO fire on Zoho-Form-mapped referrals. Proof: REF-1006 submitted via the public Zoho Form received both Referral_ID (REF-1006) and Patient_Full_Name ("Fat Albert") = REF_ID_Generator + Patient_Full_Name generator both ran on the integration path. => generators run on real partner submissions; backfills needed ONLY for the one-time Cognito import. SSN SPOT-CHECK RESOLVED 2026-07-03: SSN formatting is done ENTIRELY by the ZOHO FORM, which passes XXX-XX-XXXX to Creator (REF-1001 shows 222-22-2222). The CREATOR form CANNOT format SSN on the intake path: its SSN formatter is On User Input, and nobody types in the Creator form (Zoho Form is the only intake), so it never fires (and On User Input won't fire on import/API paths either). This REVERSES NOTE 7, which wrongly called the Creator SSN formatter "load-bearing"; the Zoho Form is what is load-bearing for SSN. Creator's OnUserInput__Patient_SSN__Format is effectively inert on all real paths. STILL TO SPOT-CHECK (lower stakes): On-Validate stage behavior on the integration path.
+  6. RESOLVED 2026-07-03 (load-bearing, NOTE 7/10): Creator ON-SUCCESS workflows DO fire on Zoho-Form-mapped referrals. Proof: REF-1006 submitted via the public Zoho Form received both Referral_ID (REF-1006) and Patient_Full_Name ("Fat Albert") = REF_ID_Generator + Patient_Full_Name generator both ran on the integration path. => generators run on real partner submissions; backfills needed ONLY for the one-time Cognito import. SSN SPOT-CHECK RESOLVED 2026-07-03: SSN formatting is done ENTIRELY by the ZOHO FORM, which passes XXX-XX-XXXX to Creator (REF-1001 shows XXX-XX-XXXX). The CREATOR form CANNOT format SSN on the intake path: its SSN formatter is On User Input, and nobody types in the Creator form (Zoho Form is the only intake), so it never fires (and On User Input won't fire on import/API paths either). This REVERSES NOTE 7, which wrongly called the Creator SSN formatter "load-bearing"; the Zoho Form is what is load-bearing for SSN. Creator's OnUserInput__Patient_SSN__Format is effectively inert on all real paths. STILL TO SPOT-CHECK (lower stakes): On-Validate stage behavior on the integration path.
   DATA-INTEGRITY FLAG 2026-07-03: REF-1001 has Patient_Last_Name = "16025 Muirfiled Dr" (an address in the last-name field). Determine if junk test data OR a Zoho Form -> Creator mapping error (address wired into Patient_Last_Name). If mapping, it corrupts real referrals and the full-name generator. VERIFY before Friday live submissions. (Ties to Referral Data-Quality initiative: correctness vs completeness.)
   7. PVS build.
   8. Build X-ray/Lab/3008 spoke forms + Referrals_Master hub + spoke->Master create-only insert.
-  9. Verify Advanced_Directives_Details field type (radio vs multi-line).
+  9. DONE 2026-07-04: Advanced_Directives_Details confirmed Multi Line; Patient_Has_Advanced_Directives confirmed Radio [No, Yes].
   ENV NOTE: repo reachable this session at /Users/neilheird/Claude/GitHub/sos-emr (memory's /Users/neilheird/GitHub/sos-emr path is stale).
-  GOAL: parallel-test new app vs Cognito Forms — target FRIDAY.
+  GOAL: parallel-test new app vs Cognito Forms - target FRIDAY.
 
 ================================================================================
 SESSION 8 ADDITIONS (2026-07-03, resumed)
@@ -424,5 +424,6 @@ PVS DESIGN - see context/10_pvs_design.md (new). Key decisions:
   - OPEN: review PVS Stamp Generator; Patient Details additions; Complexity_Level<->Rate_Type; charges
     auto-vs-manual; Referral Partner POC fields; Employee_Initials/signature; PVS_ID generator build.
 
-CARRY FLAGS: DM Last Name integration bug (Creator DM_Last_Name <- Forms Patient Last Name; SOS Web fix);
-  Advanced_Directives_Details field type; confirm Empath-as-parent before partner-match.
+CARRY FLAGS: confirm Empath-as-parent before partner-match.
+  RESOLVED 2026-07-04: DM Last Name integration bug FIXED (now maps to Decision Maker Last Name);
+  Advanced_Directives_Details field type confirmed Multi Line.
