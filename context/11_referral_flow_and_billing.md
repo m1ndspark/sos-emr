@@ -58,14 +58,17 @@ X-RAY: TWO DISTINCT CONCEPTS - do not conflate:
     vendor X-ray in advance instead of discovering the need at the visit.
 
 --------------------------------------------------------------------------------
-4. REQUESTED_PRIORITY - SPEED, + GATES A PREMIUM CHARGE
+4. REQUESTED_PRIORITY - SPEED (POLICY SIGNAL, NOT AUTO-BILLING)
 --------------------------------------------------------------------------------
 Options: Routine / Priority.
   - Routine ~ 24-48 hrs. Priority ~ within 4 hrs (CONFIRM exact windows).
-  - BILLING TIE: Priority ACTIVATES THE POSSIBILITY of the Super STAT charge.
-    Routine does not. This is permissive/one-directional - Priority unlocks
-    Super STAT eligibility; it does NOT auto-apply it.
-  - After Hours is a SEPARATE premium, driven by time-of-visit, NOT by priority.
+  - BILLING TIE (corrected): Priority is a speed/policy signal that makes a Super
+    STAT charge APPROPRIATE to consider; it does NOT auto-apply anything. ALL
+    charges (including After Hours and Super STAT) are entered MANUALLY by the
+    provider at PVS. Nothing is auto-populated from Priority or the rate card.
+    Routine implies no Super STAT.
+  - After Hours is a separate premium, also provider-entered at PVS, driven by
+    time-of-visit.
   - NOTHING is charged from the referral (see Section 7).
 
 --------------------------------------------------------------------------------
