@@ -1,3 +1,50 @@
+================================================================================
+PHONE / FAX FORMATTER LEARNINGS  (PROVEN 2026-07-10, on Partner_Billing_Contacts)
+================================================================================
+Context: building the app-wide AAA-MMM-LLLL phone/fax formatter (see context/12
+Section B for the full standard + template). These are the Creator-behavior
+findings that shaped it.
+
+- subString(start, end) end-index is EXCLUSIVE in this build: subString(0,3)
+  returns 3 chars (indices 0,1,2). Confirmed live: 8135551234 formatted correctly
+  to 813-555-1234 with subString(0,3)/subString(3,6)/subString(6,10). (Reconciles
+  the older bare "subString(0,3) works" note with exact boundary behavior.)
+
+- RE-ENTRY LOOP (important): an On-User-Input formatter that WRITES its own field
+  (input.FIELD = ...) can RE-TRIGGER the same On-User-Input event -> it reformats
+  -> re-triggers -> infinite loop. Symptom live: an endless spinner on the field
+  and the form will NOT save. FIX: a re-entry guard - build the target string
+  first, and if the field already equals it, return without re-assigning:
+    v_Formatted = ...;
+    if(v_Raw == v_Formatted) { return; }
+    input.FIELD = v_Formatted;
+
+- FIELD MAX-CHARACTERS FIGHTS A FORMATTER: if a field's formatted output is longer
+  than its raw input (e.g. 813-555-1234 = 12 chars vs 10 raw digits), a low
+  max-char limit blocks the formatter's own output and/or fires Creator's built-in
+  validation. Do NOT use max-char as a digit cap for formatted fields; leave it
+  generous/unset and enforce length in the formatter + On-Validate.
+
+- GENERIC "Invalid entries found. Rectify and submit again." popup is Creator's
+  FIELD-LEVEL validation. Its text is NOT editable, and it fires BEFORE (or instead
+  of) a custom On-Validate alert. To surface a field-specific message, remove the
+  field-level rule (usually a max-char or pattern) so your On-Validate alert +
+  cancel submit is the sole gatekeeper.
+
+- REJECT vs TRIM: for identity/billing numbers, prefer REJECT (leave a wrong-length
+  entry unformatted so it visibly reads as broken) over silently trimming to the
+  last/first 10 digits (which can hide a typo). Pair with On-Validate to block save.
+
+- Confirms the existing note that On User Input fires on BLUR, not per keystroke:
+  mid-typing the field can briefly show an unformatted/half state; the real
+  guarantee is On-Validate at submit, not the live formatter.
+
+CONFIRMED WORKS (add)
+- input.FIELD = null;  clears a field's value in On User Input (used in the PVS
+  wipe-on-deselect logic).
+- alert "..."; cancel submit;  in an On Validate workflow shows a custom message
+  and blocks the save (per-field validation messaging).
+
 # Deluge Learnings (Creator)
 
 Source: Deluge/Creator module and the May 8 session log. Creator behavior wins
