@@ -1,10 +1,10 @@
-v_Raw = input.Partner_Billing_POC_Phone.toString();
+v_Raw = input.Partner_Billing_POC_Fax.toString();
 v_Digits = v_Raw.replaceAll("[^0-9]","");
 if(v_Digits.length() != 10)
 {
 	if(v_Raw != v_Digits)
 	{
-		input.Partner_Billing_POC_Phone = v_Digits;
+		input.Partner_Billing_POC_Fax = v_Digits;
 	}
 	return;
 }
@@ -13,4 +13,4 @@ if(v_Raw == v_Formatted)
 {
 	return;
 }
-input.Partner_Billing_POC_Phone = v_Formatted;
+input.Partner_Billing_POC_Fax = v_Formatted;

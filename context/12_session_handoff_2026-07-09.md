@@ -421,6 +421,87 @@ else
 B. APP-WIDE PHONE / FAX FORMAT STANDARD
 ====================================================================
 
+*** SUPERSEDED 2026-07-10 (chat session). The mask changed from +1 (AAA) MMM-LLLL
+to AAA-MMM-LLLL, and the formatter now uses strip/reject behavior with a re-entry
+guard plus a paired On-Validate and a field tooltip. The ORIGINAL +1 (AAA) spec is
+kept below under "SUPERSEDED ORIGINAL" for history. Use the NEW STANDARD for all
+rollout. Reference implementation proven live: Partner_Billing_Contacts (phone + fax). ***
+
+--------------------------------------------------------------------
+NEW STANDARD (2026-07-10) - proven live on Partner_Billing_Contacts
+--------------------------------------------------------------------
+MASK: AAA-MMM-LLLL   e.g.  813-555-1234   (no +1, no parentheses)
+
+THREE LAYERS per phone/fax field (all three required):
+  1. FIELD TOOLTIP (Creator field property, not code, not in schema mirror):
+     "Enter exactly 10 digits. Exclude dashes and parentheses."
+  2. ON-USER-INPUT FORMATTER (one .dg per field): strips non-digits; formats ONLY
+     on exactly 10 digits; collapses to raw digits on any invalid length (so a
+     wrong-length entry visibly reads as unformatted, not a stale-dashed mask);
+     re-entry guard prevents an infinite format loop.
+  3. ON-VALIDATE (form-level, one workflow per form): blocks submit with a
+     per-field alert if a filled phone/fax is not exactly 10 digits.
+
+BEHAVIOR DECISIONS:
+  - REJECT, not trim: a non-10-digit entry is NOT silently trimmed to 10 (that
+    could hide a typo on a billing contact). It stays unformatted and On-Validate
+    blocks the save.
+  - Phone/fax are OPTIONAL: validated only if filled (!= null && != "").
+  - Do NOT set field max-characters as the cap: the formatted value (12 chars) is
+    longer than 10 raw digits, so a low max-char fires Creator's generic "Invalid
+    entries found" popup BEFORE the custom On-Validate alert. Leave max-char
+    generous/unset; the formatter + On-Validate do the enforcement.
+
+FORMATTER TEMPLATE (substitute the field link name for FIELD):
+```
+v_Raw = input.FIELD.toString();
+v_Digits = v_Raw.replaceAll("[^0-9]","");
+if(v_Digits.length() != 10)
+{
+	if(v_Raw != v_Digits)
+	{
+		input.FIELD = v_Digits;
+	}
+	return;
+}
+v_Formatted = v_Digits.subString(0,3) + "-" + v_Digits.subString(3,6) + "-" + v_Digits.subString(6,10);
+if(v_Raw == v_Formatted)
+{
+	return;
+}
+input.FIELD = v_Formatted;
+```
+
+ON-VALIDATE SNIPPET (add one block per phone/fax field on the form; combine with
+any existing On-Validate logic - a form has ONE On-Validate workflow):
+```
+if(input.FIELD != null && input.FIELD != "")
+{
+	v_digits = input.FIELD.replaceAll("[^0-9]","");
+	if(v_digits.length() != 10)
+	{
+		alert "Phone number must be exactly 10 digits (numbers only).";
+		cancel submit;
+	}
+}
+```
+(Use "Fax number..." wording for fax fields.)
+
+ROLLOUT STATUS:
+  - DONE + tested live: Partner_Billing_Contacts (Partner_Billing_POC_Phone,
+    Partner_Billing_POC_Fax). Fax field renamed from Partner_Billing_POC_Phone1
+    to Partner_Billing_POC_Fax; old formatter file retired.
+  - TODO (update to new mask + add On-Validate + tooltip): Referrals_Main
+    (Patient_Phone, Decision_Maker_Phone, Facility_Phone, Partner_POC_Phone) -
+    NOTE these are Zoho-Form-fed so On-User-Input does NOT fire inbound (see C-1);
+    Encounter_PatientVisit (Patient_Phone, Facility_Phone, Partner_POC_Phone);
+    Assignments (Patient_Phone, Facility_Phone); Employees (Employee_Phone);
+    Partners (Partner_Phone); X_Ray_Orders (Patient_Phone, X_Ray_Results_Fax).
+  - Roll out ONE FORM AT A TIME; Neil tests each before the next.
+
+--------------------------------------------------------------------
+SUPERSEDED ORIGINAL (2026-07-09) - kept for history, do NOT use
+--------------------------------------------------------------------
 DECISION: every phone AND fax field, on EVERY form, uses one viewing mask:
    +1 (AAA) MMM-LLLL      e.g.  +1 (813) 555-1234
 (Preferred. Acceptable fallback was X-XXX-XXX-XXXX; we chose the +1 (AAA) form.)
