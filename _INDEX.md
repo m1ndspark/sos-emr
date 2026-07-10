@@ -1,6 +1,6 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: July 3, 2026 (Session 8)
+Last updated: July 10, 2026 (Session 12)
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
@@ -28,17 +28,18 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
   Encounter_PatientVisit/OnLoad__Provider_PreFill.dg
     trigger: On Load        | per docs: WORKING         | extraction: PENDING | verified: NO
   Encounter_PatientVisit/OnLoad__Default_Hide_On_Load.dg
-    trigger: On Load        | per docs: BUILT, UNTESTED | extraction: DONE    | verified: NO
-      NOTE: extracted from live + added "hide Edit_Needed;" for the referral-lock feature. Retest.
+    trigger: On Load (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
+      NOTE: live workflow name "Default Hide On Load". Includes hide Edit_Needed. Replaced the old "Referral Fields Default Hide" (now DISABLED live).
   Encounter_PatientVisit/OnUserInput__Has_Referral_ID__Show_Hide.dg
-    trigger: On User Input  | per docs: BUILT, UNTESTED | extraction: DONE    | verified: NO
-      NOTE: revised for Option B - Yes no longer disables fields (lock now only on a real Referral_Link match); No wipes + unlocks + hides Edit_Needed.
+    trigger: On User Input (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
+      NOTE: live name "Has Referral_ID Show_Hide". Option B - Yes shows Referral_Link only (no lock); No wipes all + unlocks + hides Edit_Needed. PENDING CHANGE (next session): the No branch still does show PVS_Referral_ID; Neil wants it hidden (PVS_Referral_ID is generated on submit, never shown during input) - change that one line to hide.
   Encounter_PatientVisit/OnUserInput__Referral_Link__PreFill.dg
-    trigger: On User Input  | per docs: BUILT, UNTESTED | extraction: DONE    | verified: NO
-      NOTE: conditional lock (Option B) + wipe-on-deselect + Edit_Needed override + name-field swap (Full_Name vs split names).
+    trigger: On User Input | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
+      NOTE: live name "Referral Link Pre-Fill" (07-09). Conditional lock (Option B) on a real match (v_Found) + wipe-on-deselect + shows Edit_Needed=No + Full_Name/split-name swap. Pull maps referral fields by matching link names (PVS partner fields renamed Partner_* to match Referrals_Main).
   Encounter_PatientVisit/OnUserInput__Edit_Needed__Unlock.dg
-    trigger: On User Input  | per docs: BUILT, UNTESTED | extraction: DONE    | verified: NO
-      NOTE: new. Edit_Needed=Yes unlocks all prepopulated fields (except System Fields section) and swaps Full_Name for the split name fields; No re-locks. Requires new Radio field Edit_Needed (No/Yes) on the form.
+    trigger: On User Input (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
+      NOTE: live name "Edit_Needed Unlock". Edit_Needed=Yes unlocks all prepopulated fields (except System Fields section) + swaps Full_Name for split names; No re-locks. Requires Radio field Edit_Needed (No/Yes) - LIVE.
+      *** DEPLOY GOTCHA (2026-07-10): the OLD workflows "Referral Fields Default Hide" AND "Patient Fields Editability Toggle" must be DISABLED. While enabled they fired alongside the new set and hid Edit_Needed on referral select. Both now DISABLED live (not deleted - delete in a cleanup pass so they cannot be re-enabled). Full 5-step cycle verified: select->lock+Full_Name+Edit_Needed; Edit_Needed=Yes unlock+split names; No relock; deselect clears; Has_Referral_ID=No clears+manual entry. ***
   Encounter_PatientVisit/OnUserInput__Type_of_Entry__Section_Visibility.dg
     trigger: On User Input  | per docs: DOES NOT EXIST   | extraction: N/A     | verified: NO
       NOTE 2026-07-09: Neil confirmed there is NO Type_of_Entry On-User-Input workflow live. Placeholder is stale; delete in a cleanup pass.
@@ -529,3 +530,51 @@ KEY OPEN ITEMS (from Session 10 walkthrough):
   2. SOS Internal (non-hospice) billing basis - partner->location->rate chain assumes
      a contracted partner; internal/subscription referrals bill differently. TBD.
   3. Encounter_RadiologyRequest empty-shell cleanup (see above).
+
+================================================================================
+SESSION 11-12 ADDITIONS (2026-07-10)
+================================================================================
+PHONE / FAX FORMAT STANDARD - SUPERSEDED (Session 11). New mask AAA-MMM-LLLL
+(was +1 (AAA) MMM-LLLL). Full spec in context/12 Section B (superseded) and the
+formatter learnings in context/05. Three layers per field: tooltip + On-User-Input
+formatter (strip/reject + re-entry guard, collapse-to-raw on invalid length) +
+On-Validate 10-digit block with per-field message. REJECT not trim. Do NOT use
+field max-char as the cap (fires Creator's generic popup before On-Validate).
+  DONE + TESTED LIVE: Partner_Billing_Contacts (reference implementation):
+    Partner_Billing_Contacts/OnUserInput__Partner_Billing_POC_Phone__Format.dg (final template)
+    Partner_Billing_Contacts/OnUserInput__Partner_Billing_POC_Fax__Format.dg (new)
+    Partner_Billing_Contacts/OnValidate__Partner_Billing_Contact_Branch_Match.dg (now also validates phone+fax; branch-match block is dead code - filtered lookup + dependent dropdown prevent a mismatch)
+    Field changes: Partner_Billing_POC_Phone converted Phone(27)->Single Line;
+      new Partner_Billing_POC_Fax; RETIRED Partner_Billing_POC_Phone1 (+ its .dg).
+  TODO (roll out new standard, one form at a time, test each; each needs field
+    conversion to Single Line same-link-name + formatter + On-Validate + tooltip):
+    Referrals_Main (Zoho-Form-fed - formatter only helps manual entry, see NOTE 7),
+    Encounter_PatientVisit, Assignments, Employees, Partners, X_Ray_Orders.
+  NOTE: NOTE 8 above still documents the OLD +1 (AAA) standard - superseded by this
+    block and context/12 Section B. Reconcile NOTE 8 in a future cleanup.
+
+PVS REFERRAL PRE-FILL / EDIT_NEEDED LOCK SYSTEM - DEPLOYED + TESTED LIVE (Session 12).
+  The 4-workflow lock system (Default_Hide_On_Load, Has_Referral_ID__Show_Hide,
+  Referral_Link__PreFill, Edit_Needed__Unlock) existed in the repo but was NOT in
+  Creator; deployed live 2026-07-10 and the full 5-step cycle verified. See the
+  PVS form section above for per-workflow status and the deploy gotcha (old
+  "Referral Fields Default Hide" + "Patient Fields Editability Toggle" DISABLED).
+  Provider_PreFill (Employees-by-email) confirmed working live earlier (logged-in
+  user's provider fields populate + lock). Edit_Needed Radio (No/Yes) field is live.
+  PENDING (next session): in Has_Referral_ID No branch, change show PVS_Referral_ID
+  -> hide (generated on submit, never shown during input).
+
+STANDING BEHAVIOR (set Session 11): "Document everywhere" / "please document
+  everywhere" = mid-work doc flush (NOT end of session). "End of day" / "EOD" =
+  same four actions (Apple Notes log + downloadable copy + repo updates by Claude
+  judgment + Claude Code git prompt) but a fuller wrap-up log; Neil declares it.
+  No time-awareness assumptions; no prompting to end. Neil works ~12 hr/day.
+
+CLEANUP BACKLOG (accumulating - do in a pass):
+  - Delete disabled PVS workflows "Referral Fields Default Hide" + "Patient Fields
+    Editability Toggle" (disabled, not deleted).
+  - Delete stale placeholder OnUserInput__Type_of_Entry__Section_Visibility.dg
+    ("Entry Type Section Visibility" IS live per 2026-07-10 workflow list - RE-VERIFY:
+    the earlier "does not exist" note may be wrong; confirm before deleting the .dg).
+  - Reconcile NOTE 8 (old phone standard) with the new AAA-MMM-LLLL standard.
+  - Retire empty Encounter_RadiologyRequest (confirm X_Ray_Orders supersedes).
