@@ -1,1 +1,69 @@
-/* PENDING EXTRACTION - replace this entire file with the verified Deluge copied from Creator, then update _INDEX.md */
+if(input.Has_Referral_ID == "Yes")
+{
+	show Referral_Link;
+	show Referral_ID;
+	hide PVS_Referral_ID;
+}
+else if(input.Has_Referral_ID == "No")
+{
+	input.Referral_Link = null;
+	input.Patient_Full_Name = null;
+	input.Patient_First_Name = null;
+	input.Patient_MI = null;
+	input.Patient_Last_Name = null;
+	input.Patient_DOB = null;
+	input.Patient_Gender = null;
+	input.Patient_Address = null;
+	input.Patient_Hospice_ID = null;
+	input.Patient_SSN = null;
+	input.Patient_Phone = null;
+	input.Patient_Email = null;
+	input.Patient_Location = null;
+	input.Facility_Name = null;
+	input.Facility_Phone = null;
+	input.Facility_Room_Number = null;
+	input.Referral_ID = null;
+	input.Referral_ID_Stamp = null;
+	input.Partner_ID = null;
+	input.Partner_ID_Stamp = null;
+	input.Partner_Organization = null;
+	input.Partner_Branch = null;
+	input.Partner_POC_Team = null;
+	input.Partner_POC_First_Name = null;
+	input.Partner_POC_Last_Name = null;
+	input.Partner_POC_Title = null;
+	input.Partner_POC_Phone = null;
+	input.Partner_POC_Email = null;
+	input.Partner_POC_Name_Title = null;
+	input.Edit_Needed = null;
+	show PVS_Referral_ID;
+	hide Referral_Link;
+	hide Referral_ID;
+	hide Referral_Partner_Section;
+	hide Edit_Needed;
+	show Patient_First_Name;
+	show Patient_MI;
+	show Patient_Last_Name;
+	hide Patient_Full_Name;
+	enable Patient_First_Name;
+	enable Patient_MI;
+	enable Patient_Last_Name;
+	enable Patient_DOB;
+	enable Patient_Gender;
+	enable Patient_Address;
+	enable Patient_Phone;
+	enable Patient_Email;
+	enable Patient_Hospice_ID;
+	enable Patient_SSN;
+	enable Facility_Name;
+	enable Facility_Phone;
+	enable Facility_Room_Number;
+}
+else
+{
+	hide Referral_Link;
+	hide Referral_ID;
+	hide PVS_Referral_ID;
+	hide Referral_Partner_Section;
+	hide Edit_Needed;
+}

@@ -28,13 +28,20 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
   Encounter_PatientVisit/OnLoad__Provider_PreFill.dg
     trigger: On Load        | per docs: WORKING         | extraction: PENDING | verified: NO
   Encounter_PatientVisit/OnLoad__Default_Hide_On_Load.dg
-    trigger: On Load        | per docs: WORKING         | extraction: PENDING | verified: NO
+    trigger: On Load        | per docs: BUILT, UNTESTED | extraction: DONE    | verified: NO
+      NOTE: extracted from live + added "hide Edit_Needed;" for the referral-lock feature. Retest.
   Encounter_PatientVisit/OnUserInput__Has_Referral_ID__Show_Hide.dg
-    trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
+    trigger: On User Input  | per docs: BUILT, UNTESTED | extraction: DONE    | verified: NO
+      NOTE: revised for Option B - Yes no longer disables fields (lock now only on a real Referral_Link match); No wipes + unlocks + hides Edit_Needed.
   Encounter_PatientVisit/OnUserInput__Referral_Link__PreFill.dg
-    trigger: On User Input  | per docs: BUILT, UNTESTED | extraction: PENDING | verified: NO
+    trigger: On User Input  | per docs: BUILT, UNTESTED | extraction: DONE    | verified: NO
+      NOTE: conditional lock (Option B) + wipe-on-deselect + Edit_Needed override + name-field swap (Full_Name vs split names).
+  Encounter_PatientVisit/OnUserInput__Edit_Needed__Unlock.dg
+    trigger: On User Input  | per docs: BUILT, UNTESTED | extraction: DONE    | verified: NO
+      NOTE: new. Edit_Needed=Yes unlocks all prepopulated fields (except System Fields section) and swaps Full_Name for the split name fields; No re-locks. Requires new Radio field Edit_Needed (No/Yes) on the form.
   Encounter_PatientVisit/OnUserInput__Type_of_Entry__Section_Visibility.dg
-    trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
+    trigger: On User Input  | per docs: DOES NOT EXIST   | extraction: N/A     | verified: NO
+      NOTE 2026-07-09: Neil confirmed there is NO Type_of_Entry On-User-Input workflow live. Placeholder is stale; delete in a cleanup pass.
   Encounter_PatientVisit/OnUserInput__Diversion_Tracking__Show_Hide.dg
     trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
   Encounter_PatientVisit/OnUserInput__Additional_Charges__Show_Hide.dg

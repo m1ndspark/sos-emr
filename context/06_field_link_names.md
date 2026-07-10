@@ -130,6 +130,15 @@ DISCREPANCIES / NOTES
 - System_Fields_Section has Referral_ID / Referral_ID_Stamp / Partner_ID /
   Partner_ID_Stamp (Custom script) and a Partners lookup. Relevant to the object-ID
   and Sequence_Tracker work (contradictions 4-B, 4-C).
+- PVS (Encounter_PatientVisit) sections/fields used by the referral pre-fill lock,
+  confirmed live by Neil 2026-07-09:
+    System_Fields_Section    section  (backend; stays disabled, hidden once a referral is linked)
+    Referral_Partner_Section section  (shown only when a referral is linked)
+    Edit_Needed              Radio [No, Yes]  NEW 2026-07-09. Provider override: Yes
+                             unlocks all referral-prepopulated fields (except the
+                             System Fields section) and swaps Patient_Full_Name for the
+                             split name fields; No re-locks. Drives
+                             OnUserInput__Edit_Needed__Unlock.dg.
 - Source-sheet type-column artifacts (link names correct, Field Type cell shifted):
   Patient_Gender (sheet: Single Line; actual: Radio), Patient_Address (sheet: Single
   Line; actual: Address), Facility_Room_Number (live link name; sheet said Patient_Room_Number typed Address; actual: Single Line),
