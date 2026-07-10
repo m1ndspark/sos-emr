@@ -513,6 +513,13 @@ REFERRAL FLOW + BILLING ARCHITECTURE: see context/11_referral_flow_and_billing.m
   the billing boundary (NOTHING charged at referral; all charges originate at PVS),
   and the branch-reconciliation gap.
 
+CHAT HANDOFF: see context/12_session_handoff_2026-07-09.md (new 2026-07-09).
+  Self-contained brief for the claude.ai chat side (chat and code cannot share
+  threads). Full decision log + final Deluge for the PVS referral pre-fill/lock
+  (Option B) with the Edit_Needed override, the app-wide phone/fax format standard
+  (+1 (AAA) MMM-LLLL), open items/VERIFY-LIVE, Creator checklist, and PVS +
+  Referrals_Main field link names.
+
 KEY OPEN ITEMS (from Session 10 walkthrough):
   1. BRANCH RECONCILIATION (load-bearing): typed free-text Partner_Branch must
      resolve to a real Partner_Locations billing-location record, since rates are
