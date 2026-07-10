@@ -276,8 +276,10 @@ NOTE 6  Referrals_Main has 5 On-User-Input formatters live (Decision_Maker_Phone
         "Created or Edited" group; the "Created or Edited" copies are the enabled
         canonical set (extract those). Decision Maker Phone Format is enabled under
         BOTH groups, but the contains("(") idempotency guard makes a double-fire
-        harmless. The 4 phone formatters share one pattern: guard on "(", strip to
-        digits, take the last 10, reformat to (AAA) MMM-LLLL.
+        harmless. The 4 phone formatters share one pattern: strip to digits, take
+        the last 10, reformat. UPDATED 2026-07-09: mask changed from (AAA) MMM-LLLL
+        to the app-wide standard +1 (AAA) MMM-LLLL; idempotency guard changed to
+        startsWith("+1 (") and a <10-digit guard added. See NOTE 8 (phone standard).
 
 NOTE 7  Referrals_Main is NOT entered by humans in Creator. The public form is a
         Zoho Form mapped into this Creator form; the Creator form only stores data
@@ -295,6 +297,35 @@ NOTE 7  Referrals_Main is NOT entered by humans in Creator. The public form is a
           since no one types in the Creator form). If confirmed On Create / On Create
           or Edit, rename files to OnCreateOrEdit__*. VERIFY by opening one real
           inbound record and checking whether the SSN/phone value is formatted or raw.
+
+NOTE 8  PHONE FORMAT STANDARD (app-wide, 2026-07-09). Every phone/fax field on every
+        form uses the same viewing mask: +1 (AAA) MMM-LLLL. Creator has no input mask,
+        so a shared On-User-Input formatter normalizes whatever is typed (strip to
+        digits, take last 10, reformat; guard startsWith("+1 (") + <10-digit guard).
+        FIELD-TYPE PLAN (Neil, Creator side): native Phone (type 27) fields cannot emit
+        this custom string, so each is being deleted and rebuilt as a Single Line text
+        field WITH THE SAME LINK NAME, then its formatter pasted. Referrals_Main fields
+        were already Single Line; only their mask changed.
+        Formatters in repo (15):
+          Referrals_Main:        Patient_Phone, Decision_Maker_Phone, Facility_Phone, Partner_POC_Phone  (mask updated; trigger unchanged - see NOTE 7 OPEN)
+          Encounter_PatientVisit: Patient_Phone, Facility_Phone, Partner_POC_Phone
+          Assignments:           Patient_Phone, Facility_Phone
+          Employees:             Employee_Phone
+          Partners:              Partner_Phone
+          Partner_Billing_Contacts: Partner_Billing_POC_Phone, Partner_Billing_POC_Phone1 (Fax)
+          X_Ray_Orders:          Patient_Phone, X_Ray_Results_Fax
+        status: BUILT, UNTESTED | extraction: N/A (authored) | verified: NO
+        VERIFY LIVE:
+          1. Confirm the Zoho Form actually outputs +1 (AAA) MMM-LLLL. On-User-Input
+             formatters do NOT fire on the Zoho Form integration path, so inbound
+             (Referrals) phones rely on the Zoho Form already matching this mask. If it
+             differs, inbound is not normalized and needs an On-Create/Edit normalizer
+             or a Zoho Form change.
+          2. Any form where phone arrives programmatically (workflow insert / import),
+             not typed and not copied from an already-formatted source, bypasses the
+             On-User-Input formatter - confirm per form.
+          3. Rebuild each converted field as Single Line with the IDENTICAL link name so
+             every existing reference (incl. the PVS pre-fill/lock) keeps working.
 
 ================================================================================
 SESSION 6 ADDITIONS (2026-07-02)

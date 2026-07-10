@@ -1,4 +1,4 @@
-v_Raw = input.Facility_Phone.toString();
+v_Raw = input.Partner_Billing_POC_Phone1.toString();
 if(v_Raw.startsWith("+1 ("))
 {
 	return;
@@ -12,4 +12,4 @@ v_Digits = v_Digits.subString(v_Digits.length() - 10,v_Digits.length());
 v_Area = v_Digits.subString(0,3);
 v_Mid = v_Digits.subString(3,6);
 v_Last = v_Digits.subString(6,10);
-input.Facility_Phone = "+1 (" + v_Area + ") " + v_Mid + "-" + v_Last;
+input.Partner_Billing_POC_Phone1 = "+1 (" + v_Area + ") " + v_Mid + "-" + v_Last;
