@@ -1,1 +1,55 @@
-/* PENDING EXTRACTION - replace this entire file with the verified Deluge copied from Creator, then update _INDEX.md */
+v_Referral = Referrals_Main[ID == input.Referral_Link];
+for each  v_Rec in v_Referral
+{
+	input.Patient_Full_Name = v_Rec.Patient_Full_Name;
+	input.Patient_First_Name = v_Rec.Patient_First_Name;
+	input.Patient_MI = v_Rec.Patient_MI;
+	input.Patient_Last_Name = v_Rec.Patient_Last_Name;
+	input.Patient_DOB = v_Rec.Patient_DOB;
+	input.Patient_Gender = v_Rec.Patient_Gender;
+	input.Patient_Address = v_Rec.Patient_Address;
+	input.Patient_Hospice_ID = v_Rec.Patient_Hospice_ID;
+	input.Patient_SSN = v_Rec.Patient_SSN;
+	input.Patient_Phone = v_Rec.Patient_Phone;
+	input.Patient_Email = v_Rec.Patient_Email;
+	input.Patient_Location = v_Rec.Patient_Location;
+	input.Facility_Name = v_Rec.Facility_Name;
+	input.Facility_Phone = v_Rec.Facility_Phone;
+	input.Facility_Room_Number = v_Rec.Facility_Room_Number;
+	input.Referral_ID = v_Rec.Referral_ID;
+	input.Referral_ID_Stamp = v_Rec.Referral_ID_Stamp;
+	input.Partner_ID = v_Rec.Partner_ID;
+	input.Partner_ID_Stamp = v_Rec.Partner_ID_Stamp;
+	input.Partner_Organization = v_Rec.Partner_Organization;
+	input.Partner_Branch = v_Rec.Partner_Branch;
+	input.Partner_POC_Team = v_Rec.Partner_POC_Team;
+	input.Partner_POC_First_Name = v_Rec.Partner_POC_First_Name;
+	input.Partner_POC_Last_Name = v_Rec.Partner_POC_Last_Name;
+	input.Partner_POC_Title = v_Rec.Partner_POC_Title;
+	input.Partner_POC_Phone = v_Rec.Partner_POC_Phone;
+	input.Partner_POC_Email = v_Rec.Partner_POC_Email;
+	input.Partner_POC_Name_Title = v_Rec.Partner_POC_First_Name + " " + v_Rec.Partner_POC_Last_Name + ", " + v_Rec.Partner_POC_Title;
+	break;
+}
+hide Patient_First_Name;
+hide Patient_MI;
+hide Patient_Last_Name;
+hide System_Fields_Section;
+disable Patient_Full_Name;
+disable Patient_DOB;
+disable Patient_Gender;
+disable Patient_Address;
+disable Patient_Phone;
+disable Patient_Email;
+disable Patient_Hospice_ID;
+disable Patient_SSN;
+disable Facility_Name;
+disable Facility_Room_Number;
+disable Facility_Phone;
+disable Partner_Organization;
+disable Partner_Branch;
+disable Partner_POC_Phone;
+disable Partner_POC_Email;
+disable Partner_POC_Team;
+disable Partner_POC_Name_Title;
+show Referral_Partner_Section;
