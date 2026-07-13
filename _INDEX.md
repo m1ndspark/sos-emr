@@ -37,8 +37,8 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
     trigger: On User Input | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
       NOTE: live name "Referral Link Pre-Fill" (07-09). Conditional lock (Option B) on a real match (v_Found) + wipe-on-deselect + shows Edit_Needed=No + Full_Name/split-name swap. Pull maps referral fields by matching link names (PVS partner fields renamed Partner_* to match Referrals_Main).
   Encounter_PatientVisit/OnUserInput__Edit_Needed__Unlock.dg
-    trigger: On User Input (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
-      NOTE: live name "Edit_Needed Unlock". Edit_Needed=Yes unlocks all prepopulated fields (except System Fields section) + swaps Full_Name for split names; No re-locks. Requires Radio field Edit_Needed (No/Yes) - LIVE.
+    trigger: On User Input (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 (updated 2026-07-12) | extraction: DONE | verified: YES
+      NOTE: live name "Edit_Needed Unlock". Edit_Needed=Yes unlocks all prepopulated fields (except System Fields section) + swaps Full_Name for split names; No re-locks. Requires Radio field Edit_Needed (No/Yes) - LIVE. FIX 2026-07-12: entire body now wrapped in if(input.Has_Referral_ID == "Yes"). ROOT CAUSE of a walk-in greying bug: the Has Referral_ID Show_Hide No branch sets input.Edit_Needed = null, which triggers this On-User-Input workflow; its old else (null != "Yes") disabled the patient fields right after Has Referral_ID Show_Hide had enabled them, so clicking No greyed the split name/DOB/etc fields. The guard makes it no-op on walk-ins. Verified live.
       *** DEPLOY GOTCHA (2026-07-10): the OLD workflows "Referral Fields Default Hide" AND "Patient Fields Editability Toggle" must be DISABLED. While enabled they fired alongside the new set and hid Edit_Needed on referral select. Both now DISABLED live (not deleted - delete in a cleanup pass so they cannot be re-enabled). Full 5-step cycle verified: select->lock+Full_Name+Edit_Needed; Edit_Needed=Yes unlock+split names; No relock; deselect clears; Has_Referral_ID=No clears+manual entry. ***
   Encounter_PatientVisit/OnUserInput__Type_of_Entry__Section_Visibility.dg
     trigger: On User Input  | per docs: DOES NOT EXIST   | extraction: N/A     | verified: NO
@@ -579,3 +579,53 @@ CLEANUP BACKLOG (accumulating - do in a pass):
     the earlier "does not exist" note may be wrong; confirm before deleting the .dg).
   - Reconcile NOTE 8 (old phone standard) with the new AAA-MMM-LLLL standard.
   - Retire empty Encounter_RadiologyRequest (confirm X_Ray_Orders supersedes).
+
+================================================================================
+SESSION 14 ADDITIONS (2026-07-12)
+================================================================================
+PVS_Referral_ID RELOCATION (DONE + committed 20cc4e2, b32f76e). Field moved into
+System_Fields_Section; all inline show/hide PVS_Referral_ID removed from Has_Referral_ID
+Show_Hide (3 branches); Default Hide On Load hides System_Fields_Section on load + disables
+PVS_Referral_ID. Users never see it inline; it is a system-generated stamp.
+
+PVS_ID + PVS_Referral_ID FORMAT FINALIZED (full detail in context/10 Session 14 update).
+PVS_ID mints from a single shared "PVS" Sequence_Tracker row: referral = PVS-<seq>-<init>
+(e.g. PVS-1001-JK); walk-in = PVS-<seq>-<init>-M (e.g. PVS-1002-JK-M). PVS_Referral_ID =
+"PVS-" + Referral_ID on the referral path only (PVS-REF-1001), BLANK on walk-ins. Patient-
+initials code DROPPED (no-PHI-in-IDs rule); provider initials kept.
+  OPEN: live generator has an && / || precedence bug on the PVS_Referral_ID line (a walk-in
+  would stamp "PVS-null"); paren fix supplied, DEPLOY/VERIFY UNCONFIRMED as of EOD. Also seed
+  the "PVS" seq row @1001; add No-duplicate on PVS_ID; extract the verified generator into the
+  still-placeholder OnSuccess__PVS_Stamp_Generator.dg.
+
+WALK-IN FIELD-GREYING BUG - FIXED + VERIFIED LIVE. Symptom: clicking "No" (walk-in) greyed the
+patient entry fields. ROOT CAUSE: the Has Referral_ID Show_Hide No branch sets input.Edit_Needed
+= null, which TRIGGERS Edit_Needed Unlock (On User Input of Edit_Needed); its old else (null !=
+"Yes") disabled the patient fields immediately after they were enabled. FIX: wrapped the entire
+Edit_Needed Unlock body in if(input.Has_Referral_ID == "Yes") so it no-ops on walk-ins. Committed
+this session.
+  CREATOR LEARNING: setting input.<field> inside one On-User-Input workflow can TRIGGER another
+  On-User-Input workflow that watches that field. Two handlers reacting to the same click can fight.
+  When a workflow nulls/sets a field that has its own On-User-Input logic, guard that logic.
+  (Earlier On-Load enable-quirk hypothesis was WRONG; this cross-workflow trigger was the cause.)
+
+WORKFLOW INVENTORY RECONCILED (live PVS list, 2026-07-12). ENABLED: Pre-fills provider section,
+Default Hide On Load, Additional Charges Show Hide, Diversion Type Show Hide, Referral Link Pre-Fill,
+Entry Type Section Visibility, Edit_Needed Unlock, Has Referral_ID Show_Hide, PVS ID Stamp Generator.
+DISABLED (legacy, not deleted): Referral Fields Default Hide, Patient Fields Editability Toggle.
+  INDEX CORRECTIONS:
+  - "Entry Type Section Visibility" IS LIVE + ENABLED (On User Input of Type_of_Entry). The
+    OnUserInput__Type_of_Entry__Section_Visibility.dg row above (per docs: DOES NOT EXIST) is WRONG.
+    Live code captured this session; extract it and correct that row.
+  - Has Referral_ID Show_Hide live copy MATCHES repo (null-wipe, no PVS_Referral_ID lines). No drift.
+
+CARRY-FORWARD FOR NEXT SESSION (2026-07-13):
+  1. ICD-10 CODE CAPTURE into the PVS (Neil's stated priority): make the ICD-10 fields behave like a
+     Creator multi-select, but with options from a LOOKUP linked to the national ICD-10 registry
+     instead of manually typed choices - search live + multi-select codes onto the form. See
+     context/10 open items.
+  2. PVS ID Stamp Generator: apply the paren fix, deploy, verify; seed "PVS" Sequence_Tracker row
+     @1001; add No-duplicate on PVS_ID; then extract into the placeholder .dg.
+  3. Extract "Entry Type Section Visibility" live code into its .dg; fix the stale _INDEX row.
+  4. Phone/fax standard (AAA-MMM-LLLL) rollout to the remaining 6 forms (carry from Session 12).
+  5. Cleanup pass: delete the two disabled legacy PVS workflows; retire empty Encounter_RadiologyRequest.

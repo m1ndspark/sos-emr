@@ -1,50 +1,53 @@
-if(input.Edit_Needed == "Yes")
+if(input.Has_Referral_ID == "Yes")
 {
-	hide Patient_Full_Name;
-	show Patient_First_Name;
-	show Patient_MI;
-	show Patient_Last_Name;
-	enable Patient_First_Name;
-	enable Patient_MI;
-	enable Patient_Last_Name;
-	enable Patient_DOB;
-	enable Patient_Gender;
-	enable Patient_Address;
-	enable Patient_Phone;
-	enable Patient_Email;
-	enable Patient_Hospice_ID;
-	enable Patient_SSN;
-	enable Facility_Name;
-	enable Facility_Phone;
-	enable Facility_Room_Number;
-	enable Partner_Organization;
-	enable Partner_Branch;
-	enable Partner_POC_Phone;
-	enable Partner_POC_Email;
-	enable Partner_POC_Team;
-	enable Partner_POC_Name_Title;
-}
-else
-{
-	show Patient_Full_Name;
-	hide Patient_First_Name;
-	hide Patient_MI;
-	hide Patient_Last_Name;
-	disable Patient_Full_Name;
-	disable Patient_DOB;
-	disable Patient_Gender;
-	disable Patient_Address;
-	disable Patient_Phone;
-	disable Patient_Email;
-	disable Patient_Hospice_ID;
-	disable Patient_SSN;
-	disable Facility_Name;
-	disable Facility_Phone;
-	disable Facility_Room_Number;
-	disable Partner_Organization;
-	disable Partner_Branch;
-	disable Partner_POC_Phone;
-	disable Partner_POC_Email;
-	disable Partner_POC_Team;
-	disable Partner_POC_Name_Title;
+	if(input.Edit_Needed == "Yes")
+	{
+		hide Patient_Full_Name;
+		show Patient_First_Name;
+		show Patient_MI;
+		show Patient_Last_Name;
+		enable Patient_First_Name;
+		enable Patient_MI;
+		enable Patient_Last_Name;
+		enable Patient_DOB;
+		enable Patient_Gender;
+		enable Patient_Address;
+		enable Patient_Phone;
+		enable Patient_Email;
+		enable Patient_Hospice_ID;
+		enable Patient_SSN;
+		enable Facility_Name;
+		enable Facility_Phone;
+		enable Facility_Room_Number;
+		enable Partner_Organization;
+		enable Partner_Branch;
+		enable Partner_POC_Phone;
+		enable Partner_POC_Email;
+		enable Partner_POC_Team;
+		enable Partner_POC_Name_Title;
+	}
+	else
+	{
+		show Patient_Full_Name;
+		hide Patient_First_Name;
+		hide Patient_MI;
+		hide Patient_Last_Name;
+		disable Patient_Full_Name;
+		disable Patient_DOB;
+		disable Patient_Gender;
+		disable Patient_Address;
+		disable Patient_Phone;
+		disable Patient_Email;
+		disable Patient_Hospice_ID;
+		disable Patient_SSN;
+		disable Facility_Name;
+		disable Facility_Phone;
+		disable Facility_Room_Number;
+		disable Partner_Organization;
+		disable Partner_Branch;
+		disable Partner_POC_Phone;
+		disable Partner_POC_Email;
+		disable Partner_POC_Team;
+		disable Partner_POC_Name_Title;
+	}
 }
