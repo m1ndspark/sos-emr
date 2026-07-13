@@ -68,6 +68,23 @@ PVS_ID SCHEME (DECIDED)
   Keep it as the working field that stores the referral's ID and feeds PVS_ID. (Creator blocks
   deletion until refs are removed; reworking the ID generator isn't worth the risk.)
   OPEN: review the PVS Stamp Generator to confirm exactly how PVS_ID is built.
+- SESSION 14 UPDATE (2026-07-12) - PVS_ID + PVS_Referral_ID FORMAT FINALIZED, supersedes the two
+  format bullets above. Live "PVS ID Stamp Generator" (On Success) now mints from a SINGLE shared
+  PVS sequence (Sequence_Tracker Object_Prefix "PVS"), incrementing across BOTH paths:
+    Referral (Has_Referral_ID=Yes): PVS_ID = "PVS-" + seq + "-" + Employee_Initials        e.g. PVS-1001-JK
+    Walk-in  (Has_Referral_ID=No):  PVS_ID = "PVS-" + seq + "-" + Employee_Initials + "-M"   e.g. PVS-1002-JK-M
+  PVS_Referral_ID = "PVS-" + Referral_ID, REFERRAL PATH ONLY (e.g. PVS-REF-1001); BLANK on walk-ins
+  (walk-ins are tracked by PVS_ID). PVS_ID is NO LONGER derived from PVS_Referral_ID.
+  DROPPED: the patient-initials code (first initial + last-3) - it violated the no-PHI-in-IDs rule.
+  Provider initials (Employee_Initials) KEPT as the last token before any -M. The old "-v2" second-
+  Final rule and PVS_ID_Stamp are still open (not built).
+  PVS_Referral_ID field relocated into System_Fields_Section; hidden + disabled during entry; inline
+  show/hide removed. Generator guard: mints only when PVS_ID is blank (idempotent).
+  OPEN BUG (2026-07-12): the PVS_Referral_ID line in the live generator has an operator-precedence
+  error (&& binds tighter than ||); needs the OR wrapped in parens or a walk-in stamps "PVS-null".
+  Fix supplied; DEPLOY + VERIFY status UNCONFIRMED as of EOD 07-12 - carry to next session.
+  TODO: seed Sequence_Tracker "PVS" row at 1001; add No-duplicate constraint on PVS_ID; extract the
+  verified generator into OnSuccess__PVS_Stamp_Generator.dg (still a placeholder in the repo).
 
 --------------------------------------------------------------------------------
 FIELD DECISIONS SO FAR
@@ -105,3 +122,8 @@ OPEN FIELD-REVIEW ITEMS (not yet decided)
 - Provider Signature: include Employee_Initials (sign-off)? how is signature captured (typed initials + date)?
 - Clinical_Note_Type = Final/Addendum: does "Addendum" create a PVS Addendum (ADR) record vs stay on form?
 - PVS_ID generator: build/update for referral-derived + -v2 + walk-in -M; add PVS_ID_Stamp generator.
+- ICD-10 code capture (NEXT SESSION 2026-07-13 PRIORITY, Neil): make the ICD-10 fields
+  (ICD_10_Search / ICD_10_Codes) behave like a Creator multi-select, but with options coming from a
+  LOOKUP linked to the national ICD-10 registry instead of manually typed choices. Goal: search live
+  against the registry and multi-select codes onto the PVS. Design tomorrow. (An ICD-10 Codes data
+  source / lookup is available; the EMR stack already lists NPI + medical-terminology lookups.)

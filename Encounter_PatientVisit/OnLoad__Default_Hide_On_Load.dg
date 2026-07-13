@@ -24,12 +24,31 @@ hide Equipment_Charge_Amount;
 hide Equipment_Charge_Details;
 hide Other_Charges_Amount;
 hide Other_Charges_Details;
-disable Patient_First_Name;
-disable Patient_MI;
-disable Patient_Last_Name;
-disable Patient_DOB;
-disable Patient_Gender;
-disable Patient_Address;
+if(input.Has_Referral_ID == "Yes")
+{
+	disable Patient_First_Name;
+	disable Patient_MI;
+	disable Patient_Last_Name;
+	disable Patient_DOB;
+	disable Patient_Gender;
+	disable Patient_Address;
+}
+else
+{
+	enable Patient_First_Name;
+	enable Patient_MI;
+	enable Patient_Last_Name;
+	enable Patient_DOB;
+	enable Patient_Gender;
+	enable Patient_Address;
+	enable Patient_Phone;
+	enable Patient_Email;
+	enable Patient_Hospice_ID;
+	enable Patient_SSN;
+	enable Facility_Name;
+	enable Facility_Phone;
+	enable Facility_Room_Number;
+}
 disable Employee_First_Name;
 disable Employee_Last_Name;
 disable Employee_Initials;
