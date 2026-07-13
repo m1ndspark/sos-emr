@@ -1,6 +1,6 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: July 10, 2026 (Session 12)
+Last updated: July 12, 2026 (Session 14)
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
@@ -28,11 +28,11 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
   Encounter_PatientVisit/OnLoad__Provider_PreFill.dg
     trigger: On Load        | per docs: WORKING         | extraction: PENDING | verified: NO
   Encounter_PatientVisit/OnLoad__Default_Hide_On_Load.dg
-    trigger: On Load (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
-      NOTE: live workflow name "Default Hide On Load". Includes hide Edit_Needed. Replaced the old "Referral Fields Default Hide" (now DISABLED live).
+    trigger: On Load (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 (updated 2026-07-12) | extraction: DONE | verified: YES
+      NOTE: live workflow name "Default Hide On Load". Includes hide Edit_Needed. Replaced the old "Referral Fields Default Hide" (now DISABLED live). UPDATE 2026-07-12: PVS_Referral_ID relocated into System_Fields_Section; workflow now hides System_Fields_Section on load and disables PVS_Referral_ID (was a field-level hide PVS_Referral_ID).
   Encounter_PatientVisit/OnUserInput__Has_Referral_ID__Show_Hide.dg
-    trigger: On User Input (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
-      NOTE: live name "Has Referral_ID Show_Hide". Option B - Yes shows Referral_Link only (no lock); No wipes all + unlocks + hides Edit_Needed. PENDING CHANGE (next session): the No branch still does show PVS_Referral_ID; Neil wants it hidden (PVS_Referral_ID is generated on submit, never shown during input) - change that one line to hide.
+    trigger: On User Input (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 (updated 2026-07-12) | extraction: DONE | verified: YES
+      NOTE: live name "Has Referral_ID Show_Hide". Option B - Yes shows Referral_Link only (no lock); No wipes all + unlocks + hides Edit_Needed. DONE 2026-07-12: all show/hide PVS_Referral_ID lines removed (all 3 branches); PVS_Referral_ID relocated to System_Fields_Section and hidden + disabled via Default Hide On Load. Supersedes the earlier one-line hide plan.
   Encounter_PatientVisit/OnUserInput__Referral_Link__PreFill.dg
     trigger: On User Input | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
       NOTE: live name "Referral Link Pre-Fill" (07-09). Conditional lock (Option B) on a real match (v_Found) + wipe-on-deselect + shows Edit_Needed=No + Full_Name/split-name swap. Pull maps referral fields by matching link names (PVS partner fields renamed Partner_* to match Referrals_Main).
@@ -561,8 +561,9 @@ PVS REFERRAL PRE-FILL / EDIT_NEEDED LOCK SYSTEM - DEPLOYED + TESTED LIVE (Sessio
   "Referral Fields Default Hide" + "Patient Fields Editability Toggle" DISABLED).
   Provider_PreFill (Employees-by-email) confirmed working live earlier (logged-in
   user's provider fields populate + lock). Edit_Needed Radio (No/Yes) field is live.
-  PENDING (next session): in Has_Referral_ID No branch, change show PVS_Referral_ID
-  -> hide (generated on submit, never shown during input).
+  DONE 2026-07-12 (Session 14): PVS_Referral_ID moved into System_Fields_Section;
+  all inline show/hide PVS_Referral_ID removed from Has_Referral_ID Show_Hide (3 branches);
+  Default Hide On Load now hides System_Fields_Section + disables PVS_Referral_ID. Commit 20cc4e2.
 
 STANDING BEHAVIOR (set Session 11): "Document everywhere" / "please document
   everywhere" = mid-work doc flush (NOT end of session). "End of day" / "EOD" =
