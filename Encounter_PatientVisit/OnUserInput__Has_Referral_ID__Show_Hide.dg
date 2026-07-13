@@ -2,7 +2,6 @@ if(input.Has_Referral_ID == "Yes")
 {
 	show Referral_Link;
 	show Referral_ID;
-	hide PVS_Referral_ID;
 }
 else if(input.Has_Referral_ID == "No")
 {
@@ -36,7 +35,6 @@ else if(input.Has_Referral_ID == "No")
 	input.Partner_POC_Email = null;
 	input.Partner_POC_Name_Title = null;
 	input.Edit_Needed = null;
-	show PVS_Referral_ID;
 	hide Referral_Link;
 	hide Referral_ID;
 	hide Referral_Partner_Section;
@@ -63,7 +61,6 @@ else
 {
 	hide Referral_Link;
 	hide Referral_ID;
-	hide PVS_Referral_ID;
 	hide Referral_Partner_Section;
 	hide Edit_Needed;
 }

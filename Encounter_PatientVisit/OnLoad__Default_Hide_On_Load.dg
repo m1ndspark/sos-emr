@@ -1,6 +1,6 @@
 hide Referral_Link;
 hide Referral_ID;
-hide PVS_Referral_ID;
+hide System_Fields_Section;
 hide Final_Clinical_Note_Section;
 hide Type_of_Procedure_Section;
 hide Visit_Cost_Drivers_Section;
@@ -34,6 +34,7 @@ disable Employee_First_Name;
 disable Employee_Last_Name;
 disable Employee_Initials;
 disable Employee_Title;
+disable PVS_Referral_ID;
 disable PVS_ID;
 disable Referral_ID;
 disable Referral_ID_Stamp;
