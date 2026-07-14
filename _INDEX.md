@@ -48,7 +48,8 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
   Encounter_PatientVisit/OnUserInput__Additional_Charges__Show_Hide.dg
     trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
   Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg
-    trigger: On Success     | per docs: WORKING (Script 011) | extraction: PENDING | verified: NO
+    trigger: On Success     | per docs: DEPLOYED + TESTED LIVE 2026-07-14 | extraction: DONE 2026-07-14 | verified: YES
+      NOTE: live name "PVS ID Stamp Generator". Mints PVS_ID from the shared "PVS" Sequence_Tracker row (referral = PVS-<seq>-<init>; walk-in = PVS-<seq>-<init>-M) and stamps PVS_Referral_ID = "PVS-"+Referral_ID on the referral path only. FIX 2026-07-14: added parens around the (PVS_Referral_ID == null || == "") test on the last if. && binds tighter than ||, so the old line fired the stamp on ANY empty PVS_Referral_ID, including walk-ins (would stamp "PVS-null"). Verified live both paths: referral -> PVS-REF-<id> (e.g. REF-1005 -> PVS-REF-1005); walk-in -> blank. PVS Sequence_Tracker row live + incrementing (1001, 1002, 1003 observed). STILL TO SET: No-duplicate on PVS_ID (field constraint, Creator side).
 
 FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
   Referrals_Main/OnSuccess__REF_ID_Generator.dg

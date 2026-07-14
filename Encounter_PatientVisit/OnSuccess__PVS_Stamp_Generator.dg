@@ -1,1 +1,28 @@
-/* PENDING EXTRACTION - replace this entire file with the verified Deluge copied from Creator, then update _INDEX.md */
+if(input.PVS_ID == null || input.PVS_ID == "")
+{
+	v_EmpInitials = input.Employee_Initials.toString();
+	v_SeqValue = 0;
+	v_SeqRecord = Sequence_Tracker[Object_Prefix == "PVS"];
+	for each  v_Rec in v_SeqRecord
+	{
+		v_SeqValue = v_Rec.Object_Sequence;
+		update v_Rec
+		[
+			Object_Sequence=v_SeqValue + 1
+		];
+		break;
+	}
+	v_PVSBase = "PVS-" + v_SeqValue.toString();
+	if(input.Has_Referral_ID == "Yes")
+	{
+		input.PVS_ID = v_PVSBase + "-" + v_EmpInitials;
+	}
+	else
+	{
+		input.PVS_ID = v_PVSBase + "-" + v_EmpInitials + "-M";
+	}
+}
+if(input.Has_Referral_ID == "Yes" && input.Referral_ID != null && input.Referral_ID != "" && (input.PVS_Referral_ID == null || input.PVS_Referral_ID == ""))
+{
+	input.PVS_Referral_ID = "PVS-" + input.Referral_ID;
+}
