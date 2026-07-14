@@ -21,3 +21,6 @@ secrets.*
 # Logs / temp
 *.log
 *.tmp
+
+# Zoho app-definition exports (working input for tools/ds_sync.py, not a repo artifact)
+*.ds

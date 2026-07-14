@@ -73,6 +73,11 @@ CONFIRMED DOES NOT WORK
 - Real-time keystroke input masking is not possible in Creator. On User Input
   fires on blur, not on keypress. Best available UX is format-on-blur plus
   placeholder text.
+- A parenthesized OR group inside a compound if, e.g.
+  if(A && B && (C || D)), REVERTS on save in Creator (the inner parens are
+  stripped, changing precedence: && binds tighter than ||). Rewrite as nested
+  ifs: if(A && B){ if(C || D){ ... } }. Equivalent and survives the round-trip.
+  Found on PVS_ID_Stamp_Generator, 2026-07-14.
 
 SEQUENCE GENERATION PATTERN (REUSABLE)
 - Query by the 3-letter prefix code, not the long display name.
