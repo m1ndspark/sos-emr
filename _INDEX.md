@@ -722,3 +722,40 @@ CARRY-FORWARD FOR NEXT SESSION (2026-07-14):
   6. Extract "Entry Type Section Visibility" live code; fix its stale _INDEX row (carry).
   7. Phone/fax standard (AAA-MMM-LLLL) rollout to the remaining 6 forms (carry).
   8. Cleanup pass: delete the two disabled legacy PVS workflows; retire empty Encounter_RadiologyRequest (carry).
+
+================================================================================
+SESSION 16 ADDITIONS (2026-07-14)
+================================================================================
+PVS ID STAMP GENERATOR - paren fix verified live + extracted (see PVS form section).
+
+RETURN-VISIT PREFILL (partner capture-once, no portal) - BUILT + VERIFIED LIVE.
+  Wires the Session 15 Partner_Referral_Contacts store to the public Zoho Form so a
+  returning partner's POC/org details auto-fill from their email. No login, no portal.
+  MECHANISM: Zoho Forms native Dynamic-Prefill-Webhook on the Email field (partner types
+  email, taps the inline search icon, mapped fields populate). Forms webhook -> a Creator
+  Custom API -> Deluge lookup on Partner_Referral_Contacts by email -> returns the 7 fields
+  as JSON (blanks if no match = new partner).
+  functions/get_partner_referral_contact.dg - standalone function, Default namespace, return
+    type Map, one String arg pPocEmail. Queries Partner_Referral_Contacts[Partner_POC_Email ==
+    email], returns First/Last/Title/Phone, Organization, Branch, Team (Partner_POC_Team added
+    mid-build). extraction: DONE 2026-07-14 | verified: YES (live prefill test passed).
+  CREATOR CUSTOM API "Get Partner Referral Contact" (link name get_partner_referral_contact):
+    Microservices > Custom API. GET, OAuth2, User scope Admin only, Argument Type Key-and-Value
+    (param key pPocEmail = the function arg), Response STANDARD, bound to the function above.
+    Endpoint: www.zohoapis.com/creator/custom/sosmmc/Get_Partner_Referral_Contact.
+    Uses existing Zoho Forms connection sos_creator_connection (scopes Zohocreator.customapi.
+    EXECUTE + ZohoCreator.report.READ, both present).
+  RESPONSE SHAPE LEARNING: Creator Custom API "Standard" response WRAPS the function's Map under
+    a "result" key (plus "code":3000). So the Forms prefill mapping paths are /result/<Field>,
+    not top-level. Confirmed live via the wizard's Test & Verify.
+  ZOHO FORMS SIDE (config, no repo file): Prefill-Webhook field = the Email field; URL param key
+    pPocEmail -> Partner POC Email; 7 field mappings /result/<Field> -> the form fields. Note (UX):
+    the trigger is a small inline magnifying-glass icon; a Note element/instruction above the field
+    is planned to draw attention (deferred; branded PNG asset belongs to SOS Design).
+  OPEN / WATCH:
+  - Email match is exact (Creator ==). If stored vs typed case differs, no match. Lowercase-
+    normalize on both the upsert (write) and this function (read) if live emails prove inconsistent.
+    Not applied yet - left until a real mismatch appears.
+  - Exposure (accepted): lookup key is the partner's own email, so any partner could type another
+    partner's email and see that POC's business-contact details. Non-PHI (Partner_Referral_Contacts
+    holds no patient data); partners are known contacts. Accepted, not mitigated.

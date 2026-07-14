@@ -1,0 +1,25 @@
+map get_partner_referral_contact(string pPocEmail)
+{
+	response = Map();
+	response.put("Partner_POC_First_Name","");
+	response.put("Partner_POC_Last_Name","");
+	response.put("Partner_POC_Title","");
+	response.put("Partner_POC_Phone","");
+	response.put("Partner_Organization","");
+	response.put("Partner_Branch","");
+	response.put("Partner_POC_Team","");
+	v_Email = pPocEmail.trim();
+	v_Contacts = Partner_Referral_Contacts[Partner_POC_Email == v_Email];
+	for each  v_Rec in v_Contacts
+	{
+		response.put("Partner_POC_First_Name",v_Rec.Partner_POC_First_Name);
+		response.put("Partner_POC_Last_Name",v_Rec.Partner_POC_Last_Name);
+		response.put("Partner_POC_Title",v_Rec.Partner_POC_Title);
+		response.put("Partner_POC_Phone",v_Rec.Partner_POC_Phone);
+		response.put("Partner_Organization",v_Rec.Partner_Organization);
+		response.put("Partner_Branch",v_Rec.Partner_Branch);
+		response.put("Partner_POC_Team",v_Rec.Partner_POC_Team);
+		break;
+	}
+	return response;
+}
