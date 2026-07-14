@@ -22,7 +22,10 @@ if(input.PVS_ID == null || input.PVS_ID == "")
 		input.PVS_ID = v_PVSBase + "-" + v_EmpInitials + "-M";
 	}
 }
-if(input.Has_Referral_ID == "Yes" && input.Referral_ID != null && input.Referral_ID != "" && (input.PVS_Referral_ID == null || input.PVS_Referral_ID == ""))
+if(input.Has_Referral_ID == "Yes" && input.Referral_ID != null && input.Referral_ID != "")
 {
-	input.PVS_Referral_ID = "PVS-" + input.Referral_ID;
+	if(input.PVS_Referral_ID == null || input.PVS_Referral_ID == "")
+	{
+		input.PVS_Referral_ID = "PVS-" + input.Referral_ID;
+	}
 }

@@ -1,1 +1,8 @@
-/* PENDING EXTRACTION - replace this entire file with the verified Deluge copied from Creator, then update _INDEX.md */
+if(input.Diversion_Tracking == "Yes")
+{
+	show Type_of_Diversion;
+}
+else
+{
+	hide Type_of_Diversion;
+}

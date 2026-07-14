@@ -26,7 +26,8 @@ Verified-in-Creator = confirmed the archived copy matches what is live.
 
 FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
   Encounter_PatientVisit/OnLoad__Provider_PreFill.dg
-    trigger: On Load        | per docs: WORKING         | extraction: PENDING | verified: NO
+    trigger: On Load        | per docs: LIVE | extraction: DONE 2026-07-14 | verified: YES
+      NOTE: live name "Pre-fills provider section from ...". Reads Employees[Employee_Email == zoho.loginuserid], pulls Employee First/Last/Title/Initials onto the PVS. Extracted from the live Application IDE .ds export 2026-07-14 (authoritative live dump).
   Encounter_PatientVisit/OnLoad__Default_Hide_On_Load.dg
     trigger: On Load (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 (updated 2026-07-12) | extraction: DONE | verified: YES
       NOTE: live workflow name "Default Hide On Load". Includes hide Edit_Needed. Replaced the old "Referral Fields Default Hide" (now DISABLED live). UPDATE 2026-07-12: PVS_Referral_ID relocated into System_Fields_Section; workflow now hides System_Fields_Section on load and disables PVS_Referral_ID (was a field-level hide PVS_Referral_ID). UPDATE 2026-07-12 (b87f047): patient identity disables are now conditional - if(Has_Referral_ID == "Yes") disable First/MI/Last/DOB/Gender/Address, else enable them (+ Phone/Email/Hospice/SSN/Facility) so the walk-in path loads editable. NOTE: this turned out to be a red herring for the walk-in greying bug; the real fix was the Edit_Needed Unlock guard. The change is correct and harmless, kept.
@@ -47,12 +48,16 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
       Extracted live 2026-07-14. CORRECTS the prior (2026-07-09) "DOES NOT EXIST" note, which was
       wrong - Session 14 workflow inventory already flagged it as live/enabled.
   Encounter_PatientVisit/OnUserInput__Diversion_Tracking__Show_Hide.dg
-    trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
+    trigger: On User Input (Diversion_Tracking) | per docs: LIVE | extraction: DONE 2026-07-14 | verified: YES
+      NOTE: live name "Diversion Type Show Hide". Diversion_Tracking=="Yes" shows Type_of_Diversion, else hides. Extracted from live .ds export 2026-07-14.
   Encounter_PatientVisit/OnUserInput__Additional_Charges__Show_Hide.dg
-    trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
+    trigger: On User Input (Additional_Charges) | per docs: LIVE | extraction: DONE 2026-07-14 | verified: YES
+      NOTE: live name "Additional Charges Show Hide". Checkbox contains("Equipment Charge") shows Equipment amount/details; contains("Other") shows Other amount/details; else hide. Extracted from live .ds export 2026-07-14.
   Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg
-    trigger: On Success     | per docs: DEPLOYED + TESTED LIVE 2026-07-14 | extraction: DONE 2026-07-14 | verified: YES
-      NOTE: live name "PVS ID Stamp Generator". Mints PVS_ID from the shared "PVS" Sequence_Tracker row (referral = PVS-<seq>-<init>; walk-in = PVS-<seq>-<init>-M) and stamps PVS_Referral_ID = "PVS-"+Referral_ID on the referral path only. FIX 2026-07-14: added parens around the (PVS_Referral_ID == null || == "") test on the last if. && binds tighter than ||, so the old line fired the stamp on ANY empty PVS_Referral_ID, including walk-ins (would stamp "PVS-null"). Verified live both paths: referral -> PVS-REF-<id> (e.g. REF-1005 -> PVS-REF-1005); walk-in -> blank. PVS Sequence_Tracker row live + incrementing (1001, 1002, 1003 observed). No-duplicate on PVS_ID SET 2026-07-14 (Creator field constraint).
+    trigger: On Success     | per docs: DEPLOYED + TESTED LIVE 2026-07-14 (re-fixed) | extraction: DONE 2026-07-14 | verified: YES
+      NOTE: live name "PVS ID Stamp Generator". Mints PVS_ID from the shared "PVS" Sequence_Tracker row (referral = PVS-<seq>-<init>; walk-in = PVS-<seq>-<init>-M) and stamps PVS_Referral_ID = "PVS-"+Referral_ID on the referral path only.
+      FIX 2026-07-14 (corrected): the precedence bug (&& binds tighter than ||) was real, but the paren fix DID NOT HOLD. CREATOR QUIRK: a compound if with a parenthesized ||-subgroup, e.g. if(A && B && (C || D)), SILENTLY REVERTS ON SAVE back to the un-parenthesized form. The morning "it saved / tests passed" was a false pass: the ds export (12:53) proved live still had NO parens, and both happy-path tests passed only because a fresh record's PVS_Referral_ID is null (which the buggy precedence handles correctly on both paths). REAL FIX: split into NESTED ifs (no paren grouping): outer if(Has_Referral_ID=="Yes" && Referral_ID present), inner if(PVS_Referral_ID == null || == ""). Verified live on an EDIT/RE-SUBMIT (the case the happy-path test missed): referral PVS-1004 kept PVS-REF-070226-1243 unchanged; walk-in PVS-1002-JK-M stayed blank. PVS Sequence_Tracker row live + incrementing. No-duplicate on PVS_ID SET 2026-07-14.
+      LESSON: verify a fix persisted by REOPENING the saved workflow (Creator can silently drop constructs it won't accept), and test the edit/re-submit path, not just fresh creates.
 
 FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
   Referrals_Main/OnSuccess__REF_ID_Generator.dg
@@ -775,3 +780,39 @@ RETURN-VISIT PREFILL (partner capture-once, no portal) - BUILT + VERIFIED LIVE.
   - Exposure (accepted): lookup key is the partner's own email, so any partner could type another
     partner's email and see that POC's business-contact details. Non-PHI (Partner_Referral_Contacts
     holds no patient data); partners are known contacts. Accepted, not mitigated.
+
+APP EXPORT + SYNC TOOL (2026-07-14) - major infrastructure.
+  DISCOVERY: Settings > Application IDE > Export produces a .ds file = the WHOLE app definition
+  (forms + fields + every workflow/function Deluge), definition-only (no record data / PHI; the 47
+  "data" hits are all `personal data = true` field flags). This is authoritative LIVE truth and ends
+  the manual paste-from-live relay. IMPORT of a .ds CREATES A NEW APP (clone) - it does NOT patch the
+  live app in place - so .ds is a mirror + dev-clone tool, not a production deploy. Import lives under
+  Solutions > Create Solution > Applications > Import from file (NOT in the IDE).
+  tools/ds_sync.py - reconciles a .ds against the repo .dg files. Dry-run report per item
+  (MATCH / DRIFT / NEW / EMPTY / AMBIGUOUS); --apply writes DRIFT + NEW only. SAFETY: never writes
+  EMPTY or AMBIGUOUS (incl. target collisions where two live sources map to one repo file), so a
+  mis-map can't clobber. Compare is whitespace-insensitive (Deluge nesting is braces, not indent).
+  Run in Claude Code: python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . [--apply].
+  KEY LESSON: DRIFT DIRECTION IS NOT ALWAYS live->repo. Decide per item. First reconcile (2026-07-14)
+  found ~35 old Session 4-6 generators/functions repo-stale (safe to pull), BUT PVS_Stamp_Generator and
+  Referral_Link_Pre_Fill were repo-AHEAD (repo correct, live behind - see below). Blanket --apply would
+  have regressed the archive. NOT applied yet.
+  EXTRACTED FROM THE EXPORT (were PENDING placeholders, now DONE + verified - see PVS form rows):
+  OnLoad__Provider_PreFill, OnUserInput__Diversion_Tracking__Show_Hide, OnUserInput__Additional_Charges__Show_Hide.
+  DRIFT FINDINGS TO RESOLVE (repo-ahead; push repo->live, do NOT pull):
+  - PVS_Stamp_Generator: live lacked the guard fix -> RE-FIXED live this session as nested ifs, verified
+    on edit/re-submit (see PVS_Stamp row). Repo + live now agree.
+  - Referral_Link_Pre_Fill: repo has `hide System_Fields_Section;` in if(v_Found); live does not. OPEN:
+    add live (plain hide, safe) or drop from repo. Likely harmless (Default_Hide_On_Load hides it on load).
+  NEW rows that are actually existing files under non-conforming names (rename repo files, do NOT create
+  dupes): ShowHide_Facility_block.dg; Assignments/OnUserInput__Assignment_Pull_From_Referral.dg (missing
+  the Referral_Link token); Employees/OnLoadAndOnInput__Employee_Term_Date_Visibility.dg. Genuine NEW (safe
+  to create): Provider_ICD_Print_Builder + schema-monitor fns (run_schema_monitor, seed_schema_to_github,
+  test_github_commit, test_schema_connection).
+  AMBIGUOUS collisions surfaced (never written): (1) Assignments OnLoad - Assignment_Lock_Immutable vs the
+  facility show/hide block (non-conforming filename); (2) PVS Has_Referral_ID - Has_Referral_ID_Show_Hide
+  vs the DISABLED-legacy Patient_Fields_Editability_Toggle (delete it live -> collision clears); (3)
+  Partner_Rates OnSuccess - the empty native stamp vs Partner_Rate_Stamp_Generator; (4) Partners OnSuccess -
+  PAR_ID_Generator vs a STRAY Partner_Rate_Stamp workflow misplaced on the Partners form (investigate).
+  log_change: confirmed live body is genuinely EMPTY (Creator logs errors only) - not an export gap; the
+  tool's EMPTY guard correctly leaves the repo copy alone.

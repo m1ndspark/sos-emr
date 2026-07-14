@@ -1,1 +1,9 @@
-/* PENDING EXTRACTION - replace this entire file with the verified Deluge copied from Creator, then update _INDEX.md */
+v_EmpRecord = Employees[Employee_Email == zoho.loginuserid];
+for each  v_Emp in v_EmpRecord
+{
+	input.Employee_First_Name = v_Emp.Employee_First_Name;
+	input.Employee_Last_Name = v_Emp.Employee_Last_Name;
+	input.Employee_Title = v_Emp.Employee_Title;
+	input.Employee_Initials = v_Emp.Employee_Initials;
+	break;
+}

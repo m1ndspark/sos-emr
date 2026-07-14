@@ -1,1 +1,20 @@
-/* PENDING EXTRACTION - replace this entire file with the verified Deluge copied from Creator, then update _INDEX.md */
+if(input.Additional_Charges.contains("Equipment Charge"))
+{
+	show Equipment_Charge_Amount;
+	show Equipment_Charge_Details;
+}
+else
+{
+	hide Equipment_Charge_Amount;
+	hide Equipment_Charge_Details;
+}
+if(input.Additional_Charges.contains("Other"))
+{
+	show Other_Charges_Amount;
+	show Other_Charges_Details;
+}
+else
+{
+	hide Other_Charges_Amount;
+	hide Other_Charges_Details;
+}
