@@ -73,11 +73,17 @@ CONFIRMED DOES NOT WORK
 - Real-time keystroke input masking is not possible in Creator. On User Input
   fires on blur, not on keypress. Best available UX is format-on-blur plus
   placeholder text.
-- A parenthesized OR group inside a compound if, e.g.
-  if(A && B && (C || D)), REVERTS on save in Creator (the inner parens are
-  stripped, changing precedence: && binds tighter than ||). Rewrite as nested
-  ifs: if(A && B){ if(C || D){ ... } }. Equivalent and survives the round-trip.
-  Found on PVS_ID_Stamp_Generator, 2026-07-14.
+- PARENTHESIZED ||-SUBGROUP INSIDE A COMPOUND if REVERTS ON SAVE (2026-07-14).
+  A condition like  if(A && B && (C || D))  -- parentheses grouping an OR inside a
+  larger &&-chain -- is SILENTLY STRIPPED by Creator on save, reverting to
+  if(A && B && C || D), which parses as (A && B && C) || D (&& binds tighter than
+  ||). No error is shown; the grouping is just gone. FIX: split into NESTED ifs,
+  which Creator keeps:  if(A && B){ if(C || D){ ... } }  -- equivalent, survives
+  the round-trip. Found on PVS_ID_Stamp_Generator. Corollary lessons: VERIFY ANY
+  FIX PERSISTED by REOPENING the saved workflow (Creator can silently drop
+  constructs it won't accept), and test the EDIT/re-submit path, not just fresh
+  creates -- a fresh record's null field can mask a precedence bug that only bites
+  on re-submit when the field == "".
 
 SEQUENCE GENERATION PATTERN (REUSABLE)
 - Query by the 3-letter prefix code, not the long display name.

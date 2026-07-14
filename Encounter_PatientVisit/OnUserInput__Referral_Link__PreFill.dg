@@ -41,7 +41,6 @@ if(input.Referral_Link != null)
 		input.Edit_Needed = "No";
 		show Edit_Needed;
 		show Referral_Partner_Section;
-		hide System_Fields_Section;
 		show Patient_Full_Name;
 		hide Patient_First_Name;
 		hide Patient_MI;
