@@ -34,15 +34,18 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
     trigger: On User Input (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 (updated 2026-07-12) | extraction: DONE | verified: YES
       NOTE: live name "Has Referral_ID Show_Hide". Option B - Yes shows Referral_Link only (no lock); No wipes all + unlocks + hides Edit_Needed. DONE 2026-07-12: all show/hide PVS_Referral_ID lines removed (all 3 branches); PVS_Referral_ID relocated to System_Fields_Section and hidden + disabled via Default Hide On Load. Supersedes the earlier one-line hide plan.
   Encounter_PatientVisit/OnUserInput__Referral_Link__PreFill.dg
-    trigger: On User Input | per docs: DEPLOYED + TESTED LIVE 2026-07-10 | extraction: DONE | verified: YES
-      NOTE: live name "Referral Link Pre-Fill" (07-09). Conditional lock (Option B) on a real match (v_Found) + wipe-on-deselect + shows Edit_Needed=No + Full_Name/split-name swap. Pull maps referral fields by matching link names (PVS partner fields renamed Partner_* to match Referrals_Main).
+    trigger: On User Input | per docs: DEPLOYED + TESTED LIVE 2026-07-10 (updated 2026-07-14) | extraction: DONE | verified: YES
+      NOTE: live name "Referral Link Pre-Fill" (07-09). Conditional lock (Option B) on a real match (v_Found) + wipe-on-deselect + shows Edit_Needed=No + Full_Name/split-name swap. Pull maps referral fields by matching link names (PVS partner fields renamed Partner_* to match Referrals_Main). UPDATE 2026-07-14 (item 2): added Partner_ICD_Codes to the pull (populate loop), the found-lock block (disable), and the else branch (null + enable). Both Referrals_Main.Partner_ICD_Codes and PVS Partner_ICD_Codes are Single Line - no type mismatch. Session 15 "didn't work" cause was simply that the pull line was absent. VERIFIED LIVE 2026-07-14: REF-1028 (Partner ICD "E.22, A.22, G.07") pulled into the PVS and locked read-only. NOTE: most existing referrals have Partner_ICD_Codes blank (Dx codes dropped from Cognito import); nothing yet WRITES partner ICD onto referrals - upstream capture is a separate future piece.
   Encounter_PatientVisit/OnUserInput__Edit_Needed__Unlock.dg
     trigger: On User Input (Created or Edited) | per docs: DEPLOYED + TESTED LIVE 2026-07-10 (updated 2026-07-12) | extraction: DONE | verified: YES
       NOTE: live name "Edit_Needed Unlock". Edit_Needed=Yes unlocks all prepopulated fields (except System Fields section) + swaps Full_Name for split names; No re-locks. Requires Radio field Edit_Needed (No/Yes) - LIVE. FIX 2026-07-12: entire body now wrapped in if(input.Has_Referral_ID == "Yes"). ROOT CAUSE of a walk-in greying bug: the Has Referral_ID Show_Hide No branch sets input.Edit_Needed = null, which triggers this On-User-Input workflow; its old else (null != "Yes") disabled the patient fields right after Has Referral_ID Show_Hide had enabled them, so clicking No greyed the split name/DOB/etc fields. The guard makes it no-op on walk-ins. Verified live.
       *** DEPLOY GOTCHA (2026-07-10): the OLD workflows "Referral Fields Default Hide" AND "Patient Fields Editability Toggle" must be DISABLED. While enabled they fired alongside the new set and hid Edit_Needed on referral select. Both now DISABLED live (not deleted - delete in a cleanup pass so they cannot be re-enabled). Full 5-step cycle verified: select->lock+Full_Name+Edit_Needed; Edit_Needed=Yes unlock+split names; No relock; deselect clears; Has_Referral_ID=No clears+manual entry. ***
   Encounter_PatientVisit/OnUserInput__Type_of_Entry__Section_Visibility.dg
-    trigger: On User Input  | per docs: DOES NOT EXIST   | extraction: N/A     | verified: NO
-      NOTE 2026-07-09: Neil confirmed there is NO Type_of_Entry On-User-Input workflow live. Placeholder is stale; delete in a cleanup pass.
+    trigger: On User Input (Type_of_Entry) | per docs: LIVE + ENABLED | extraction: DONE 2026-07-14 | verified: YES
+      NOTE: live name "Entry Type Section Visibility". Show/hide of PVS sections by Type_of_Entry
+      (Patient Visit / 3008 / Lab Order / X-Ray Order / Clinic Hours, + else-hide-all fallback).
+      Extracted live 2026-07-14. CORRECTS the prior (2026-07-09) "DOES NOT EXIST" note, which was
+      wrong - Session 14 workflow inventory already flagged it as live/enabled.
   Encounter_PatientVisit/OnUserInput__Diversion_Tracking__Show_Hide.dg
     trigger: On User Input  | per docs: WORKING         | extraction: PENDING | verified: NO
   Encounter_PatientVisit/OnUserInput__Additional_Charges__Show_Hide.dg
@@ -752,7 +755,20 @@ RETURN-VISIT PREFILL (partner capture-once, no portal) - BUILT + VERIFIED LIVE.
     pPocEmail -> Partner POC Email; 7 field mappings /result/<Field> -> the form fields. Note (UX):
     the trigger is a small inline magnifying-glass icon; a Note element/instruction above the field
     is planned to draw attention (deferred; branded PNG asset belongs to SOS Design).
+  UPSERT WRITE SIDE - Partner Contact Upsert (Referrals_Main, On Success/Created) now writes all 7
+    fields incl. Partner_POC_Team on BOTH branches (update loop via v_Rec.Field= ; and insert). Full
+    chain verified live 2026-07-14: Zform -> Referrals_Main -> upsert -> Partner_Referral_Contacts,
+    then prefill reads it back.
+  ROOT-CAUSE LEARNING (cost time today): a non-choice value assigned to a DROPDOWN field aborts the
+    ENTIRE workflow (all-or-nothing) - nothing after it commits, insert included. Partner_POC_Title on
+    Partner_Referral_Contacts was a Dropdown with placeholder choices (Choice 1/2/3); the upsert set it
+    to "PA"/"RN" (not a listed choice) and the whole write silently failed. FIX: keep passive-store
+    fields Single Line, or make the choice set match the source. Symptom to remember: "all fields present
+    in source, nothing writes downstream" = one bad field assignment aborting the workflow.
   OPEN / WATCH:
+  - Added_User = zoho.loginuser in the insert returns the ORG NAME, not a person, and is empty on the
+    Zoho Form integration path (no logged-in user). Harmless if it's just a system stamp; revisit if it
+    was meant to capture the submitter (would need a different source).
   - Email match is exact (Creator ==). If stored vs typed case differs, no match. Lowercase-
     normalize on both the upsert (write) and this function (read) if live emails prove inconsistent.
     Not applied yet - left until a real mismatch appears.

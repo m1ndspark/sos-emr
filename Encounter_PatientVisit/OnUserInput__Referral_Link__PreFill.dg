@@ -32,6 +32,7 @@ if(input.Referral_Link != null)
 		input.Partner_POC_Phone = v_Rec.Partner_POC_Phone;
 		input.Partner_POC_Email = v_Rec.Partner_POC_Email;
 		input.Partner_POC_Name_Title = v_Rec.Partner_POC_First_Name + " " + v_Rec.Partner_POC_Last_Name + ", " + v_Rec.Partner_POC_Title;
+		input.Partner_ICD_Codes = v_Rec.Partner_ICD_Codes;
 		v_Found = true;
 		break;
 	}
@@ -62,6 +63,7 @@ if(input.Referral_Link != null)
 		disable Partner_POC_Email;
 		disable Partner_POC_Team;
 		disable Partner_POC_Name_Title;
+		disable Partner_ICD_Codes;
 	}
 }
 else
@@ -94,6 +96,7 @@ else
 	input.Partner_POC_Phone = null;
 	input.Partner_POC_Email = null;
 	input.Partner_POC_Name_Title = null;
+	input.Partner_ICD_Codes = null;
 	input.Edit_Needed = null;
 	hide Edit_Needed;
 	hide Referral_Partner_Section;
@@ -114,4 +117,5 @@ else
 	enable Facility_Name;
 	enable Facility_Phone;
 	enable Facility_Room_Number;
+	enable Partner_ICD_Codes;
 }

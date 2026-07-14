@@ -1,1 +1,72 @@
-/* PENDING EXTRACTION - replace this entire file with the verified Deluge copied from Creator, then update _INDEX.md */
+if(input.Type_of_Entry == "Patient Visit")
+{
+	show Final_Clinical_Note_Section;
+	show Type_of_Procedure_Section;
+	show Visit_Cost_Drivers_Section;
+	show Charges_Section;
+	show Diversion_Tracking_Section;
+	show Files_Upload_Section;
+	hide Cares_3008_Completion_Section;
+	hide Imaging_Order_Section;
+	hide Lab_Order_Section;
+}
+else if(input.Type_of_Entry == "3008")
+{
+	show Cares_3008_Completion_Section;
+	show Files_Upload_Section;
+	hide Final_Clinical_Note_Section;
+	hide Type_of_Procedure_Section;
+	hide Visit_Cost_Drivers_Section;
+	hide Charges_Section;
+	hide Diversion_Tracking_Section;
+	hide Imaging_Order_Section;
+	hide Lab_Order_Section;
+}
+else if(input.Type_of_Entry == "Lab Order")
+{
+	show Lab_Order_Section;
+	show Diversion_Tracking_Section;
+	hide Final_Clinical_Note_Section;
+	hide Type_of_Procedure_Section;
+	hide Visit_Cost_Drivers_Section;
+	hide Charges_Section;
+	hide Cares_3008_Completion_Section;
+	hide Imaging_Order_Section;
+	hide Files_Upload_Section;
+}
+else if(input.Type_of_Entry == "X-Ray Order")
+{
+	show Imaging_Order_Section;
+	show Diversion_Tracking_Section;
+	hide Final_Clinical_Note_Section;
+	hide Type_of_Procedure_Section;
+	hide Visit_Cost_Drivers_Section;
+	hide Charges_Section;
+	hide Cares_3008_Completion_Section;
+	hide Lab_Order_Section;
+	hide Files_Upload_Section;
+}
+else if(input.Type_of_Entry == "Clinic Hours")
+{
+	show Diversion_Tracking_Section;
+	hide Final_Clinical_Note_Section;
+	hide Type_of_Procedure_Section;
+	hide Visit_Cost_Drivers_Section;
+	hide Charges_Section;
+	hide Cares_3008_Completion_Section;
+	hide Imaging_Order_Section;
+	hide Lab_Order_Section;
+	hide Files_Upload_Section;
+}
+else
+{
+	hide Final_Clinical_Note_Section;
+	hide Type_of_Procedure_Section;
+	hide Visit_Cost_Drivers_Section;
+	hide Charges_Section;
+	hide Cares_3008_Completion_Section;
+	hide Imaging_Order_Section;
+	hide Lab_Order_Section;
+	hide Diversion_Tracking_Section;
+	hide Files_Upload_Section;
+}

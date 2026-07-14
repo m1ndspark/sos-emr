@@ -1,0 +1,33 @@
+v_Email = input.Partner_POC_Email;
+if(v_Email != "")
+{
+	v_Existing = Partner_Referral_Contacts[Partner_POC_Email == v_Email];
+	v_Found = false;
+	for each  v_Rec in v_Existing
+	{
+		v_Rec.Partner_POC_First_Name=input.Partner_POC_First_Name;
+		v_Rec.Partner_POC_Last_Name=input.Partner_POC_Last_Name;
+		v_Rec.Partner_POC_Title=input.Partner_POC_Title;
+		v_Rec.Partner_POC_Phone=input.Partner_POC_Phone;
+		v_Rec.Partner_Organization=input.Partner_Organization;
+		v_Rec.Partner_Branch=input.Partner_Branch;
+		v_Rec.Partner_POC_Team=input.Partner_POC_Team;
+		v_Found = true;
+		break;
+	}
+	if(v_Found == false)
+	{
+		insert into Partner_Referral_Contacts
+		[
+			Partner_POC_Email=v_Email
+			Partner_POC_First_Name=input.Partner_POC_First_Name
+			Partner_POC_Last_Name=input.Partner_POC_Last_Name
+			Partner_POC_Title=input.Partner_POC_Title
+			Partner_POC_Phone=input.Partner_POC_Phone
+			Partner_Organization=input.Partner_Organization
+			Partner_Branch=input.Partner_Branch
+			Partner_POC_Team=input.Partner_POC_Team
+			Added_User=zoho.loginuser
+		]
+	}
+}
