@@ -11,6 +11,24 @@ Partner_Portal_Users) now use the native stamp only and have NO custom ID. The
 charge-type codes and the deprecated-formats list below are still valid. Read
 file 07 first for anything ID-related.
 
+STALE NOTICE UPDATE (July 14, 2026): the June 26 notice above is itself now partly
+stale for REF and PVS. Two corrections from the later work:
+1. BRANCH IS DECOUPLED from REF/PVS identity (context/07 late-session reversal).
+   REF and PVS carry NO partner+branch token. The fused REF-ACCHIL-1001 shown above
+   applies to Partner (PAR-ACC-1001) and Location (LOC-ACCJAX-1001) ONLY, where the
+   token is genuine identity. Billing branch is a separate Billing_Branch lookup.
+2. LIVE-VERIFIED REF/PVS formats (ground truth = the built generators):
+     REF = "REF-" + seq (clean sequence, base 1001, own REF tracker row, no PHI).
+           Source: functions/mint_referral_id.dg. e.g. REF-1005, REF-1006.
+     PVS = minted from PVS's OWN tracker row (does NOT inherit the parent REF seq).
+           Referral path "PVS-" + seq + "-" + Employee_Initials; walk-in adds "-M".
+           Plus PVS_Referral_ID = "PVS-" + Referral_ID on the referral path only
+           (REF-1005 -> PVS-REF-1005). Source:
+           Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg (live 2026-07-14).
+The "PVS STAMP PATHS" and "PVS and ADD derive seq from the parent REF" lines below
+are SUPERSEDED by this; see contradiction 4-B (RESOLVED) and the .dg for the live
+truth.
+
 Source: SOS EMR Object ID Pattern Master Reference v1.2 (May 7, 2026). Layout now
 superseded by file 07 (see notice above). The older T011 format is deprecated (see contradiction 4-B).
 
@@ -45,10 +63,14 @@ OBJECT ID REFERENCE
   Assignment            ASN  ASN-seq-[assigned provider]          ASN-1001-JK
   PVS_Admin_Review      ADR  ADR-seq-[admin initials]             ADR-1001-JK
 
-PVS STAMP PATHS (two, from May 8 log)
-  Path A (Has_Referral_ID = Yes): PVS-REF[seq]-[patient]-[emp]
-  Path B (Has_Referral_ID = No):  PVS-MPR[seq]-[patient]-[emp], also stamps
-                                  PVS_Referral_ID with the same value
+PVS STAMP PATHS [SUPERSEDED -- see STALE NOTICE UPDATE above; live truth below]
+  DEAD (May 8 log): Path A PVS-REF[seq]-[patient]-[emp]; Path B PVS-MPR[seq]-
+    [patient]-[emp]. Patient token, REF/MPR infix, and the "stamp PVS_Referral_ID
+    on the no-referral path" rule are all dead.
+  LIVE (OnSuccess__PVS_Stamp_Generator.dg, verified 2026-07-14), own PVS tracker row:
+    Referral (Has_Referral_ID = Yes): PVS-[seq]-[emp]   e.g. PVS-1001-JK
+    Walk-in  (else):                  PVS-[seq]-[emp]-M  e.g. PVS-1002-JK-M
+    PVS_Referral_ID (REFERRAL path only): "PVS-" + Referral_ID  e.g. PVS-REF-1005
 
 CHARGE TYPE CODES (4-char)
   LOWC Low Complexity      MODC Moderate Complexity   HIGH High Complexity

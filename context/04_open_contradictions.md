@@ -20,14 +20,32 @@ context/07_partner_billing_and_rates.md, not extracted. See that file.
   or sections. Rename repo folders to match what is live.
 
 --------------------------------------------------------------------------------
-4-B  OBJECT ID FORMAT: v1.2 vs T011
+4-B  OBJECT ID FORMAT: v1.2 vs T011  [RESOLVED]
 --------------------------------------------------------------------------------
-- Authoritative: May 7 v1.2 reference. Per-object counters from 1001, no date
-  embedded, e.g. REF-1001-JSMI-VIT01, PVS-REF1001-JSMI-JK.
-- Deprecated: the older T011 format (single global counter from 1313, date
-  embedded, e.g. REF-MMDDYY-1001-VIT, E1002-JK). The April task master still shows
-  T011 as confirmed; that task description is stale.
-- Action: confirm live stamp generators emit the v1.2 format.
+- RESOLVED July 14, 2026: BOTH candidates are dead. Neither the May 7 v1.2 suffix
+  format (REF-1001-JSMI-VIT01, PVS-REF1001-JSMI-JK) nor the older T011 format
+  (single global counter from 1313, date embedded, REF-MMDDYY-1001-VIT) is live.
+  The app was rebuilt after both; ID design is now set fresh in
+  context/07_partner_billing_and_rates.md and realized by the live generators.
+- LIVE-VERIFIED formats (ground truth = the built generators, not either doc):
+    REF: "REF-" + seq, clean sequence from the REF Sequence_Tracker row, base 1001.
+         No branch token, no PHI. Source: functions/mint_referral_id.dg (wired into
+         Referrals_Main On Success). Examples: REF-1001, REF-1005, REF-1006.
+    PVS: minted from PVS's OWN Sequence_Tracker row (it does NOT inherit the parent
+         REF's sequence). Referral path = "PVS-" + seq + "-" + Employee_Initials;
+         walk-in path = same + "-M". Plus PVS_Referral_ID = "PVS-" + Referral_ID on
+         the referral path only (e.g. REF-1005 -> PVS-REF-1005). Source:
+         Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg. Deployed + tested
+         live 2026-07-14; PVS row observed incrementing 1001, 1002, 1003.
+- Branch is DECOUPLED from ID identity (context/07 late-session reversal): REF/PVS
+  carry no partner+branch token; billing branch is a separate Billing_Branch lookup.
+  The descriptive PARTNERBRANCH token survives only where it is genuine identity:
+  Partner (PAR-ACC-1001) and Location (LOC-ACCJAX-1001).
+- NOTE (divergence from context/07's "PVS ID PATHS (LOCKED)"): 07 planned the
+  referral-linked PVS to INHERIT the parent REF's PARTNERBRANCH-SEQ. The live build
+  instead mints an independent PVS sequence and carries the REF link in the separate
+  PVS_Referral_ID field. Live wins (it is the running app); 07's PVS section is
+  annotated build-realized to match. See context/03 and context/07 for detail.
 
 --------------------------------------------------------------------------------
 4-C  SEQUENCE_TRACKER: per-object counters vs single global counter  [RESOLVED]

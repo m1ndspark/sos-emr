@@ -82,8 +82,28 @@ The suffix format is dead. Rejected: encoding patient initials or DOB (HIPAA
 identifiers; the ID travels into Flow logs, exports, toward QuickBooks).
 
 ================================================================================
-PVS ID PATHS (LOCKED)
+PVS ID PATHS (LOCKED design; BUILD-REALIZED 2026-07-14 differs -- see note)
 ================================================================================
+BUILD-REALIZED (2026-07-14, live-verified, ground truth): the PVS generator was
+built and tested live. It DIVERGES from the inherit-from-REF plan below; the live
+app wins. Actual live behavior (Encounter_PatientVisit/OnSuccess__PVS_Stamp_
+Generator.dg):
+- PVS mints from its OWN Sequence_Tracker row (Object_Prefix "PVS"), base 1001,
+  independent of the parent REF's sequence. It does NOT inherit the REF number.
+  Observed live: 1001, 1002, 1003.
+- Referral path (Has_Referral_ID = Yes): PVS-[seq]-[Employee_Initials]  (PVS-1001-JK)
+- Walk-in path (else): PVS-[seq]-[Employee_Initials]-M  (PVS-1002-JK-M)
+- The REF linkage is carried in a SEPARATE field, PVS_Referral_ID = "PVS-" +
+  Referral_ID, stamped on the referral path only (REF-1005 -> PVS-REF-1005).
+- Consistent with the top-of-file reversal (identity is a clean sequence, branch not
+  in the string): the live PVS string has no partner+branch token. It DOES include
+  employee initials (staff, not patient -> not PHI).
+- OPEN vs the COLLISION spec below: the live generator has no bounded-retry and no
+  record lock; uniqueness is enforced by a Creator "no duplicate" field constraint on
+  PVS_ID (set 2026-07-14), which blocks a dup save rather than bumping the sequence.
+  Bounded retry is still unbuilt for PVS.
+
+ORIGINAL PLAN (LOCKED, now superseded by the build above for PVS):
 - Referral-linked PVS: INHERITS PARTNERBRANCH-SEQ from the parent REF.
     REF-ACCHIL-1001 -> PVS-ACCHIL-1001. No REF infix, no M.
 - No-referral PVS: MINTS from a DEDICATED manual counter (Option A), base 1001,
@@ -131,8 +151,9 @@ SEQUENCING
 ================================================================================
 - Per-object counters in Sequence_Tracker, each its own row, base 1001.
 - Columns: Object_Name, Object_Prefix (3-letter), Object_Sequence, Object_Lock_Status.
-- PVS inherits on the referral path (no own row); the no-referral PVS uses a
-  dedicated manual counter, base 1001, M-suffixed.
+- PVS: BUILD-REALIZED 2026-07-14 uses its OWN "PVS" tracker row for BOTH paths
+  (referral and walk-in), base 1001, not the planned inherit-from-REF. Walk-in adds
+  the M suffix. See PVS ID PATHS build-realized note above.
 - ALL generators start at 1001 for now.
 - PARKED (Neil): distinct starting bases per object later (REF/PVS most-tracked).
   Does not affect REF or PVS; only relevant to the other generators.
