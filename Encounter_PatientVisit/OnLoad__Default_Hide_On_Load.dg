@@ -60,3 +60,4 @@ disable Referral_ID_Stamp;
 disable Partner_ID;
 disable Partner_ID_Stamp;
 disable Invoice_Status;
+disable Provider_ICD_Print;
