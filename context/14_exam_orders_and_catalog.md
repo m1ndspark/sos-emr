@@ -105,3 +105,80 @@ Order field superset (confirmed against the XR Mobile and RapidRad vendor forms)
 --------------------------------------------------------------------------------
   - Exam_Catalog: live + loaded (59 rows), verified.
   - X_Ray_Orders repurpose (lookup, rollup, PDF, fax, vendor directory): pending.
+
+--------------------------------------------------------------------------------
+6. SESSION UPDATE 2026-07-14 (EOD, Session 17) - form rebuilt + provider resolver
+--------------------------------------------------------------------------------
+X_Ray_Orders RENAMED to Imaging_Orders (rename rewrites inbound connections, so
+lookups pointing at it survive). All legacy fields deleted; form rebuilt fresh,
+section by section. Form link name is now Imaging_Orders (covers X-ray, ultrasound,
+cardiac). Repo folder X_Ray_Orders/ should be renamed to match (carry).
+
+FIELD SET AS BUILT / SPECCED:
+  S1 Order Details (BUILT + verified): Order_Details_Section; Referral_Link
+    (Lookup -> Referrals_Main, display "Referral_ID - Patient_Full_Name", leading
+    separator blank + " - " on row 2); Order_Date (Date); Order_Priority (Radio
+    Routine/STAT); Order_Status (Radio Draft/Sent, initial Draft, workflow-set).
+  S2 Patient (BUILT; pull-lock from Referral_Link, workflow pending): Patient_Section;
+    Patient_Full_Name; Patient_DOB; Patient_Gender (Female/Male); Patient_MBI (manual,
+    NO source on Referrals_Main yet); Patient_Hospice_ID; Patient_Address (Address);
+    Patient_Phone (Single Line); Facility_Room_Number; Facility_Name; Facility_Phone
+    (Single Line); DM_Full_Name; DM_Phone.
+    KEY: referral phones are Single Line because the Zoho Form captures them as text,
+    so ALL order phone fields are Single Line to pull clean. Live link name is
+    Facility_Room_Number (not Patient_Room_Number). DM_Full_Name needs a NEW computed
+    field on Referrals_Main (concat DM_First_Name + DM_Last_Name). DM_Phone will not
+    match Decision_Maker_Phone by name -> needs an explicit map line in the pull.
+  S3 Insurance (BUILT, manual): Insurance_Section; Primary_Insurance_Name;
+    Primary_Insurance_ID; Secondary_Insurance_Name; Secondary_Insurance_ID.
+  S4 Provider Details (fields BUILT; auto-resolve workflows PENDING): Provider_Details_Section;
+    Provider_Name; Provider_NPI; Employee_Phone. Dropped the manual Provider_Signature_Link
+    lookup and Signature_Date (use native Added Time).
+  S5 Exam & Clinical (SPECCED, not built): Exam_Section; Ordered_Exams_Link (Lookup
+    multi -> Exam_Catalog, display Exam_Display); Ordered_Exam_Print (rollup);
+    Other_Exam; Order_ICD10_Codes_Link (Lookup multi -> ICD10_Codes, display ICD_Display);
+    Order_ICD_Print (rollup); Reason_For_Study (Multi Line); Reason_For_Portable;
+    Special_Instructions (Multi Line). Multi-select set at field creation only.
+  S6 Vendor & Transmit (SPECCED, not built): Vendor_Transmit_Section; Imaging_Vendor_Link
+    (Lookup -> Imaging_Vendors, form not built yet); Order_PDF (File Upload);
+    Send_Results_To; Results_Return_Fax; Results_Return_Email.
+  System: Order_Sent_Time, Transmit_Error, Last_Transmit_Attempt, X_Ray_Order_ID,
+    X_Ray_Order_ID_Stamp -> move to a System_Fields_Section at the bottom.
+
+ORDER_STATUS + TRANSMIT (locked): two states only, Draft and Sent. Draft is default
+and flips to Sent ONLY when the SRFax API returns success, set INSIDE the fax function
+(not an On Success form workflow). Failure leaves Draft, writes Transmit_Error, stamps
+Last_Transmit_Attempt; success stamps Order_Sent_Time. Manual re-send + on-record error
+first; staff alerting deferred. Acknowledged/Completed dropped (not knowable from a fax).
+
+PROVIDER AUTO-RESOLVE (LOCKED, not yet written): the ordering provider IS the logged-in
+user (like Referrals_Main). Resolve zoho.loginuserid (full email), match
+Employees[Employee_Email == login] AND Employee_Status == "Active". Works for admins
+(Josh, Neil: @sosmmc.com = their Employee_Email) AND portal providers (@sosreferrals.com
+= their Employee_Email); one match field, no multi-email field needed as long as
+Employee_Email equals the login email for everyone. The ACTIVE gate is the real guard:
+a departed employee whose portal access was not yet rescinded would still match and could
+sign a live order, so status alone must block it. Two workflows: On Load stamps
+Provider_Name / Provider_NPI / Employee_Phone read-only; On Validate enforces the Active
+gate and cancels submit with the message "Your provider profile is inactive or not found.
+Contact an admin." Depends on the portal permission set granting portal users read on
+Employees (confirm on screen).
+
+UPDATED CARRIES (next session):
+  1. Write + deploy the two provider resolver workflows (On Load stamp, On Validate
+     Active-gate + block message).
+  2. Add Provider_NPI to the Employees form + backfill.
+  3. Add DM_Full_Name computed field + generator + backfill on Referrals_Main.
+  4. Build S5 (Exam & Clinical) and S6 (Vendor & Transmit) fields.
+  5. Build Ordered_Exam_Print + Order_ICD_Print rollups (On User Input, mirror
+     Provider_ICD_Print; add to the load-time disable list).
+  6. Build the patient-section pull-lock workflow (explicit map line for DM_Phone).
+  7. Build the Imaging_Vendors directory form (name, fax, email, accepted-format,
+     portal URL, active), then Imaging_Vendor_Link resolves.
+  8. Confirm the portal permission set scopes page access + Employees read for portal users.
+  9. Wire PDF generation + attach to order and referral + SRFax auto-fax; engine choice
+     (Creator print/merge vs Lambda) at wire time.
+  10. Laterality (L/R/Bilat) per exam: subform vs exploded catalog rows vs order note.
+  11. Rename X_Ray_Order_ID/_Stamp -> Imaging_Order_ID/_Stamp (optional); add a
+     Sequence_Tracker prefix row + mint function for the order ID.
+  12. Rename repo folder X_Ray_Orders -> Imaging_Orders to match live.
