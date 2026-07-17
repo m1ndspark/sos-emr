@@ -843,3 +843,62 @@ EXAM ORDERS + EXAM_CATALOG (2026-07-14) - see context/14_exam_orders_and_catalog
   Provider_ICD_Print, add to Default Hide On Load); reuse the ICD-10 lookup for indications; PDF gen +
   attach + SRFax auto-fax (engine: Creator print/merge vs Lambda - decide at wire time); laterality per
   exam (subform vs exploded rows vs note - decide at wire time); full order field superset in context/14.
+
+IMAGING_ORDERS FORM (2026-07-14, Session 17) - X_Ray_Orders rebuilt + renamed. See context/14 section 6.
+  X_Ray_Orders RENAMED to Imaging_Orders (rename rewrites inbound connections). All legacy fields
+  deleted; rebuilt fresh section by section. BUILT + verified: S1 Order Details (Referral_Link display
+  "Referral_ID - Patient_Full_Name", Order_Date, Order_Priority Radio Routine/STAT, Order_Status Radio
+  Draft/Sent initial Draft), S2 Patient (pull-lock fields; ALL phones Single Line to match the Zoho-Form
+  text source; Facility_Room_Number is the live name, not Patient_Room_Number; Patient_MBI manual - no
+  referral source yet; DM_Full_Name + DM_Phone), S3 Insurance (manual), S4 Provider Details fields
+  (Provider_Name, Provider_NPI, Employee_Phone; dropped manual signature lookup + Signature_Date, use
+  Added Time). SPECCED not built: S5 Exam & Clinical (Ordered_Exams_Link multi->Exam_Catalog +
+  Ordered_Exam_Print rollup, Order_ICD10_Codes_Link multi->ICD10_Codes + Order_ICD_Print rollup,
+  Other_Exam, Reason_For_Study, Reason_For_Portable, Special_Instructions), S6 Vendor & Transmit
+  (Imaging_Vendor_Link->Imaging_Vendors [form TBD], Order_PDF, Send_Results_To, Results_Return_Fax/Email).
+  ORDER_STATUS: Draft/Sent only; flips to Sent ONLY on SRFax success inside the fax function; failure ->
+  Transmit_Error + Last_Transmit_Attempt, stays Draft; success -> Order_Sent_Time. Manual re-send first.
+  PROVIDER AUTO-RESOLVE (locked, not written): provider = logged-in user. Match Employees[Employee_Email
+  == zoho.loginuserid] AND Employee_Status=="Active". Covers admins (@sosmmc.com) + portal providers
+  (@sosreferrals.com) since Employee_Email = login email for all. Active gate is the guard (a departed
+  user still matching could sign a live order). On Load stamps name/NPI/phone read-only; On Validate
+  blocks inactive/missing with "Your provider profile is inactive or not found. Contact an admin."
+  CARRIES: resolver workflows; add Provider_NPI to Employees + backfill; add DM_Full_Name concat +
+  backfill on Referrals_Main; build S5/S6 fields + the two rollups + the patient pull-lock (explicit
+  DM_Phone map); build Imaging_Vendors form; confirm portal read on Employees; wire PDF + SRFax; decide
+  laterality; rename ID fields + add Sequence_Tracker prefix/mint; rename repo folder X_Ray_Orders ->
+  Imaging_Orders.
+
+SESSION 18 (2026-07-16, covers Jul 15-16) - provider resolver, PVS X-ray, PVS PDF, fax book, SendGrid.
+  See context/15_pvs_pdf_fax_email.md. Highlights:
+  PROVIDER RESOLVER on Imaging_Orders - BUILT + VERIFIED. On Load "Imaging Order Provider Stamp" matches
+  Employees[Employee_Email==zoho.loginuserid && Employee_Status=="Active"], sets the LOOKUP
+  Provider_Signature_Link = v_Emp.ID (not a text name field), stamps Provider_NPI + Employee_Phone,
+  disables them. On Validate (Create+Edit) "Imaging Order Provider Gate" blocks inactive/missing with
+  "Your provider profile is inactive or not found. Contact an admin." Provider_NPI added to Employees.
+  DELUGE LEARNING: NO typed var declarations in body (`string v_X=` throws Improper Statement); untyped only.
+  PVS VISIT X-RAY GROUP - fields BUILT (reveal workflow CARRY). SOS orders x-rays (vendors perform); PVS
+  documents the ORDER only; results go in the addendum (PVS locks at finalize). New group gated by
+  Type_of_Entry=Patient Visit: Visit_XRay_Section, XRay_Ordered_This_Visit (Radio No/Yes), Visit_XRay_Type,
+  Visit_XRay_Order_Date, Visit_XRay_Indication (last 3 Default Hide On Load). Separate from Group A
+  (referral-inbound Reason_for_X_Ray_Request) and Group B (X-Ray Only, gated by Type_of_Entry=X-Ray Order).
+  PVS -> PDF - template BUILT (gen+storage CARRY). Creator Record/Print Template (NOT Zoho Forms editor).
+  Field map in PVS_PDF_Field_Map.md, HTML in PVS_template_full.html. SOAP stays a SINGLE field
+  (Final_Clinical_Note). PVS PDF is single-purpose (Patient Visit note only); orders are their own docs.
+  PVS record = universal audit event. Finalize locks (portal read-only = the lock) + generate + store in
+  WorkDrive + redirect to ONE send console (PVS lookup OR upload; fax via Fax_Address_Book/manual + email
+  to referral contact; re-sends; send log). Generate-once-store (PDF credit limits).
+  FAX_ADDRESS_BOOK - BUILT + SEEDED. Shared flat directory for ALL faxes; NOT linked to Partners (vendors
+  are never partners). Fields: Recipient_Name, Fax_Number (Single Line raw digits), Recipient_Category
+  (Radio Hospice/PACE/Clinic/Hospital/Vendor/Group/Contact), Recipient_Status, Recipient_Notes (user only).
+  Seed Fax_Address_Book_Import.csv, 33/37 filled by name-match; 4 need manual numbers.
+  SENDGRID EMAIL - BUILT + VERIFIED. sosreferrals.com SendGrid-authenticated (SPF/DKIM/DMARC). Sends AS
+  notifications@sosreferrals.com; Cloudflare routes that -> neil.heird@sosmmc.com; Zoho Mail dropped.
+  Connection sendgrid_connection (built-in; Test button fails on all custom connections here, a real send
+  is the test). NEW reusable functions/send_via_sendgrid.dg (v3 mail/send, text/html) - VERIFIED. Rewrote
+  run_schema_monitor: all 5 Zoho sendmail -> send_via_sendgrid (now archived; was never in repo). ROOT
+  CAUSE of no-email: Zoho sendmail needs an approved SENDER (sosmmc has approved domains, no senders) so
+  it silently dropped; SendGrid bypasses it. Also: sendmail `from` email must be a QUOTED string.
+  REPO WRITES: context/15_pvs_pdf_fax_email.md (new), _INDEX.md (this block), functions/send_via_sendgrid.dg
+  (new), functions/run_schema_monitor.dg (new - place the presented SendGrid version). Not committed:
+  PVS_template_full.html, PVS_PDF_Field_Map.md, Fax_Address_Book_Import.csv (working/seed artifacts).

@@ -1,0 +1,33 @@
+void send_via_sendgrid(string pTo, string pSubject, string pMessage)
+{
+	toMap = Map();
+	toMap.put("email",pTo);
+	toList = List();
+	toList.add(toMap);
+	personalization = Map();
+	personalization.put("to",toList);
+	persList = List();
+	persList.add(personalization);
+	fromMap = Map();
+	fromMap.put("email","notifications@sosreferrals.com");
+	fromMap.put("name","SOS Mobile Medical Care");
+	contentMap = Map();
+	contentMap.put("type","text/html");
+	contentMap.put("value",pMessage);
+	contentList = List();
+	contentList.add(contentMap);
+	body = Map();
+	body.put("personalizations",persList);
+	body.put("from",fromMap);
+	body.put("subject",pSubject);
+	body.put("content",contentList);
+	sgResponse = invokeurl
+	[
+		url :"https://api.sendgrid.com/v3/mail/send"
+		type :POST
+		parameters :body.toString()
+		headers :{"Content-Type":"application/json"}
+		connection :"sendgrid_connection"
+	];
+	info sgResponse;
+}
