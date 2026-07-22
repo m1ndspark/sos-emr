@@ -2,7 +2,7 @@
 
 Purpose: the smallest current-state file. Open flags + verified names only.
 Full detail in _INDEX.md and context/. Update at each "document everywhere" / EOD.
-Last updated: 2026-07-14 (Session 16).
+Last updated: 2026-07-22.
 
 --------------------------------------------------------------------------------
 BIG NEWS THIS SESSION: full app export exists
@@ -32,12 +32,29 @@ OPEN FLAGS (next up)
   DELETE it live -> also clears one ds_sync AMBIGUOUS collision.
 - Stray "Partner_Rate_Stamp" workflow sits on the PARTNERS form (belongs on Partner_Rates).
   Investigate why; likely misplaced/leftover.
-- Drift reconciliation (ds_sync): ~35 old Session 4-6 generators/functions show DRIFT =
-  repo stale vs live -> safe to pull with --apply AFTER confirming direction. 3 of the
-  8 NEW are existing files under non-conforming names (would create dupes): rename repo
-  files first: ShowHide_Facility_block.dg, OnUserInput__Assignment_Pull_From_Referral.dg
-  (add Referral_Link token), OnLoadAndOnInput__Employee_Term_Date_Visibility.dg. The 5
-  genuine NEW (Provider_ICD_Print_Builder + 4 schema-monitor fns) are safe to create.
+- FLAG 3 (live bug, corrected function pending paste): Build Patient Full Address is
+  missing the `input.` prefix on its final write (`Patient_Full_Address = v_addr.trim();`)
+  and on all five trim-checks (the null half of each condition has it, the trim half does
+  not). Result: Patient_Full_Address never populates. CONFIRMED IN BOTH COPIES, the
+  Encounter_PatientVisit one and the Referrals_Main sibling
+  (OnUserInput__Patient_Address__Build_Full_Address.dg), which are byte-identical. Both
+  .dg files mirror live bug-and-all by design. A corrected function exists and will be
+  pasted to live, then mirrored as a separate change. Fix both forms.
+- Employee Term Date visibility: TRIGGER DISAGREEMENT. Repo file is named
+  OnLoadAndOnInput__Employee_Term_Date_Visibility.dg, but the July 22 live .ds reports the
+  workflow as On User Input only. Do not assume the repo file matches live. Reconcile
+  against Creator and rename or re-mirror accordingly.
+- Drift reconciliation (ds_sync), July 22 export: MATCH 23, DRIFT 45, NEW 12,
+  AMBIGUOUS 5, EMPTY 1. DRIFT is not yet pulled; confirm direction per item before
+  --apply, since some repo files are repo-AHEAD rather than repo-stale. Of the 12 NEW,
+  3 were duplicates of existing repo files under non-conforming names and were dropped
+  (existing files kept): ShowHide_Facility_block.dg,
+  OnUserInput__Assignment_Pull_From_Referral.dg,
+  OnLoadAndOnInput__Employee_Term_Date_Visibility.dg. Those three repo names still do not
+  match the OnEvent__Field__Name.dg convention; renaming them is a separate cleanup.
+- ds_sync AMBIGUOUS, 1 of the 5 is a different failure than the rest:
+  Employees "OnSuccess Portal_Access_By_Status" resolved to NO repo file at all, rather
+  than colliding with one. The other 4 are the usual 25-char name-truncation collisions.
 - Phone/fax standard (AAA-MMM-LLLL) rollout to remaining 6 forms (carry).
 - Annual ICD-10 refresh function (early Oct; designed, not built).
 - Retire empty Encounter_RadiologyRequest; delete DEBUG-joshua.kolanko test PVS record.

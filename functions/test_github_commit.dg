@@ -1,0 +1,28 @@
+repoOwner = "m1ndspark";
+repoName = "sos-emr";
+filePath = "schema/_connection_test.md";
+branch = "main";
+rawContent = "GitHub write path proven from Creator on " + zoho.currenttime + ".";
+encoded = zoho.encryption.base64Encode(rawContent);
+payload = Map();
+payload.put("message","test: prove Creator->GitHub commit path");
+payload.put("content",encoded);
+payload.put("branch",branch);
+getResp = invokeurl
+[
+	url :"https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contents/" + filePath + "?ref=" + branch
+	type :GET
+	connection:"sos_github_sync"
+];
+if(getResp.get("sha") != null)
+{
+	payload.put("sha",getResp.get("sha"));
+}
+putResp = invokeurl
+[
+	url :"https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contents/" + filePath
+	type :PUT
+	parameters:payload.toString()
+	connection:"sos_github_sync"
+];
+info putResp;

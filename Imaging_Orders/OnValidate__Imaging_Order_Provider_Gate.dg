@@ -1,0 +1,11 @@
+v_Email = zoho.loginuserid;
+v_Active = false;
+for each  v_Emp in Employees[Employee_Email == v_Email && Employee_Status == "Active"]
+{
+	v_Active = true;
+}
+if(v_Active == false)
+{
+	alert "Your provider profile is inactive or not found. Contact an admin.";
+	cancel submit;
+}

@@ -59,6 +59,24 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
       FIX 2026-07-14 (corrected): the precedence bug (&& binds tighter than ||) was real, but the paren fix DID NOT HOLD. CREATOR QUIRK: a compound if with a parenthesized ||-subgroup, e.g. if(A && B && (C || D)), SILENTLY REVERTS ON SAVE back to the un-parenthesized form. The morning "it saved / tests passed" was a false pass: the ds export (12:53) proved live still had NO parens, and both happy-path tests passed only because a fresh record's PVS_Referral_ID is null (which the buggy precedence handles correctly on both paths). REAL FIX: split into NESTED ifs (no paren grouping): outer if(Has_Referral_ID=="Yes" && Referral_ID present), inner if(PVS_Referral_ID == null || == ""). Verified live on an EDIT/RE-SUBMIT (the case the happy-path test missed): referral PVS-1004 kept PVS-REF-070226-1243 unchanged; walk-in PVS-1002-JK-M stayed blank. PVS Sequence_Tracker row live + incrementing. No-duplicate on PVS_ID SET 2026-07-14.
       LESSON: verify a fix persisted by REOPENING the saved workflow (Creator can silently drop constructs it won't accept), and test the edit/re-submit path, not just fresh creates.
 
+  Encounter_PatientVisit/OnUserInput__Patient_Address__Build_Patient_Full_Address.dg
+    trigger: On User Input (Patient_Address) | per docs: LIVE, BUG OPEN | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+      NOTE: live name "Build Patient Full Address". Its own live workflow on this form,
+      not a copy of the Referrals_Main one (Neil confirmed 2026-07-22).
+      OPEN FLAG (mirrored bug, do NOT fix in the repo copy): the final write is
+      `Patient_Full_Address = v_addr.trim();` with no `input.` prefix, and all five
+      trim-checks read bare `Patient_Address.<sub>` while the null half of the same
+      condition correctly reads `input.Patient_Address.<sub>`. Net effect:
+      Patient_Full_Address never populates on the PVS. The byte-identical
+      Referrals_Main sibling (OnUserInput__Patient_Address__Build_Full_Address.dg) has
+      the SAME defect; fix both. A corrected function exists and will be pasted to live
+      and mirrored as a separate change. See HANDOFF.md OPEN FLAGS.
+  Encounter_PatientVisit/OnUserInput__Provider_ICD10_Codes_Link__Provider_ICD_Print_Builder.dg
+    trigger: On User Input (Provider_ICD10_Codes_Link) | per docs: BUILT | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+      NOTE: live name "Provider ICD Print Builder". Walks the selected ICD10_Codes
+      records and joins ICD_Code into Provider_ICD_Print as a comma-separated string
+      ("E11.9, I10"). Writes via input.Provider_ICD_Print.
+
 FORM: Referrals_Main   [live form has 5 On-User-Input formatters; see NOTE 6]
   Referrals_Main/OnSuccess__REF_ID_Generator.dg
     trigger: On Success (Created) | per docs: PROVEN (LIVE; retrofit complete 2026-06-27, body now calls mint_referral_id(input.ID), supersedes old inline) | extraction: DONE 2026-06-27 | verified: YES (matches Session 4 export)
@@ -126,6 +144,31 @@ FORM: Employees   [Session 5, 2026-06-29. See NOTE 10]
   Employees/OnLoadAndOnInput__Employee_Term_Date_Visibility.dg
     trigger: On Load AND On User Input (Employee_Status) [same block in two workflows] | per docs: BUILT (show Employee_Term_Date when Employee_Status == "Inactive", else hide) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
 
+  Employees/OnValidate__Validate_Employee_Phone_B.dg
+    trigger: Validation on submit | per docs: BUILT | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+      NOTE: live name "Validate Employee Phone B". Strips non-digits and blocks submit
+      unless the result is exactly 10 digits; blank passes. Enforces the app-wide phone
+      standard (NOTE 8) at entry; functions/backfill_employee_phone_format handles
+      existing rows. WATCH: this is the only replaceAll in the repo using the 3-arg
+      form ("[^0-9]","",true); the other 10 call sites use the 2-arg form. Confirm both
+      behave as regex in the live build.
+
+FORM: Imaging_Orders   [Session 21, 2026-07-22; renamed from X_Ray_Orders]
+  Imaging_Orders/OnLoad__Imaging_Order_Provider_Stamp.dg
+    trigger: On Load | per docs: BUILT + VERIFIED | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+      NOTE: live name "Imaging Order Provider Stamp". Matches zoho.loginuserid against
+      Employees[Employee_Email == ... && Employee_Status == "Active"], stamps
+      Provider_Signature_Link + Provider_NPI, then disables both.
+      VERIFY LIVE: if no active Employee matches, both fields stay blank AND are
+      disabled, so the user cannot fill them by hand. Confirm that is intended.
+  Imaging_Orders/OnValidate__Imaging_Order_Provider_Gate.dg
+    trigger: Validation on submit | per docs: BUILT + VERIFIED | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+      NOTE: live name "Imaging Order Provider Gate". Cancels submit unless the logged-in
+      user resolves to an Active Employee.
+      VERIFY LIVE: both Imaging_Orders workflows assume zoho.loginuserid returns a value
+      that matches Employee_Email. If it returns a ZUID instead, this gate rejects EVERY
+      submit on the form. Confirm against a live record before relying on it.
+
 FORM: Change_Log   [Session 5, 2026-06-29; shared audit form, no .dg of its own]
   note: Data form populated ONLY by functions/log_change. Fields: Source_Form,
   Source_Record_ID, Source_Display_ID, Field_Changed, Old_Value, New_Value,
@@ -189,9 +232,26 @@ FUNCTIONS (Functions tab, standalone)
     Patient_Full_Address (line1, line2, city, state, zip; country omitted). Mirrors
     the live OnUserInput__Patient_Address__Build_Full_Address generator.
   functions/backfill_employee_phone_format.dg
-    sig: backfill_employee_phone_format() | per docs: PROVEN (ran live 2026-07-22) | extraction: PENDING (Filesystem MCP down at session end; file in repo_pending/) | verified: NO
+    sig: backfill_employee_phone_format() | per docs: PROVEN (ran live 2026-07-22) | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
     Reformats existing Employee_Phone values to AAA-MMM-LLLL. Skips anything that is
     not exactly 10 digits rather than mangling it. Idempotent.
+
+  Schema monitor functions (2026-07-09; extracted 2026-07-22). See the schema/ block
+  later in this file for how the daily job and the schema/ mirror fit together.
+  functions/seed_schema_to_github.dg
+    sig: seed_schema_to_github() | per docs: PROVEN (one-time backfill, wrote all schema/ files 07-09) | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+    Pulls every form + field via the Creator Meta API, renders a per-form markdown
+    table, and upserts schema/<Form>.md to m1ndspark/sos-emr via the GitHub contents
+    API (GET sha then PUT, so re-running overwrites cleanly). Skips Schema_Snapshot.
+    Emails a seeded/failed summary. Auth via Connections sos_schema_monitor and
+    sos_github_sync; no token in code.
+  functions/test_github_commit.dg
+    sig: test_github_commit() | per docs: BUILT (proof helper) | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+    Writes schema/_connection_test.md to prove the Creator to GitHub write path.
+  functions/test_schema_connection.dg
+    sig: test_schema_connection() | per docs: BUILT (proof helper) | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+    GETs the Partners field list through the sos_schema_monitor connection and infos
+    the response. Read-only.
 
 SEQUENCE_TRACKER (stamp / sequence scripts)
   Sequence_Tracker/Scripts_001_006__Object_Prefix_Queries.dg

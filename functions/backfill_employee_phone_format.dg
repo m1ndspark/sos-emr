@@ -1,0 +1,20 @@
+v_Count = 0;
+v_Records = Employees[ID != 0];
+for each  v_Rec in v_Records
+{
+	if(v_Rec.Employee_Phone != null && v_Rec.Employee_Phone.trim() != "")
+	{
+		v_Raw = v_Rec.Employee_Phone.toString();
+		v_Digits = v_Raw.replaceAll("[^0-9]","");
+		if(v_Digits.length() == 10)
+		{
+			v_Formatted = v_Digits.subString(0,3) + "-" + v_Digits.subString(3,6) + "-" + v_Digits.subString(6,10);
+			if(v_Raw != v_Formatted)
+			{
+				v_Rec.Employee_Phone=v_Formatted;
+				v_Count = v_Count + 1;
+			}
+		}
+	}
+}
+info "Employee phone backfill complete. Records updated: " + v_Count;

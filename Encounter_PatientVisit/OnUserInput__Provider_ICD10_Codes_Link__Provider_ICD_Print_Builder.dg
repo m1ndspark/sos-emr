@@ -1,0 +1,17 @@
+v_Codes = "";
+for each  v_Id in input.Provider_ICD10_Codes_Link
+{
+	v_Rec = ICD10_Codes[ID == v_Id];
+	for each  v_R in v_Rec
+	{
+		if(v_Codes == "")
+		{
+			v_Codes = v_R.ICD_Code;
+		}
+		else
+		{
+			v_Codes = v_Codes + ", " + v_R.ICD_Code;
+		}
+	}
+}
+input.Provider_ICD_Print = v_Codes;

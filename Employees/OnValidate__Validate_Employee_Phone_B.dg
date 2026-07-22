@@ -1,0 +1,10 @@
+v_Phone = input.Employee_Phone.trim();
+if(v_Phone != "")
+{
+	v_Digits = v_Phone.replaceAll("[^0-9]","",true);
+	if(v_Digits.length() != 10)
+	{
+		alert "Employee Phone must be 10 digits. Enter area code plus number, no country code.";
+		cancel submit;
+	}
+}

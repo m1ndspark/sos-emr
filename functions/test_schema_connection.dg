@@ -1,0 +1,7 @@
+response = invokeurl
+[
+	url :"https://www.zohoapis.com/creator/v2.1/meta/sosmmc/sos-referrals-app/form/Partners/fields"
+	type :GET
+	connection:"sos_schema_monitor"
+];
+info response;

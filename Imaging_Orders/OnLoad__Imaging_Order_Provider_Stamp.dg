@@ -1,0 +1,8 @@
+v_Email = zoho.loginuserid;
+for each  v_Emp in Employees[Employee_Email == v_Email && Employee_Status == "Active"]
+{
+	input.Provider_Signature_Link = v_Emp.ID;
+	input.Provider_NPI = v_Emp.Provider_NPI;
+}
+disable Provider_Signature_Link;
+disable Provider_NPI;
