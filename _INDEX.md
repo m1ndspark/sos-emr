@@ -177,6 +177,22 @@ FUNCTIONS (Functions tab, standalone)
     sig: log_change(string source_form, source_rec_id, source_display_id, field_label, old_val, new_val, changed_by) | per docs: BUILT | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
     inserts a Change_Log row only when old != new; single source for all change logging
 
+  Session 21 backfills (2026-07-22).
+  functions/backfill_dm_full_names.dg
+    sig: backfill_dm_full_names() | per docs: PROVEN (ran live 2026-07-22) | extraction: DONE | verified: YES
+    Missing-only sweep. Builds DM_Full_Name from DM_First_Name + DM_Last_Name on
+    Referrals_Main. Requires a last name; skips rows that already have a value.
+    Mirrors the live OnUserInput__DM_Last_Name__Build_DM_Full_Name generator.
+  functions/backfill_patient_full_addresses.dg
+    sig: backfill_patient_full_addresses() | per docs: PROVEN (ran live 2026-07-22) | extraction: DONE | verified: YES
+    Missing-only sweep. Concatenates Patient_Address subfields into
+    Patient_Full_Address (line1, line2, city, state, zip; country omitted). Mirrors
+    the live OnUserInput__Patient_Address__Build_Full_Address generator.
+  functions/backfill_employee_phone_format.dg
+    sig: backfill_employee_phone_format() | per docs: PROVEN (ran live 2026-07-22) | extraction: PENDING (Filesystem MCP down at session end; file in repo_pending/) | verified: NO
+    Reformats existing Employee_Phone values to AAA-MMM-LLLL. Skips anything that is
+    not exactly 10 digits rather than mangling it. Idempotent.
+
 SEQUENCE_TRACKER (stamp / sequence scripts)
   Sequence_Tracker/Scripts_001_006__Object_Prefix_Queries.dg
     per docs: ARCHIVE AHEAD OF CREATOR, reconcile (NOTE 3) | extraction: PENDING | verified: NO
