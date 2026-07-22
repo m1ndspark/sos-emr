@@ -217,6 +217,7 @@ def main():
     ap.add_argument("--ds", required=True)
     ap.add_argument("--repo", required=True)
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--new-only", action="store_true")
     ap.add_argument("--manifest", action="store_true")
     a = ap.parse_args()
     lines = open(a.ds, encoding="utf-8", errors="replace").read().split("\n")
@@ -238,7 +239,7 @@ def main():
             rows.append(("AMBIGUOUS", lbl, "")); continue
         st, wr = classify(path, body, a.apply)
         rows.append((st, os.path.relpath(path, a.repo), name))
-        if wr:
+        if wr and (not a.new_only or st == "NEW"):
             os.makedirs(os.path.dirname(wr), exist_ok=True)
             open(wr, "w", encoding="utf-8").write(body + "\n"); written += 1
 
@@ -246,7 +247,7 @@ def main():
         path = os.path.join(a.repo, "functions", f["name"] + ".dg")
         st, wr = classify(path, f["body"], a.apply)
         rows.append((st, os.path.relpath(path, a.repo), f["name"]))
-        if wr:
+        if wr and (not a.new_only or st == "NEW"):
             os.makedirs(os.path.dirname(wr), exist_ok=True)
             open(wr, "w", encoding="utf-8").write(f["body"] + "\n"); written += 1
 
