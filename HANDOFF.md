@@ -32,14 +32,14 @@ OPEN FLAGS (next up)
   DELETE it live -> also clears one ds_sync AMBIGUOUS collision.
 - Stray "Partner_Rate_Stamp" workflow sits on the PARTNERS form (belongs on Partner_Rates).
   Investigate why; likely misplaced/leftover.
-- FLAG 3 (live bug, corrected function pending paste): Build Patient Full Address is
-  missing the `input.` prefix on its final write (`Patient_Full_Address = v_addr.trim();`)
-  and on all five trim-checks (the null half of each condition has it, the trim half does
-  not). Result: Patient_Full_Address never populates. CONFIRMED IN BOTH COPIES, the
-  Encounter_PatientVisit one and the Referrals_Main sibling
-  (OnUserInput__Patient_Address__Build_Full_Address.dg), which are byte-identical. Both
-  .dg files mirror live bug-and-all by design. A corrected function exists and will be
-  pasted to live, then mirrored as a separate change. Fix both forms.
+- FLAG 3 RESOLVED 2026-07-22. Build Patient Full Address was missing the `input.` prefix
+  on its final write (`Patient_Full_Address = v_addr.trim();`) and on all five
+  trim-checks (the null half of each condition had it, the trim half did not), so
+  Patient_Full_Address never populated. Fixed live and verified by Neil on BOTH
+  Encounter_PatientVisit and the Referrals_Main sibling
+  (OnUserInput__Patient_Address__Build_Full_Address.dg). Both repo copies now carry the
+  corrected body. CARRY: the fix post-dates the July 22 .ds export, so ds_sync shows
+  both as DRIFT (repo AHEAD, do NOT --apply over them) until a fresh .ds is pulled.
 - Employee Term Date visibility: TRIGGER DISAGREEMENT. Repo file is named
   OnLoadAndOnInput__Employee_Term_Date_Visibility.dg, but the July 22 live .ds reports the
   workflow as On User Input only. Do not assume the repo file matches live. Reconcile

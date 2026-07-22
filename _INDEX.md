@@ -63,14 +63,15 @@ FORM: Encounter_PatientVisit   [form name PENDING confirmation, see NOTE 1]
     trigger: On User Input (Patient_Address) | per docs: LIVE, BUG OPEN | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
       NOTE: live name "Build Patient Full Address". Its own live workflow on this form,
       not a copy of the Referrals_Main one (Neil confirmed 2026-07-22).
-      OPEN FLAG (mirrored bug, do NOT fix in the repo copy): the final write is
+      FLAG 3 RESOLVED 2026-07-22. Was: the final write read
       `Patient_Full_Address = v_addr.trim();` with no `input.` prefix, and all five
       trim-checks read bare `Patient_Address.<sub>` while the null half of the same
-      condition correctly reads `input.Patient_Address.<sub>`. Net effect:
-      Patient_Full_Address never populates on the PVS. The byte-identical
-      Referrals_Main sibling (OnUserInput__Patient_Address__Build_Full_Address.dg) has
-      the SAME defect; fix both. A corrected function exists and will be pasted to live
-      and mirrored as a separate change. See HANDOFF.md OPEN FLAGS.
+      condition correctly read `input.Patient_Address.<sub>`, so Patient_Full_Address
+      never populated. Fixed live and verified by Neil on BOTH this form and the
+      Referrals_Main sibling (OnUserInput__Patient_Address__Build_Full_Address.dg);
+      both repo copies now carry the corrected body. NOTE: the fix post-dates the
+      July 22 .ds export, so ds_sync reports both files as DRIFT (repo AHEAD of that
+      export) until a fresh .ds is pulled.
   Encounter_PatientVisit/OnUserInput__Provider_ICD10_Codes_Link__Provider_ICD_Print_Builder.dg
     trigger: On User Input (Provider_ICD10_Codes_Link) | per docs: BUILT | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
       NOTE: live name "Provider ICD Print Builder". Walks the selected ICD10_Codes
