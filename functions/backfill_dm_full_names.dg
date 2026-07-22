@@ -1,0 +1,33 @@
+void backfill_dm_full_names()
+{
+	v_Count = 0;
+	v_Records = Referrals_Main[DM_Full_Name == null || DM_Full_Name == ""];
+	for each  v_Rec in v_Records
+	{
+		v_First = "";
+		v_Last = "";
+		if(v_Rec.DM_First_Name != null && v_Rec.DM_First_Name.trim() != "")
+		{
+			v_First = v_Rec.DM_First_Name.trim();
+		}
+		if(v_Rec.DM_Last_Name != null && v_Rec.DM_Last_Name.trim() != "")
+		{
+			v_Last = v_Rec.DM_Last_Name.trim();
+		}
+		if(v_Last != "")
+		{
+			v_Name = "";
+			if(v_First != "")
+			{
+				v_Name = v_First + " " + v_Last;
+			}
+			else
+			{
+				v_Name = v_Last;
+			}
+			v_Rec.DM_Full_Name = v_Name;
+			v_Count = v_Count + 1;
+		}
+	}
+	info "DM_Full_Name backfill complete. Records updated: " + v_Count;
+}

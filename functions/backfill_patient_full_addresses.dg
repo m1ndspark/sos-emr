@@ -1,0 +1,36 @@
+void backfill_patient_full_addresses()
+{
+	v_Count = 0;
+	v_Records = Referrals_Main[Patient_Full_Address == null || Patient_Full_Address == ""];
+	for each  v_Rec in v_Records
+	{
+		v_Addr = "";
+		if(v_Rec.Patient_Address.address_line_1 != null && v_Rec.Patient_Address.address_line_1.trim() != "")
+		{
+			v_Addr = v_Rec.Patient_Address.address_line_1.trim();
+		}
+		if(v_Rec.Patient_Address.address_line_2 != null && v_Rec.Patient_Address.address_line_2.trim() != "")
+		{
+			v_Addr = v_Addr + ", " + v_Rec.Patient_Address.address_line_2.trim();
+		}
+		if(v_Rec.Patient_Address.district_city != null && v_Rec.Patient_Address.district_city.trim() != "")
+		{
+			v_Addr = v_Addr + ", " + v_Rec.Patient_Address.district_city.trim();
+		}
+		if(v_Rec.Patient_Address.state_province != null && v_Rec.Patient_Address.state_province.trim() != "")
+		{
+			v_Addr = v_Addr + ", " + v_Rec.Patient_Address.state_province.trim();
+		}
+		if(v_Rec.Patient_Address.postal_Code != null && v_Rec.Patient_Address.postal_Code.trim() != "")
+		{
+			v_Addr = v_Addr + " " + v_Rec.Patient_Address.postal_Code.trim();
+		}
+		v_Addr = v_Addr.trim();
+		if(v_Addr != "")
+		{
+			v_Rec.Patient_Full_Address = v_Addr;
+			v_Count = v_Count + 1;
+		}
+	}
+	info "Patient_Full_Address backfill complete. Records updated: " + v_Count;
+}
