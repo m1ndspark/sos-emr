@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ds_sync.py - Reconcile a Zoho Creator .ds (Application IDE export) against the
-SOS repo's .dg files.
+SOS repo's .dg files, and optionally emit a compact navigation manifest.
 
 The .ds export (Settings > Application IDE > Export) is authoritative LIVE truth
 and is definition-only (no record data, no PHI). This tool extracts every
@@ -19,20 +19,39 @@ repo .dg file, reporting per item:
 Default is a dry-run report. --apply writes DRIFT and NEW targets only.
 EMPTY and AMBIGUOUS are never auto-written, so a mis-map can't clobber a file.
 
+--manifest writes MANIFEST.tsv (repo root): one row per workflow/function with
+its file, name, form, trigger, field, and a content hash, plus best-effort
+relationship columns (calls / writes / reads / fetches / integrations). The
+relationship columns are a NAVIGATION AID derived by regex over each body; they
+are not an authoritative logic model. calls and fetches are matched against known
+function and form names (reliable); writes/reads track input.<field> assignments
+and references (heuristic). Open the .dg for ground truth before editing.
+
 Usage:
   python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo .            # dry run
   python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --apply    # write
+  python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest # + MANIFEST.tsv
 """
-import argparse, os, re, glob
+import argparse, os, re, glob, hashlib
 from collections import Counter
 
 TRIGGER_PREFIX = {"on load": "OnLoad", "on success": "OnSuccess", "on validate": "OnValidate"}
 NAME_RE = re.compile(r'^\t+([A-Za-z0-9_]+) as "([^"]*)"\s*$')
 FN_SIG_RE = re.compile(r'^\s*(void|string|int|bigint|decimal|bool|boolean|map|list|collection|key|file|date|time|datetime)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*$')
 
+CALL_RE = re.compile(r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\(')
+ASSIGN_RE = re.compile(r'\binput\.([A-Za-z0-9_]+)\s*=(?!=)')
+INPUT_RE = re.compile(r'\binput\.([A-Za-z0-9_]+)')
+UI_RE = re.compile(r'\b(?:disable|enable|hide|show)\s+([A-Za-z0-9_]+)')
+FETCH_RE = re.compile(r'\b([A-Za-z][A-Za-z0-9_]+)\s*\[')
+INTEG_KEYS = [("zoho.books", "Books"), ("books.", "Books"), ("twilio", "Twilio"),
+              ("transcribe", "AWS-Transcribe"), ("bedrock", "AWS-Bedrock"),
+              ("srfax", "SRFax"), ("sendmail", "Email"), ("invokeurl", "HTTP"),
+              ("geturl", "HTTP"), ("posturl", "HTTP"), ("zoho.crm", "CRM"),
+              ("creator/custom", "CustomAPI"), ("thisapp.", "AppFunc")]
+
 
 def norm(body):
-    # whitespace-insensitive: Deluge nesting is braces, not indent
     return "\n".join(l.strip() for l in body.split("\n") if l.strip())
 
 
@@ -156,18 +175,55 @@ def classify(path, body, apply):
     return "DRIFT", (path if apply else None)
 
 
+def body_hash(body):
+    return hashlib.sha1(norm(body or "").encode("utf-8")).hexdigest()[:8]
+
+
+def edges(body, known_fns, known_forms):
+    body = body or ""
+    writes = set(ASSIGN_RE.findall(body)) | set(UI_RE.findall(body))
+    reads = set(INPUT_RE.findall(body)) - writes
+    calls = {m for m in CALL_RE.findall(body) if m in known_fns}
+    fetches = {f for f in FETCH_RE.findall(body) if f in known_forms}
+    low = body.lower()
+    integ = {label for key, label in INTEG_KEYS if key in low}
+    return sorted(calls), sorted(writes), sorted(reads), sorted(fetches), sorted(integ)
+
+
+def write_manifest(repo, resolved, fns, known_fns, known_forms):
+    cols = ["file", "name", "form", "trigger", "field", "calls", "writes", "reads", "fetches", "integrations", "hash"]
+    rows = []
+    for path, body, name, w in resolved:
+        rel = os.path.relpath(path, repo) if path else f"{w['form']}/?__{name}.dg"
+        c, wr, rd, fe, ig = edges(body, known_fns, known_forms)
+        rows.append([rel, name, w["form"], w["ttype"], w["field"] or "",
+                     ";".join(c), ";".join(wr), ";".join(rd), ";".join(fe), ";".join(ig), body_hash(body)])
+    for f in fns:
+        rel = os.path.join("functions", f["name"] + ".dg")
+        c, wr, rd, fe, ig = edges(f["body"], known_fns, known_forms)
+        rows.append([rel, f["name"], "", "function", "",
+                     ";".join(c), ";".join(wr), ";".join(rd), ";".join(fe), ";".join(ig), body_hash(f["body"])])
+    rows.sort(key=lambda r: (r[2], r[0]))
+    out = os.path.join(repo, "MANIFEST.tsv")
+    with open(out, "w", encoding="utf-8") as fh:
+        fh.write("\t".join(cols) + "\n")
+        for r in rows:
+            fh.write("\t".join(r) + "\n")
+    return out, len(rows)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ds", required=True)
     ap.add_argument("--repo", required=True)
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--manifest", action="store_true")
     a = ap.parse_args()
     lines = open(a.ds, encoding="utf-8", errors="replace").read().split("\n")
     wf_start = next(i for i, l in enumerate(lines) if l.strip() == "workflow")
     wfs = parse_workflows(lines, wf_start)
     fns = parse_functions(lines)
 
-    # pass 1: resolve; pass 2: flag any target claimed by >1 source (collision)
     resolved = []
     for w in wfs:
         path, how = resolve_wf_path(a.repo, w)
@@ -205,6 +261,12 @@ def main():
     print("-" * 100)
     print("summary:", ", ".join(f"{k}={v}" for k, v in sorted(c.items())))
     print(f"WROTE {written} files." if a.apply else "dry-run (no files written). add --apply to write DRIFT + NEW.")
+
+    if a.manifest:
+        known_fns = {f["name"] for f in fns} | {os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(a.repo, "functions", "*.dg"))}
+        known_forms = {w["form"] for w in wfs} | {d for d in os.listdir(a.repo) if os.path.isdir(os.path.join(a.repo, d)) and not d.startswith(".")}
+        mpath, mcount = write_manifest(a.repo, resolved, fns, known_fns, known_forms)
+        print(f"MANIFEST: wrote {mcount} rows to {os.path.relpath(mpath, a.repo)}")
 
 
 if __name__ == "__main__":
