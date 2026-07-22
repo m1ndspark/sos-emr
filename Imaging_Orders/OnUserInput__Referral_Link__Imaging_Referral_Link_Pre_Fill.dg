@@ -1,0 +1,79 @@
+if(input.Referral_Link != null)
+{
+	v_Referral = Referrals_Main[ID == input.Referral_Link];
+	v_Found = false;
+	for each  v_Rec in v_Referral
+	{
+		input.Patient_Full_Name = v_Rec.Patient_Full_Name;
+		input.Patient_DOB = v_Rec.Patient_DOB;
+		input.Patient_Gender = v_Rec.Patient_Gender;
+		input.Patient_Hospice_ID = v_Rec.Patient_Hospice_ID;
+		input.Patient_Location = v_Rec.Patient_Location;
+		input.Patient_Address = v_Rec.Patient_Address;
+		input.Patient_Phone = v_Rec.Patient_Phone;
+		input.Facility_Name = v_Rec.Facility_Name;
+		input.Facility_Room_Number = v_Rec.Facility_Room_Number;
+		input.Facility_Phone = v_Rec.Facility_Phone;
+		input.DM_Full_Name = v_Rec.DM_Full_Name;
+		input.Is_Self_Responsible = v_Rec.Patient_Responsibility;
+		v_Found = true;
+		break;
+	}
+	if(v_Found)
+	{
+		disable Patient_Full_Name;
+		disable Patient_DOB;
+		disable Patient_Gender;
+		disable Patient_Hospice_ID;
+		disable Patient_Location;
+		disable Patient_Address;
+		disable Patient_Phone;
+		disable Facility_Name;
+		disable Facility_Room_Number;
+		disable Facility_Phone;
+		disable DM_Full_Name;
+		disable Is_Self_Responsible;
+		if(input.Patient_Location == "Facility")
+		{
+			show Facility_Name;
+			show Facility_Room_Number;
+			show Facility_Phone;
+		}
+		else
+		{
+			hide Facility_Name;
+			hide Facility_Room_Number;
+			hide Facility_Phone;
+		}
+	}
+}
+else
+{
+	input.Patient_Full_Name = null;
+	input.Patient_DOB = null;
+	input.Patient_Gender = null;
+	input.Patient_Hospice_ID = null;
+	input.Patient_Location = null;
+	input.Patient_Address = null;
+	input.Patient_Phone = null;
+	input.Facility_Name = null;
+	input.Facility_Room_Number = null;
+	input.Facility_Phone = null;
+	input.DM_Full_Name = null;
+	input.Is_Self_Responsible = null;
+	enable Patient_Full_Name;
+	enable Patient_DOB;
+	enable Patient_Gender;
+	enable Patient_Hospice_ID;
+	enable Patient_Location;
+	enable Patient_Address;
+	enable Patient_Phone;
+	enable Facility_Name;
+	enable Facility_Room_Number;
+	enable Facility_Phone;
+	enable DM_Full_Name;
+	enable Is_Self_Responsible;
+	hide Facility_Name;
+	hide Facility_Room_Number;
+	hide Facility_Phone;
+}

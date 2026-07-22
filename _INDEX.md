@@ -162,6 +162,41 @@ FORM: Imaging_Orders   [Session 21, 2026-07-22; renamed from X_Ray_Orders]
       Provider_Signature_Link + Provider_NPI, then disables both.
       VERIFY LIVE: if no active Employee matches, both fields stay blank AND are
       disabled, so the user cannot fill them by hand. Confirm that is intended.
+  Imaging_Orders/OnUserInput__Referral_Link__Imaging_Referral_Link_Pre_Fill.dg
+    trigger: On User Input (Referral_Link) | per docs: BUILT + VERIFIED LIVE | extraction: authored + verified live 2026-07-22 | verified: YES (Neil, live)
+      NOTE: live name "Imaging Referral Link Pre Fill". Pulls 12 fields from
+      Referrals_Main, disables all 12, then applies the facility show/hide. The else
+      branch (Referral_Link cleared) nulls all 12, re-enables them, and hides the
+      facility block, so the manual-entry path stays usable. Field link names all
+      confirmed against schema/Imaging_Orders.md and schema/Referrals_Main.md.
+      Cross-form rename is intentional and type-safe: Referrals_Main
+      Patient_Responsibility -> Imaging_Orders Is_Self_Responsible, both Radio (13),
+      choices No/Yes.
+      VERIFY LIVE: whole-field copy of the composite Patient_Address, and setting it
+      back to null in the else branch. Same watch-item as the Assignments pull.
+      VERIFY LIVE: if Referral_Link is set but the lookup returns no row, v_Found stays
+      false, so prior values and their disabled state persist with no way to clear.
+      Low risk while Referral_Link is a lookup, but not handled explicitly.
+  Imaging_Orders/OnUserInput__Patient_Location__Facility_Visibility.dg
+    trigger: On User Input (Patient_Location) | per docs: BUILT + VERIFIED LIVE | extraction: authored + verified live 2026-07-22 | verified: YES (Neil, live)
+      NOTE: live name "Facility Visibility". Shows Facility_Name, Facility_Room_Number,
+      Facility_Phone when Patient_Location == "Facility", else hides. Patient_Location
+      is Radio with choices Home/Facility, so the test is exhaustive.
+  Imaging_Orders/OnLoad__Facility_Visibility.dg
+    trigger: On Load | per docs: BUILT + VERIFIED LIVE | extraction: authored + verified live 2026-07-22 | verified: YES (Neil, live)
+      NOTE: live name "Facility Visibility". Same three fields as the On User Input
+      copy, but gated on a DIFFERENT condition: Facility_Name blank vs populated.
+      OPEN ITEM (divergent conditions, reachable trap): the two On User Input paths gate
+      facility visibility on Patient_Location == "Facility"; this On Load gates it on
+      Facility_Name being non-blank. Facility_Name is NOT mandatory
+      (schema/Imaging_Orders.md). So a record saved with Patient_Location = Facility and
+      Facility_Name left blank reopens with the facility block HIDDEN, and the user
+      cannot fill it without toggling Patient_Location off and back on. The mirror case
+      also exists: a non-facility record with a stale Facility_Name reopens showing the
+      block. Decide one condition and use it in all three places, or make Facility_Name
+      mandatory when Patient_Location == "Facility".
+      NOTE: facility show/hide now lives in THREE places on this form (both files above
+      plus lines 36-47 of the pre-fill). They can drift independently.
   Imaging_Orders/OnValidate__Imaging_Order_Provider_Gate.dg
     trigger: Validation on submit | per docs: BUILT + VERIFIED | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
       NOTE: live name "Imaging Order Provider Gate". Cancels submit unless the logged-in

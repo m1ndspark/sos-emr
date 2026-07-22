@@ -1,0 +1,12 @@
+if(input.Facility_Name == null || input.Facility_Name.trim() == "")
+{
+	hide Facility_Name;
+	hide Facility_Room_Number;
+	hide Facility_Phone;
+}
+else
+{
+	show Facility_Name;
+	show Facility_Room_Number;
+	show Facility_Phone;
+}
