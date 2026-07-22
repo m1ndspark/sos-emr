@@ -1,7 +1,8 @@
 # CLAUDE.md - SOS EMR Code Repository
 
 This file briefs Claude Code at the start of every session in this repo. Read it
-first, then read `_INDEX.md` for current code status, then the files in `context/`.
+first, then read `MANIFEST.tsv` to locate code, then the files in `context/`.
+Open `_INDEX.md` only for one item's deep history, never wholesale.
 
 --------------------------------------------------------------------------------
 WHAT THIS REPO IS
@@ -51,7 +52,14 @@ CODE DELIVERY RULES
   matching workflow change.
 - ID generation always lives in its own workflow, never inline in On User Input.
 - Confirm the exact field link name before referencing it. Display labels and
-  link names often differ.
+  link names often differ. `schema/<Form>.md` is the authoritative source for
+  field lists and is checked first; `context/06` is supplementary. On conflict,
+  schema/ wins.
+- Open the `.dg` for ground truth before any edit. The manifest relationship
+  columns (calls, writes, reads, fetches) are regex-derived navigation aids, not
+  an authoritative logic model. Never write code off the manifest columns alone.
+- Treat any `.dg` as possibly stale versus live until confirmed. Ask for a fresh
+  read of the `.dg` before editing it.
 
 --------------------------------------------------------------------------------
 PRE-COMMIT AUDIT (QA GATE)
@@ -63,18 +71,32 @@ PRE-COMMIT AUDIT (QA GATE)
   Creator app) are listed but do not block the commit.
 - Neil handles no git himself. Claude does review, stage, commit, and push.
   Neil can override per change with "just commit, skip the audit".
-- Docs-only changes (context files, `_INDEX.md`) are exempt from the audit.
+- The audit gates Deluge changes only. A change that touches no Deluge is exempt,
+  for example context files, `_INDEX.md`, `MANIFEST.tsv`, `schema/`, and
+  `tools/`.
 
 --------------------------------------------------------------------------------
 REPO CONVENTIONS
 --------------------------------------------------------------------------------
 - `.dg` files hold pure Deluge only, no comment headers, so they round-trip
-  cleanly back into Creator. All status and metadata live in `_INDEX.md`.
+  cleanly back into Creator. Status and per-workflow history live in
+  `_INDEX.md`; generated navigation metadata lives in `MANIFEST.tsv`.
 - One file per workflow. Path encodes form and trigger, e.g.
   `Encounter_PatientVisit/OnUserInput__Has_Referral_ID__Show_Hide.dg`.
 - Standalone functions live in `functions/`.
 - Non-Deluge logic (condition-expression show/hide) is recorded as a short note
   in the form's folder, since it will not copy out as code.
+- `schema/` is generated output from the live Creator Meta API, not hand
+  maintained. It is written by the Deluge function `run_schema_monitor` on a
+  daily 06:00 schedule.
+- `MANIFEST.tsv` is generated output, never hand-edited. Regenerate with:
+  `python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest`.
+  The `.ds` is a local Zoho Creator export from Settings > Application IDE >
+  Export; it is deliberately not a repo artifact (`.gitignore` excludes
+  `*.ds`), and Neil supplies it when the manifest needs regenerating. The hash
+  is computed from the `.ds` (live Creator truth), so a hash that does not
+  match a `.dg` usually means the repo has drifted from live, NOT that the
+  manifest is stale.
 
 --------------------------------------------------------------------------------
 SECRETS AND PHI (CRITICAL)
@@ -88,7 +110,11 @@ SECRETS AND PHI (CRITICAL)
 --------------------------------------------------------------------------------
 START HERE EACH SESSION
 --------------------------------------------------------------------------------
-1. Read `_INDEX.md` for the extraction checklist and per-workflow status.
+1. Read `MANIFEST.tsv` first. It is the navigation index: one row per workflow or
+   standalone function, with columns file, name, form, trigger, field, calls,
+   writes, reads, fetches, integrations, hash. Use it to locate the ONE `.dg`
+   that matters. Do not read `_INDEX.md` wholesale; open it only for one item's
+   deep history, reading just that item's block.
 2. Read `context/04_open_contradictions.md`. Three items remain unresolved (4-A,
    4-B, 4-D; 4-C resolved June 25) and must not be silently decided. They affect
    any code that touches those areas.
@@ -98,6 +124,9 @@ START HERE EACH SESSION
 --------------------------------------------------------------------------------
 CONTEXT FILES
 --------------------------------------------------------------------------------
+- `schema/` per-form field mirror (link name, type, mandatory, unique, choices,
+  subfields), auto-generated so never hand-edited. Authoritative for field
+  lists; checked before `context/06`. On conflict, schema/ wins.
 - `context/01_standing_rules.md`   full standing rules
 - `context/02_form_architecture.md` forms, PVS, fields
 - `context/03_id_conventions.md`   object ID patterns and charge codes
