@@ -1,0 +1,14 @@
+v_name = "";
+if(input.Patient_First_Name != null && input.Patient_First_Name.trim() != "")
+{
+	v_name = input.Patient_First_Name.trim();
+}
+if(input.Patient_MI != null && input.Patient_MI.trim() != "")
+{
+	v_name = v_name + " " + input.Patient_MI.trim();
+}
+if(input.Patient_Last_Name != null && input.Patient_Last_Name.trim() != "")
+{
+	v_name = v_name + " " + input.Patient_Last_Name.trim();
+}
+input.Patient_Display_Name = v_name.trim();

@@ -1,0 +1,63 @@
+if(input.Clinical_Note_Type == "Final")
+{
+	disable Has_Referral_ID;
+	disable Referral_Link;
+	disable Edit_Needed;
+	disable Type_of_Entry;
+	disable Was_3008_Completed;
+	disable Cares_3008_Completion_Date;
+	disable Notes_3008;
+	disable Patient_Full_Name;
+	disable Patient_Display_Name;
+	disable Patient_First_Name;
+	disable Patient_MI;
+	disable Patient_Last_Name;
+	disable Patient_DOB;
+	disable Patient_Gender;
+	disable Patient_Hospice_ID;
+	disable Patient_SSN;
+	disable Patient_Phone;
+	disable Patient_Email;
+	disable Patient_Location;
+	disable Facility_Name;
+	disable Facility_Phone;
+	disable Facility_Room_Number;
+	disable Patient_Address;
+	disable Reason_for_Referral;
+	disable Primary_Diagnosis;
+	disable Partner_ICD_Codes;
+	disable Goals_of_Care;
+	disable Additional_Information;
+	disable General_Files_Upload;
+	disable List_Patient_Allergies;
+	disable List_Patient_Anticoagulants;
+	disable Advanced_Directives_Details;
+	disable Imaging_Orders;
+	disable Imaging_Order_Indication;
+	disable Upload_Imaging_Order_Files;
+	disable Imaging_Ordered_Date;
+	disable Final_Clinical_Note;
+	disable Provider_ICD10_Codes_Link;
+	disable Clinical_Note_File_Upload;
+	disable Type_of_Procedures;
+	disable PVS_File_Upload;
+	disable Diversion_Tracking;
+	disable Type_of_Diversion;
+	disable Lab_Type_Orders;
+	disable Lab_Order_Indication;
+	disable Lab_Files_Upload;
+	disable Lab_Order_Date;
+	disable Visit_Completion_Date;
+	if(input.Invoice_Status == "Final")
+	{
+		disable Complexity_Level;
+		disable Additional_Charges;
+		disable Complexity_Charge;
+		disable After_Hours_Fee;
+		disable Super_Stat_Fee;
+		disable Equipment_Charge_Amount;
+		disable Equipment_Charge_Details;
+		disable Other_Charges_Amount;
+		disable Other_Charges_Details;
+	}
+}

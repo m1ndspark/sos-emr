@@ -1,0 +1,22 @@
+v_addr = "";
+if(input.Patient_Address.address_line_1 != null && input.Patient_Address.address_line_1.trim() != "")
+{
+	v_addr = input.Patient_Address.address_line_1.trim();
+}
+if(input.Patient_Address.address_line_2 != null && input.Patient_Address.address_line_2.trim() != "")
+{
+	v_addr = v_addr + ", " + input.Patient_Address.address_line_2.trim();
+}
+if(input.Patient_Address.district_city != null && input.Patient_Address.district_city.trim() != "")
+{
+	v_addr = v_addr + ", " + input.Patient_Address.district_city.trim();
+}
+if(input.Patient_Address.state_province != null && input.Patient_Address.state_province.trim() != "")
+{
+	v_addr = v_addr + ", " + input.Patient_Address.state_province.trim();
+}
+if(input.Patient_Address.postal_Code != null && input.Patient_Address.postal_Code.trim() != "")
+{
+	v_addr = v_addr + " " + input.Patient_Address.postal_Code.trim();
+}
+input.Patient_Full_Address = v_addr.trim();

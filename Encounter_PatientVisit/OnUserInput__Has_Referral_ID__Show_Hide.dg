@@ -2,9 +2,19 @@ if(input.Has_Referral_ID == "Yes")
 {
 	show Referral_Link;
 	show Referral_ID;
+	enable Type_of_Entry;
+	show Partner_ICD_Codes;
+	show Goals_of_Care;
+	show Additional_Information;
+	show General_Files_Upload;
+	show List_Patient_Allergies;
+	show List_Patient_Anticoagulants;
+	show Advanced_Directives_Details;
 }
 else if(input.Has_Referral_ID == "No")
 {
+	input.Type_of_Entry = "Patient Visit";
+	disable Type_of_Entry;
 	input.Referral_Link = null;
 	input.Patient_Full_Name = null;
 	input.Patient_First_Name = null;
@@ -56,6 +66,23 @@ else if(input.Has_Referral_ID == "No")
 	enable Facility_Name;
 	enable Facility_Phone;
 	enable Facility_Room_Number;
+	show Referral_Details_Section;
+	show Final_Clinical_Note_Section;
+	show Type_of_Procedure_Section;
+	show Visit_Cost_Drivers_Section;
+	show Charges_Section;
+	show Diversion_Tracking_Section;
+	show Files_Upload_Section;
+	hide Cares_3008_Completion_Section;
+	hide Lab_Orders_Section;
+	hide Imaging_Orders_Section;
+	hide Partner_ICD_Codes;
+	hide Goals_of_Care;
+	hide Additional_Information;
+	hide General_Files_Upload;
+	hide List_Patient_Allergies;
+	hide List_Patient_Anticoagulants;
+	hide Advanced_Directives_Details;
 }
 else
 {

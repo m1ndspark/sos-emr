@@ -5,6 +5,7 @@ if(input.Referral_Link != null)
 	for each  v_Rec in v_Referral
 	{
 		input.Patient_Full_Name = v_Rec.Patient_Full_Name;
+		input.Patient_Display_Name = v_Rec.Patient_Full_Name;
 		input.Patient_First_Name = v_Rec.Patient_First_Name;
 		input.Patient_MI = v_Rec.Patient_MI;
 		input.Patient_Last_Name = v_Rec.Patient_Last_Name;
@@ -33,6 +34,12 @@ if(input.Referral_Link != null)
 		input.Partner_POC_Email = v_Rec.Partner_POC_Email;
 		input.Partner_POC_Name_Title = v_Rec.Partner_POC_First_Name + " " + v_Rec.Partner_POC_Last_Name + ", " + v_Rec.Partner_POC_Title;
 		input.Partner_ICD_Codes = v_Rec.Partner_ICD_Codes;
+		input.Reason_for_Referral = v_Rec.Referral_Reason;
+		input.Goals_of_Care = v_Rec.Goals_of_Care;
+		input.List_Patient_Allergies = v_Rec.List_Patient_Allergies;
+		input.List_Patient_Anticoagulants = v_Rec.List_Patient_Anticoagulants;
+		input.Advanced_Directives_Details = v_Rec.Advanced_Directives_Details;
+		input.Additional_Information = v_Rec.Additional_Information;
 		v_Found = true;
 		break;
 	}
@@ -56,6 +63,18 @@ if(input.Referral_Link != null)
 		disable Facility_Name;
 		disable Facility_Phone;
 		disable Facility_Room_Number;
+		if(input.Patient_Location == "Facility")
+		{
+			show Facility_Name;
+			show Facility_Phone;
+			show Facility_Room_Number;
+		}
+		else
+		{
+			hide Facility_Name;
+			hide Facility_Phone;
+			hide Facility_Room_Number;
+		}
 		disable Partner_Organization;
 		disable Partner_Branch;
 		disable Partner_POC_Phone;
@@ -63,11 +82,18 @@ if(input.Referral_Link != null)
 		disable Partner_POC_Team;
 		disable Partner_POC_Name_Title;
 		disable Partner_ICD_Codes;
+		disable Reason_for_Referral;
+		disable Goals_of_Care;
+		disable List_Patient_Allergies;
+		disable List_Patient_Anticoagulants;
+		disable Advanced_Directives_Details;
+		disable Additional_Information;
 	}
 }
 else
 {
 	input.Patient_Full_Name = null;
+	input.Patient_Display_Name = null;
 	input.Patient_First_Name = null;
 	input.Patient_MI = null;
 	input.Patient_Last_Name = null;
@@ -96,6 +122,12 @@ else
 	input.Partner_POC_Email = null;
 	input.Partner_POC_Name_Title = null;
 	input.Partner_ICD_Codes = null;
+	input.Reason_for_Referral = null;
+	input.Goals_of_Care = null;
+	input.List_Patient_Allergies = null;
+	input.List_Patient_Anticoagulants = null;
+	input.Advanced_Directives_Details = null;
+	input.Additional_Information = null;
 	input.Edit_Needed = null;
 	hide Edit_Needed;
 	hide Referral_Partner_Section;
@@ -116,5 +148,13 @@ else
 	enable Facility_Name;
 	enable Facility_Phone;
 	enable Facility_Room_Number;
-	enable Partner_ICD_Codes;
+	hide Facility_Name;
+	hide Facility_Phone;
+	hide Facility_Room_Number;
+	enable Reason_for_Referral;
+	enable Goals_of_Care;
+	enable List_Patient_Allergies;
+	enable List_Patient_Anticoagulants;
+	enable Advanced_Directives_Details;
+	enable Additional_Information;
 }

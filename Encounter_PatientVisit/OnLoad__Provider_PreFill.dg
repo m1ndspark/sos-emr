@@ -5,5 +5,7 @@ for each  v_Emp in v_EmpRecord
 	input.Employee_Last_Name = v_Emp.Employee_Last_Name;
 	input.Employee_Title = v_Emp.Employee_Title;
 	input.Employee_Initials = v_Emp.Employee_Initials;
+	input.Employee_Full_Name = v_Emp.Employee_First_Name + " " + v_Emp.Employee_Last_Name;
+	input.Employee_Name_Title = v_Emp.Employee_First_Name + " " + v_Emp.Employee_Last_Name + ", " + v_Emp.Employee_Title;
 	break;
 }

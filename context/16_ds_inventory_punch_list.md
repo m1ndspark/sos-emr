@@ -56,9 +56,11 @@ Scope: billing-critical state for the 8/3 launch. Repo-vs-live drift reconciliat
 --------------------------------------------------------------------------------
 ## Cleanups confirmed live
 --------------------------------------------------------------------------------
-- "Patient Fields Editability Toggle" (PVS, on user input of Has_Referral_ID) is still
-  live. A second handler, "Has Referral_ID Show_Hide", fires on the same event. Delete
-  the toggle to remove the double-handling.
+- "Patient Fields Editability Toggle" (PVS, on user input of Has_Referral_ID) is
+  DISABLED live (confirmed 7/19, see context/19). A second handler, "Has Referral_ID
+  Show_Hide", is Enabled on the same event. Because the toggle is off there is no live
+  double-handling; deleting the disabled legacy workflow is optional tidiness, not a
+  live-bug fix.
 - "Partner Rate Stamp Generator" is bound to the Partners form (on success). The
   correct one is on Partner_Rates. Remove the Partners one.
 

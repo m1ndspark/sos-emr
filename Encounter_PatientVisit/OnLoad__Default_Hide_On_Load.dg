@@ -6,8 +6,8 @@ hide Type_of_Procedure_Section;
 hide Visit_Cost_Drivers_Section;
 hide Charges_Section;
 hide Cares_3008_Completion_Section;
-hide Imaging_Order_Section;
 hide Lab_Order_Section;
+hide Imaging_Orders_Section;
 hide Diversion_Tracking_Section;
 hide Files_Upload_Section;
 hide Type_of_Diversion;
@@ -24,6 +24,18 @@ hide Equipment_Charge_Amount;
 hide Equipment_Charge_Details;
 hide Other_Charges_Amount;
 hide Other_Charges_Details;
+hide Facility_Name;
+hide Facility_Phone;
+hide Facility_Room_Number;
+hide Employee_First_Name;
+hide Employee_Last_Name;
+hide Employee_Title;
+hide Employee_Full_Name;
+show Employee_Name_Title;
+if(input.Has_Referral_ID == "No")
+{
+	disable Type_of_Entry;
+}
 if(input.Has_Referral_ID == "Yes")
 {
 	disable Patient_First_Name;
@@ -32,6 +44,13 @@ if(input.Has_Referral_ID == "Yes")
 	disable Patient_DOB;
 	disable Patient_Gender;
 	disable Patient_Address;
+	disable Partner_ICD_Codes;
+	disable Reason_for_Referral;
+	disable Goals_of_Care;
+	disable List_Patient_Allergies;
+	disable List_Patient_Anticoagulants;
+	disable Advanced_Directives_Details;
+	disable Additional_Information;
 }
 else
 {
@@ -48,16 +67,25 @@ else
 	enable Facility_Name;
 	enable Facility_Phone;
 	enable Facility_Room_Number;
+	enable Partner_ICD_Codes;
+	enable Reason_for_Referral;
+	enable Goals_of_Care;
+	enable List_Patient_Allergies;
+	enable List_Patient_Anticoagulants;
+	enable Advanced_Directives_Details;
+	enable Additional_Information;
 }
 disable Employee_First_Name;
 disable Employee_Last_Name;
 disable Employee_Initials;
 disable Employee_Title;
-disable PVS_Referral_ID;
+disable Employee_Full_Name;
+disable Employee_Name_Title;
 disable PVS_ID;
 disable Referral_ID;
 disable Referral_ID_Stamp;
 disable Partner_ID;
 disable Partner_ID_Stamp;
 disable Invoice_Status;
+disable PVS_Referral_ID;
 disable Provider_ICD_Print;
