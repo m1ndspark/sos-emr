@@ -902,3 +902,132 @@ SESSION 18 (2026-07-16, covers Jul 15-16) - provider resolver, PVS X-ray, PVS PD
   REPO WRITES: context/15_pvs_pdf_fax_email.md (new), _INDEX.md (this block), functions/send_via_sendgrid.dg
   (new), functions/run_schema_monitor.dg (new - place the presented SendGrid version). Not committed:
   PVS_template_full.html, PVS_PDF_Field_Map.md, Fax_Address_Book_Import.csv (working/seed artifacts).
+
+================================================================================
+SESSION 20 ADDITIONS (2026-07-21) - PVS form hardening + finalize-lock
+================================================================================
+All items below verified LIVE by Neil and mirrored into the repo. Ground truth =
+.ds exported 2026-07-21 19:31. Live workflow inventory: context/19.
+
+FORM: Encounter_PatientVisit
+  Encounter_PatientVisit/OnLoad__Invoice_Status_Lock.dg   *** NEW ***
+    trigger: On Load (Created or Edited) | live name "Invoice Status Lock" | extraction: DONE 2026-07-21 | verified: YES
+      FINALIZE-LOCK. Locks the medical record when Clinical_Note_Type == "Final"; the nine
+      charge/cost-driver fields (Complexity_Level, Additional_Charges, Complexity_Charge,
+      After_Hours_Fee, Super_Stat_Fee, Equipment_Charge_Amount/Details, Other_Charges_Amount/
+      Details) stay EDITABLE so pricing can be set after the note. A nested if also locks those
+      nine once Invoice_Status == "Final" (written later by the invoice flow; nothing sets it
+      today). Clinical_Note_Type is deliberately NOT disabled so Final can become Addendum.
+      TIMING: on load, not on submit - choosing Final does not lock the open form; the record is
+      locked the next time it opens. Accepted for launch.
+  Encounter_PatientVisit/OnUserInput__Patient_Location__Facility_Show_Hide.dg   *** NEW ***
+    trigger: On User Input (Patient_Location) | live name "Facility Fields Show Hide" | verified: YES
+      Shows Facility_Name/Phone/Room_Number only when Patient_Location == "Facility". Three
+      touchpoints total: this handler, Default Hide On Load (hidden by default), and Referral
+      Link Pre-Fill (reveal on pull, since a programmatic set does not fire on-user-input).
+  Encounter_PatientVisit/OnUserInput__Patient_Last_Name__Build_Display_Name.dg   *** NEW ***
+    trigger: On User Input (Patient_Last_Name) | live name "Build Patient Display Name" | verified: YES
+      Builds Patient_Display_Name from First + MI + Last on the walk-in path.
+  Encounter_PatientVisit/OnLoad__Provider_PreFill.dg   [UPDATED]
+      Now also builds Employee_Full_Name (First Last) and Employee_Name_Title (First Last, Title)
+      from the pulled parts. NEW PVS field Employee_Name_Title is the single displayed signature
+      line; granular employee fields hidden. Signature reads "Joshua Kolanko, APRN".
+      NOTE: the print template renders ${Employee_Full_Name} ${Employee_Title}, so Full_Name must
+      stay NAME ONLY or the credential prints twice.
+  Encounter_PatientVisit/OnLoad__Default_Hide_On_Load.dg   [UPDATED]
+      Hides Imaging_Orders_Section; shows Employee_Name_Title and hides the granular employee
+      fields; locks the six referral-context fields + Partner_ICD_Codes when Has_Referral_ID ==
+      "Yes"; disables Type_of_Entry on load when Has_Referral_ID == "No" (reopened walk-in stays
+      locked to Patient Visit).
+  Encounter_PatientVisit/OnUserInput__Has_Referral_ID__Show_Hide.dg   [UPDATED]
+      WALK-IN GATING. On "No": sets Type_of_Entry = "Patient Visit" and disables it, then reveals
+      the Patient Visit sections and hides the seven referral-context fields (Partner_ICD_Codes,
+      Goals_of_Care, Additional_Information, General_Files_Upload, List_Patient_Allergies,
+      List_Patient_Anticoagulants, Advanced_Directives_Details). On "Yes": enables Type_of_Entry
+      and shows those seven.
+      WHY auto-set-and-lock: Deluge cannot hide individual dropdown options, and the walk-in set
+      is exactly one option (Patient Visit). 3008 / Lab Order / Imaging Order are referral-only.
+      ORDERING GOTCHA: the two Type_of_Entry lines must sit at the TOP of the No branch. Placed
+      after the ~30 null-assignments they never ran (a snag upstream stops the branch).
+      COUPLING: this branch carries its OWN copy of the Patient Visit section list, because Entry
+      Type Section Visibility does NOT fire on a programmatic Type_of_Entry set. If that section
+      list changes, update it in BOTH workflows.
+  Encounter_PatientVisit/OnUserInput__Referral_Link__PreFill.dg   [UPDATED]
+      Now also pulls the clinical context: Reason_for_Referral (from referral field
+      Referral_Reason - the ONLY renamed mapping), plus Goals_of_Care, List_Patient_Allergies,
+      List_Patient_Anticoagulants, Advanced_Directives_Details, Additional_Information (same link
+      names). Disables them on a found referral; nulls + enables on deselect. Also sets
+      Patient_Display_Name from Patient_Full_Name, and reveals facility fields when the pulled
+      Patient_Location == "Facility".
+  Encounter_PatientVisit/OnUserInput__Type_of_Entry__Section_Visibility.dg   [UPDATED]
+      Full build for all types + else. Manages Referral_Details_Section (clinical context) per
+      type and the new Imaging_Orders_Section (shown ONLY on Imaging Order). 3008 shows only
+      Cares_3008_Completion_Section - no charge sections, because 3008 is FLAT RATE (priced from
+      Partner_Rates Rate_Type "Cares 3008 Assessment" at invoice time, not from PVS charge fields).
+
+FORM: Referrals_Main
+  Referrals_Main/OnUserInput__Patient_Address__Build_Full_Address.dg   *** NEW ***
+    trigger: On User Input (Patient_Address) | verified: YES
+      Concatenates the address subfields into the new plain-text field Patient_Full_Address
+      (line1, line2, city, state, zip; country omitted) for single-line display elsewhere.
+  Referrals_Main/OnUserInput__DM_Last_Name__Build_DM_Full_Name.dg   *** NEW ***
+    trigger: On User Input (DM_Last_Name) | verified: YES
+      Builds DM_Full_Name from DM_First_Name + DM_Last_Name. Closes the long-standing
+      "DM_Full_Name exists but has no generator" gap. BACKFILL FOR EXISTING ROWS STILL OPEN.
+  Referrals_Main/OnLoad__Default_Hide_On_Load.dg   *** NEW ***
+    trigger: On Load (Created or Edited) | verified: YES
+      Hides Patient_Full_Address (system-built, not typed). First on-load workflow on this form.
+
+SCHEMA CHANGES THIS SESSION
+  ADDED (PVS): Billing_Branch (Lookup -> Partner_Locations, display Partner_Location_Name, in
+    System_Fields_Section, hidden, NO form filter), Employee_Name_Title, Patient_Display_Name,
+    and the new Imaging_Orders_Section (Imaging_Orders, Imaging_Order_Indication,
+    Upload_Imaging_Order_Files, Imaging_Ordered_Date).
+  ADDED (Referrals_Main): Patient_Full_Address.
+  DELETED (PVS): X_Ray_Section, Lab_Section, old Imaging_Order_Section, Visit_XRay_Section (empty),
+    Patient_Full_Name1 (duplicate), XRay_Ordered_This_Visit (orphan), and the old Lab_Section
+    fields (Reason_for_Lab_Request, Requested_Lab_Vendor1, Upload_Lab_Request_Files).
+  RENAMES: section Referral_Details_Section (top lookup) -> Referral_Lookup_Section, and the old
+    Referral_Details_Section1 (clinical context) -> Referral_Details_Section (a SWAP - the name
+    Referral_Details_Section now points at the clinical-context section). Section
+    Lab_Order_Section -> Lab_Orders_Section. Type_of_Entry option "X-Ray Order" -> "Imaging Order".
+  BILLING_BRANCH NOTE: no form filter is set because the PVS carries Partner_Organization as TEXT
+    while Partner_Locations references its partner via the Partner_Link LOOKUP - there is no
+    matching text field to filter on. Partner scoping is deferred to the approval dashboard in
+    Deluge (query Partner_Locations by Partner_Link). The field is hidden and set by import or
+    the dashboard, never by a provider, so an unfiltered lookup on the form is harmless.
+
+CREATOR / DELUGE LEARNINGS (cost real time today)
+  1. DUPLICATE WORKFLOW, SAME NAME. An earlier create/delete cycle left TWO workflows named
+     Invoice_Status_Lock. The visible copy showed Disabled while the second stayed ENABLED, so the
+     whole PVS rendered read-only on new records and toggling the visible one changed nothing.
+     Ruled out cache, incognito, and permissions before finding it. LESSON: if a workflow behaves
+     as though it is running while showing Disabled, scan the FULL list for a duplicate name
+     before suspecting field properties or permissions. When rebuilding, DELETE rather than
+     disable.
+  2. hide / show / enable / disable are valid ONLY in on-load actions. In an on-validate or
+     on-success workflow they throw "'disable' can be used only in on load actions". Corollary:
+     a finalize LOCK must live on load; only the value-setting can live elsewhere.
+  3. FORMULA FIELDS compute on SAVE, not live during entry, and cannot be written by a workflow.
+     Tried a formula for Patient_Display_Name, reverted to a plain field + workflow so the value
+     appears live like Patient_Full_Name.
+  4. Deleting a section makes Creator silently STRIP that section's references out of every
+     workflow. Nothing dangles, but the replacement section is wired to nothing - after any
+     section rebuild, re-add it to the on-load and visibility workflows by hand.
+  5. A field referenced by a report cannot be cleanly deleted - repoint the report column first
+     (hit while removing the duplicate Patient_Full_Name1, which fed two report columns).
+
+STATUS VS THE 8/3 LAUNCH PLAN (context/18)
+  7/17, 7/18, 7/19 complete. 7/20 mostly done: finalize-lock now BUILT (was the main gap),
+  DM_Full_Name generator done but BACKFILL OPEN, two legacy cleanups still open. 7/21 JULY IMPORT
+  PATH NOT STARTED - roughly one day behind on that item. Test 1 still 7/26, launch still 8/3.
+
+OPEN / NEXT
+  1. July import path (behind): mapping design, template + transforms, backfill plan. Cognito
+     export + charge columns + billing branch -> PVS, one row per visit.
+  2. Backfills: DM_Full_Name and Patient_Full_Address on existing referrals.
+  3. Cleanups: delete the DISABLED legacy "Patient Fields Editability Toggle" (also clears an
+     ds_sync AMBIGUOUS collision); confirm + remove the stray "Partner Rate Stamp Generator"
+     bound to the Partners form.
+  4. Referral_Partner_Section question Neil flagged - still unraised.
+  5. Then Books setup, invoice engine, approval dashboard per context/18.
