@@ -146,22 +146,35 @@ FORM: Employees   [Session 5, 2026-06-29. See NOTE 10]
     trigger: On Load AND On User Input (Employee_Status) [same block in two workflows] | per docs: BUILT (show Employee_Term_Date when Employee_Status == "Inactive", else hide) | extraction: DONE 2026-06-29 | verified: YES (matches Session 5 export)
 
   Employees/OnValidate__Validate_Employee_Phone_B.dg
-    trigger: Validation on submit | per docs: BUILT | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+    trigger: Validation on submit | per docs: BUILT + FIXED LIVE | extraction: fixed + verified live 2026-07-23 | verified: YES (Neil, live)
       NOTE: live name "Validate Employee Phone B". Strips non-digits and blocks submit
       unless the result is exactly 10 digits; blank passes. Enforces the app-wide phone
       standard (NOTE 8) at entry; functions/backfill_employee_phone_format handles
-      existing rows. WATCH: this is the only replaceAll in the repo using the 3-arg
-      form ("[^0-9]","",true); the other 10 call sites use the 2-arg form. Confirm both
-      behave as regex in the live build.
+      existing rows.
+      FIXED 2026-07-23: the prior WATCH is RESOLVED. The 3-arg replaceAll
+      ("[^0-9]","",true) was NOT stripping non-digits in this build, so a valid
+      10-digit entry failed the length check and blocked submit. Changed to the 2-arg
+      form ("[^0-9]","") and verified live. Repo is now uniform: all replaceAll calls
+      use the 2-arg form (LESSON for context/05: in this Creator build the 3-arg
+      replaceAll does not behave as expected; use 2-arg).
 
 FORM: Imaging_Orders   [Session 21, 2026-07-22; renamed from X_Ray_Orders]
   Imaging_Orders/OnLoad__Imaging_Order_Provider_Stamp.dg
-    trigger: On Load | per docs: BUILT + VERIFIED | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+    trigger: On Load | per docs: BUILT + FIXED LIVE | extraction: fixed + verified live 2026-07-23 | verified: YES (Neil, live)
       NOTE: live name "Imaging Order Provider Stamp". Matches zoho.loginuserid against
-      Employees[Employee_Email == ... && Employee_Status == "Active"], stamps
-      Provider_Signature_Link + Provider_NPI, then disables both.
-      VERIFY LIVE: if no active Employee matches, both fields stay blank AND are
-      disabled, so the user cannot fill them by hand. Confirm that is intended.
+      Employees[Employee_Email == ...], stamps Provider_Signature_Link, Provider_NPI,
+      and Employee_Phone, then disables all three.
+      FIXED 2026-07-23: (a) the match dropped the Employee_Status == "Active" filter and
+      is now email-only, confirming that zoho.loginuserid resolves to Employee_Email in
+      this build (the earlier VERIFY LIVE is RESOLVED). (b) Now also pulls and disables
+      Employee_Phone. Field names confirmed against schema/: Employee_Phone is Single Line
+      on both Imaging_Orders and Employees (the live Employees field is Single Line per the
+      2026-07-23 schema-monitor update), so the assignment is a plain string copy.
+      NOTE (intentional divergence, not a bug): the sibling gate
+      OnValidate__Imaging_Order_Provider_Gate.dg STILL requires Employee_Status ==
+      "Active". So an inactive employee can have provider fields stamped on load but is
+      blocked from submitting by the gate, which remains the enforcement point. Do not
+      "reconcile" the two by re-adding Active here without checking the gate first.
   Imaging_Orders/OnUserInput__Referral_Link__Imaging_Referral_Link_Pre_Fill.dg
     trigger: On User Input (Referral_Link) | per docs: BUILT + VERIFIED LIVE | extraction: authored + verified live 2026-07-22 | verified: YES (Neil, live)
       NOTE: live name "Imaging Referral Link Pre Fill". Pulls 12 fields from
