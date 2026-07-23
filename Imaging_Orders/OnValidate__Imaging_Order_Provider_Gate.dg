@@ -1,11 +1,11 @@
 v_Email = zoho.loginuserid;
-v_Active = false;
+v_Found = false;
 for each  v_Emp in Employees[Employee_Email == v_Email && Employee_Status == "Active"]
 {
-	v_Active = true;
+	v_Found = true;
 }
-if(v_Active == false)
+if(v_Found == false)
 {
-	alert "Your provider profile is inactive or not found. Contact an admin.";
+	alert "Your provider profile was not found or is inactive. Please contact an admin for assistance.";
 	cancel submit;
 }

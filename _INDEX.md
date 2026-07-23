@@ -170,11 +170,9 @@ FORM: Imaging_Orders   [Session 21, 2026-07-22; renamed from X_Ray_Orders]
       Employee_Phone. Field names confirmed against schema/: Employee_Phone is Single Line
       on both Imaging_Orders and Employees (the live Employees field is Single Line per the
       2026-07-23 schema-monitor update), so the assignment is a plain string copy.
-      NOTE (intentional divergence, not a bug): the sibling gate
-      OnValidate__Imaging_Order_Provider_Gate.dg STILL requires Employee_Status ==
-      "Active". So an inactive employee can have provider fields stamped on load but is
-      blocked from submitting by the gate, which remains the enforcement point. Do not
-      "reconcile" the two by re-adding Active here without checking the gate first.
+      NOTE (intentional divergence, not a bug): this stamp is email-only; the sibling
+      gate OnValidate__Imaging_Order_Provider_Gate.dg enforces active-only at submit.
+      Confirmed live 2026-07-23. Do not re-add the Active filter here; see the Gate row.
   Imaging_Orders/OnUserInput__Referral_Link__Imaging_Referral_Link_Pre_Fill.dg
     trigger: On User Input (Referral_Link) | per docs: BUILT + VERIFIED LIVE | extraction: authored + verified live 2026-07-22 | verified: YES (Neil, live)
       NOTE: live name "Imaging Referral Link Pre Fill". Pulls 12 fields from
@@ -211,12 +209,20 @@ FORM: Imaging_Orders   [Session 21, 2026-07-22; renamed from X_Ray_Orders]
       NOTE: facility show/hide now lives in THREE places on this form (both files above
       plus lines 36-47 of the pre-fill). They can drift independently.
   Imaging_Orders/OnValidate__Imaging_Order_Provider_Gate.dg
-    trigger: Validation on submit | per docs: BUILT + VERIFIED | extraction: DONE 2026-07-22 | verified: YES (matches July 22 live .ds export)
+    trigger: Validation on submit | per docs: BUILT + FIXED LIVE | extraction: fixed + verified live 2026-07-23 | verified: YES (Neil, live)
       NOTE: live name "Imaging Order Provider Gate". Cancels submit unless the logged-in
-      user resolves to an Active Employee.
-      VERIFY LIVE: both Imaging_Orders workflows assume zoho.loginuserid returns a value
-      that matches Employee_Email. If it returns a ZUID instead, this gate rejects EVERY
-      submit on the form. Confirm against a live record before relying on it.
+      user resolves to an ACTIVE Employee
+      (Employees[Employee_Email == zoho.loginuserid && Employee_Status == "Active"]).
+      This is the active-only enforcement point: the sibling On Load stamp matches
+      email-only, so an inactive provider can have fields stamped on load but this gate
+      blocks the submit. Alert: "Your provider profile was not found or is inactive.
+      Please contact an admin for assistance."
+      SUPERSEDES the earlier note pair that framed both workflows as email-only with no
+      active enforcement. Current split, confirmed live 2026-07-23: STAMP email-only,
+      GATE active-only. Do not reconcile them to a single condition.
+      RESOLVED: the earlier VERIFY LIVE on zoho.loginuserid is closed. The email-only
+      stamp populating correctly confirms zoho.loginuserid resolves to Employee_Email in
+      this build (it is not a ZUID).
 
 FORM: Change_Log   [Session 5, 2026-06-29; shared audit form, no .dg of its own]
   note: Data form populated ONLY by functions/log_change. Fields: Source_Form,
