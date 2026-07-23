@@ -73,6 +73,14 @@ CONFIRMED DOES NOT WORK
 - Real-time keystroke input masking is not possible in Creator. On User Input
   fires on blur, not on keypress. Best available UX is format-on-blur plus
   placeholder text.
+- 3-ARG replaceAll(search, replace, true) DOES NOT STRIP (2026-07-23). The 2-arg
+  regex form replaceAll("[^0-9]", "") strips non-digits correctly, but adding the
+  third boolean regex-flag argument, replaceAll("[^0-9]", "", true), leaves the
+  non-digits in place. A formatted 10-digit phone (AAA-BBB-CCCC) kept its dashes,
+  so length() was 12 and a length()==10 validation fired a FALSE block on a valid
+  number. FIX: use the 2-arg form; every other phone/ID formatter in the repo does.
+  Found live on Employees "Validate Employee Phone Block". Do not pass the third
+  argument to replaceAll in this build.
 - PARENTHESIZED ||-SUBGROUP INSIDE A COMPOUND if REVERTS ON SAVE (2026-07-14).
   A condition like  if(A && B && (C || D))  -- parentheses grouping an OR inside a
   larger &&-chain -- is SILENTLY STRIPPED by Creator on save, reverting to
