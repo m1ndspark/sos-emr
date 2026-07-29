@@ -1,0 +1,16 @@
+v_linked = 0;
+v_nomatch = 0;
+for each  p in Encounter_PatientVisit[Referral_Link == null && Referral_ID != ""]
+{
+	v_Ref = Referrals_Main[Referral_ID == p.Referral_ID];
+	if(v_Ref.ID != null)
+	{
+		p.Referral_Link=v_Ref.ID;
+		v_linked = v_linked + 1;
+	}
+	else
+	{
+		v_nomatch = v_nomatch + 1;
+	}
+}
+return "PVS link - linked: " + v_linked + " | no match: " + v_nomatch;

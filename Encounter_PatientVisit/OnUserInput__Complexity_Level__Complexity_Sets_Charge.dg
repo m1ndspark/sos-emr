@@ -1,0 +1,21 @@
+if(input.Complexity_Level == null || input.Complexity_Level == "")
+{
+	input.Complexity_Charge = 0;
+	return;
+}
+if(input.Billing_Branch == null)
+{
+	input.Complexity_Charge = 0;
+	return;
+}
+v_found = false;
+for each  v_r in Partner_Rates[Partner_Location_Link == input.Billing_Branch && Rate_Type == input.Complexity_Level && Current_Rate == "Yes"]
+{
+	input.Complexity_Charge = v_r.Rate_Amount;
+	v_found = true;
+	break;
+}
+if(!v_found)
+{
+	input.Complexity_Charge = 0;
+}

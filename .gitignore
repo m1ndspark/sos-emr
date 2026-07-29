@@ -22,5 +22,8 @@ secrets.*
 *.log
 *.tmp
 
-# Zoho app-definition exports (working input for tools/ds_sync.py, not a repo artifact)
-*.ds
+# Zoho app-definition exports (.ds) are the versioned source of truth for Deluge
+# as of 2026-07-29. run_schema_monitor versions field tables only, not workflow or
+# function bodies, so the .ds export is the only record of that code. Commit each
+# dated export (SOS_Referrals_App_YYYY-MM-DD.ds) and keep SOS_Referrals_App.ds as a
+# copy of the newest. Definition-only, no record data, no PHI. Do not ignore *.ds.

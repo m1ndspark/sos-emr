@@ -1,0 +1,16 @@
+if(input.Employee_Email != null && input.Employee_Email.trim() != "")
+{
+	v_Email = input.Employee_Email.trim();
+	v_Existing = thisapp.portal.profileForUser(v_Email);
+	if(v_Existing != null && v_Existing != "")
+	{
+		if(input.Employee_Status == "Inactive")
+		{
+			thisapp.portal.assignUserInProfile(v_Email,"Deactivated User");
+		}
+		else if(input.Employee_Status == "Active")
+		{
+			thisapp.portal.assignUserInProfile(v_Email,"Provider");
+		}
+	}
+}

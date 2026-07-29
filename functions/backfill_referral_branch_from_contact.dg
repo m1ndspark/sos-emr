@@ -1,0 +1,23 @@
+v_updated = 0;
+v_nomatch = 0;
+v_skipped = 0;
+for each  r in Referrals_Main[Partner_Branch_Link == null]
+{
+	v_email = r.Partner_POC_Email;
+	if(v_email == null || v_email.trim() == "")
+	{
+		v_skipped = v_skipped + 1;
+		continue;
+	}
+	v_c = Partner_Referral_Contacts[Partner_POC_Email == v_email];
+	if(v_c.ID != null && v_c.Partner_Locations_Link != null)
+	{
+		r.Partner_Branch_Link=v_c.Partner_Locations_Link;
+		v_updated = v_updated + 1;
+	}
+	else
+	{
+		v_nomatch = v_nomatch + 1;
+	}
+}
+return "Referral branch from contact - updated: " + v_updated + " | no contact match: " + v_nomatch + " | no email: " + v_skipped;

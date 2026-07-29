@@ -169,5 +169,45 @@ Still open: DM_Full_Name backfill for existing referrals; Patient_Full_Address
 backfill; the two legacy cleanups; the July import path.
 
 --------------------------------------------------------------------------------
+## Added in the 2026-07-29 Creator drift sync (source .ds SOS_Referrals_App_2026-07-29.ds)
+--------------------------------------------------------------------------------
+New standalone functions (functions/):
+- create_invoice_from_selection(list p_pvsIds) - invoice engine entry
+- run_invoice_batch(int p_batchId) - processes a staged Invoice_Batch record
+- create_books_customers() - upserts Zoho Books customers
+- diag_invoice_batch(int p_batchId) - diagnostic
+- link_pvs_to_referral() - backfill/repair PVS to referral links
+- backfill_pvs_billing_branch()
+- backfill_pvs_employee_initials()
+- backfill_referral_branch()
+- backfill_referral_branch_from_contact()
+- diag_referral_contact_match() - diagnostic
+
+New workflows:
+- Encounter_PatientVisit / OnUserInput Referral_Link / Referral_Sets_Billing_Branch
+    sets Billing_Branch, Partner_Branch, Partner_Organization from the referral
+- Encounter_PatientVisit / OnUserInput Complexity_Level / Complexity_Sets_Charge
+- Encounter_PatientVisit / OnUserInput Billing_Branch / Branch_Sets_Charge
+- Encounter_PatientVisit / OnValidate / Billing_Branch_Required
+- Referrals_Main / OnUserInput Partner_Branch_Link / Branch_Sets_Partner
+- Referrals_Main / OnUserInput Partner_POC_Email / Sender_Sets_Branch
+- Referrals_Main / OnUserInput Partner_POC_Email / Partner_Contact_Lookup
+- Referrals_Main / OnSuccess / Branch_Sets_Partner_Link  [INACTIVE in Creator;
+    committed for the record, status = inactive. Do not treat as live.]
+- Invoice_Batch / OnLoad / Invoice_Batch_On_Load_Disable
+- Invoice_Batch / OnSuccess / Invoice_Batch_On_Create
+- Assignments / OnLoad / Show_Hide_Facility_Name_P
+- Assignments / OnUserInput Patient_Location / Show_Hide_Facility_Name_P1
+- Assignments / OnUserInput Referral_Link / Assignment_Pull_From_Refe
+- Employees / OnSuccess / Portal_Access_By_Status
+- Employees / OnUserInput Employee_Status / Show_Hide_Employee_Term_D
+- Imaging_Orders / OnLoad / Default_Hide_On_Load
+
+Note: the whole existing set of tracked workflow and function .dg files was also
+reconciled to this .ds in the same sync (thisapp. call prefixes, Creator export
+formatting, standalone functions stored body-only, plus real logic updates to the
+PVS billing-branch show/hide workflows and the Employee phone formatter).
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------

@@ -1,0 +1,8 @@
+if(input.Employee_Status == "Inactive")
+{
+	show Employee_Term_Date;
+}
+else
+{
+	hide Employee_Term_Date;
+}

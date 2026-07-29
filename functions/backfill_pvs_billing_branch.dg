@@ -1,0 +1,18 @@
+v_updated = 0;
+v_skipped = 0;
+for each  p in Encounter_PatientVisit[Referral_Link != null]
+{
+	v_Ref = Referrals_Main[ID == p.Referral_Link];
+	if(v_Ref.ID != null && v_Ref.Partner_Branch_Link != null)
+	{
+		p.Billing_Branch=v_Ref.Partner_Branch_Link;
+		p.Partner_Branch=v_Ref.Partner_Branch;
+		p.Partner_Organization=v_Ref.Partner_Organization;
+		v_updated = v_updated + 1;
+	}
+	else
+	{
+		v_skipped = v_skipped + 1;
+	}
+}
+return "PVS billing branch - updated: " + v_updated + " | skipped: " + v_skipped;

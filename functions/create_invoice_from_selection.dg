@@ -1,0 +1,208 @@
+if(p_pvsIds.size() == 0)
+{
+	return "ERROR: No visits selected.";
+}
+v_branchId = null;
+v_dateFrom = null;
+v_dateTo = null;
+v_keys = List();
+v_lineName = Map();
+v_lineRate = Map();
+v_lineQty = Map();
+v_lineDesc = Map();
+v_lineSeq = Map();
+v_visits = List();
+for each  v_id in p_pvsIds
+{
+	v_p = Encounter_PatientVisit[ID == v_id];
+	if(v_p.ID == null)
+	{
+		return "ERROR: Visit ID " + v_id + " not found.";
+	}
+	if(v_p.Invoice_Link != null)
+	{
+		return "ERROR: Visit " + v_p.PVS_ID + " is already on an invoice.";
+	}
+	if(v_p.Billing_Branch == null)
+	{
+		return "ERROR: Visit " + v_p.PVS_ID + " has no Billing Branch.";
+	}
+	if(v_p.Visit_Completion_Date == null)
+	{
+		return "ERROR: Visit " + v_p.PVS_ID + " has no Visit Completion Date.";
+	}
+	if(v_branchId == null)
+	{
+		v_branchId = v_p.Billing_Branch;
+	}
+	else if(v_branchId != v_p.Billing_Branch)
+	{
+		return "ERROR: Selection spans more than one billing branch. Select one branch at a time.";
+	}
+	if(v_dateFrom == null || v_p.Visit_Completion_Date < v_dateFrom)
+	{
+		v_dateFrom = v_p.Visit_Completion_Date;
+	}
+	if(v_dateTo == null || v_p.Visit_Completion_Date > v_dateTo)
+	{
+		v_dateTo = v_p.Visit_Completion_Date;
+	}
+	v_visits.add(v_p.ID);
+}
+v_loc = Partner_Locations[ID == v_branchId];
+if(v_loc.ID == null)
+{
+	return "ERROR: Billing branch record not found.";
+}
+if(v_loc.Books_Customer_ID == null || v_loc.Books_Customer_ID.trim() == "")
+{
+	return "ERROR: Branch " + v_loc.Partner_Location_Name + " has no Books Customer ID.";
+}
+v_partnerId = v_loc.Partner_Link;
+for each  v_id in v_visits
+{
+	v_p = Encounter_PatientVisit[ID == v_id];
+	v_charge = 0.0;
+	if(v_p.Complexity_Charge != null)
+	{
+		v_charge = v_p.Complexity_Charge.toDecimal();
+	}
+	v_level = v_p.Complexity_Level;
+	if(v_level == null || v_level == "")
+	{
+		v_level = "Visit";
+	}
+	v_key = "C|" + v_level + "|" + v_charge;
+	if(!v_keys.contains(v_key))
+	{
+		v_keys.add(v_key);
+		v_lineName.put(v_key,v_level);
+		v_lineRate.put(v_key,v_charge);
+		v_lineQty.put(v_key,0);
+		v_lineDesc.put(v_key,"");
+		v_lineSeq.put(v_key,0);
+	}
+	v_refDate = "";
+	if(v_p.Referral_Link != null)
+	{
+		v_ref = Referrals_Main[ID == v_p.Referral_Link];
+		if(v_ref.ID != null && v_ref.Referral_Date != null)
+		{
+			v_refDate = v_ref.Referral_Date.toString("M/d/yyyy");
+		}
+	}
+	v_dob = "";
+	if(v_p.Patient_DOB != null)
+	{
+		v_dob = v_p.Patient_DOB.toString("M/d/yyyy");
+	}
+	v_n = v_lineSeq.get(v_key) + 1;
+	v_lineSeq.put(v_key,v_n);
+	v_lineQty.put(v_key,v_lineQty.get(v_key) + 1);
+	v_block = "#" + v_n + "\n";
+	v_block = v_block + "NAME: " + v_p.Patient_Full_Name + "\n";
+	v_block = v_block + "DOB: " + v_dob + "\n";
+	v_block = v_block + "MRN: " + v_p.Patient_Hospice_ID + "\n";
+	v_block = v_block + "REF DATE: " + v_refDate + "\n";
+	v_block = v_block + "REASON: " + v_p.Reason_for_Referral + "\n";
+	v_block = v_block + "DOS: " + v_p.Visit_Completion_Date.toString("M/d/yyyy") + "\n";
+	v_block = v_block + "===\n";
+	v_lineDesc.put(v_key,v_lineDesc.get(v_key) + v_block);
+	v_feeNames = List();
+	v_feeAmts = List();
+	v_feeNames.add("After Hours");
+	v_feeAmts.add(v_p.After_Hours_Fee);
+	v_feeNames.add("Super STAT");
+	v_feeAmts.add(v_p.Super_Stat_Fee);
+	v_feeNames.add("Equipment Charge");
+	v_feeAmts.add(v_p.Equipment_Charge_Amount);
+	v_feeNames.add("Other Charges");
+	v_feeAmts.add(v_p.Other_Charges_Amount);
+	for each index v_i in v_feeNames
+	{
+		v_fAmt = 0.0;
+		if(v_feeAmts.get(v_i) != null)
+		{
+			v_fAmt = v_feeAmts.get(v_i).toDecimal();
+		}
+		if(v_fAmt > 0)
+		{
+			v_fKey = "F|" + v_feeNames.get(v_i) + "|" + v_fAmt;
+			if(!v_keys.contains(v_fKey))
+			{
+				v_keys.add(v_fKey);
+				v_lineName.put(v_fKey,v_feeNames.get(v_i));
+				v_lineRate.put(v_fKey,v_fAmt);
+				v_lineQty.put(v_fKey,0);
+				v_lineDesc.put(v_fKey,"");
+				v_lineSeq.put(v_fKey,0);
+			}
+			v_lineQty.put(v_fKey,v_lineQty.get(v_fKey) + 1);
+		}
+	}
+}
+v_lineItems = List();
+v_total = 0.0;
+for each  v_key in v_keys
+{
+	v_item = Map();
+	v_item.put("name",v_lineName.get(v_key));
+	v_item.put("description",v_lineDesc.get(v_key));
+	v_item.put("rate",v_lineRate.get(v_key));
+	v_item.put("quantity",v_lineQty.get(v_key));
+	v_lineItems.add(v_item);
+	v_total = v_total + v_lineRate.get(v_key) * v_lineQty.get(v_key);
+}
+v_invRec = insert into Invoices
+[
+	Partner_Link=v_partnerId
+	Partner_Location_Link=v_branchId
+	Invoice_Date=zoho.currentdate
+	Service_Date_From=v_dateFrom
+	Service_Date_To=v_dateTo
+	Invoice_Total=v_total
+	Visit_Count=v_visits.size()
+	Invoice_Record_Status="Pending"
+	Created_By=zoho.loginuser
+	Books_Customer_ID=v_loc.Books_Customer_ID
+	Added_User=zoho.loginuser
+];
+v_invId = v_invRec;
+for each  v_id in v_visits
+{
+	v_upd = Encounter_PatientVisit[ID == v_id];
+	v_upd.Invoice_Link=v_invId;
+	v_upd.Invoice_Status="Final";
+}
+v_payload = Map();
+v_payload.put("customer_id",v_loc.Books_Customer_ID);
+v_payload.put("date",zoho.currentdate.toString("yyyy-MM-dd"));
+v_payload.put("reference_number",v_invId.toString());
+v_payload.put("line_items",v_lineItems);
+v_headers = Map();
+v_headers.put("Content-Type","application/json");
+v_resp = invokeurl
+[
+	url :"https://www.zohoapis.com/books/v3/invoices?organization_id=911048634"
+	type :POST
+	parameters:v_payload.toString()
+	headers:v_headers
+	connection:"zoho_books_partners"
+];
+v_inv = Invoices[ID == v_invId];
+v_inv.Books_Sync_Timestamp=zoho.currenttime;
+if(v_resp.get("code") == 0)
+{
+	v_books = v_resp.get("invoice");
+	v_inv.Books_Invoice_ID=v_books.get("invoice_id");
+	v_inv.Books_Invoice_Number=v_books.get("invoice_number");
+	v_inv.Invoice_Record_Status="Sent";
+	v_inv.Books_Sync_Message="Success";
+	return "Invoice created: " + v_books.get("invoice_number") + " | visits: " + v_visits.size() + " | total: " + v_total;
+}
+else
+{
+	v_inv.Invoice_Record_Status="Failed";
+	v_inv.Books_Sync_Message=v_resp.toString().left(2000);
+	return "ERROR: Books rejected the invoice. See Books Sync Message on invoice record " + v_invId + ".";
+}

@@ -195,5 +195,22 @@ Fix Test 2 defects.
 - The committed 7/17 .ds predates the three label fixes; the next export captures them.
 
 --------------------------------------------------------------------------------
+## Session update 7/29 (supersedes the export note above)
+--------------------------------------------------------------------------------
+Hard launch date stands: Monday, August 3, 2026.
+
+- Fresh export SOS_Referrals_App_2026-07-29.ds committed (Creator export 7/29
+  08:34). It captures roughly twelve days of drift that lived only in Creator.
+- The .ds export is now the versioned source of truth for Deluge, since
+  run_schema_monitor versions field tables only, not workflow or function bodies.
+  .gitignore no longer excludes *.ds; SOS_Referrals_App.ds tracks the newest export.
+- Invoice engine landed: create_invoice_from_selection, run_invoice_batch,
+  create_books_customers, plus the Invoice_Batch staging form and diagnostics.
+- Billing_Branch manual path, referral branch resolver, and supporting backfills
+  are in the repo mirror. Rate lookup filters on Current_Rate == "Yes".
+- Still to verify live before 8/3: the billing-branch show/hide behavior on the
+  PVS, the invoice batch end to end, and the Books customer upsert.
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------

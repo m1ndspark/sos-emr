@@ -1,0 +1,20 @@
+v_updated = 0;
+v_skipped = 0;
+for each  r in Referrals_Main[Partner_Branch_Link != null]
+{
+	v_Loc = Partner_Locations[ID == r.Partner_Branch_Link];
+	if(v_Loc.ID != null)
+	{
+		r.Partner_Link=v_Loc.Partner_Link;
+		r.Partner_Branch=v_Loc.Partner_Location_Name;
+		r.Partner_Location_Label=v_Loc.Partner_Location_Label;
+		r.Partner_Organization=v_Loc.Partner_Link.Partner_Display_Name;
+		r.Partner_ID=v_Loc.Partner_Link.Partner_ID;
+		v_updated = v_updated + 1;
+	}
+	else
+	{
+		v_skipped = v_skipped + 1;
+	}
+}
+return "Referral branch backfill - updated: " + v_updated + " | skipped: " + v_skipped;

@@ -1,0 +1,5 @@
+if(input.Has_Referral_ID == "No" && input.Billing_Branch == null)
+{
+	alert "Billing Branch is required when there is no Referral ID.";
+	cancel submit;
+}

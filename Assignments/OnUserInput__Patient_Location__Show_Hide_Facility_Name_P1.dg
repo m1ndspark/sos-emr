@@ -1,0 +1,12 @@
+if(input.Patient_Location == "Facility")
+{
+	show Facility_Name;
+	show Facility_Phone;
+	show Facility_Room_Number;
+}
+else
+{
+	hide Facility_Name;
+	hide Facility_Phone;
+	hide Facility_Room_Number;
+}

@@ -1,0 +1,13 @@
+if(input.Partner_Branch_Link != null)
+{
+	for each  v_Loc in Partner_Locations[ID == input.Partner_Branch_Link]
+	{
+		for each  v_P in Partners[ID == v_Loc.Partner_Link]
+		{
+			Partner_Link = v_P.ID;
+			input.Partner_ID = v_P.Partner_ID;
+			break;
+		}
+		break;
+	}
+}

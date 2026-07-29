@@ -141,3 +141,25 @@ Fix: set the lookup display to an always-populated field (Partner Loc Name), OR
 run the backfill so the label field is filled before using it as a display field.
 Rule: only use a generator-populated field as a lookup DISPLAY after its backfill
 has run for all existing records.
+
+================================================================================
+CREATOR v6 FINDINGS  (from the 2026-07-29 invoice-engine build, source .ds
+SOS_Referrals_App_2026-07-29.ds)
+================================================================================
+- Report custom actions execute once per selected record, so a report action
+  cannot pass a whole multi-select to one function. This is why the Invoice_Batch
+  form exists as a staging record: the selection is written to the batch, then one
+  function (run_invoice_batch) processes the batch.
+- There is no read-only field property. Use "disable Field;" in an On Load
+  workflow to lock a field.
+- There is no conditional-mandatory property. Enforce it with an On Validate
+  workflow: alert, then "cancel submit;". "cancel submit" takes no message
+  argument.
+- Lookup display formats cannot traverse two hops. A second-hop value must be
+  denormalized into a text field on the intermediate form (this is why
+  Partner_Location_Label exists on the PVS and referral forms).
+- Setting a field via Deluge does not fire that field's On User Input workflow.
+  Any dependent logic must be triggered explicitly, not assumed to cascade.
+- Creator mobile offline mode blocks any form carrying before-submit workflows
+  (on load, on user input, field rules). Encounter_PatientVisit and Referrals_Main
+  both carry such workflows, so neither can ever be offline-capable.

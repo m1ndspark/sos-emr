@@ -1,0 +1,87 @@
+v_created = 0;
+v_failed = 0;
+v_skipped = 0;
+v_noContact = List();
+v_errors = List();
+v_locs = Partner_Locations[Partner_Location_Status == "Active"];
+for each  v_l in v_locs
+{
+	v_loc = Partner_Locations[ID == v_l.ID];
+	if(v_loc.Books_Customer_ID != null && v_loc.Books_Customer_ID.trim() != "")
+	{
+		v_skipped = v_skipped + 1;
+		continue;
+	}
+	if(v_loc.Partner_Location_Label == null || v_loc.Partner_Location_Label.trim() == "")
+	{
+		v_failed = v_failed + 1;
+		v_errors.add("Location ID " + v_loc.ID + " has no Partner Location Label.");
+		continue;
+	}
+	v_payload = Map();
+	v_payload.put("contact_name",v_loc.Partner_Location_Label);
+	v_payload.put("contact_type","customer");
+	v_payload.put("customer_sub_type","business");
+	v_payload.put("currency_code","USD");
+	if(v_loc.Partner_Location_Name != null && v_loc.Partner_Location_Name.trim() != "")
+	{
+		v_payload.put("company_name",v_loc.Partner_Location_Name);
+	}
+	v_bc = Partner_Billing_Contacts[Partner_Location_Link == v_loc.ID && Partner_Billing_POC_Status == "Active"];
+	if(v_bc.ID == null)
+	{
+		v_noContact.add(v_loc.Partner_Location_Label);
+	}
+	else
+	{
+		v_addr = Map();
+		v_addr.put("attention",v_loc.Partner_Location_Label);
+		v_addr.put("address",v_bc.Partner_Billing_Address.address_line_1);
+		v_addr.put("street2",v_bc.Partner_Billing_Address.address_line_2);
+		v_addr.put("city",v_bc.Partner_Billing_Address.district_city);
+		v_addr.put("state",v_bc.Partner_Billing_Address.state_province);
+		v_addr.put("zip",v_bc.Partner_Billing_Address.postal_Code);
+		v_addr.put("country",v_bc.Partner_Billing_Address.country);
+		v_payload.put("billing_address",v_addr);
+		v_person = Map();
+		v_person.put("first_name",v_bc.Partner_Billing_POC_First_Name);
+		v_person.put("last_name",v_bc.Partner_Billing_POC_Last_Name);
+		v_person.put("email",v_bc.Partner_Billing_POC_Email);
+		v_person.put("phone",v_bc.Partner_Billing_POC_Phone);
+		v_person.put("is_primary_contact",true);
+		v_persons = List();
+		v_persons.add(v_person);
+		v_payload.put("contact_persons",v_persons);
+	}
+	v_headers = Map();
+	v_headers.put("Content-Type","application/json");
+	v_resp = invokeurl
+	[
+		url :"https://www.zohoapis.com/books/v3/contacts?organization_id=911048634"
+		type :POST
+		parameters:v_payload.toString()
+		headers:v_headers
+		connection:"zoho_books_partners"
+	];
+	if(v_resp.get("code") == 0)
+	{
+		v_c = v_resp.get("contact");
+		v_loc.Books_Customer_ID=v_c.get("contact_id").toString();
+		v_created = v_created + 1;
+	}
+	else
+	{
+		v_failed = v_failed + 1;
+		v_errors.add(v_loc.Partner_Location_Label + ": " + v_resp.get("message"));
+	}
+}
+v_out = "Created: " + v_created + " | Skipped (already had ID): " + v_skipped + " | Failed: " + v_failed;
+if(v_noContact.size() > 0)
+{
+	v_out = v_out + "\nNo billing contact (created name-only): " + v_noContact.toString();
+}
+if(v_errors.size() > 0)
+{
+	v_out = v_out + "\nErrors: " + v_errors.toString();
+}
+return v_out;

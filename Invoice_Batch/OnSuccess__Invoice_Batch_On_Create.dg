@@ -1,0 +1,1 @@
+thisapp.run_invoice_batch(input.ID);

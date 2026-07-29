@@ -66,3 +66,44 @@ context/07_partner_billing_and_rates.md, not extracted. See that file.
 - Tied to open Josh clarifications (separate referral vs under-visit referral for
   X-Ray, billing when ordered during a visit, ordering without seeing patient).
 - Action: confirm current truth before building anything radiology or lab related.
+
+--------------------------------------------------------------------------------
+4-E  ORPHANS AND SCHEMA CONVENTION FROM THE 2026-07-29 DRIFT SYNC
+--------------------------------------------------------------------------------
+Surfaced while syncing SOS_Referrals_App_2026-07-29.ds. Do not silently decide.
+
+- functions/fn_resolveUserIdentity.dg is present in the repo but ABSENT from the
+  .ds (0 references in the export). Either it was removed from Creator or never
+  deployed. Standing rules still centralize identity resolution in this function
+  (context/01). File left in place, not deleted, pending Neil's decision on
+  whether it is still live.
+- functions/get_partner_referral_contact.dg: the 7/29 check-in listed this as
+  orphaned too, but it IS present in the .ds and synced as live. NOT orphaned.
+  Correction recorded here so the check-in note is not acted on.
+- Orphaned schema files (present in schema/, absent from the .ds forms):
+  Encounter_RadiologyRequest.md (already tombstoned by the schema monitor on
+  origin), X_Ray_Orders.md, X_Ray_Request_Form.md. Left in place, flagged.
+  Tied to the still-open 4-A / 4-D radiology/lab question.
+- Schema regeneration conflict: the 7/29 check-in asked to regenerate schema/
+  from the .ds and to add schema/Schema_Snapshot.md. CLAUDE.md holds schema/ as
+  auto-generated output from the live Meta API via run_schema_monitor, never
+  hand-edited. Today's monitor run (7/29 06:01) already refreshed per-form schema
+  and it reflects the 7/29 field changes (Partner_Location_Label,
+  Hold_From_Invoicing, Invoice_Link added; Primary_Diagnosis and Multi_Line
+  removed). Schema was therefore left to the monitor and NOT hand-written.
+  Schema_Snapshot.md is not a monitor artifact and was not created. Confirm
+  whether a combined snapshot is wanted and, if so, that the monitor should emit
+  it rather than it being hand-maintained.
+- Standing-rule note: context/01 still says show/hide are valid only in On User
+  Input actions, but live workflows (e.g. Assignments OnLoad Show_Hide_Facility_
+  Name_P) and context/05 / context/19 use show/hide/disable in On Load. Live
+  behavior is On Load. context/01 is stale on this point.
+- KNOWN DIVERGENCE, functions/run_schema_monitor.dg: the live 7/29 export added 5
+  em dashes inside display-string literals (schema-monitor alert email HTML and
+  the "REMOVED FROM CREATOR" tombstone text). context/08 and the pre-commit hook
+  forbid em dashes anywhere, so the committed .dg has those 5 em dashes replaced
+  with hyphens. This is display text only, no logic change, but the repo mirror
+  now differs from live for that one file, and every ds_sync will re-flag it as
+  DRIFT until the em dashes are removed in Creator and re-exported. Action for
+  Neil: de-dash those strings in the live run_schema_monitor function, then
+  re-export so repo and live match and the hook stops needing this patch.

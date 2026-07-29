@@ -1,0 +1,77 @@
+v_b = Invoice_Batch[ID == p_batchId];
+if(v_b.ID == null)
+{
+	return "ERROR: Batch record not found.";
+}
+if(v_b.Partner_Location_Link == null)
+{
+	v_b.Batch_Status="Failed";
+	v_b.Result_Message="ERROR: No billing branch selected.";
+	return v_b.Result_Message;
+}
+if(v_b.Date_From == null || v_b.Date_To == null)
+{
+	v_b.Batch_Status="Failed";
+	v_b.Result_Message="ERROR: Date From and Date To are both required.";
+	return v_b.Result_Message;
+}
+if(v_b.Date_From > v_b.Date_To)
+{
+	v_b.Batch_Status="Failed";
+	v_b.Result_Message="ERROR: Date From is after Date To.";
+	return v_b.Result_Message;
+}
+v_ids = List();
+v_bad = List();
+v_recs = Encounter_PatientVisit[Billing_Branch == v_b.Partner_Location_Link && Invoice_Status == "Draft" && Visit_Completion_Date >= v_b.Date_From && Visit_Completion_Date <= v_b.Date_To];
+for each  v_r in v_recs
+{
+	if(v_r.Invoice_Link == null && v_r.Hold_From_Invoicing != "Yes")
+	{
+		v_lvl = v_r.Complexity_Level;
+		if(v_lvl == null)
+		{
+			v_lvl = "";
+		}
+		v_amt = 0.0;
+		if(v_r.Complexity_Charge != null)
+		{
+			v_amt = v_r.Complexity_Charge.toDecimal();
+		}
+		if(v_lvl.trim() == "")
+		{
+			v_bad.add(v_r.PVS_ID + " (no complexity level)");
+		}
+		else if(v_amt <= 0 && v_lvl != "No Charge")
+		{
+			v_bad.add(v_r.PVS_ID + " (" + v_lvl + " has no rate)");
+		}
+		else
+		{
+			v_ids.add(v_r.ID);
+		}
+	}
+}
+if(v_bad.size() > 0)
+{
+	v_b.Batch_Status="Failed";
+	v_b.Result_Message="ERROR: " + v_bad.size() + " visit(s) have a missing or zero rate. Fix these and re-run: " + v_bad.toString(", ");
+	return v_b.Result_Message;
+}
+if(v_ids.size() == 0)
+{
+	v_b.Batch_Status="Failed";
+	v_b.Result_Message="No eligible visits found for that branch and date range.";
+	return v_b.Result_Message;
+}
+v_out = thisapp.create_invoice_from_selection(v_ids);
+v_b.Result_Message=v_out;
+if(v_out.startsWith("ERROR"))
+{
+	v_b.Batch_Status="Failed";
+}
+else
+{
+	v_b.Batch_Status="Complete";
+}
+return v_out;

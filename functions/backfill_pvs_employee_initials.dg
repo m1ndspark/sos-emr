@@ -1,0 +1,24 @@
+v_updated = 0;
+v_nomatch = 0;
+v_map = Map();
+for each  e in Employees[ID != 0]
+{
+	if(e.Employee_Email != "" && e.Employee_Initials != "")
+	{
+		v_map.put(e.Employee_Email.trim().toLowerCase(),e.Employee_Initials);
+	}
+}
+for each  p in Encounter_PatientVisit[Employee_Initials == "" && Employee_Email != ""]
+{
+	v_key = p.Employee_Email.trim().toLowerCase();
+	if(v_map.containKey(v_key))
+	{
+		p.Employee_Initials=v_map.get(v_key);
+		v_updated = v_updated + 1;
+	}
+	else
+	{
+		v_nomatch = v_nomatch + 1;
+	}
+}
+return "PVS employee initials - updated: " + v_updated + " | no match: " + v_nomatch;

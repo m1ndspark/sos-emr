@@ -1,0 +1,3 @@
+disable Batch_Status;
+disable Result_Message;
+disable Invoice_Link;

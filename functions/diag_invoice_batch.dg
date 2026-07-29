@@ -1,0 +1,62 @@
+v_b = Invoice_Batch[ID == p_batchId];
+if(v_b.ID == null)
+{
+	return "ERROR: Batch record not found.";
+}
+v_allPvs = 0;
+v_onBranch = 0;
+v_draft = 0;
+v_nullStatus = 0;
+v_noInvoice = 0;
+v_inRange = 0;
+v_notHeld = 0;
+v_noBranch = 0;
+v_noDate = 0;
+v_recs = Encounter_PatientVisit[ID != 0];
+for each  v_r in v_recs
+{
+	v_allPvs = v_allPvs + 1;
+	if(v_r.Billing_Branch == null)
+	{
+		v_noBranch = v_noBranch + 1;
+	}
+	if(v_r.Visit_Completion_Date == null)
+	{
+		v_noDate = v_noDate + 1;
+	}
+	if(v_r.Invoice_Status == null || v_r.Invoice_Status == "")
+	{
+		v_nullStatus = v_nullStatus + 1;
+	}
+	if(v_r.Billing_Branch == v_b.Partner_Location_Link)
+	{
+		v_onBranch = v_onBranch + 1;
+		if(v_r.Invoice_Status == "Draft")
+		{
+			v_draft = v_draft + 1;
+		}
+		if(v_r.Invoice_Link == null)
+		{
+			v_noInvoice = v_noInvoice + 1;
+		}
+		if(v_r.Visit_Completion_Date != null && v_r.Visit_Completion_Date >= v_b.Date_From && v_r.Visit_Completion_Date <= v_b.Date_To)
+		{
+			v_inRange = v_inRange + 1;
+		}
+		if(v_r.Hold_From_Invoicing != "Yes")
+		{
+			v_notHeld = v_notHeld + 1;
+		}
+	}
+}
+v_out = "Batch branch ID: " + v_b.Partner_Location_Link + " | Range: " + v_b.Date_From + " to " + v_b.Date_To;
+v_out = v_out + "\nTotal PVS: " + v_allPvs;
+v_out = v_out + "\nPVS with no Billing Branch: " + v_noBranch;
+v_out = v_out + "\nPVS with no Visit Completion Date: " + v_noDate;
+v_out = v_out + "\nPVS with blank Invoice Status: " + v_nullStatus;
+v_out = v_out + "\nOn this branch: " + v_onBranch;
+v_out = v_out + "\n  of those, Invoice Status = Draft: " + v_draft;
+v_out = v_out + "\n  of those, no Invoice Link: " + v_noInvoice;
+v_out = v_out + "\n  of those, in date range: " + v_inRange;
+v_out = v_out + "\n  of those, not held: " + v_notHeld;
+return v_out;

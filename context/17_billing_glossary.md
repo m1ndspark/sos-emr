@@ -110,5 +110,16 @@ One visit is one PVS is one row. A second visit is another PVS and another row.
 - Reporting data cards across referrals, PVS, and invoicing.
 
 --------------------------------------------------------------------------------
+## Rate-lookup facts (added 2026-07-29, from the invoice-engine build)
+--------------------------------------------------------------------------------
+- Complexity_Level value "No Charge" has NO corresponding Partner_Rates.Rate_Type
+  value. There is no rate row to look up for a No Charge visit, so the charge
+  fields stay empty by design. Do not treat a missing rate for No Charge as an
+  error.
+- The live rate lookup filters on Current_Rate == "Yes" only. It does NOT filter
+  on Partner_Rate_Status. A rate row is selected by partner, branch, and type
+  where Current_Rate is "Yes"; Active/Status is not part of the selection.
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------

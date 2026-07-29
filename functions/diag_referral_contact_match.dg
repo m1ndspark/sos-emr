@@ -1,0 +1,46 @@
+v_totalC = 0;
+v_cWithLoc = 0;
+for each  c in Partner_Referral_Contacts[ID != 0]
+{
+	v_totalC = v_totalC + 1;
+	if(c.Partner_Locations_Link != null)
+	{
+		v_cWithLoc = v_cWithLoc + 1;
+	}
+}
+v_noEmail = 0;
+v_noContact = 0;
+v_noLoc = 0;
+v_ok = 0;
+v_sample = List();
+for each  r in Referrals_Main[Partner_Branch_Link == null]
+{
+	v_email = r.Partner_POC_Email;
+	if(v_email == null || v_email.trim() == "")
+	{
+		v_noEmail = v_noEmail + 1;
+		continue;
+	}
+	v_c = Partner_Referral_Contacts[Partner_POC_Email == v_email];
+	if(v_c.ID == null)
+	{
+		v_noContact = v_noContact + 1;
+		if(v_sample.size() < 10)
+		{
+			v_sample.add(v_email);
+		}
+	}
+	else if(v_c.Partner_Locations_Link == null)
+	{
+		v_noLoc = v_noLoc + 1;
+		if(v_sample.size() < 10)
+		{
+			v_sample.add(v_email + " [contact, no loc]");
+		}
+	}
+	else
+	{
+		v_ok = v_ok + 1;
+	}
+}
+return "Contacts: " + v_totalC + " | with location link: " + v_cWithLoc + "\nNo email: " + v_noEmail + " | No contact record: " + v_noContact + " | Contact but no location: " + v_noLoc + " | Would match: " + v_ok + "\nSamples: " + v_sample.toString(", ");
