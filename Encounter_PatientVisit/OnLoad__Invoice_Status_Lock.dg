@@ -24,7 +24,6 @@ if(input.Clinical_Note_Type == "Final")
 	disable Facility_Room_Number;
 	disable Patient_Address;
 	disable Reason_for_Referral;
-	disable Primary_Diagnosis;
 	disable Partner_ICD_Codes;
 	disable Goals_of_Care;
 	disable Additional_Information;

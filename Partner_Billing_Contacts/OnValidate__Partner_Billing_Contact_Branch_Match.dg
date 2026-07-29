@@ -1,7 +1,7 @@
 if(input.Partner_Location_Link != null)
 {
 	v_branchPartner = null;
-	for each loc in Partner_Locations[ID == input.Partner_Location_Link]
+	for each  loc in Partner_Locations[ID == input.Partner_Location_Link]
 	{
 		v_branchPartner = loc.Partner_Link;
 	}

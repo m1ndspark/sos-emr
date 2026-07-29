@@ -1,1 +1,1 @@
-mint_employee_id(input.ID);
+thisapp.mint_employee_id(input.ID);

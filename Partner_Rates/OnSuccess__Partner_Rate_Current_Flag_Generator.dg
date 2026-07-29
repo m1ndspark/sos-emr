@@ -1,1 +1,1 @@
-set_current_rate(input.ID);
+thisapp.set_current_rate(input.ID);

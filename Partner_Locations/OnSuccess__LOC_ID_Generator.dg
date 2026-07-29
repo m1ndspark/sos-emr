@@ -1,1 +1,1 @@
-mint_location_id(input.ID);
+thisapp.mint_location_id(input.ID);

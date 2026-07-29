@@ -1,5 +1,9 @@
-oldRec = Partner_Locations[ID == input.ID];
-if(oldRec != null && oldRec.Partner_Link != input.Partner_Link)
+v_storedPartner = null;
+for each  loc in Partner_Locations[ID == input.ID]
+{
+	v_storedPartner = loc.Partner_Link;
+}
+if(v_storedPartner != null && input.Partner_Link != v_storedPartner)
 {
 	alert "A location's Partner cannot be changed after creation. To move a location, deactivate it and create a new one under the correct partner.";
 	cancel submit;

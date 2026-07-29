@@ -40,6 +40,7 @@ if(input.Referral_Link != null)
 		input.List_Patient_Anticoagulants = v_Rec.List_Patient_Anticoagulants;
 		input.Advanced_Directives_Details = v_Rec.Advanced_Directives_Details;
 		input.Additional_Information = v_Rec.Additional_Information;
+		input.Partner_Location_Label = v_Rec.Partner_Location_Label;
 		v_Found = true;
 		break;
 	}
@@ -63,6 +64,7 @@ if(input.Referral_Link != null)
 		disable Facility_Name;
 		disable Facility_Phone;
 		disable Facility_Room_Number;
+		disable Partner_Location_Label;
 		if(input.Patient_Location == "Facility")
 		{
 			show Facility_Name;

@@ -10,6 +10,8 @@ if(input.Has_Referral_ID == "Yes")
 	show List_Patient_Allergies;
 	show List_Patient_Anticoagulants;
 	show Advanced_Directives_Details;
+	show Billing_Branch;
+	disable Billing_Branch;
 }
 else if(input.Has_Referral_ID == "No")
 {
@@ -45,6 +47,7 @@ else if(input.Has_Referral_ID == "No")
 	input.Partner_POC_Email = null;
 	input.Partner_POC_Name_Title = null;
 	input.Edit_Needed = null;
+	input.Billing_Branch = null;
 	hide Referral_Link;
 	hide Referral_ID;
 	hide Referral_Partner_Section;
@@ -83,6 +86,8 @@ else if(input.Has_Referral_ID == "No")
 	hide List_Patient_Allergies;
 	hide List_Patient_Anticoagulants;
 	hide Advanced_Directives_Details;
+	show Billing_Branch;
+	enable Billing_Branch;
 }
 else
 {
@@ -90,4 +95,5 @@ else
 	hide Referral_ID;
 	hide Referral_Partner_Section;
 	hide Edit_Needed;
+	hide Billing_Branch;
 }

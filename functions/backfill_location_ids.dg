@@ -1,16 +1,13 @@
-void backfill_location_ids()
+locs = Partner_Locations[ID != 0];
+for each  rec in locs
 {
-	locs = Partner_Locations[ID != 0];
-	for each rec in locs
+	existing = rec.Partner_Location_ID;
+	if(existing == null)
 	{
-		existing = rec.Partner_Location_ID;
-		if(existing == null)
-		{
-			existing = "";
-		}
-		if(existing.trim() == "" || existing.startsWith("LOC-REVIEW-"))
-		{
-			mint_location_id(rec.ID);
-		}
+		existing = "";
+	}
+	if(existing.trim() == "" || existing.startsWith("LOC-REVIEW-"))
+	{
+		thisapp.mint_location_id(rec.ID);
 	}
 }

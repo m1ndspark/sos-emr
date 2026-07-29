@@ -1,1 +1,1 @@
-input.Partner_Contract_ID_Stamp = input.ID.toString();
+Partner_Contract_ID_Stamp = input.ID.toString();

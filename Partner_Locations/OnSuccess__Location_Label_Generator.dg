@@ -1,5 +1,5 @@
 v_partnerName = "";
-for each p in Partners[ID == input.Partner_Link]
+for each  p in Partners[ID == input.Partner_Link]
 {
 	v_partnerName = p.Partner_Display_Name;
 }

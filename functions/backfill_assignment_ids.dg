@@ -1,16 +1,13 @@
-void backfill_assignment_ids()
+rows = Assignments[ID != 0];
+for each  rec in rows
 {
-	rows = Assignments[ID != 0];
-	for each rec in rows
+	existing = rec.Assignment_ID;
+	if(existing == null)
 	{
-		existing = rec.Assignment_ID;
-		if(existing == null)
-		{
-			existing = "";
-		}
-		if(existing.trim() == "")
-		{
-			mint_assignment_id(rec.ID);
-		}
+		existing = "";
+	}
+	if(existing.trim() == "")
+	{
+		thisapp.mint_assignment_id(rec.ID);
 	}
 }
