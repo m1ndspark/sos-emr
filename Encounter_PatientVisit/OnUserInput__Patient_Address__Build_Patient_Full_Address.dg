@@ -19,4 +19,4 @@ if(input.Patient_Address.postal_Code != null && Patient_Address.postal_Code.trim
 {
 	v_addr = v_addr + " " + input.Patient_Address.postal_Code.trim();
 }
-Patient_Full_Address = v_addr.trim();
+input.Patient_Full_Address = v_addr.trim();

@@ -1306,3 +1306,75 @@ Divergence after sync: MATCH=118, DRIFT=1 (run_reset_test, intentional temp
 header), EMPTY=1 (log_change, blank body), AMBIGUOUS=2 (pre-existing
 Partner_Rate_Stamp_Generator collision on the Partners form, tracked since
 Session 20). Matches expectations exactly.
+
+================================================================================
+SESSION 28 CHECKPOINT (2026-07-31) - import rehearsal passed; new code AHEAD OF v14
+================================================================================
+After the v14 sync, a full go-live import rehearsal was run and new functions
+were created live in Creator. The .ds is STALE again: everything below is AHEAD
+OF v14 and lands verbatim at the next re-export (v15). Rehearsal log:
+context/logs/SOS_Import_Rehearsal_2026-07-31.md. RE-EXPORT AND COMMIT is the next
+action (tracked in context/23).
+
+NEW FUNCTIONS - placeholder .dg files committed, marked PENDING until v15
+(they were created live today, so their verbatim bodies are not in any .ds yet;
+the placeholders carry a single PENDING comment line, not code):
+  functions/backfill_pvs_ids.dg   *** NEW, PENDING ***
+    No args, returns string. Mints PVS_ID from Sequence_Tracker where blank,
+    builds PVS_Referral_ID as "PVS-<Referral_ID>", and repairs a blank
+    Has_Referral_ID by deriving it from whether Referral_ID is populated. Writes
+    all three fields in ONE update statement per record.
+    GOTCHA (found the hard way): two separate update statements on the same record
+    inside one for-each pass do NOT both take effect - the second is dropped.
+    Combine them into a single update.
+  functions/resolve_referral_branch_from_text.dg   *** NEW, PENDING ***
+    No args, returns string. For Referrals_Main rows with a blank
+    Partner_Branch_Link and text in Partner_Branch, matches
+    Partner_Locations.Partner_Location_Label exactly and sets the lookup. Reports
+    unmatched values.
+  functions/backfill_pvs_complexity_charge.dg   *** NEW, PENDING ***
+    No args, returns string. Fills Complexity_Charge from Partner_Rates by
+    Billing_Branch + Complexity_Level + Current_Rate = "Yes". Only fills blank or
+    zero, never overwrites. Skips Complexity_Level "No Charge". Reports missing
+    branch/level rate combinations.
+  functions/backfill_pvs_patient_full_address.dg   *** NEW, PENDING ***
+    No args, returns string. Builds Encounter_PatientVisit.Patient_Full_Address
+    from the address sub-fields. First run: 18 built.
+  DIAGNOSTICS (no-arg, TEMPORARY - delete from Creator after launch, punch list):
+    functions/diag_pvs_ids.dg, functions/diag_referral_ids.dg,
+    functions/diag_zztest_referrals.dg, functions/diag_accentcare_rates.dg,
+    functions/diag_referral_import_gaps.dg, functions/diag_pvs_import_gaps.dg
+    - all *** NEW, PENDING ***.
+
+WORKFLOW FIX - AHEAD OF v14
+  Encounter_PatientVisit/OnUserInput__Patient_Address__Build_Patient_Full_Address.dg
+    Final line corrected from "Patient_Full_Address = v_addr.trim();" to
+    "input.Patient_Full_Address = v_addr.trim();" - the missing input. prefix
+    assigned to a local, so the field never populated. The Referrals_Main
+    equivalent was already correct. Repo is now one line ahead of v14, so this
+    file reads as DRIFT until v15 (intentional).
+
+SCHEMA
+  Encounter_PatientVisit.Patient_Full_Address (Single Line, "Patient Full
+  Address", Patient Location Section) was RE-ADDED. Note recorded in
+  schema/Encounter_PatientVisit.md; monitor captures the table row next run.
+
+CREATOR IMPORT FINDINGS (gotchas; full detail in context/09_cognito_import_procedure.md 5A)
+  - Creator's auto-map SILENTLY MIS-ASSIGNS columns on import (e.g. Referral_Type
+    -> DM First Name, Partner_Branch -> Facility Room Number). Verify EVERY column
+    mapping by hand before importing. Hard checklist step, not a note.
+  - The wizard "Execute form workflows" checkbox: checked fires On Success
+    workflows (IDs mint themselves); On User Input never fires on import.
+  - Lookup fields do not import. Import as plain text, resolve to the lookup in
+    Deluge (same as Zoho Forms).
+  - "On import error: Skip corresponding row" silently drops the whole row; a run
+    can report success and create nothing.
+  - Referrals_Main.Referral_ID imports fine; the unique flag can stay ON. No
+    Form_Token workaround is needed (Form_Token carries real 10-digit tokens on
+    six live records; searched the repo, found no workaround note to remove).
+  - Wizard Date Format defaults to MDY; set year-month-day for yyyy-MM-dd files.
+
+TEST FIXTURES committed under context/test-fixtures/ (see that dir and the
+rehearsal log). DRYRUN_RUNBOOK.txt was not in ~/Downloads and is still pending
+from Neil. The two COVERAGE files' synthetic SSN-shaped values were scrubbed to
+"REDACTED" before commit to keep the repo clear of SSN-shaped data.

@@ -106,3 +106,13 @@ Field count: 86
 - The schema monitor rebuilds this file from the Meta API on each detected
   change and will overwrite this section. Durable record: git history and
   `context/23_task_list.md`.
+
+## Notes (manual, Session 28, 2026-07-31)
+
+- `Patient_Full_Address` (Single Line, display name "Patient Full Address", in
+  the Patient Location Section) was RE-ADDED to the form. It had existed and been
+  removed at some point. It is built from the address sub-fields by the On User
+  Input "Build Patient Full Address" workflow (fixed this session to assign
+  `input.Patient_Full_Address`, not a bare local) and backfilled on existing rows
+  by `backfill_pvs_patient_full_address` (first run: 18 built). The monitor will
+  add the field row to the table above on its next run.

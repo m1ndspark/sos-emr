@@ -1,0 +1,4 @@
+Referral_ID,Has_Referral_ID,Type_of_Entry,Patient_First_Name,Patient_MI,Patient_Last_Name,Patient_DOB,Patient_Gender,Patient_Hospice_ID,Clinical_Note_Type,Complexity_Level,Complexity_Charge,Invoice_Status,Hold_From_Invoicing,Employee_First_Name,Employee_Last_Name,Employee_Title,Employee_Email,Employee_Initials,Visit_Completion_Date
+ZZTEST-001,Yes,Patient Visit,Alma,R,Zztestone,1938-04-12,Female,ZZ100001,Final,Moderate Complexity,,Draft,No,Neil,Heird,MD,neil.heird@sosmmc.com,NH,2026-07-08
+ZZTEST-002,Yes,Patient Visit,Harold,,Zztesttwo,1941-11-02,Male,ZZ100002,Final,High Complexity,,Draft,No,Neil,Heird,MD,neil.heird@sosmmc.com,NH,2026-07-11
+ZZTEST-003,Yes,Patient Visit,Marta,J,Zztestthree,1936-06-25,Female,ZZ100003,Final,Low Complexity,,Draft,No,Neil,Heird,MD,neil.heird@sosmmc.com,NH,2026-07-16
