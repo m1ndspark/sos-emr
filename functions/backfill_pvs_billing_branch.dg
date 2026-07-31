@@ -1,13 +1,19 @@
 v_updated = 0;
 v_skipped = 0;
+v_manual = 0;
 for each  p in Encounter_PatientVisit[Referral_Link != null]
 {
 	v_Ref = Referrals_Main[ID == p.Referral_Link];
 	if(v_Ref.ID != null && v_Ref.Partner_Branch_Link != null)
 	{
+		v_Loc = Partner_Locations[ID == v_Ref.Partner_Branch_Link];
 		p.Billing_Branch=v_Ref.Partner_Branch_Link;
-		p.Partner_Branch=v_Ref.Partner_Branch;
-		p.Partner_Organization=v_Ref.Partner_Organization;
+		if(v_Loc.ID != null)
+		{
+			p.Partner_Branch=v_Loc.Partner_Location_Name;
+			p.Partner_Location_Label=v_Loc.Partner_Location_Label;
+			p.Partner_Organization=v_Loc.Partner_Link.Partner_Display_Name;
+		}
 		v_updated = v_updated + 1;
 	}
 	else
@@ -15,4 +21,15 @@ for each  p in Encounter_PatientVisit[Referral_Link != null]
 		v_skipped = v_skipped + 1;
 	}
 }
-return "PVS billing branch - updated: " + v_updated + " | skipped: " + v_skipped;
+for each  q in Encounter_PatientVisit[Referral_Link == null && Billing_Branch != null]
+{
+	v_Loc2 = Partner_Locations[ID == q.Billing_Branch];
+	if(v_Loc2.ID != null)
+	{
+		q.Partner_Branch=v_Loc2.Partner_Location_Name;
+		q.Partner_Location_Label=v_Loc2.Partner_Location_Label;
+		q.Partner_Organization=v_Loc2.Partner_Link.Partner_Display_Name;
+		v_manual = v_manual + 1;
+	}
+}
+return "PVS billing branch - from referral: " + v_updated + " | skipped (no branch on referral): " + v_skipped + " | no-referral PVS refreshed: " + v_manual;

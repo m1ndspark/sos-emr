@@ -1,0 +1,9 @@
+// TEMPORARY - throwaway wrapper to invoke reset_invoice during launch testing.
+// DELETE this function from Creator after reset-path testing ends. Tracked for
+// removal in context/23_task_list.md. Added Session 27, 2026-07-30.
+v_out = "";
+for each  v_i in Invoices[Books_Invoice_Number == "INV-000004"]
+{
+	v_out = v_out + thisapp.reset_invoice(v_i.ID,"RESET") + "\n";
+}
+return v_out;

@@ -65,8 +65,19 @@ if(v_ids.size() == 0)
 	return v_b.Result_Message;
 }
 v_out = thisapp.create_invoice_from_selection(v_ids);
-v_b.Result_Message=v_out;
-if(v_out.startsWith("ERROR"))
+v_msg = v_out;
+if(v_out.startsWith("INVID:"))
+{
+	v_pipe = v_out.indexOf("|");
+	if(v_pipe > 6)
+	{
+		v_newInvId = v_out.subString(6,v_pipe).toLong();
+		v_msg = v_out.subString(v_pipe + 1);
+		v_b.Invoice_Link=v_newInvId;
+	}
+}
+v_b.Result_Message=v_msg;
+if(v_msg.startsWith("ERROR"))
 {
 	v_b.Batch_Status="Failed";
 }
@@ -74,4 +85,4 @@ else
 {
 	v_b.Batch_Status="Complete";
 }
-return v_out;
+return v_msg;

@@ -46,7 +46,6 @@ if(input.Clinical_Note_Type == "Final")
 	disable Lab_Order_Indication;
 	disable Lab_Files_Upload;
 	disable Lab_Order_Date;
-	disable Visit_Completion_Date;
 	if(input.Invoice_Status == "Final")
 	{
 		disable Complexity_Level;
@@ -58,5 +57,6 @@ if(input.Clinical_Note_Type == "Final")
 		disable Equipment_Charge_Details;
 		disable Other_Charges_Amount;
 		disable Other_Charges_Details;
+		disable Visit_Completion_Date;
 	}
 }

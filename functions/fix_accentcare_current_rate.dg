@@ -1,0 +1,16 @@
+v_fixed = 0;
+for each  v_r in Partner_Rates[Current_Rate != "Yes"]
+{
+	v_l = Partner_Locations[ID == v_r.Partner_Location_Link];
+	if(v_l.ID != null && v_l.Partner_Location_Code != "BRO" && v_r.Partner_Rates_Effective_Date == null)
+	{
+		v_p = Partners[ID == v_l.Partner_Link];
+		if(v_p.ID != null && v_p.Partner_Code == "ACC")
+		{
+			v_r.Current_Rate="Yes";
+			v_r.Partner_Rate_Status="Active";
+			v_fixed = v_fixed + 1;
+		}
+	}
+}
+return "Set Current_Rate=Yes and Status=Active on " + v_fixed + " AccentCare rates.";

@@ -1,0 +1,21 @@
+v_first = input.Partner_POC_First_Name;
+if(v_first == null)
+{
+	v_first = "";
+}
+v_last = input.Partner_POC_Last_Name;
+if(v_last == null)
+{
+	v_last = "";
+}
+v_title = input.Partner_POC_Title;
+if(v_title == null)
+{
+	v_title = "";
+}
+v_name = (v_first + " " + v_last).trim();
+if(v_title.trim() != "")
+{
+	v_name = v_name + ", " + v_title;
+}
+input.Partner_POC_Name_Title = v_name;

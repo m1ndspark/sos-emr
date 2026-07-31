@@ -1,0 +1,67 @@
+v_out = "";
+v_inserted = 0;
+for each  v_p in Partners[Rate_Structure == "Uniform (All Locations)" && Partner_Status == "Active"]
+{
+	v_srcId = null;
+	v_srcCount = 0;
+	for each  v_l in Partner_Locations[Partner_Link == v_p.ID && Partner_Location_Status == "Active"]
+	{
+		v_c = 0;
+		for each  v_r in Partner_Rates[Partner_Location_Link == v_l.ID && Current_Rate == "Yes"]
+		{
+			v_c = v_c + 1;
+		}
+		if(v_c > v_srcCount)
+		{
+			v_srcCount = v_c;
+			v_srcId = v_l.ID;
+		}
+	}
+	if(v_srcId == null || v_srcCount == 0)
+	{
+		v_out = v_out + "\n" + v_p.Partner_Display_Name + ": SKIPPED - no source branch.";
+		continue;
+	}
+	v_src = Partner_Locations[ID == v_srcId];
+	v_out = v_out + "\n" + v_p.Partner_Display_Name + ": source = " + v_src.Partner_Location_Label;
+	for each  v_t in Partner_Locations[Partner_Link == v_p.ID && Partner_Location_Status == "Active"]
+	{
+		if(v_t.ID != v_srcId)
+		{
+			v_have = List();
+			for each  v_x in Partner_Rates[Partner_Location_Link == v_t.ID && Current_Rate == "Yes"]
+			{
+				v_have.add(v_x.Rate_Type);
+			}
+			v_n = 0;
+			for each  v_r in Partner_Rates[Partner_Location_Link == v_srcId && Current_Rate == "Yes"]
+			{
+				if(!v_have.contains(v_r.Rate_Type))
+				{
+					v_newId = insert into Partner_Rates
+					[
+						Partner_Link=v_p.ID
+						Partner_Location_Link=v_t.ID
+						Rate_Category=v_r.Rate_Category
+						Rate_Type=v_r.Rate_Type
+						Rate_Amount=v_r.Rate_Amount
+						Partner_Rates_Effective_Date=v_r.Partner_Rates_Effective_Date
+						Current_Rate="Yes"
+						Partner_Rate_Status="Active"
+						Added_User=zoho.loginuser
+					];
+					v_newRec = Partner_Rates[ID == v_newId];
+					v_newRec.Partner_Rate_ID_Stamp=v_newId.toString();
+					v_have.add(v_r.Rate_Type);
+					v_n = v_n + 1;
+					v_inserted = v_inserted + 1;
+				}
+			}
+			if(v_n > 0)
+			{
+				v_out = v_out + "\n   " + v_t.Partner_Location_Label + ": added " + v_n + " missing rate type(s)";
+			}
+		}
+	}
+}
+return "Inserted " + v_inserted + " rate records." + v_out;

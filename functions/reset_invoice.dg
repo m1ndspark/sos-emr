@@ -1,0 +1,52 @@
+if(p_confirm != "RESET")
+{
+	return "ERROR: Nothing was changed. Pass RESET as the second argument to confirm.";
+}
+v_inv = Invoices[ID == p_invoiceId];
+if(v_inv.ID == null)
+{
+	return "ERROR: Invoice record not found.";
+}
+v_count = 0;
+v_list = List();
+for each  v_p in Encounter_PatientVisit[Invoice_Link == p_invoiceId]
+{
+	v_list.add(v_p.PVS_ID);
+	v_count = v_count + 1;
+	update v_p
+	[
+		Invoice_Link=null
+		Invoice_Status="Draft"
+	];
+}
+v_booksMsg = "No Books invoice was created.";
+if(v_inv.Books_Invoice_ID != null && v_inv.Books_Invoice_ID.trim() != "")
+{
+	v_headers = Map();
+	v_headers.put("Content-Type","application/json");
+	v_voidResp = invokeurl
+	[
+		url :"https://www.zohoapis.com/books/v3/invoices/" + v_inv.Books_Invoice_ID + "/status/void?organization_id=911048634"
+		type :POST
+		headers:v_headers
+		connection:"zoho_books_partners"
+	];
+	if(v_voidResp.get("code") == 0)
+	{
+		v_booksMsg = "Books invoice " + v_inv.Books_Invoice_Number + " voided.";
+	}
+	else
+	{
+		v_booksMsg = "BOOKS VOID FAILED for " + v_inv.Books_Invoice_Number + ": " + v_voidResp.toString().left(500);
+	}
+}
+v_inv.Invoice_Record_Status="Void";
+v_inv.Books_Sync_Message="RESET " + zoho.currenttime.toString() + " - " + v_booksMsg + " || " + v_inv.Books_Sync_Message;
+v_inv.Books_Sync_Timestamp=zoho.currenttime;
+v_msg = "Reset complete. Invoice record " + p_invoiceId + " set to Void. Visits returned to Draft: " + v_count;
+if(v_count > 0)
+{
+	v_msg = v_msg + " (" + v_list.toString(", ") + ")";
+}
+v_msg = v_msg + ". " + v_booksMsg;
+return v_msg;

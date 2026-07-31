@@ -1,0 +1,65 @@
+v_email = input.Partner_POC_Email;
+if(v_email != null && v_email.trim() != "")
+{
+	v_org = "";
+	v_branch = "";
+	if(input.Partner_Location_Link != null)
+	{
+		v_Loc = Partner_Locations[ID == input.Partner_Location_Link];
+		if(v_Loc.ID != null)
+		{
+			v_branch = v_Loc.Partner_Location_Name;
+			v_org = v_Loc.Partner_Link.Partner_Display_Name;
+		}
+	}
+	v_first = input.Partner_POC_First_Name;
+	if(v_first == null)
+	{
+		v_first = "";
+	}
+	v_last = input.Partner_POC_Last_Name;
+	if(v_last == null)
+	{
+		v_last = "";
+	}
+	v_title = input.Partner_POC_Title;
+	if(v_title == null)
+	{
+		v_title = "";
+	}
+	v_nameTitle = (v_first + " " + v_last).trim();
+	if(v_title.trim() != "")
+	{
+		v_nameTitle = v_nameTitle + ", " + v_title;
+	}
+	v_c = Partner_Referral_Contacts[Partner_POC_Email == v_email];
+	if(v_c.ID != null)
+	{
+		v_c.Partner_POC_First_Name=input.Partner_POC_First_Name;
+		v_c.Partner_POC_Last_Name=input.Partner_POC_Last_Name;
+		v_c.Partner_POC_Title=input.Partner_POC_Title;
+		v_c.Partner_POC_Name_Title=v_nameTitle;
+		v_c.Partner_POC_Phone=input.Partner_POC_Phone;
+		v_c.Partner_Link=input.Partner_Link;
+		v_c.Partner_Locations_Link=input.Partner_Location_Link;
+		v_c.Partner_Organization=v_org;
+		v_c.Partner_Branch=v_branch;
+	}
+	else
+	{
+		insert into Partner_Referral_Contacts
+		[
+			Partner_POC_Email=v_email
+			Partner_POC_First_Name=input.Partner_POC_First_Name
+			Partner_POC_Last_Name=input.Partner_POC_Last_Name
+			Partner_POC_Title=input.Partner_POC_Title
+			Partner_POC_Name_Title=v_nameTitle
+			Partner_POC_Phone=input.Partner_POC_Phone
+			Partner_Link=input.Partner_Link
+			Partner_Locations_Link=input.Partner_Location_Link
+			Partner_Organization=v_org
+			Partner_Branch=v_branch
+			Added_User=zoho.loginuser
+		]
+	}
+}

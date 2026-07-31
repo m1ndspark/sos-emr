@@ -1,0 +1,165 @@
+v_need = List();
+v_need.add("High Complexity");
+v_need.add("Moderate Complexity");
+v_need.add("Low Complexity");
+v_need.add("Hospital at Home");
+v_need.add("Telemedicine");
+v_need.add("Care Coordination");
+v_need.add("General Consultation");
+v_need.add("Cares 3008 Assessment");
+v_totalRates = 0;
+v_orphans = List();
+for each  v_r in Partner_Rates[ID != 0]
+{
+	v_totalRates = v_totalRates + 1;
+	v_bad = false;
+	if(v_r.Partner_Location_Link == null)
+	{
+		v_bad = true;
+	}
+	else
+	{
+		v_chk = Partner_Locations[ID == v_r.Partner_Location_Link];
+		if(v_chk.ID == null)
+		{
+			v_bad = true;
+		}
+	}
+	if(v_bad)
+	{
+		v_orphans.add("RATE ID " + v_r.ID + " | " + v_r.Rate_Category + " | " + v_r.Rate_Type + " | " + v_r.Rate_Amount + " | cur=" + v_r.Current_Rate + " | link=" + v_r.Partner_Location_Link);
+	}
+}
+v_keys = List();
+for each  v_l in Partner_Locations[ID != 0]
+{
+	v_lbl = v_l.Partner_Location_Label;
+	if(v_lbl == null || v_lbl.trim() == "")
+	{
+		v_lbl = "(no label) ID " + v_l.ID;
+	}
+	v_keys.add(v_lbl + "::" + v_l.ID);
+}
+v_keys = v_keys.sort(true);
+v_out = "";
+v_locCount = 0;
+v_zeroRate = List();
+for each  v_k in v_keys
+{
+	v_idx = v_k.indexOf("::");
+	v_id = v_k.subString(v_idx + 2).toLong();
+	v_l = Partner_Locations[ID == v_id];
+	v_locCount = v_locCount + 1;
+	v_pName = "NO PARTNER LINK";
+	v_pCode = "-";
+	v_pStatus = "-";
+	v_pRateStruct = "-";
+	if(v_l.Partner_Link != null)
+	{
+		v_p = Partners[ID == v_l.Partner_Link];
+		if(v_p.ID != null)
+		{
+			v_pName = v_p.Partner_Display_Name;
+			v_pCode = v_p.Partner_Code;
+			v_pStatus = v_p.Partner_Status;
+			v_pRateStruct = v_p.Rate_Structure;
+		}
+		else
+		{
+			v_pName = "BROKEN PARTNER LINK " + v_l.Partner_Link;
+		}
+	}
+	v_books = "MISSING";
+	if(v_l.Books_Customer_ID != null && v_l.Books_Customer_ID.trim() != "")
+	{
+		v_books = v_l.Books_Customer_ID;
+	}
+	v_out = v_out + "\n------------------------------------------------------------";
+	v_out = v_out + "\nLOCATION : " + v_l.Partner_Location_Label + "   [" + v_l.Partner_Location_Status + "]";
+	v_out = v_out + "\n  partner: " + v_pName + " (code " + v_pCode + ", status " + v_pStatus + ", rate structure " + v_pRateStruct + ")";
+	v_out = v_out + "\n  loc name/code: " + v_l.Partner_Location_Name + " / " + v_l.Partner_Location_Code + "   locID: " + v_l.Partner_Location_ID;
+	v_out = v_out + "\n  books customer: " + v_books;
+	v_have = List();
+	v_rateLines = List();
+	for each  v_r in Partner_Rates[Partner_Location_Link == v_id]
+	{
+		v_amt = 0.0;
+		if(v_r.Rate_Amount != null)
+		{
+			v_amt = v_r.Rate_Amount.toDecimal();
+		}
+		v_cur = v_r.Current_Rate;
+		if(v_cur == null)
+		{
+			v_cur = "-";
+		}
+		v_st = v_r.Partner_Rate_Status;
+		if(v_st == null)
+		{
+			v_st = "-";
+		}
+		v_eff = "-";
+		if(v_r.Partner_Rates_Effective_Date != null)
+		{
+			v_eff = v_r.Partner_Rates_Effective_Date.toString("MM-dd-yyyy");
+		}
+		v_flag = "";
+		if(v_amt <= 1)
+		{
+			v_flag = "   <<< SUSPECT AMOUNT";
+		}
+		if(v_cur != "Yes")
+		{
+			v_flag = v_flag + "   <<< NOT CURRENT";
+		}
+		v_rateLines.add("  rate   : " + v_r.Rate_Category + " | " + v_r.Rate_Type + " | " + v_amt + " | cur=" + v_cur + " | status=" + v_st + " | eff=" + v_eff + v_flag);
+		if(v_cur == "Yes")
+		{
+			v_have.add(v_r.Rate_Type);
+		}
+	}
+	if(v_rateLines.size() == 0)
+	{
+		v_out = v_out + "\n  rate   : NONE";
+		v_zeroRate.add(v_l.Partner_Location_Label);
+	}
+	else
+	{
+		v_rateLines = v_rateLines.sort(true);
+		for each  v_rl in v_rateLines
+		{
+			v_out = v_out + "\n" + v_rl;
+		}
+	}
+	v_missing = List();
+	for each  v_n in v_need
+	{
+		if(!v_have.contains(v_n))
+		{
+			v_missing.add(v_n);
+		}
+	}
+	if(v_missing.size() > 0)
+	{
+		v_out = v_out + "\n  MISSING: " + v_missing.toString(", ");
+	}
+	else
+	{
+		v_out = v_out + "\n  MISSING: none";
+	}
+}
+v_head = "PARTNER RATE COVERAGE";
+v_head = v_head + "\nLocations: " + v_locCount + " | Partner_Rates records: " + v_totalRates + " | locations with no rates: " + v_zeroRate.size() + " | orphaned rate records: " + v_orphans.size();
+if(v_zeroRate.size() > 0)
+{
+	v_head = v_head + "\nNO RATES AT ALL: " + v_zeroRate.toString(", ");
+}
+if(v_orphans.size() > 0)
+{
+	v_head = v_head + "\n\nORPHANED RATE RECORDS (no valid location link)";
+	for each  v_o in v_orphans
+	{
+		v_head = v_head + "\n  " + v_o;
+	}
+}
+return v_head + "\n" + v_out;

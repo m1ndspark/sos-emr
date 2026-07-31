@@ -1,0 +1,8 @@
+sendmail
+[
+	from :zoho.adminuserid
+	to :"neil.heird@sosmmc.com"
+	subject :"SOS SMTP test"
+	message :"If you received this, Creator is routing through SendGrid."
+]
+return "Sent. Check SendGrid Activity Feed.";

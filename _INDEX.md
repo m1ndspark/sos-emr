@@ -1,6 +1,6 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: July 13, 2026 (Session 15)
+Last updated: July 30, 2026 (Session 27)
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
@@ -1162,3 +1162,89 @@ OPEN / NEXT
      bound to the Partners form.
   4. Referral_Partner_Section question Neil flagged - still unraised.
   5. Then Books setup, invoice engine, approval dashboard per context/18.
+
+================================================================================
+SESSION 27 SYNC (2026-07-30) - Books smoke test passed, invoice reset path, PVS
+section visibility on load, .ds v13
+================================================================================
+Ground truth = SOS_Referrals_App_2026-07-30_v13.ds (generated 30-Jul-2026
+17:34:58), committed and copied to SOS_Referrals_App.ds. Extracted verbatim with
+tools/ds_sync.py --apply. This sync also lands the 2026-07-30 v12 EOD changes
+(CCODE_EOD_2026-07-30.md) that were never committed: the referral-contact
+lookup/signup forms, rate diagnostics/repair functions, the schema-monitor
+heartbeat rewrite, and the invoice-safe backfill_pvs_billing_branch. Post-sync
+divergence: MATCH=117, DRIFT=1 (run_reset_test, intentional temp header),
+EMPTY=1 (log_change, genuinely blank), AMBIGUOUS=2 (pre-existing Partner_Rates
+stamp-generator collision, see Session 20 OPEN/NEXT item 3).
+
+FORM: Encounter_PatientVisit
+  Encounter_PatientVisit/OnLoad__Pre_fills_provider_sectio.dg   [RENAMED + UPDATED]
+    RENAMED from OnLoad__Provider_PreFill.dg to match the live Creator link name.
+    LINK-NAME MAPPING: Creator link name = Pre_fills_provider_sectio;
+    display name = "Pre-fills provider section from employee record".
+    UPDATED: now also sets input.Employee_Email from the Employees record (added
+    to the existing First/Last/Title/Initials/Full_Name/Name_Title pull).
+  Encounter_PatientVisit/OnLoad__Invoice_Status_Lock.dg   [UPDATED]
+    disable Visit_Completion_Date moved OUT of the Clinical_Note_Type == "Final"
+    block and INTO the inner Invoice_Status == "Final" block, so the date stays
+    editable until the visit is actually invoiced (was locking at note-final).
+  Encounter_PatientVisit/OnLoad__Default_Hide_On_Load.dg   [UPDATED]
+    Appended a Type_of_Entry block that re-shows the correct sections on load
+    (Patient Visit / 3008 / Lab Order / Imaging Order / Clinic Hours), plus
+    re-show rules for Facility fields (Patient_Location == "Facility"),
+    Type_of_Diversion (Diversion_Tracking == "Yes"), and the Equipment/Other
+    charge fields (Additional_Charges contains). Fixes saved PVS records that
+    rendered with every section hidden.
+
+FUNCTIONS: invoicing
+  functions/create_invoice_from_selection.dg   [UPDATED]
+    Success return now prefixed "INVID:<recordId>|". PVS update loop rewritten to
+    "for each v_upd in Encounter_PatientVisit[ID in v_visits] { update v_upd [
+    Invoice_Link=... Invoice_Status="Final" ]; }" - a bare field assignment does
+    not persist inside a for-each, so the explicit update statement is required.
+    FLAG: the Books-FAILURE return in the live v13 export is a BARE
+    "ERROR: Books rejected the invoice. See Books Sync Message on invoice record
+    <id>." with NO "INVID:<recordId>|" prefix, unlike the Session 27 change note.
+    Consequence: on a Books failure run_invoice_batch cannot recover the created
+    invoice record ID (it only parses the INVID: prefix), so Invoice_Batch.
+    Invoice_Link is left blank on failure. Kept verbatim per source-of-truth;
+    live-side fix for Neil if the prefix on failure is wanted.
+  functions/run_invoice_batch.dg   [UPDATED]
+    Parses the "INVID:" prefix from create_invoice_from_selection: writes the
+    invoice record ID to Invoice_Batch.Invoice_Link and only the remainder to
+    Result_Message. (Closes the Session 24 Invoice_Link population gap.)
+  functions/reset_invoice.dg   *** NEW ***
+    args (int p_invoiceId, string p_confirm); requires p_confirm == "RESET".
+    Unlinks each PVS (Invoice_Link=null) and returns it to Invoice_Status
+    "Draft" via an update statement; voids the Books invoice via POST
+    /books/v3/invoices/{id}/status/void; sets the Invoices record
+    Invoice_Record_Status="Void" and prepends a "RESET <ts> - ..." stamp to
+    Books_Sync_Message. Never deletes anything in Creator or Books.
+  functions/run_reset_test.dg   *** NEW - TEMPORARY ***
+    Throwaway no-arg wrapper that calls reset_invoice on INV-000004 during
+    launch testing. Carries a temporary-marker header comment (so this file
+    intentionally reads as DRIFT vs the export). DELETE FROM CREATOR after
+    reset-path testing ends - tracked on the punch list in context/23_task_list.md.
+
+CARRYOVER FROM 2026-07-30 v12 EOD (first landing in repo this session)
+  Partner_Referral_Contact_Signup/OnSuccess__Signup_Upsert_Referral_Co.dg  *** NEW ***
+    Upserts into Partner_Referral_Contacts keyed on Partner_POC_Email; derives
+    Partner_Organization / Partner_Branch / Partner_POC_Name_Title inline.
+  Partner_Referral_Contacts/OnValidate__Partner_POC_Name_Title_Bu.dg  *** NEW ***
+    Builds Partner_POC_Name_Title = "First Last, Title" on validate.
+  functions NEW: diag_partner_rates, report_partner_rate_coverage,
+    fix_accentcare_current_rate, replicate_uniform_rates,
+    add_missing_rate_to_uniform_branches, backfill_contact_name_title, test_smtp.
+  functions UPDATED: run_schema_monitor (emails on every run; heartbeat +
+    change detail), backfill_pvs_billing_branch (sources branch/label/org from
+    the location record, second pass for no-referral PVS, skips any PVS already
+    carrying an Invoice_Link), Referrals_Main Partner_Contact_Upsert and
+    Partner_Contact_Lookup (referral-contact recognition/upsert).
+
+SCHEMA (manual notes added; monitor owns the tables)
+  Partner_Referral_Contacts: Partner_POC_Name_Title (text) added live; snapshot
+    predates it, monitor will capture full metadata next run. Note added.
+  Encounter_PatientVisit: Invoice_Link display format changed Invoice_ID ->
+    Books_Invoice_Number (was rendering blank; Invoice_ID never populated).
+    Field-property only, no Deluge. Meta API does not expose display format, so
+    recorded as a manual note.

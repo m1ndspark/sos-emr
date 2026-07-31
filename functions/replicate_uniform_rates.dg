@@ -1,0 +1,67 @@
+v_out = "";
+v_inserted = 0;
+for each  v_p in Partners[Rate_Structure == "Uniform (All Locations)" && Partner_Status == "Active"]
+{
+	v_srcId = null;
+	v_srcCount = 0;
+	for each  v_l in Partner_Locations[Partner_Link == v_p.ID && Partner_Location_Status == "Active"]
+	{
+		v_c = 0;
+		for each  v_r in Partner_Rates[Partner_Location_Link == v_l.ID && Current_Rate == "Yes"]
+		{
+			v_c = v_c + 1;
+		}
+		if(v_c > v_srcCount)
+		{
+			v_srcCount = v_c;
+			v_srcId = v_l.ID;
+		}
+	}
+	if(v_srcId == null || v_srcCount == 0)
+	{
+		v_out = v_out + "\n" + v_p.Partner_Display_Name + ": SKIPPED - no branch has rates to copy from.";
+		continue;
+	}
+	v_src = Partner_Locations[ID == v_srcId];
+	v_out = v_out + "\n" + v_p.Partner_Display_Name + ": source = " + v_src.Partner_Location_Label + " (" + v_srcCount + " rates)";
+	for each  v_t in Partner_Locations[Partner_Link == v_p.ID && Partner_Location_Status == "Active"]
+	{
+		if(v_t.ID != v_srcId)
+		{
+			v_existing = 0;
+			for each  v_x in Partner_Rates[Partner_Location_Link == v_t.ID]
+			{
+				v_existing = v_existing + 1;
+			}
+			if(v_existing > 0)
+			{
+				v_out = v_out + "\n   " + v_t.Partner_Location_Label + ": skipped, already has " + v_existing + " rate record(s)";
+			}
+			else
+			{
+				v_n = 0;
+				for each  v_r in Partner_Rates[Partner_Location_Link == v_srcId && Current_Rate == "Yes"]
+				{
+					v_newId = insert into Partner_Rates
+					[
+						Partner_Link=v_p.ID
+						Partner_Location_Link=v_t.ID
+						Rate_Category=v_r.Rate_Category
+						Rate_Type=v_r.Rate_Type
+						Rate_Amount=v_r.Rate_Amount
+						Partner_Rates_Effective_Date=v_r.Partner_Rates_Effective_Date
+						Current_Rate="Yes"
+						Partner_Rate_Status="Active"
+						Added_User=zoho.loginuser
+					];
+					v_newRec = Partner_Rates[ID == v_newId];
+					v_newRec.Partner_Rate_ID_Stamp=v_newId.toString();
+					v_n = v_n + 1;
+					v_inserted = v_inserted + 1;
+				}
+				v_out = v_out + "\n   " + v_t.Partner_Location_Label + ": copied " + v_n + " rates";
+			}
+		}
+	}
+}
+return "Inserted " + v_inserted + " rate records." + v_out;

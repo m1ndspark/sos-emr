@@ -93,3 +93,16 @@ Field count: 86
 | Partner_ID_Stamp | Partner ID Stamp | Single Line (1) | no | no | max 255 |
 | Employee_Full_Name | Employee Full Name | Single Line (1) | no | no | max 255 |
 | Invoice_Status | Invoice Status | Radio (13) | no | no | choices: Draft, Final |
+
+## Notes (manual, Session 27, 2026-07-30)
+
+- `Invoice_Link` (Invoice Connection lookup): display format was changed in
+  Creator from `Invoice_ID` to `Books_Invoice_Number`. The lookup was already
+  storing the correct record, but it rendered blank because `Invoice_ID` is
+  never populated; `Books_Invoice_Number` is the populated, human-readable
+  value. This is a field-property change only, no Deluge change. The Meta API
+  does not expose lookup display format, so the auto-generated table above
+  cannot capture it; this note is the record.
+- The schema monitor rebuilds this file from the Meta API on each detected
+  change and will overwrite this section. Durable record: git history and
+  `context/23_task_list.md`.

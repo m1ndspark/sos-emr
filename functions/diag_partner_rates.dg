@@ -1,0 +1,64 @@
+v_need = List();
+v_need.add("High Complexity");
+v_need.add("Moderate Complexity");
+v_need.add("Low Complexity");
+v_need.add("Hospital at Home");
+v_need.add("Telemedicine");
+v_need.add("Care Coordination");
+v_need.add("General Consultation");
+v_need.add("Cares 3008 Assessment");
+v_out = "";
+v_totalRates = 0;
+v_locsOk = 0;
+v_locsShort = 0;
+for each  v_l in Partner_Locations[Partner_Location_Status == "Active"]
+{
+	v_have = List();
+	v_low = List();
+	for each  v_r in Partner_Rates[Partner_Location_Link == v_l.ID && Current_Rate == "Yes"]
+	{
+		v_totalRates = v_totalRates + 1;
+		v_have.add(v_r.Rate_Type);
+		v_amt = 0.0;
+		if(v_r.Rate_Amount != null)
+		{
+			v_amt = v_r.Rate_Amount.toDecimal();
+		}
+		if(v_amt <= 1)
+		{
+			v_low.add(v_r.Rate_Type + "=" + v_amt);
+		}
+	}
+	v_missing = List();
+	for each  v_n in v_need
+	{
+		if(!v_have.contains(v_n))
+		{
+			v_missing.add(v_n);
+		}
+	}
+	v_books = "no BooksID";
+	if(v_l.Books_Customer_ID != null && v_l.Books_Customer_ID.trim() != "")
+	{
+		v_books = "BooksID ok";
+	}
+	if(v_missing.size() == 0 && v_low.size() == 0)
+	{
+		v_locsOk = v_locsOk + 1;
+		v_out = v_out + "\nOK   " + v_l.Partner_Location_Label + " (" + v_have.size() + " rates, " + v_books + ")";
+	}
+	else
+	{
+		v_locsShort = v_locsShort + 1;
+		v_out = v_out + "\nSHORT " + v_l.Partner_Location_Label + " (" + v_have.size() + " rates, " + v_books + ")";
+		if(v_missing.size() > 0)
+		{
+			v_out = v_out + "\n      missing: " + v_missing.toString(", ");
+		}
+		if(v_low.size() > 0)
+		{
+			v_out = v_out + "\n      suspect amounts: " + v_low.toString(", ");
+		}
+	}
+}
+return "Active branches OK: " + v_locsOk + " | short: " + v_locsShort + " | total current rates: " + v_totalRates + "\n" + v_out;

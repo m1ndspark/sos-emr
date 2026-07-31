@@ -95,3 +95,54 @@ disable Partner_ID_Stamp;
 disable Invoice_Status;
 disable PVS_Referral_ID;
 disable Provider_ICD_Print;
+if(input.Type_of_Entry == "Patient Visit")
+{
+	show Referral_Details_Section;
+	show Final_Clinical_Note_Section;
+	show Type_of_Procedure_Section;
+	show Visit_Cost_Drivers_Section;
+	show Charges_Section;
+	show Diversion_Tracking_Section;
+	show Files_Upload_Section;
+}
+else if(input.Type_of_Entry == "3008")
+{
+	show Cares_3008_Completion_Section;
+}
+else if(input.Type_of_Entry == "Lab Order")
+{
+	show Lab_Orders_Section;
+	show Diversion_Tracking_Section;
+}
+else if(input.Type_of_Entry == "Imaging Order")
+{
+	show Imaging_Orders_Section;
+	show Diversion_Tracking_Section;
+}
+else if(input.Type_of_Entry == "Clinic Hours")
+{
+	show Diversion_Tracking_Section;
+}
+if(input.Patient_Location == "Facility")
+{
+	show Facility_Name;
+	show Facility_Phone;
+	show Facility_Room_Number;
+}
+if(input.Diversion_Tracking == "Yes")
+{
+	show Type_of_Diversion;
+}
+if(input.Additional_Charges != null)
+{
+	if(input.Additional_Charges.contains("Equipment Charge"))
+	{
+		show Equipment_Charge_Amount;
+		show Equipment_Charge_Details;
+	}
+	if(input.Additional_Charges.contains("Other"))
+	{
+		show Other_Charges_Amount;
+		show Other_Charges_Details;
+	}
+}

@@ -160,6 +160,7 @@ activeForms = currentMap.keys();
 activeForms = activeForms.sort(true);
 activeFormsHtml = activeForms.toString("<br>");
 previousData = "";
+previousSummary = "";
 latestTime = null;
 for each  rec in Schema_Snapshot[ID != null]
 {
@@ -167,6 +168,7 @@ for each  rec in Schema_Snapshot[ID != null]
 	{
 		latestTime = rec.Captured_On;
 		previousData = rec.Snapshot_Data;
+		previousSummary = rec.Change_Summary;
 	}
 }
 if(previousData == null)
@@ -314,8 +316,33 @@ if(suspectPull)
 	return;
 }
 totalChanges = formAddedLines.size() + formRemovedLines.size() + fieldAddedLines.size() + fieldChangedLines.size() + fieldRemovedLines.size();
+legend = "Attribute format is type~mandatory~unique. Type codes: 1 Single Line, 2 Multi Line, 3 Email, 5 Number, 6 Decimal, 8 Currency, 9 Auto Number, 10 Date, 11 Date-Time, 12 Dropdown/Lookup, 13 Radio, 14 Multi Select, 15 Checkbox, 16 Decision Box, 19 File Upload, 20 Formula, 21 Subform, 27 Phone, 29 Name, 30 Address.";
 if(totalChanges == 0)
 {
+	lastTimeStr = "unknown";
+	if(latestTime != null)
+	{
+		lastTimeStr = latestTime.toString();
+	}
+	lastSummary = previousSummary;
+	if(lastSummary == null)
+	{
+		lastSummary = "";
+	}
+	if(lastSummary.trim() == "")
+	{
+		lastSummary = "No change detail recorded for that snapshot.";
+	}
+	okBody = "<div style=\"font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;\">";
+	okBody = okBody + "<p><b>SOS EMR schema monitor ran on " + zoho.currenttime + ".</b></p>";
+	okBody = okBody + "<p style=\"padding:8px 12px;background:#f0f7f0;border-left:3px solid #2e7d32;\"><b>NO FIELD CHANGES THIS RUN.</b><br>Nothing was added, changed, or removed. No files committed.</p>";
+	okBody = okBody + "<p>Forms checked: " + currentMap.size() + "</p>";
+	okBody = okBody + "<p><b>MOST RECENT SCHEMA CHANGE</b><br>Captured: " + lastTimeStr + "</p>";
+	okBody = okBody + "<pre style=\"background:#f6f6f6;padding:10px;white-space:pre-wrap;font-size:12px;\">" + lastSummary + "</pre>";
+	okBody = okBody + "<hr><p><b>ACTIVE FORMS AT THIS RUN (" + activeForms.size() + ")</b><br>" + activeFormsHtml + "</p>";
+	okBody = okBody + "<p style=\"color:#666;font-size:12px;\">" + legend + "</p>";
+	okBody = okBody + "</div>";
+	thisapp.send_via_sendgrid(alertTo,"SOS EMR schema monitor: NO CHANGES (" + zoho.currentdate.toString("MM-dd-yyyy") + ")",okBody);
 	return;
 }
 insert into Schema_Snapshot
@@ -413,7 +440,6 @@ for each  cf in commitForms
 		committedList.add(cf);
 	}
 }
-legend = "Attribute format is type~mandatory~unique. Type codes: 1 Single Line, 2 Multi Line, 3 Email, 5 Number, 6 Decimal, 8 Currency, 9 Auto Number, 10 Date, 11 Date-Time, 12 Dropdown/Lookup, 13 Radio, 14 Multi Select, 15 Checkbox, 16 Decision Box, 19 File Upload, 20 Formula, 21 Subform, 27 Phone, 29 Name, 30 Address.";
 mailBody = "<div style=\"font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;\">";
 mailBody = mailBody + "<p><b>SOS EMR schema changes detected on " + zoho.currenttime + ".</b></p>";
 if(formRemovedLines.size() > 0)

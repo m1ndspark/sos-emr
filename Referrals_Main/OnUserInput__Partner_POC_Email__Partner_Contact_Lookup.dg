@@ -8,6 +8,7 @@ if(v_Email != null && v_Email != "")
 		input.Partner_POC_Last_Name = v_Rec.Partner_POC_Last_Name;
 		input.Partner_POC_Title = v_Rec.Partner_POC_Title;
 		input.Partner_POC_Phone = v_Rec.Partner_POC_Phone;
+		input.Partner_POC_Email = v_Rec.Partner_POC_Email;
 		input.Partner_Organization = v_Rec.Partner_Organization;
 		input.Partner_POC_Team = v_Rec.Partner_POC_Team;
 		break;
