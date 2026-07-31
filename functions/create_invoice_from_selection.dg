@@ -100,7 +100,7 @@ for each  v_id in v_visits
 	v_lineSeq.put(v_key,v_n);
 	v_lineQty.put(v_key,v_lineQty.get(v_key) + 1);
 	v_block = "#" + v_n + "\n";
-	v_block = v_block + "NAME: " + v_p.Patient_Full_Name + "\n";
+	v_block = v_block + "NAME: " + v_p.Patient_Full_Name_1 + "\n";
 	v_block = v_block + "DOB: " + v_dob + "\n";
 	v_block = v_block + "MRN: " + v_p.Patient_Hospice_ID + "\n";
 	v_block = v_block + "REF DATE: " + v_refDate + "\n";

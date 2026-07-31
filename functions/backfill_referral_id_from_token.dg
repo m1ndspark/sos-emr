@@ -1,0 +1,34 @@
+v_copied = 0;
+v_hadId = 0;
+for each  r in Referrals_Main[ID != 0]
+{
+	v_tok = r.Form_Token;
+	if(v_tok == null)
+	{
+		v_tok = "";
+	}
+	v_tok = v_tok.trim();
+	v_rid = r.Referral_ID;
+	if(v_rid == null)
+	{
+		v_rid = "";
+	}
+	v_rid = v_rid.trim();
+	if(v_tok != "")
+	{
+		if(v_rid == "")
+		{
+			update r
+			[
+				Referral_ID=v_tok
+				Form_Token=""
+			];
+			v_copied = v_copied + 1;
+		}
+		else
+		{
+			v_hadId = v_hadId + 1;
+		}
+	}
+}
+return "Referral IDs copied from Form Token: " + v_copied + ". Skipped, already had a Referral ID: " + v_hadId + ".";

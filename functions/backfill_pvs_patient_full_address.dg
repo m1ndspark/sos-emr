@@ -1,1 +1,53 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_filled = 0;
+v_empty = 0;
+v_kept = 0;
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	v_cur = p.Patient_Full_Address;
+	if(v_cur == null)
+	{
+		v_cur = "";
+	}
+	if(v_cur.trim() != "")
+	{
+		v_kept = v_kept + 1;
+	}
+	else
+	{
+		v_addr = "";
+		if(p.Patient_Address.address_line_1 != null && p.Patient_Address.address_line_1.trim() != "")
+		{
+			v_addr = p.Patient_Address.address_line_1.trim();
+		}
+		if(p.Patient_Address.address_line_2 != null && p.Patient_Address.address_line_2.trim() != "")
+		{
+			v_addr = v_addr + ", " + p.Patient_Address.address_line_2.trim();
+		}
+		if(p.Patient_Address.district_city != null && p.Patient_Address.district_city.trim() != "")
+		{
+			v_addr = v_addr + ", " + p.Patient_Address.district_city.trim();
+		}
+		if(p.Patient_Address.state_province != null && p.Patient_Address.state_province.trim() != "")
+		{
+			v_addr = v_addr + ", " + p.Patient_Address.state_province.trim();
+		}
+		if(p.Patient_Address.postal_Code != null && p.Patient_Address.postal_Code.trim() != "")
+		{
+			v_addr = v_addr + " " + p.Patient_Address.postal_Code.trim();
+		}
+		v_addr = v_addr.trim();
+		if(v_addr == "")
+		{
+			v_empty = v_empty + 1;
+		}
+		else
+		{
+			update p
+			[
+				Patient_Full_Address=v_addr
+			];
+			v_filled = v_filled + 1;
+		}
+	}
+}
+return "Full addresses built: " + v_filled + ". Already had one: " + v_kept + ". No address on record: " + v_empty + ".";

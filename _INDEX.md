@@ -1308,18 +1308,17 @@ Partner_Rate_Stamp_Generator collision on the Partners form, tracked since
 Session 20). Matches expectations exactly.
 
 ================================================================================
-SESSION 28 CHECKPOINT (2026-07-31) - import rehearsal passed; new code AHEAD OF v14
+SESSION 28 CHECKPOINT (2026-07-31) - import rehearsal passed; captured in v15
 ================================================================================
 After the v14 sync, a full go-live import rehearsal was run and new functions
-were created live in Creator. The .ds is STALE again: everything below is AHEAD
-OF v14 and lands verbatim at the next re-export (v15). Rehearsal log:
-context/logs/SOS_Import_Rehearsal_2026-07-31.md. RE-EXPORT AND COMMIT is the next
-action (tracked in context/23).
+were created live in Creator. All of it (10 functions + the workflow fix + the
+Patient_Full_Address field) was captured by the v15 export the same day; see the
+SESSION 28 v15 SYNC block at the end of this file. Rehearsal log:
+context/logs/SOS_Import_Rehearsal_2026-07-31.md.
 
-NEW FUNCTIONS - placeholder .dg files committed, marked PENDING until v15
-(they were created live today, so their verbatim bodies are not in any .ds yet;
-the placeholders carry a single PENDING comment line, not code):
-  functions/backfill_pvs_ids.dg   *** NEW, PENDING ***
+NEW FUNCTIONS - created live during the rehearsal; verbatim bodies captured in
+the v15 export (2026-07-31) and now in the repo:
+  functions/backfill_pvs_ids.dg   *** NEW ***
     No args, returns string. Mints PVS_ID from Sequence_Tracker where blank,
     builds PVS_Referral_ID as "PVS-<Referral_ID>", and repairs a blank
     Has_Referral_ID by deriving it from whether Referral_ID is populated. Writes
@@ -1327,32 +1326,31 @@ the placeholders carry a single PENDING comment line, not code):
     GOTCHA (found the hard way): two separate update statements on the same record
     inside one for-each pass do NOT both take effect - the second is dropped.
     Combine them into a single update.
-  functions/resolve_referral_branch_from_text.dg   *** NEW, PENDING ***
+  functions/resolve_referral_branch_from_text.dg   *** NEW ***
     No args, returns string. For Referrals_Main rows with a blank
     Partner_Branch_Link and text in Partner_Branch, matches
     Partner_Locations.Partner_Location_Label exactly and sets the lookup. Reports
     unmatched values.
-  functions/backfill_pvs_complexity_charge.dg   *** NEW, PENDING ***
+  functions/backfill_pvs_complexity_charge.dg   *** NEW ***
     No args, returns string. Fills Complexity_Charge from Partner_Rates by
     Billing_Branch + Complexity_Level + Current_Rate = "Yes". Only fills blank or
     zero, never overwrites. Skips Complexity_Level "No Charge". Reports missing
     branch/level rate combinations.
-  functions/backfill_pvs_patient_full_address.dg   *** NEW, PENDING ***
+  functions/backfill_pvs_patient_full_address.dg   *** NEW ***
     No args, returns string. Builds Encounter_PatientVisit.Patient_Full_Address
     from the address sub-fields. First run: 18 built.
   DIAGNOSTICS (no-arg, TEMPORARY - delete from Creator after launch, punch list):
     functions/diag_pvs_ids.dg, functions/diag_referral_ids.dg,
     functions/diag_zztest_referrals.dg, functions/diag_accentcare_rates.dg,
     functions/diag_referral_import_gaps.dg, functions/diag_pvs_import_gaps.dg
-    - all *** NEW, PENDING ***.
+    - all *** NEW, TEMPORARY ***.
 
-WORKFLOW FIX - AHEAD OF v14
+WORKFLOW FIX - captured in v15
   Encounter_PatientVisit/OnUserInput__Patient_Address__Build_Patient_Full_Address.dg
     Final line corrected from "Patient_Full_Address = v_addr.trim();" to
     "input.Patient_Full_Address = v_addr.trim();" - the missing input. prefix
     assigned to a local, so the field never populated. The Referrals_Main
-    equivalent was already correct. Repo is now one line ahead of v14, so this
-    file reads as DRIFT until v15 (intentional).
+    equivalent was already correct. Now in the v15 export; repo and live agree.
 
 SCHEMA
   Encounter_PatientVisit.Patient_Full_Address (Single Line, "Patient Full
@@ -1378,3 +1376,44 @@ TEST FIXTURES committed under context/test-fixtures/ (see that dir and the
 rehearsal log). DRYRUN_RUNBOOK.txt was not in ~/Downloads and is still pending
 from Neil. The two COVERAGE files' synthetic SSN-shaped values were scrubbed to
 "REDACTED" before commit to keep the repo clear of SSN-shaped data.
+
+================================================================================
+SESSION 28 v15 SYNC (2026-07-31) - .ds v15, 10 function bodies + rehearsal changes
+================================================================================
+Ground truth = SOS_Referrals_App_2026-07-31_v15.ds (generated 31-Jul-2026
+12:51:21), committed and copied to SOS_Referrals_App.ds. Extracted verbatim with
+ds_sync.py --apply (run_reset_test protected: restored from HEAD after apply so
+its temporary header survives). Post-sync divergence: MATCH=129, DRIFT=1
+(run_reset_test), EMPTY=1 (log_change), AMBIGUOUS=2 (pre-existing
+Partner_Rate_Stamp_Generator collision). MANIFEST regenerated (133 rows).
+
+CAPTURED AS EXPECTED
+  - 10 function placeholders replaced with verbatim v15 bodies (4 backfills kept
+    after launch, 6 diag_* temporary). backfill_pvs_ids confirms the single
+    combined update statement per record (PVS_ID + PVS_Referral_ID +
+    Has_Referral_ID in one update).
+  - Build_Patient_Full_Address input. prefix fix - now MATCH against v15.
+  - Encounter_PatientVisit.Patient_Full_Address present in the export (see schema
+    note).
+
+INVESTIGATED - v15 carried MORE than this sync prompt itemized (all real
+rehearsal-session live changes, now mirrored; flagged so cchat/Neil can confirm
+none was accidental):
+  1. PVS PATIENT-NAME FIELD RESTRUCTURE. On Encounter_PatientVisit,
+     Patient_Full_Name -> Patient_Full_Name_1 and Patient_Display_Name ->
+     Patient_Full_Name_2. Five workflows were updated live to match and now
+     DRIFTed into the repo: Default_Hide_On_Load, Invoice_Status_Lock,
+     Edit_Needed_Unlock, Has_Referral_ID_Show_Hide, Referral_Link_Pre_Fill (each
+     a straight rename of the two field references). The schema monitor will
+     capture the field rename on its table; noted in schema/Encounter_PatientVisit.md.
+  2. create_invoice_from_selection - two live changes beyond v14: (a) now reads
+     v_p.Patient_Full_Name_1 (per the rename above); (b) now BUILDS PREMIUM FEE
+     LINE ITEMS - After Hours, Super STAT, Equipment Charge, Other Charges - each
+     added as its own Books line when the amount is > 0. This addresses the
+     Session 27 flag that After_Hours_Fee / Super_Stat_Fee were carried but read
+     by nothing. NOTE: the 2000-char Books description cap is still not truncated
+     (per-visit blocks still embed unbounded Reason_for_Referral) - open item stands.
+  3. NEW functions/backfill_referral_id_from_token.dg (*** NEW ***). Copies
+     Form_Token into Referral_ID for Referrals_Main rows where Referral_ID is
+     blank, then clears Form_Token. Reports copied vs already-had-an-ID counts.
+     Not itemized in the sync prompt; recorded here for visibility.

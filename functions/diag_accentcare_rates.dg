@@ -1,1 +1,16 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_out = "";
+for each  l in Partner_Locations[Partner_Location_Label.contains("AccentCare")]
+{
+	v_out = v_out + "\n== " + l.Partner_Location_Label;
+	v_n = 0;
+	for each  r in Partner_Rates[Partner_Location_Link == l.ID]
+	{
+		v_n = v_n + 1;
+		v_out = v_out + "\n   [" + r.Rate_Type + "] amt=" + r.Rate_Amount + " current=[" + r.Current_Rate + "] status=[" + r.Partner_Rate_Status + "]";
+	}
+	if(v_n == 0)
+	{
+		v_out = v_out + "\n   (no rate records)";
+	}
+}
+return v_out;

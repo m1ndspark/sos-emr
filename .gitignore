@@ -17,6 +17,10 @@
 secrets.*
 *credentials*
 *token*
+# Exception: this is a Deluge source function (Form_Token -> Referral_ID
+# migration), not a credential file. Its name matches *token* above; keep it
+# tracked. Any real token/credential file must still never be committed.
+!functions/backfill_referral_id_from_token.dg
 
 # Logs / temp
 *.log

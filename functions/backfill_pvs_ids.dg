@@ -1,1 +1,114 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_minted = 0;
+v_refset = 0;
+v_flagset = 0;
+v_skip = 0;
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	v_curId = p.PVS_ID;
+	if(v_curId == null)
+	{
+		v_curId = "";
+	}
+	v_curId = v_curId.trim();
+	v_curRef = p.PVS_Referral_ID;
+	if(v_curRef == null)
+	{
+		v_curRef = "";
+	}
+	v_curRef = v_curRef.trim();
+	v_rid = p.Referral_ID;
+	if(v_rid == null)
+	{
+		v_rid = "";
+	}
+	v_rid = v_rid.trim();
+	v_curFlag = p.Has_Referral_ID;
+	if(v_curFlag == null)
+	{
+		v_curFlag = "";
+	}
+	v_curFlag = v_curFlag.trim();
+	v_flag = v_curFlag;
+	v_doFlag = false;
+	if(v_flag == "")
+	{
+		if(v_rid != "")
+		{
+			v_flag = "Yes";
+		}
+		else
+		{
+			v_flag = "No";
+		}
+		v_doFlag = true;
+	}
+	v_newId = v_curId;
+	v_newRef = v_curRef;
+	v_doId = false;
+	v_doRef = false;
+	v_bad = false;
+	if(v_curId == "")
+	{
+		v_init = "";
+		if(p.Employee_Initials != null)
+		{
+			v_init = p.Employee_Initials.toString().trim();
+		}
+		v_seq = 0;
+		v_found = false;
+		for each  t in Sequence_Tracker[Object_Prefix == "PVS"]
+		{
+			v_seq = t.Object_Sequence;
+			v_found = true;
+			update t
+			[
+				Object_Sequence=v_seq + 1
+			];
+			break;
+		}
+		if(!v_found)
+		{
+			v_bad = true;
+		}
+		else
+		{
+			v_newId = "PVS-" + v_seq.toString() + "-" + v_init;
+			if(v_flag != "Yes")
+			{
+				v_newId = v_newId + "-M";
+			}
+			v_doId = true;
+		}
+	}
+	if(v_curRef == "" && v_flag == "Yes" && v_rid != "")
+	{
+		v_newRef = "PVS-" + v_rid;
+		v_doRef = true;
+	}
+	if(v_bad)
+	{
+		v_skip = v_skip + 1;
+	}
+	else if(v_doId || v_doRef || v_doFlag)
+	{
+		update p
+		[
+			PVS_ID=v_newId
+			PVS_Referral_ID=v_newRef
+			Has_Referral_ID=v_flag
+		];
+		if(v_doId)
+		{
+			v_minted = v_minted + 1;
+		}
+		if(v_doRef)
+		{
+			v_refset = v_refset + 1;
+		}
+		if(v_doFlag)
+		{
+			v_flagset = v_flagset + 1;
+		}
+	}
+}
+return "PVS IDs minted: " + v_minted + ". PVS Referral IDs set: " + v_refset + ". Has_Referral_ID repaired: " + v_flagset + ". Skipped (no PVS sequence record): " + v_skip + ".";

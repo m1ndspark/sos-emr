@@ -1,1 +1,26 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_out = "";
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	v_a = "<NULL>";
+	if(p.PVS_ID != null)
+	{
+		v_a = "[" + p.PVS_ID + "] len=" + p.PVS_ID.length();
+	}
+	v_b = "<NULL>";
+	if(p.PVS_Referral_ID != null)
+	{
+		v_b = "[" + p.PVS_Referral_ID + "] len=" + p.PVS_Referral_ID.length();
+	}
+	v_c = "<NULL>";
+	if(p.Referral_ID != null)
+	{
+		v_c = "[" + p.Referral_ID + "] len=" + p.Referral_ID.length();
+	}
+	v_d = "<NULL>";
+	if(p.Has_Referral_ID != null)
+	{
+		v_d = "[" + p.Has_Referral_ID + "]";
+	}
+	v_out = v_out + "\nID " + p.ID + " | PVS_ID " + v_a + " | PVS_REF " + v_b + " | REF_ID " + v_c + " | HAS_REF " + v_d;
+}
+return v_out;

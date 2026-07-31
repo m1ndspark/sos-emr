@@ -1,1 +1,47 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_out = "";
+v_n = 0;
+for each  r in Referrals_Main[ID != 0]
+{
+	v_rid = "<NULL>";
+	if(r.Referral_ID != null)
+	{
+		v_rid = "[" + r.Referral_ID + "] len=" + r.Referral_ID.length();
+	}
+	v_tok = "<NULL>";
+	if(r.Form_Token != null)
+	{
+		v_tok = "[" + r.Form_Token + "] len=" + r.Form_Token.length();
+	}
+	v_stamp = "<NULL>";
+	if(r.Referral_ID_Stamp != null)
+	{
+		v_stamp = "[" + r.Referral_ID_Stamp + "]";
+	}
+	v_last = "<NULL>";
+	if(r.Patient_Last_Name != null)
+	{
+		v_last = "[" + r.Patient_Last_Name + "]";
+	}
+	v_show = false;
+	if(r.Referral_ID == null)
+	{
+		v_show = true;
+	}
+	else if(r.Referral_ID.trim() == "")
+	{
+		v_show = true;
+	}
+	if(r.Form_Token != null)
+	{
+		if(r.Form_Token.trim() != "")
+		{
+			v_show = true;
+		}
+	}
+	if(v_show)
+	{
+		v_n = v_n + 1;
+		v_out = v_out + "\nID " + r.ID + " | LAST " + v_last + " | REF_ID " + v_rid + " | TOKEN " + v_tok + " | STAMP " + v_stamp;
+	}
+}
+return "Rows with a blank Referral ID or a Form Token value: " + v_n + v_out;

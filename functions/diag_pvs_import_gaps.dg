@@ -1,1 +1,240 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_out = "";
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	v_rid = p.Referral_ID;
+	if(v_rid == null)
+	{
+		v_rid = "";
+	}
+	if(v_rid.startsWith("ZZCOV"))
+	{
+		v_blank = List();
+		if(p.Has_Referral_ID == null || p.Has_Referral_ID == "")
+		{
+			v_blank.add("Has_Referral_ID");
+		}
+		if(p.Type_of_Entry == null || p.Type_of_Entry == "")
+		{
+			v_blank.add("Type_of_Entry");
+		}
+		if(p.Edit_Needed == null || p.Edit_Needed == "")
+		{
+			v_blank.add("Edit_Needed");
+		}
+		if(p.Was_3008_Completed == null || p.Was_3008_Completed == "")
+		{
+			v_blank.add("Was_3008_Completed");
+		}
+		if(p.Patient_First_Name == null || p.Patient_First_Name == "")
+		{
+			v_blank.add("Patient_First_Name");
+		}
+		if(p.Patient_MI == null || p.Patient_MI == "")
+		{
+			v_blank.add("Patient_MI");
+		}
+		if(p.Patient_Last_Name == null || p.Patient_Last_Name == "")
+		{
+			v_blank.add("Patient_Last_Name");
+		}
+		if(p.Patient_DOB == null)
+		{
+			v_blank.add("Patient_DOB");
+		}
+		if(p.Patient_Gender == null || p.Patient_Gender == "")
+		{
+			v_blank.add("Patient_Gender");
+		}
+		if(p.Patient_Hospice_ID == null || p.Patient_Hospice_ID == "")
+		{
+			v_blank.add("Patient_Hospice_ID");
+		}
+		if(p.Patient_SSN == null || p.Patient_SSN == "")
+		{
+			v_blank.add("Patient_SSN");
+		}
+		if(p.Patient_Phone == null || p.Patient_Phone == "")
+		{
+			v_blank.add("Patient_Phone");
+		}
+		if(p.Patient_Email == null || p.Patient_Email == "")
+		{
+			v_blank.add("Patient_Email");
+		}
+		if(p.Patient_Location == null || p.Patient_Location == "")
+		{
+			v_blank.add("Patient_Location");
+		}
+		if(p.Facility_Name == null || p.Facility_Name == "")
+		{
+			v_blank.add("Facility_Name");
+		}
+		if(p.Facility_Phone == null || p.Facility_Phone == "")
+		{
+			v_blank.add("Facility_Phone");
+		}
+		if(p.Facility_Room_Number == null || p.Facility_Room_Number == "")
+		{
+			v_blank.add("Facility_Room_Number");
+		}
+		if(p.Reason_for_Referral == null || p.Reason_for_Referral == "")
+		{
+			v_blank.add("Reason_for_Referral");
+		}
+		if(p.Goals_of_Care == null || p.Goals_of_Care == "")
+		{
+			v_blank.add("Goals_of_Care");
+		}
+		if(p.Partner_ICD_Codes == null || p.Partner_ICD_Codes == "")
+		{
+			v_blank.add("Partner_ICD_Codes");
+		}
+		if(p.Additional_Information == null || p.Additional_Information == "")
+		{
+			v_blank.add("Additional_Information");
+		}
+		if(p.List_Patient_Allergies == null || p.List_Patient_Allergies == "")
+		{
+			v_blank.add("List_Patient_Allergies");
+		}
+		if(p.List_Patient_Anticoagulants == null || p.List_Patient_Anticoagulants == "")
+		{
+			v_blank.add("List_Patient_Anticoagulants");
+		}
+		if(p.Advanced_Directives_Details == null || p.Advanced_Directives_Details == "")
+		{
+			v_blank.add("Advanced_Directives_Details");
+		}
+		if(p.Imaging_Orders == null || p.Imaging_Orders == "")
+		{
+			v_blank.add("Imaging_Orders");
+		}
+		if(p.Imaging_Order_Indication == null || p.Imaging_Order_Indication == "")
+		{
+			v_blank.add("Imaging_Order_Indication");
+		}
+		if(p.Imaging_Ordered_Date == null)
+		{
+			v_blank.add("Imaging_Ordered_Date");
+		}
+		if(p.Lab_Type_Orders == null || p.Lab_Type_Orders == "")
+		{
+			v_blank.add("Lab_Type_Orders");
+		}
+		if(p.Lab_Order_Indication == null || p.Lab_Order_Indication == "")
+		{
+			v_blank.add("Lab_Order_Indication");
+		}
+		if(p.Requested_Lab_Vendor == null || p.Requested_Lab_Vendor == "")
+		{
+			v_blank.add("Requested_Lab_Vendor");
+		}
+		if(p.Lab_Order_Date == null)
+		{
+			v_blank.add("Lab_Order_Date");
+		}
+		if(p.Clinical_Note_Type == null || p.Clinical_Note_Type == "")
+		{
+			v_blank.add("Clinical_Note_Type");
+		}
+		if(p.Final_Clinical_Note == null || p.Final_Clinical_Note == "")
+		{
+			v_blank.add("Final_Clinical_Note");
+		}
+		if(p.Type_of_Procedures == null || p.Type_of_Procedures == "")
+		{
+			v_blank.add("Type_of_Procedures");
+		}
+		if(p.Complexity_Level == null || p.Complexity_Level == "")
+		{
+			v_blank.add("Complexity_Level");
+		}
+		if(p.Additional_Charges == null || p.Additional_Charges == "")
+		{
+			v_blank.add("Additional_Charges");
+		}
+		if(p.Diversion_Tracking == null || p.Diversion_Tracking == "")
+		{
+			v_blank.add("Diversion_Tracking");
+		}
+		if(p.Partner_Organization == null || p.Partner_Organization == "")
+		{
+			v_blank.add("Partner_Organization");
+		}
+		if(p.Partner_Branch == null || p.Partner_Branch == "")
+		{
+			v_blank.add("Partner_Branch");
+		}
+		if(p.Partner_POC_Team == null || p.Partner_POC_Team == "")
+		{
+			v_blank.add("Partner_POC_Team");
+		}
+		if(p.Partner_POC_First_Name == null || p.Partner_POC_First_Name == "")
+		{
+			v_blank.add("Partner_POC_First_Name");
+		}
+		if(p.Partner_POC_Last_Name == null || p.Partner_POC_Last_Name == "")
+		{
+			v_blank.add("Partner_POC_Last_Name");
+		}
+		if(p.Partner_POC_Title == null || p.Partner_POC_Title == "")
+		{
+			v_blank.add("Partner_POC_Title");
+		}
+		if(p.Partner_POC_Phone == null || p.Partner_POC_Phone == "")
+		{
+			v_blank.add("Partner_POC_Phone");
+		}
+		if(p.Partner_POC_Email == null || p.Partner_POC_Email == "")
+		{
+			v_blank.add("Partner_POC_Email");
+		}
+		if(p.Employee_First_Name == null || p.Employee_First_Name == "")
+		{
+			v_blank.add("Employee_First_Name");
+		}
+		if(p.Employee_Last_Name == null || p.Employee_Last_Name == "")
+		{
+			v_blank.add("Employee_Last_Name");
+		}
+		if(p.Employee_Title == null || p.Employee_Title == "")
+		{
+			v_blank.add("Employee_Title");
+		}
+		if(p.Employee_Initials == null || p.Employee_Initials == "")
+		{
+			v_blank.add("Employee_Initials");
+		}
+		if(p.Employee_Email == null || p.Employee_Email == "")
+		{
+			v_blank.add("Employee_Email");
+		}
+		if(p.Visit_Completion_Date == null)
+		{
+			v_blank.add("Visit_Completion_Date");
+		}
+		if(p.Hold_From_Invoicing == null || p.Hold_From_Invoicing == "")
+		{
+			v_blank.add("Hold_From_Invoicing");
+		}
+		if(p.Invoice_Status == null || p.Invoice_Status == "")
+		{
+			v_blank.add("Invoice_Status");
+		}
+		v_addr = "<NULL>";
+		if(p.Patient_Address != null)
+		{
+			v_addr = p.Patient_Address.toString();
+		}
+		v_out = v_out + "\n== " + v_rid + " | ADDRESS: " + v_addr;
+		if(v_blank.size() == 0)
+		{
+			v_out = v_out + "\n   ALL FIELDS LANDED";
+		}
+		else
+		{
+			v_out = v_out + "\n   BLANK (" + v_blank.size() + "): " + v_blank.toString(", ");
+		}
+	}
+}
+return v_out;

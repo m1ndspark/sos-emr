@@ -1,1 +1,63 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_filled = 0;
+v_kept = 0;
+v_norate = 0;
+v_skipped = 0;
+v_miss = List();
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	v_lvl = p.Complexity_Level;
+	if(v_lvl == null)
+	{
+		v_lvl = "";
+	}
+	v_lvl = v_lvl.trim();
+	if(p.Billing_Branch == null || v_lvl == "" || v_lvl == "No Charge")
+	{
+		v_skipped = v_skipped + 1;
+	}
+	else
+	{
+		v_amt = 0.0;
+		if(p.Complexity_Charge != null)
+		{
+			v_amt = p.Complexity_Charge.toDecimal();
+		}
+		if(v_amt > 0)
+		{
+			v_kept = v_kept + 1;
+		}
+		else
+		{
+			v_rate = null;
+			for each  r in Partner_Rates[Partner_Location_Link == p.Billing_Branch && Rate_Type == v_lvl && Current_Rate == "Yes"]
+			{
+				v_rate = r.Rate_Amount;
+				break;
+			}
+			if(v_rate == null)
+			{
+				v_norate = v_norate + 1;
+				v_loc = Partner_Locations[ID == p.Billing_Branch];
+				v_key = v_loc.Partner_Location_Label + " / " + v_lvl;
+				if(!v_miss.contains(v_key))
+				{
+					v_miss.add(v_key);
+				}
+			}
+			else
+			{
+				update p
+				[
+					Complexity_Charge=v_rate
+				];
+				v_filled = v_filled + 1;
+			}
+		}
+	}
+}
+v_out = "Charges filled: " + v_filled + ". Already had a charge, left alone: " + v_kept + ". No current rate found: " + v_norate + ". Not eligible: " + v_skipped + ".";
+if(v_miss.size() > 0)
+{
+	v_out = v_out + " Missing rates: " + v_miss.toString(", ");
+}
+return v_out;

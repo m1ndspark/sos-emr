@@ -116,3 +116,9 @@ Field count: 86
   `input.Patient_Full_Address`, not a bare local) and backfilled on existing rows
   by `backfill_pvs_patient_full_address` (first run: 18 built). The monitor will
   add the field row to the table above on its next run.
+- PATIENT-NAME FIELD RESTRUCTURE (captured in v15, table above still shows the
+  old snapshot): on this form `Patient_Full_Name` was renamed/replaced by
+  `Patient_Full_Name_1` and `Patient_Display_Name` by `Patient_Full_Name_2`. Five
+  On-Load/On-User-Input workflows and `create_invoice_from_selection` were updated
+  live to the new names (create_invoice now reads `Patient_Full_Name_1`). The
+  monitor will refresh the table names on its next run.

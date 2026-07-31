@@ -1,1 +1,26 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_out = "";
+v_n = 0;
+for each  r in Referrals_Main[ID != 0]
+{
+	v_last = r.Patient_Last_Name;
+	if(v_last == null)
+	{
+		v_last = "";
+	}
+	if(v_last.toLowerCase().contains("zztest"))
+	{
+		v_n = v_n + 1;
+		v_rid = "<NULL>";
+		if(r.Referral_ID != null)
+		{
+			v_rid = "[" + r.Referral_ID + "]";
+		}
+		v_bl = "<NULL>";
+		if(r.Partner_Branch_Link != null)
+		{
+			v_bl = "[" + r.Partner_Branch_Link + "]";
+		}
+		v_out = v_out + "\nID " + r.ID + " | LAST [" + v_last + "] | REF_ID " + v_rid + " | BRANCH_LINK " + v_bl;
+	}
+}
+return "ZZTEST referrals found: " + v_n + v_out;

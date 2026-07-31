@@ -4,8 +4,8 @@ if(input.Referral_Link != null)
 	v_Found = false;
 	for each  v_Rec in v_Referral
 	{
-		input.Patient_Full_Name = v_Rec.Patient_Full_Name;
-		input.Patient_Display_Name = v_Rec.Patient_Full_Name;
+		input.Patient_Full_Name_1 = v_Rec.Patient_Full_Name;
+		input.Patient_Full_Name_2 = v_Rec.Patient_Full_Name;
 		input.Patient_First_Name = v_Rec.Patient_First_Name;
 		input.Patient_MI = v_Rec.Patient_MI;
 		input.Patient_Last_Name = v_Rec.Patient_Last_Name;
@@ -49,11 +49,11 @@ if(input.Referral_Link != null)
 		input.Edit_Needed = "No";
 		show Edit_Needed;
 		show Referral_Partner_Section;
-		show Patient_Full_Name;
+		show Patient_Full_Name_1;
 		hide Patient_First_Name;
 		hide Patient_MI;
 		hide Patient_Last_Name;
-		disable Patient_Full_Name;
+		disable Patient_Full_Name_1;
 		disable Patient_DOB;
 		disable Patient_Gender;
 		disable Patient_Address;
@@ -94,8 +94,8 @@ if(input.Referral_Link != null)
 }
 else
 {
-	input.Patient_Full_Name = null;
-	input.Patient_Display_Name = null;
+	input.Patient_Full_Name_1 = null;
+	input.Patient_Full_Name_2 = null;
 	input.Patient_First_Name = null;
 	input.Patient_MI = null;
 	input.Patient_Last_Name = null;
@@ -136,7 +136,7 @@ else
 	show Patient_First_Name;
 	show Patient_MI;
 	show Patient_Last_Name;
-	hide Patient_Full_Name;
+	hide Patient_Full_Name_1;
 	enable Patient_First_Name;
 	enable Patient_MI;
 	enable Patient_Last_Name;

@@ -2,7 +2,7 @@ if(input.Has_Referral_ID == "Yes")
 {
 	if(input.Edit_Needed == "Yes")
 	{
-		hide Patient_Full_Name;
+		hide Patient_Full_Name_1;
 		show Patient_First_Name;
 		show Patient_MI;
 		show Patient_Last_Name;
@@ -28,11 +28,11 @@ if(input.Has_Referral_ID == "Yes")
 	}
 	else
 	{
-		show Patient_Full_Name;
+		show Patient_Full_Name_1;
 		hide Patient_First_Name;
 		hide Patient_MI;
 		hide Patient_Last_Name;
-		disable Patient_Full_Name;
+		disable Patient_Full_Name_1;
 		disable Patient_DOB;
 		disable Patient_Gender;
 		disable Patient_Address;

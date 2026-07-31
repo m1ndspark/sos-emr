@@ -1,1 +1,43 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_ok = 0;
+v_bad = 0;
+v_miss = List();
+for each  r in Referrals_Main[Partner_Branch_Link == null]
+{
+	v_txt = r.Partner_Branch;
+	if(v_txt == null)
+	{
+		v_txt = "";
+	}
+	v_txt = v_txt.trim();
+	if(v_txt != "")
+	{
+		v_hit = null;
+		for each  l in Partner_Locations[Partner_Location_Label == v_txt]
+		{
+			v_hit = l.ID;
+			break;
+		}
+		if(v_hit == null)
+		{
+			v_bad = v_bad + 1;
+			if(!v_miss.contains(v_txt))
+			{
+				v_miss.add(v_txt);
+			}
+		}
+		else
+		{
+			update r
+			[
+				Partner_Branch_Link=v_hit
+			];
+			v_ok = v_ok + 1;
+		}
+	}
+}
+v_out = "Branch lookups resolved: " + v_ok + ". Unmatched rows: " + v_bad + ".";
+if(v_miss.size() > 0)
+{
+	v_out = v_out + " Unmatched values: " + v_miss.toString(", ");
+}
+return v_out;

@@ -7,8 +7,8 @@ if(input.Clinical_Note_Type == "Final")
 	disable Was_3008_Completed;
 	disable Cares_3008_Completion_Date;
 	disable Notes_3008;
-	disable Patient_Full_Name;
-	disable Patient_Display_Name;
+	disable Patient_Full_Name_1;
+	disable Patient_Full_Name_2;
 	disable Patient_First_Name;
 	disable Patient_MI;
 	disable Patient_Last_Name;

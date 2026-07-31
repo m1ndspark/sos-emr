@@ -18,7 +18,7 @@ else if(input.Has_Referral_ID == "No")
 	input.Type_of_Entry = "Patient Visit";
 	disable Type_of_Entry;
 	input.Referral_Link = null;
-	input.Patient_Full_Name = null;
+	input.Patient_Full_Name_1 = null;
 	input.Patient_First_Name = null;
 	input.Patient_MI = null;
 	input.Patient_Last_Name = null;
@@ -55,7 +55,7 @@ else if(input.Has_Referral_ID == "No")
 	show Patient_First_Name;
 	show Patient_MI;
 	show Patient_Last_Name;
-	hide Patient_Full_Name;
+	hide Patient_Full_Name_1;
 	enable Patient_First_Name;
 	enable Patient_MI;
 	enable Patient_Last_Name;

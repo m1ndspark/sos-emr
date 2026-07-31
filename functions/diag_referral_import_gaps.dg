@@ -1,1 +1,216 @@
-// PENDING extraction from the next .ds export. Created live in Creator 2026-07-31, ahead of v14; the verbatim body lands at the v15 re-export. Not live code here. See _INDEX.md Session 28 checkpoint.
+v_out = "";
+for each  r in Referrals_Main[ID != 0]
+{
+	v_rid = r.Referral_ID;
+	if(v_rid == null)
+	{
+		v_rid = "";
+	}
+	if(v_rid.startsWith("ZZCOV"))
+	{
+		v_blank = List();
+		if(r.Referral_Source == null || r.Referral_Source == "")
+		{
+			v_blank.add("Referral_Source");
+		}
+		if(r.Referral_Type == null || r.Referral_Type == "")
+		{
+			v_blank.add("Referral_Type");
+		}
+		if(r.Requested_Priority == null || r.Requested_Priority == "")
+		{
+			v_blank.add("Requested_Priority");
+		}
+		if(r.SOS_Prior_Service == null || r.SOS_Prior_Service == "")
+		{
+			v_blank.add("SOS_Prior_Service");
+		}
+		if(r.Patient_First_Name == null || r.Patient_First_Name == "")
+		{
+			v_blank.add("Patient_First_Name");
+		}
+		if(r.Patient_MI == null || r.Patient_MI == "")
+		{
+			v_blank.add("Patient_MI");
+		}
+		if(r.Patient_Last_Name == null || r.Patient_Last_Name == "")
+		{
+			v_blank.add("Patient_Last_Name");
+		}
+		if(r.Patient_DOB == null)
+		{
+			v_blank.add("Patient_DOB");
+		}
+		if(r.Patient_Gender == null || r.Patient_Gender == "")
+		{
+			v_blank.add("Patient_Gender");
+		}
+		if(r.Patient_Hospice_ID == null || r.Patient_Hospice_ID == "")
+		{
+			v_blank.add("Patient_Hospice_ID");
+		}
+		if(r.Patient_SSN == null || r.Patient_SSN == "")
+		{
+			v_blank.add("Patient_SSN");
+		}
+		if(r.Patient_Phone == null || r.Patient_Phone == "")
+		{
+			v_blank.add("Patient_Phone");
+		}
+		if(r.Patient_Email == null || r.Patient_Email == "")
+		{
+			v_blank.add("Patient_Email");
+		}
+		if(r.Patient_Responsibility == null || r.Patient_Responsibility == "")
+		{
+			v_blank.add("Patient_Responsibility");
+		}
+		if(r.DM_First_Name == null || r.DM_First_Name == "")
+		{
+			v_blank.add("DM_First_Name");
+		}
+		if(r.DM_Last_Name == null || r.DM_Last_Name == "")
+		{
+			v_blank.add("DM_Last_Name");
+		}
+		if(r.Decision_Maker_Phone == null || r.Decision_Maker_Phone == "")
+		{
+			v_blank.add("Decision_Maker_Phone");
+		}
+		if(r.Decision_Maker_Email == null || r.Decision_Maker_Email == "")
+		{
+			v_blank.add("Decision_Maker_Email");
+		}
+		if(r.Decision_Maker_Relationship_to_Patient == null || r.Decision_Maker_Relationship_to_Patient == "")
+		{
+			v_blank.add("Decision_Maker_Relationship_to_Patient");
+		}
+		if(r.Patient_Location == null || r.Patient_Location == "")
+		{
+			v_blank.add("Patient_Location");
+		}
+		if(r.Facility_Name == null || r.Facility_Name == "")
+		{
+			v_blank.add("Facility_Name");
+		}
+		if(r.Facility_Phone == null || r.Facility_Phone == "")
+		{
+			v_blank.add("Facility_Phone");
+		}
+		if(r.Facility_Room_Number == null || r.Facility_Room_Number == "")
+		{
+			v_blank.add("Facility_Room_Number");
+		}
+		if(r.Referral_Reason == null || r.Referral_Reason == "")
+		{
+			v_blank.add("Referral_Reason");
+		}
+		if(r.Partner_ICD_Codes == null || r.Partner_ICD_Codes == "")
+		{
+			v_blank.add("Partner_ICD_Codes");
+		}
+		if(r.Goals_of_Care == null || r.Goals_of_Care == "")
+		{
+			v_blank.add("Goals_of_Care");
+		}
+		if(r.X_Ray_Needed == null || r.X_Ray_Needed == "")
+		{
+			v_blank.add("X_Ray_Needed");
+		}
+		if(r.Patient_Has_Allergies == null || r.Patient_Has_Allergies == "")
+		{
+			v_blank.add("Patient_Has_Allergies");
+		}
+		if(r.List_Patient_Allergies == null || r.List_Patient_Allergies == "")
+		{
+			v_blank.add("List_Patient_Allergies");
+		}
+		if(r.Patient_Has_Anticoagulants == null || r.Patient_Has_Anticoagulants == "")
+		{
+			v_blank.add("Patient_Has_Anticoagulants");
+		}
+		if(r.List_Patient_Anticoagulants == null || r.List_Patient_Anticoagulants == "")
+		{
+			v_blank.add("List_Patient_Anticoagulants");
+		}
+		if(r.Patient_Has_Advanced_Directives == null || r.Patient_Has_Advanced_Directives == "")
+		{
+			v_blank.add("Patient_Has_Advanced_Directives");
+		}
+		if(r.Additional_Information == null || r.Additional_Information == "")
+		{
+			v_blank.add("Additional_Information");
+		}
+		if(r.Imaging_Type_Order == null || r.Imaging_Type_Order == "")
+		{
+			v_blank.add("Imaging_Type_Order");
+		}
+		if(r.Imaging_Order_Indication == null || r.Imaging_Order_Indication == "")
+		{
+			v_blank.add("Imaging_Order_Indication");
+		}
+		if(r.Lab_Type_Orders == null || r.Lab_Type_Orders == "")
+		{
+			v_blank.add("Lab_Type_Orders");
+		}
+		if(r.Lab_Order_Indication == null || r.Lab_Order_Indication == "")
+		{
+			v_blank.add("Lab_Order_Indication");
+		}
+		if(r.Requested_Lab_Vendor == null || r.Requested_Lab_Vendor == "")
+		{
+			v_blank.add("Requested_Lab_Vendor");
+		}
+		if(r.Partner_Organization == null || r.Partner_Organization == "")
+		{
+			v_blank.add("Partner_Organization");
+		}
+		if(r.Partner_Branch == null || r.Partner_Branch == "")
+		{
+			v_blank.add("Partner_Branch");
+		}
+		if(r.Partner_POC_First_Name == null || r.Partner_POC_First_Name == "")
+		{
+			v_blank.add("Partner_POC_First_Name");
+		}
+		if(r.Partner_POC_Last_Name == null || r.Partner_POC_Last_Name == "")
+		{
+			v_blank.add("Partner_POC_Last_Name");
+		}
+		if(r.Partner_POC_Title == null || r.Partner_POC_Title == "")
+		{
+			v_blank.add("Partner_POC_Title");
+		}
+		if(r.Partner_POC_Team == null || r.Partner_POC_Team == "")
+		{
+			v_blank.add("Partner_POC_Team");
+		}
+		if(r.Partner_POC_Phone == null || r.Partner_POC_Phone == "")
+		{
+			v_blank.add("Partner_POC_Phone");
+		}
+		if(r.Partner_POC_Email == null || r.Partner_POC_Email == "")
+		{
+			v_blank.add("Partner_POC_Email");
+		}
+		if(r.Referral_Date == null)
+		{
+			v_blank.add("Referral_Date");
+		}
+		v_addr = "<NULL>";
+		if(r.Patient_Address != null)
+		{
+			v_addr = r.Patient_Address.toString();
+		}
+		v_out = v_out + "\n== " + v_rid + " | ADDRESS: " + v_addr;
+		if(v_blank.size() == 0)
+		{
+			v_out = v_out + "\n   ALL FIELDS LANDED";
+		}
+		else
+		{
+			v_out = v_out + "\n   BLANK (" + v_blank.size() + "): " + v_blank.toString(", ");
+		}
+	}
+}
+return v_out;
