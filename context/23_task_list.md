@@ -23,6 +23,13 @@ Owner legend:
 | Books POST smoke test, end to end. PASSED 2026-07-30. Books accepts ad-hoc line items with no item_id; invoice created, PVS flipped to Final, Invoice Connection resolved, reset path voided both Creator and Books cleanly. | Neil / ccode | CLOSED | was Y | 2026-07-30 |
 | Invoice_Batch.Invoice_Link population gap (Session 24). run_invoice_batch now parses the "INVID:" prefix and writes the invoice record ID to Invoice_Batch.Invoice_Link. | ccode | CLOSED | was N | 2026-07-30 |
 | Employee_Email not stamped on PVS (Session 24 item c). OnLoad Pre_fills_provider_sectio now sets input.Employee_Email from the Employees record. | ccode | CLOSED | was N | 2026-07-30 |
+| Invoice reset path. reset_invoice built, run three times, verified in Creator and Books (INV-000002/003/004 voided, PVS returned to Draft). | Neil / ccode | CLOSED | was Y | 2026-07-30 |
+| PVS section visibility on reopen. Default Hide On Load now re-shows sections by Type_of_Entry. | ccode | CLOSED | was N | 2026-07-30 |
+| Visit Completion Date lock. Now editable until the visit is invoiced (disable moved to the Invoice_Status == "Final" block). | ccode | CLOSED | was N | 2026-07-30 |
+| PVS Invoice Connection rendering blank. Display format was Invoice_ID (never populated), changed to Books_Invoice_Number. Field-property only. | Neil | CLOSED | was N | 2026-07-30 |
+| Partner_Location_Label resync across Referrals_Main and Encounter_PatientVisit. resync_location_labels built and run (Referrals 7 updated / 54 skipped, PVS 2 / 16). | ccode | CLOSED | was N | 2026-07-30 |
+| create_invoice_from_selection Books-failure return now carries the "INVID:<recordId>|ERROR: ..." prefix (corrected live after v13). run_invoice_batch recovers the invoice ID on a failed POST. (Was flagged Session 27.) | Neil / ccode | CLOSED | was N | 2026-07-30 |
+| context/23_task_list.md creation (carried from Session 26). | ccode | CLOSED | was Y | 2026-07-30 |
 
 --------------------------------------------------------------------------------
 ## OPEN, BLOCKING MONDAY 2026-08-03
@@ -33,7 +40,8 @@ Owner legend:
 | Load rates for Chapters HIL / HPH / LIF, VITAS CIT / LEE / SUM / VIL, InnoVage ORL. | Neil / Josh | OPEN | Y | 2026-08-03 |
 | Enter Books customer IDs for VITAS x4 and Chapters HPH / LIF. | Neil / Josh | OPEN | Y | 2026-08-03 |
 | Turn OFF "hide zero value items" in Books. | Neil / Josh | OPEN | Y | 2026-08-03 |
-| Empath MAR Hospital at Home: fix the $1 amount and Current_Rate, then re-run add_missing_rate_to_uniform_branches. | Neil / Josh, then ccode/cchat | OPEN | Y | 2026-08-03 |
+| Empath: verify whether Empath - ESI carries a Hospital at Home rate flagged Current_Rate = Yes. ESI (not MAR) is the computed source branch; add_missing_rate_to_uniform_branches returned 0 inserts, meaning no Empath branch can receive a rate type ESI does not already have. Fixing MAR alone does nothing. | Neil / Josh | OPEN | Y | 2026-08-03 |
+| Chapters: hand-enter a source rate card. replicate_uniform_rates has nothing to copy from and reports "SKIPPED - no source branch". | Neil / Josh | OPEN | Y | 2026-08-03 |
 | Deliver the 250-visit charge file (Cognito export + charge columns + billing branch), one row per visit. OVERDUE since 2026-07-28. | Neil / Josh | OPEN | Y | 2026-07-28 (OVERDUE) |
 
 --------------------------------------------------------------------------------
@@ -48,7 +56,8 @@ Owner legend:
 | run_invoice_batch does not filter Clinical_Note_Type, so a Preliminary note is invoiceable. | cchat / ccode | OPEN | N | post-launch |
 | After_Hours_Fee and Super_Stat_Fee are manual entry; Partner_Rates carries both rate types but no workflow reads them. | cchat / ccode | OPEN | N | post-launch |
 | Referrals_Main Patient_Full_Name and Partner_POC_Name_Title generators are On Success; move to On Validate post-launch. | cchat / ccode | OPEN | N | post-launch |
-| create_invoice_from_selection Books-FAILURE return is a bare "ERROR: ..." with no "INVID:<recordId>|" prefix in the v13 export, so run_invoice_batch cannot recover the created invoice record ID on a Books failure (Invoice_Batch.Invoice_Link stays blank). Decide whether to prefix the failure return live. (Flagged Session 27.) | Neil / cchat | OPEN | N | post-launch |
+| Re-export the .ds and commit at the start of Session 28. v13 is one line stale: create_invoice_from_selection and resync_location_labels are ahead of it. | ccode | OPEN | N | Session 28 start |
+| Audit the rest of the form for the hidden-on-load / shown-on-user-input pattern. Sections, Facility fields, Type_of_Diversion and the Equipment/Other charge fields are fixed; others may remain. | cchat / ccode | OPEN | N | post-launch |
 
 --------------------------------------------------------------------------------
 ## PRE-EXISTING CLEANUPS (from context/16, still open)

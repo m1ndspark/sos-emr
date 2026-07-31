@@ -1,0 +1,237 @@
+SOS CODE - SESSION LOG - 2026-07-30 (SESSION 27) - EOD
+
+Platform: Zoho Creator v6 / Deluge. Hard launch: Mon Aug 3, 2026.
+App: SOS Referrals App (sosmmc / sos-referrals-app)
+Books org ID: 911048634 | Books connection: zoho_books_partners
+Ground truth at EOD: SOS_Referrals_App 13.ds (committed)
+NOTE: v13 is ONE LINE STALE. See item 9.
+
+1. THE HEADLINE - BOOKS SMOKE TEST PASSED
+The blocker named top priority since Session 25 is CLOSED. Two PVS records were
+hand-built on AccentCare branches, two Invoice_Batch records were run, and Zoho
+Books accepted both.
+  Batch 1 - AccentCare HER -> INV-000002, 1 visit, $545.00
+  Batch 2 - AccentCare MIA -> INV-000003, 1 visit, $575.00
+  Batch 3 - after fixes -> INV-000004, 1 visit
+CRITICAL FINDING: Books ACCEPTS ad-hoc line items with NO item_id, despite the
+API documentation listing item_id as required. The "items are mandatory" fear
+from Sessions 24 and 25 is resolved. No item catalog work is needed before
+launch.
+The two PVS landed on different branches, so each produced its own invoice. That
+is correct behavior - one invoice per Partner + Billing Branch.
+
+2. INVOICE RESET PATH - BUILT AND PROVEN
+Before running the smoke test we built a cleanup path, because a failed POST
+would otherwise leave PVS records flipped to Final and linked to a dead invoice
+with no way back.
+DECISION LOCKED: We VOID, we never DELETE. In Creator and in Books. Neil's
+reasoning: preserve every record generated, and see every Books action inside
+the app the same way it appears in Books. Void keeps the record and the invoice
+number and stops it counting toward money owed. Delete destroys the audit trail
+and lets the number be reused.
+Books has a void endpoint separate from delete:
+  POST /books/v3/invoices/{invoice_id}/status/void
+DECISION: failed batch records stay Failed. A retry means a NEW Invoice_Batch
+record. Each batch record is the record of one attempt. Rejected the alternative
+of resetting a batch to Pending for re-save, because the On Success workflow
+fires on Created only, so making it re-fire would require changing the record
+event to Created or Edited - and then any accidental edit of an old batch record
+could double-invoice a branch.
+reset_invoice was run three times, all clean:
+  INV-000002 voided, PVS-1007-NH returned to Draft
+  INV-000003 voided, PVS-1008-NH returned to Draft
+  INV-000004 voided, PVS-1007-NH returned to Draft
+All three confirmed Void on the Books side.
+
+3. FUNCTIONS WRITTEN OR CHANGED
+reset_invoice - NEW
+  args: int p_invoiceId, string p_confirm
+  Requires p_confirm == "RESET" or it changes nothing. Unlinks each PVS and
+  returns Invoice_Status to Draft. Voids the Books invoice if Books_Invoice_ID
+  is present. Sets the Invoices record to Void and prepends a RESET stamp to
+  Books_Sync_Message. Never deletes anything in either system.
+run_reset_test - NEW, TEMPORARY - DELETE AFTER LAUNCH
+  No-arg wrapper. Creator cannot prompt for function arguments, so this is how
+  reset_invoice gets invoked during testing. Edit the invoice number inside it
+  and run.
+create_invoice_from_selection - MODIFIED
+  Success return now prefixed "INVID:|"
+  Books-failure return now prefixed "INVID:|ERROR: ..."
+  PVS update loop rewritten to use an explicit update statement.
+run_invoice_batch - MODIFIED
+  Parses the INVID: prefix off the return, writes the invoice record ID into
+  Invoice_Batch.Invoice_Link, writes only the human-readable remainder into
+  Result_Message. Closes the known gap from Session 24.
+resync_location_labels - NEW
+  Pushes Partner_Locations.Partner_Location_Label onto Referrals_Main and
+  Encounter_PatientVisit. Overwrites unconditionally so stale values get
+  corrected, not just blanks.
+  First run: Referrals updated 7 (skipped 54). PVS updated 2 (skipped 16).
+
+4. WORKFLOWS CHANGED - ALL ON Encounter_PatientVisit
+Pre-fills provider section from employee record (Pre_fills_provider_sectio)
+  Created / On Load. Now also sets input.Employee_Email from the Employees
+  record. Closes Session 24 open item (c).
+  NAMING TRAP: the repo file is named OnLoad__Provider_PreFill.dg but the live
+  Creator link name is Pre_fills_provider_sectio, display name "Pre-fills
+  provider section from employee record". Searching Creator for "Provider_PreFill"
+  finds nothing.
+Invoice Status Lock - Created or Edited / On Load
+  disable Visit_Completion_Date MOVED out of the Clinical_Note_Type block and
+  into the inner Invoice_Status == "Final" block.
+  RULE: the visit date stays editable until the visit is invoiced.
+  Discovered along the way: the Edit_Needed Unlock workflow re-enables the
+  patient and partner fields but NOT Visit_Completion_Date and NOT the charge
+  fields, so Edit Needed = Yes was not a way out.
+Default Hide On Load - Created or Edited / On Load
+  THE BIG ONE. Appended a Type_of_Entry block that re-shows the correct sections
+  on load, plus re-show rules for the Facility fields, Type_of_Diversion, and the
+  Equipment / Other charge fields.
+
+5. THE SECTION VISIBILITY BUG - ROOT CAUSE
+Saved PVS records were opening with the Clinical, Procedure, Cost Drivers,
+Charges, Diversion and Files sections all missing. Default Hide On Load runs on
+ADD OR EDIT and hides every section. Entry Type Section Visibility, which shows
+them back, runs on ADD ONLY and only on user input of Type_of_Entry. So
+reopening any saved PVS hid everything and nothing ever restored it.
+This is a whole CLASS of bug in this app: any field or section hidden on load
+and re-shown only by an on-user-input workflow is invisible forever on a saved
+record. Fixed for sections, Facility fields, Type_of_Diversion, and the
+Equipment / Other charge fields. Watch for more of the same pattern.
+
+6. THE INVOICE CONNECTION MYSTERY - NOT A CODE BUG
+Invoice Connection looked permanently blank on the PVS. It was storing correctly
+the whole time and only RENDERING blank. Encounter_PatientVisit.Invoice_Link had
+display format = Invoice_ID. Invoices.Invoice_ID is a field nothing ever
+populates. Invoice_Batch.Invoice_Link uses Books_Invoice_Number, which is why
+that one always displayed.
+FIX: changed the PVS Invoice_Link display format to Books_Invoice_Number. Field
+property change only, no code, no data change. Confirmed working - PVS-1007 now
+reads INV-000004 and Invoice Status reads Final.
+LESSON, AND IT COST US AN HOUR: a Creator lookup with an empty display-format
+field renders blank even when the ID is stored. Do not diagnose from the form.
+Neil's standing rule was right - data questions need a diagnostic function or a
+report column, not inference from the UI.
+A wrong turn worth recording: I diagnosed the blank as bare field assignment
+failing to persist inside a for-each loop and rewrote the update loop on that
+basis. reset_invoice then found the linked PVS on every invoice, which proved
+the assignment HAD persisted and the diagnosis was wrong. The explicit update
+statement is still the documented and correct form, so the rewrite stays - but
+the reason given for it was wrong.
+
+7. RATES - PARTIAL PROGRESS
+add_missing_rate_to_uniform_branches was run. Result:
+  Empath: source = Empath - ESI. Inserted 0.
+  Chapters: SKIPPED - no source branch.
+WHERE THE UNIFORM PATTERN LIVES - this was asked and is worth recording. It is
+NOT a workflow. It is the Rate_Structure field on the PARTNERS form, choices
+"Uniform (All Locations)" and "Per Branch (Single Location)", defaulting to
+Uniform. The source branch is NOT stored anywhere.
+add_missing_rate_to_uniform_branches computes it at run time: whichever Active
+branch of that partner has the most Partner_Rates records flagged Current_Rate =
+"Yes".
+CONSEQUENCE FOR EMPATH: the source resolved to ESI, not MAR. Zero inserts means
+every other Empath branch already carries every rate type ESI carries. If ESI
+has no Hospital at Home rate flagged Current = Yes, this function will NEVER
+propagate one. Check ESI's rate list. Fixing MAR alone does nothing unless MAR
+becomes the branch with the most current rates.
+CHAPTERS: still has no rate card anywhere in the system, so there is nothing to
+copy from. A source card must be entered by hand first.
+
+8. THE WORKING RULES WERE REWRITTEN MID-SESSION
+Neil called out repeated over-explaining. The loophole was the old carve-out
+exempting "code deliverables" and "a review I explicitly asked for" - which was
+being stretched to cover logic maps, design rationale, and re-justifying
+decisions already approved.
+Replacement Communication section, now in User Preferences:
+  - 3-sentence limit governs EVERYTHING except three things: the code itself,
+    session logs, and ccode prompts. Nothing else is exempt.
+  - A requested review is exempt from the sentence count, but every finding is
+    one sentence. No lead-ins, no closing summary.
+  - Logic maps: numbered steps only, one sentence each. No rationale, no
+    tradeoffs. Risks go as separate one-line flags under the map.
+  - Never justify a decision already approved. After "go", the next output is
+    the deliverable or a blocking question.
+  - Never explain a question before asking it.
+  - If Neil says "too long", stop and re-answer in one sentence. No apology, no
+    post-mortem.
+
+9. REPO STATE
+.ds v13 exported and committed. ccode ran the full sync. Reported 1 DRIFT
+(run_reset_test, intentional - it carries a TEMPORARY header the export body does
+not) and 2 AMBIGUOUS (the pre-existing Partner_Rate_Stamp_Generator collision on
+the Partners form, tracked since Session 20).
+context/23_task_list.md CREATED and populated. This was the carry-forward first
+item from Session 26 and it is now done.
+V13 IS ONE LINE STALE. After the export, create_invoice_from_selection's
+Books-failure return was corrected to carry the INVID: prefix. ccode flagged the
+mismatch and correctly kept the export verbatim. The live app is now correct; the
+.ds is not. RE-EXPORT AND COMMIT AT THE START OF NEXT SESSION.
+Also committed on Neil's call: the superseded v12 .ds and the CCODE_CHECKIN /
+CCODE_EOD markdown files.
+
+10. CREATOR v6 GOTCHAS LEARNED TODAY
+  - A lookup whose display-format field is empty renders BLANK even when the
+    record ID is correctly stored. Check the display format before debugging the
+    code.
+  - A field or section hidden by an on-load workflow and re-shown only by an
+    on-user-input workflow will never reappear on a saved record.
+  - Creator cannot prompt for function arguments. To run a function that takes
+    arguments, wrap it in a temporary no-arg function.
+  - The documented way to update records in a loop is an explicit update
+    statement: for each r in Form[criteria] { update r [ Field=value ]; }
+  - Deluge subString(start) takes an optional end index. indexOf returns -1 when
+    not found.
+  - Repo filenames do not always match live Creator workflow link names.
+  - Books line item: name max 100 chars, description max 2000 chars, item_id
+    documented as required but NOT enforced in practice.
+
+11. OPEN ITEMS
+BLOCKING MONDAY
+  a. Rates for Chapters HIL / HPH / LIF - needs a hand-entered source card
+  b. Rates for VITAS CIT / LEE / SUM / VIL
+  c. Rate for InnoVage ORL
+  d. Books customer IDs for VITAS x4 and Chapters HPH / LIF
+  e. Turn OFF "hide zero value items" in Books
+  f. Empath - check whether ESI carries Hospital at Home flagged Current=Yes
+  g. 250-visit charge file - Neil only, overdue since 07-28
+NOT BLOCKING
+  h. Re-export .ds and commit - v13 is one line stale
+  i. Delete run_reset_test from Creator after testing ends
+  j. Books line item description caps at 2000 chars and
+     create_invoice_from_selection does not truncate. Per-visit blocks embed
+     Reason_for_Referral, which is unbounded. WILL break on large batches.
+  k. No guard if invokeurl returns a non-map on a transport failure
+  l. run_invoice_batch does not filter Clinical_Note_Type, so a Preliminary note
+     is invoiceable
+  m. After_Hours_Fee and Super_Stat_Fee are manual entry. Partner_Rates carries
+     both rate types but no workflow reads them.
+  n. Referrals_Main Patient_Full_Name and Partner_POC_Name_Title generators are
+     On Success. Move to On Validate post-launch.
+  o. Remaining hidden-on-load / shown-on-user-input fields not yet audited
+
+12. DATA NOTES
+54 of 61 Referrals_Main records have no Partner_Branch_Link. This is the Zoho
+Forms limitation from Session 25 - Zoho Forms cannot map into a Creator lookup
+field. 16 of 18 PVS records have no Billing Branch and are pre-import test data.
+BOTH SETS GET DELETED in step 1 of the go-live sequence, so neither number is a
+launch problem.
+A referral with no patient name produces a blank Patient_Full_Name. That is
+correct behavior, not a bug. backfill_patient_full_names and
+backfill_partner_poc_name_title both exist and both target Referrals_Main, and
+neither can help a record with nothing to build from.
+
+13. STANDING RULES
+  - Plain-language logic map BEFORE any code. Numbered steps only.
+  - Full functions and full workflows only. Never partial snippets or diffs.
+  - No comments in code unless asked.
+  - Never guess. Ask before assuming form names, field names, types, relations.
+  - Never rename forms or fields without explicit approval.
+  - Workflows presented with: form link name, record event, form event, name.
+  - Functions presented with: name, language, namespace, return type, arguments.
+  - One item at a time. Do not stack deliverables.
+  - 3 sentences unless it is code, a session log, or a ccode prompt.
+  - Medical-context app. Data integrity is critical.
+  - Commit the .ds on every export. It is the only artifact that can rebuild the
+    app.
+  - The .ds contains no records. Data questions need a diagnostic function.

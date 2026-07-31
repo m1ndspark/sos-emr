@@ -206,5 +206,5 @@ else
 {
 	v_inv.Invoice_Record_Status="Failed";
 	v_inv.Books_Sync_Message=v_resp.toString().left(2000);
-	return "ERROR: Books rejected the invoice. See Books Sync Message on invoice record " + v_invId + ".";
+	return "INVID:" + v_invId + "|ERROR: Books rejected the invoice. See Books Sync Message on invoice record " + v_invId + ".";
 }
