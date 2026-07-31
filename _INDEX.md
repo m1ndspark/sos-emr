@@ -1204,12 +1204,7 @@ FUNCTIONS: invoicing
     not persist inside a for-each, so the explicit update statement is required.
     Books-FAILURE return also prefixed "INVID:<recordId>|ERROR: ..." so
     run_invoice_batch can recover the created invoice record ID on a failed POST
-    (writes Invoice_Batch.Invoice_Link on failure too).
-    AHEAD OF EXPORT: this INVID-on-failure prefix was corrected live in Creator
-    AFTER SOS_Referrals_App_2026-07-30_v13.ds was exported, so this repo file is
-    intentionally one line ahead of v13 until the next export. Divergence
-    resolved (was flagged Session 27 as a bare ERROR return); re-export at the
-    start of Session 28.
+    (writes Invoice_Batch.Invoice_Link on failure too). Now in the v14 export.
   functions/run_invoice_batch.dg   [UPDATED]
     Parses the "INVID:" prefix from create_invoice_from_selection: writes the
     invoice record ID to Invoice_Batch.Invoice_Link and only the remainder to
@@ -1257,18 +1252,17 @@ SESSION 27 EOD ADDENDUM (2026-07-30) - documentation pass after the v13 sync
 ================================================================================
 Full narrative log: context/logs/SOS_Code_Session_Log_2026-07-30_Session27.txt.
 
-  functions/create_invoice_from_selection.dg   [CORRECTED, AHEAD OF v13]
-    Books-failure return corrected in Creator AFTER the v13 export to carry the
+  functions/create_invoice_from_selection.dg   [CORRECTED]
+    Books-failure return corrected in Creator to carry the
     "INVID:<recordId>|ERROR: ..." prefix, matching the success return, so
-    run_invoice_batch recovers the invoice record ID on a failed POST. This repo
-    file is intentionally one line ahead of SOS_Referrals_App_2026-07-30_v13.ds
-    until the next export. Re-export at the start of Session 28.
-  functions/resync_location_labels.dg   *** NEW (written after the v13 export) ***
+    run_invoice_batch recovers the invoice record ID on a failed POST. Captured
+    in the v14 export (2026-07-31); repo and live now agree.
+  functions/resync_location_labels.dg   *** NEW ***
     string resync_location_labels(). Pushes Partner_Locations.Partner_Location_
     Label onto Referrals_Main (via Partner_Branch_Link) and Encounter_PatientVisit
     (via Billing_Branch). Overwrites unconditionally, so stale values are
     corrected, not just blanks. Skips records whose branch link is null or points
-    to a missing location. Also ahead of v13 until the next export.
+    to a missing location. Captured in the v14 export (2026-07-31).
     FIRST RUN (2026-07-30): Referrals updated 7 (skipped 54). PVS updated 2
     (skipped 16). The 54/16 skips are the known null-branch test/import records
     (see the session log, item 12); they are deleted at go-live.
@@ -1293,3 +1287,22 @@ CREATOR v6 GOTCHAS
   - Zoho Books accepts invoice line items with no item_id despite the API docs
     listing it as required. Verified live 2026-07-30.
   - Books line item name caps at 100 chars, description at 2000 chars.
+
+================================================================================
+SESSION 28 SYNC (2026-07-31) - .ds v14, closes the ahead-of-v13 divergences
+================================================================================
+Ground truth = SOS_Referrals_App_2026-07-31_v14.ds (generated 31-Jul-2026
+06:03:18), committed and copied to SOS_Referrals_App.ds. v14 now carries the two
+changes that were made live after the v13 export, so both intentional
+divergences from Session 27 EOD are CLOSED with no repo edit needed:
+  - create_invoice_from_selection.dg - Books-failure INVID prefix now in the
+    export; repo and live agree. Ahead-of-v13 note removed above.
+  - resync_location_labels.dg - now present in the export; repo and live agree.
+    Ahead-of-v13 note removed above; first-run result kept.
+No --apply was run: v14 already MATCHes the repo for every function and workflow
+except run_reset_test (running --apply would have clobbered its temporary
+header). MANIFEST.tsv regenerated from v14 (122 rows; resync now included).
+Divergence after sync: MATCH=118, DRIFT=1 (run_reset_test, intentional temp
+header), EMPTY=1 (log_change, blank body), AMBIGUOUS=2 (pre-existing
+Partner_Rate_Stamp_Generator collision on the Partners form, tracked since
+Session 20). Matches expectations exactly.

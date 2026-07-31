@@ -19,7 +19,7 @@ functions/backfill_referral_branch_from_contact.dg	backfill_referral_branch_from
 functions/backfill_referral_id_stamp.dg	backfill_referral_id_stamp		function					Referrals_Main		bec7bb7f
 functions/backfill_referral_ids.dg	backfill_referral_ids		function		mint_referral_id			Referrals_Main	AppFunc	afc9eb5f
 functions/create_books_customers.dg	create_books_customers		function					Partner_Billing_Contacts;Partner_Locations	HTTP	9fc3b29b
-functions/create_invoice_from_selection.dg	create_invoice_from_selection		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main	Books;HTTP	4f1ec984
+functions/create_invoice_from_selection.dg	create_invoice_from_selection		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main	Books;HTTP	8aafc323
 functions/diag_invoice_batch.dg	diag_invoice_batch		function					Encounter_PatientVisit;Invoice_Batch		39312db2
 functions/diag_partner_rates.dg	diag_partner_rates		function					Partner_Locations;Partner_Rates		3307c87f
 functions/diag_referral_contact_match.dg	diag_referral_contact_match		function					Partner_Referral_Contacts;Referrals_Main		942f97a9
@@ -35,6 +35,7 @@ functions/mint_referral_id.dg	mint_referral_id		function					Referrals_Main;Sequ
 functions/replicate_uniform_rates.dg	replicate_uniform_rates		function					Partner_Locations;Partner_Rates;Partners		c6109783
 functions/report_partner_rate_coverage.dg	report_partner_rate_coverage		function					Partner_Locations;Partner_Rates;Partners		25544b04
 functions/reset_invoice.dg	reset_invoice		function					Encounter_PatientVisit	HTTP	35c275b5
+functions/resync_location_labels.dg	resync_location_labels		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main		5d2244f0
 functions/run_invoice_batch.dg	run_invoice_batch		function		create_invoice_from_selection			Encounter_PatientVisit;Invoice_Batch	AppFunc	6648bb0b
 functions/run_reset_test.dg	run_reset_test		function		reset_invoice				AppFunc	16d9e6ec
 functions/run_schema_monitor.dg	run_schema_monitor		function		send_via_sendgrid				AppFunc;HTTP	0a797656

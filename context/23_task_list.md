@@ -15,7 +15,7 @@ Owner legend:
 - cchat = Claude.ai chat (writes/finalizes Deluge for Neil to paste)
 
 --------------------------------------------------------------------------------
-## CLOSED (Session 27, 2026-07-30)
+## CLOSED
 --------------------------------------------------------------------------------
 
 | Task | Owner | Status | Blocking | Deadline |
@@ -30,6 +30,7 @@ Owner legend:
 | Partner_Location_Label resync across Referrals_Main and Encounter_PatientVisit. resync_location_labels built and run (Referrals 7 updated / 54 skipped, PVS 2 / 16). | ccode | CLOSED | was N | 2026-07-30 |
 | create_invoice_from_selection Books-failure return now carries the "INVID:<recordId>|ERROR: ..." prefix (corrected live after v13). run_invoice_batch recovers the invoice ID on a failed POST. (Was flagged Session 27.) | Neil / ccode | CLOSED | was N | 2026-07-30 |
 | context/23_task_list.md creation (carried from Session 26). | ccode | CLOSED | was Y | 2026-07-30 |
+| Re-export the .ds and commit at the start of Session 28. Done: v14, dated 2026-07-31, committed and set as source of truth. Closed both ahead-of-v13 divergences (create_invoice_from_selection INVID-on-failure prefix, resync_location_labels) with no repo edit. | ccode | CLOSED | was N | 2026-07-31 |
 
 --------------------------------------------------------------------------------
 ## OPEN, BLOCKING MONDAY 2026-08-03
@@ -42,7 +43,8 @@ Owner legend:
 | Turn OFF "hide zero value items" in Books. | Neil / Josh | OPEN | Y | 2026-08-03 |
 | Empath: verify whether Empath - ESI carries a Hospital at Home rate flagged Current_Rate = Yes. ESI (not MAR) is the computed source branch; add_missing_rate_to_uniform_branches returned 0 inserts, meaning no Empath branch can receive a rate type ESI does not already have. Fixing MAR alone does nothing. | Neil / Josh | OPEN | Y | 2026-08-03 |
 | Chapters: hand-enter a source rate card. replicate_uniform_rates has nothing to copy from and reports "SKIPPED - no source branch". | Neil / Josh | OPEN | Y | 2026-08-03 |
-| Deliver the 250-visit charge file (Cognito export + charge columns + billing branch), one row per visit. OVERDUE since 2026-07-28. | Neil / Josh | OPEN | Y | 2026-07-28 (OVERDUE) |
+| Deliver the 250-visit charge file (Cognito export + charge columns + billing branch), one row per visit. NOTE 2026-07-31: Neil has deferred delivery until the system is proven end to end; deadline stays 2026-08-03 and it stays BLOCKING. | Neil / Josh | OPEN | Y | 2026-08-03 |
+| Rehearse the go-live import sequence (delete existing Referrals and PVS, import Referrals, run backfill_referral_branch, import PVS, run link_pvs_to_referral, backfill_pvs_billing_branch, backfill_pvs_employee_initials) against a small throwaway sample file. Never rehearsed. | Neil / cchat | OPEN | Y | 2026-08-02 |
 
 --------------------------------------------------------------------------------
 ## OPEN, NOT BLOCKING
@@ -56,7 +58,6 @@ Owner legend:
 | run_invoice_batch does not filter Clinical_Note_Type, so a Preliminary note is invoiceable. | cchat / ccode | OPEN | N | post-launch |
 | After_Hours_Fee and Super_Stat_Fee are manual entry; Partner_Rates carries both rate types but no workflow reads them. | cchat / ccode | OPEN | N | post-launch |
 | Referrals_Main Patient_Full_Name and Partner_POC_Name_Title generators are On Success; move to On Validate post-launch. | cchat / ccode | OPEN | N | post-launch |
-| Re-export the .ds and commit at the start of Session 28. v13 is one line stale: create_invoice_from_selection and resync_location_labels are ahead of it. | ccode | OPEN | N | Session 28 start |
 | Audit the rest of the form for the hidden-on-load / shown-on-user-input pattern. Sections, Facility fields, Type_of_Diversion and the Equipment/Other charge fields are fixed; others may remain. | cchat / ccode | OPEN | N | post-launch |
 
 --------------------------------------------------------------------------------
