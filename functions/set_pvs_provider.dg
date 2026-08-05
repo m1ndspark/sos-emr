@@ -1,0 +1,63 @@
+v_target = null;
+for each  p in Encounter_PatientVisit[PVS_ID == p_pvsId]
+{
+	v_target = p;
+	break;
+}
+if(v_target == null)
+{
+	return "No PVS found with PVS_ID " + p_pvsId + ".";
+}
+v_emp = null;
+for each  e in Employees[Employee_Email == p_employeeEmail]
+{
+	v_emp = e;
+	break;
+}
+if(v_emp == null)
+{
+	return "No Employees record with email " + p_employeeEmail + ".";
+}
+v_first = ifnull(v_emp.Employee_First_Name,"");
+v_last = ifnull(v_emp.Employee_Last_Name,"");
+v_title = ifnull(v_emp.Employee_Title,"");
+v_init = ifnull(v_emp.Employee_Initials,"");
+v_fullname = (v_first + " " + v_last).trim();
+v_nametitle = v_fullname;
+if(v_title.trim() != "" && v_nametitle != "")
+{
+	v_nametitle = v_nametitle + ", " + v_title.trim();
+}
+v_newId = ifnull(v_target.PVS_ID,"");
+v_idnote = "PVS_ID unchanged.";
+if(v_newId.endsWith("-") && v_init.trim() != "")
+{
+	v_candidate = v_newId + v_init.trim();
+	v_clash = false;
+	for each  c in Encounter_PatientVisit[PVS_ID == v_candidate]
+	{
+		v_clash = true;
+		break;
+	}
+	if(v_clash)
+	{
+		v_idnote = "PVS_ID not changed - " + v_candidate + " already exists.";
+	}
+	else
+	{
+		v_newId = v_candidate;
+		v_idnote = "PVS_ID repaired to " + v_newId + ".";
+	}
+}
+update v_target
+[
+	Employee_First_Name=v_first
+	Employee_Last_Name=v_last
+	Employee_Title=v_title
+	Employee_Initials=v_init
+	Employee_Email=ifnull(v_emp.Employee_Email,"")
+	Employee_Full_Name=v_fullname
+	Employee_Name_Title=v_nametitle
+	PVS_ID=v_newId
+];
+return "Provider set to " + v_nametitle + ". " + v_idnote;

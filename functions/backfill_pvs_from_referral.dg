@@ -1,0 +1,227 @@
+v_done = 0;
+v_norec = 0;
+for each  v_pvs in Encounter_PatientVisit[Referral_Link != null]
+{
+	v_ref = null;
+	for each  v_r in Referrals_Main[ID == v_pvs.Referral_Link]
+	{
+		v_ref = v_r;
+		break;
+	}
+	if(v_ref == null)
+	{
+		v_norec = v_norec + 1;
+	}
+	else
+	{
+		v_full = ifnull(v_pvs.Patient_Full_Name_1,"");
+		if(v_full.trim() == "")
+		{
+			v_full = ifnull(v_ref.Patient_Full_Name,"");
+		}
+		v_full2 = ifnull(v_pvs.Patient_Full_Name_2,"");
+		if(v_full2.trim() == "")
+		{
+			v_full2 = v_full;
+		}
+		v_mi = ifnull(v_pvs.Patient_MI,"");
+		if(v_mi.trim() == "")
+		{
+			v_mi = ifnull(v_ref.Patient_MI,"");
+		}
+		v_ssn = ifnull(v_pvs.Patient_SSN,"");
+		if(v_ssn.trim() == "")
+		{
+			v_ssn = ifnull(v_ref.Patient_SSN,"");
+		}
+		v_pemail = ifnull(v_pvs.Patient_Email,"");
+		if(v_pemail.trim() == "")
+		{
+			v_pemail = ifnull(v_ref.Patient_Email,"");
+		}
+		v_hosp = ifnull(v_pvs.Patient_Hospice_ID,"");
+		if(v_hosp.trim() == "")
+		{
+			v_hosp = ifnull(v_ref.Patient_Hospice_ID,"");
+		}
+		v_pphone = ifnull(v_pvs.Patient_Phone,"");
+		if(v_pphone.trim() == "")
+		{
+			v_pphone = ifnull(v_ref.Patient_Phone,"");
+		}
+		v_facphone = ifnull(v_pvs.Facility_Phone,"");
+		if(v_facphone.trim() == "")
+		{
+			v_facphone = ifnull(v_ref.Facility_Phone,"");
+		}
+		v_facroom = ifnull(v_pvs.Facility_Room_Number,"");
+		if(v_facroom.trim() == "")
+		{
+			v_facroom = ifnull(v_ref.Facility_Room_Number,"");
+		}
+		v_stamp = ifnull(v_pvs.Referral_ID_Stamp,"");
+		if(v_stamp.trim() == "")
+		{
+			v_stamp = ifnull(v_ref.Referral_ID_Stamp,"");
+		}
+		v_pid = ifnull(v_pvs.Partner_ID,"");
+		if(v_pid.trim() == "")
+		{
+			v_pid = ifnull(v_ref.Partner_ID,"");
+		}
+		v_pidstamp = ifnull(v_pvs.Partner_ID_Stamp,"");
+		if(v_pidstamp.trim() == "")
+		{
+			v_pidstamp = ifnull(v_ref.Partner_ID_Stamp,"");
+		}
+		v_pocphone = ifnull(v_pvs.Partner_POC_Phone,"");
+		if(v_pocphone.trim() == "")
+		{
+			v_pocphone = ifnull(v_ref.Partner_POC_Phone,"");
+		}
+		v_pocemail = ifnull(v_pvs.Partner_POC_Email,"");
+		if(v_pocemail.trim() == "")
+		{
+			v_pocemail = ifnull(v_ref.Partner_POC_Email,"");
+		}
+		v_poctitle = ifnull(v_pvs.Partner_POC_Title,"");
+		if(v_poctitle.trim() == "")
+		{
+			v_poctitle = ifnull(v_ref.Partner_POC_Title,"");
+		}
+		v_pocfirst = ifnull(v_pvs.Partner_POC_First_Name,"");
+		if(v_pocfirst.trim() == "")
+		{
+			v_pocfirst = ifnull(v_ref.Partner_POC_First_Name,"");
+		}
+		v_poclast = ifnull(v_pvs.Partner_POC_Last_Name,"");
+		if(v_poclast.trim() == "")
+		{
+			v_poclast = ifnull(v_ref.Partner_POC_Last_Name,"");
+		}
+		v_pocteam = ifnull(v_pvs.Partner_POC_Team,"");
+		if(v_pocteam.trim() == "")
+		{
+			v_pocteam = ifnull(v_ref.Partner_POC_Team,"");
+		}
+		v_nametitle = ifnull(v_pvs.Partner_POC_Name_Title,"");
+		if(v_nametitle.trim() == "")
+		{
+			v_nametitle = (v_pocfirst + " " + v_poclast).trim();
+			if(v_poctitle.trim() != "" && v_nametitle != "")
+			{
+				v_nametitle = v_nametitle + ", " + v_poctitle.trim();
+			}
+		}
+		v_label = ifnull(v_pvs.Partner_Location_Label,"");
+		if(v_label.trim() == "")
+		{
+			v_label = ifnull(v_ref.Partner_Location_Label,"");
+		}
+		v_icd = ifnull(v_pvs.Partner_ICD_Codes,"");
+		if(v_icd.trim() == "")
+		{
+			v_icd = ifnull(v_ref.Partner_ICD_Codes,"");
+		}
+		v_reason = ifnull(v_pvs.Reason_for_Referral,"");
+		if(v_reason.trim() == "")
+		{
+			v_reason = ifnull(v_ref.Referral_Reason,"");
+		}
+		v_goals = ifnull(v_pvs.Goals_of_Care,"");
+		if(v_goals.trim() == "")
+		{
+			v_goals = ifnull(v_ref.Goals_of_Care,"");
+		}
+		v_allerg = ifnull(v_pvs.List_Patient_Allergies,"");
+		if(v_allerg.trim() == "")
+		{
+			v_allerg = ifnull(v_ref.List_Patient_Allergies,"");
+		}
+		v_antic = ifnull(v_pvs.List_Patient_Anticoagulants,"");
+		if(v_antic.trim() == "")
+		{
+			v_antic = ifnull(v_ref.List_Patient_Anticoagulants,"");
+		}
+		v_ad = ifnull(v_pvs.Advanced_Directives_Details,"");
+		if(v_ad.trim() == "")
+		{
+			v_ad = ifnull(v_ref.Advanced_Directives_Details,"");
+		}
+		v_addl = ifnull(v_pvs.Additional_Information,"");
+		if(v_addl.trim() == "")
+		{
+			v_addl = ifnull(v_ref.Additional_Information,"");
+		}
+		v_a1 = ifnull(v_pvs.Patient_Address.address_line_1,"");
+		v_a2 = ifnull(v_pvs.Patient_Address.address_line_2,"");
+		v_city = ifnull(v_pvs.Patient_Address.district_city,"");
+		v_state = ifnull(v_pvs.Patient_Address.state_province,"");
+		v_zip = ifnull(v_pvs.Patient_Address.postal_Code,"");
+		if(v_a1.trim() == "")
+		{
+			v_a1 = ifnull(v_ref.Patient_Address.address_line_1,"");
+			v_a2 = ifnull(v_ref.Patient_Address.address_line_2,"");
+			v_city = ifnull(v_ref.Patient_Address.district_city,"");
+			v_state = ifnull(v_ref.Patient_Address.state_province,"");
+			v_zip = ifnull(v_ref.Patient_Address.postal_Code,"");
+		}
+		if(v_pphone.trim() == "")
+		{
+			v_pphone = null;
+		}
+		if(v_facphone.trim() == "")
+		{
+			v_facphone = null;
+		}
+		if(v_pocphone.trim() == "")
+		{
+			v_pocphone = null;
+		}
+		if(v_pemail.trim() == "")
+		{
+			v_pemail = null;
+		}
+		if(v_pocemail.trim() == "")
+		{
+			v_pocemail = null;
+		}
+		update v_pvs
+		[
+			Patient_Full_Name_1=v_full
+			Patient_Full_Name_2=v_full2
+			Patient_MI=v_mi
+			Patient_SSN=v_ssn
+			Patient_Email=v_pemail
+			Patient_Hospice_ID=v_hosp
+			Patient_Phone=v_pphone
+			Facility_Phone=v_facphone
+			Facility_Room_Number=v_facroom
+			Patient_Address.address_line_1=v_a1
+			Patient_Address.address_line_2=v_a2
+			Patient_Address.district_city=v_city
+			Patient_Address.state_province=v_state
+			Patient_Address.postal_Code=v_zip
+			Referral_ID_Stamp=v_stamp
+			Partner_ID=v_pid
+			Partner_ID_Stamp=v_pidstamp
+			Partner_POC_First_Name=v_pocfirst
+			Partner_POC_Last_Name=v_poclast
+			Partner_POC_Title=v_poctitle
+			Partner_POC_Phone=v_pocphone
+			Partner_POC_Email=v_pocemail
+			Partner_POC_Team=v_pocteam
+			Partner_POC_Name_Title=v_nametitle
+			Partner_Location_Label=v_label
+			Partner_ICD_Codes=v_icd
+			Reason_for_Referral=v_reason
+			Goals_of_Care=v_goals
+			List_Patient_Allergies=v_allerg
+			List_Patient_Anticoagulants=v_antic
+			Advanced_Directives_Details=v_ad
+			Additional_Information=v_addl
+		];
+		v_done = v_done + 1;
+	}
+}
+return "PVS backfilled from referral: " + v_done + ". No referral record found: " + v_norec + ".";

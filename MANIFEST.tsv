@@ -12,9 +12,12 @@ functions/backfill_partner_ids.dg	backfill_partner_ids		function		mint_partner_i
 functions/backfill_partner_poc_name_title.dg	backfill_partner_poc_name_title		function		set_partner_poc_name_title			Referrals_Main	AppFunc	d7999d8d
 functions/backfill_patient_full_addresses.dg	backfill_patient_full_addresses		function					Referrals_Main		35d96835
 functions/backfill_patient_full_names.dg	backfill_patient_full_names		function		set_patient_full_name			Referrals_Main	AppFunc	88b3340b
+functions/backfill_pvs_address_from_referral.dg	backfill_pvs_address_from_referral		function					Encounter_PatientVisit;Referrals_Main		a4af1d0b
 functions/backfill_pvs_billing_branch.dg	backfill_pvs_billing_branch		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main		fb8577b7
 functions/backfill_pvs_complexity_charge.dg	backfill_pvs_complexity_charge		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		2bfc211b
+functions/backfill_pvs_employee_email.dg	backfill_pvs_employee_email		function					Employees;Encounter_PatientVisit		9cde0263
 functions/backfill_pvs_employee_initials.dg	backfill_pvs_employee_initials		function					Employees;Encounter_PatientVisit		fca4bb2a
+functions/backfill_pvs_from_referral.dg	backfill_pvs_from_referral		function					Encounter_PatientVisit;Referrals_Main		20619ede
 functions/backfill_pvs_ids.dg	backfill_pvs_ids		function					Encounter_PatientVisit;Sequence_Tracker		42e956ad
 functions/backfill_pvs_patient_full_address.dg	backfill_pvs_patient_full_address		function					Encounter_PatientVisit		be83bd14
 functions/backfill_referral_branch.dg	backfill_referral_branch		function					Partner_Locations;Referrals_Main		d72f2ef9
@@ -59,6 +62,7 @@ functions/send_via_sendgrid.dg	send_via_sendgrid		function						HTTP	a593170f
 functions/set_current_rate.dg	set_current_rate		function					Partner_Rates		584a618b
 functions/set_partner_poc_name_title.dg	set_partner_poc_name_title		function					Referrals_Main		c11204b4
 functions/set_patient_full_name.dg	set_patient_full_name		function					Referrals_Main		21cacd0a
+functions/set_pvs_provider.dg	set_pvs_provider		function					Employees;Encounter_PatientVisit		d12141a8
 functions/test_github_commit.dg	test_github_commit		function						HTTP	ab2c18d1
 functions/test_schema_connection.dg	test_schema_connection		function						HTTP	2eac0c3e
 functions/test_smtp.dg	test_smtp		function						Email	184fcd49
@@ -122,7 +126,7 @@ Partners/OnSuccess__PAR_ID_Generator.dg	PAR_ID_Generator	Partners	OnSuccess		min
 Partners/OnValidate__PAR_Required_Code.dg	PAR_Required_Code1	Partners	OnValidate			Partner_Code	ID	Partners		e335fce9
 Referrals_Main/OnLoad__Default_Hide_On_Load.dg	Default_Hide_On_Load1	Referrals_Main	OnLoad			Patient_Full_Address				b8979819
 Referrals_Main/OnSuccess__Branch_Sets_Partner_Link.dg	Branch_Sets_Partner_Link	Referrals_Main	OnSuccess			Partner_ID	Partner_Branch_Link	Partner_Locations;Partners		3c26fd85
-Referrals_Main/OnSuccess__Partner_Contact_Upsert.dg	Partner_Contact_Upsert	Referrals_Main	OnSuccess				Partner_Branch;Partner_Organization;Partner_POC_Email;Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Phone;Partner_POC_Team;Partner_POC_Title	Partner_Referral_Contacts		c41ec0b3
+Referrals_Main/OnSuccess__Partner_Contact_Upsert.dg	Partner_Contact_Upsert	Referrals_Main	OnSuccess				Partner_Branch;Partner_Organization;Partner_POC_Email;Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Phone;Partner_POC_Team;Partner_POC_Title	Partner_Referral_Contacts		9dd8d2da
 Referrals_Main/OnSuccess__Partner_POC_Name_Title_Generator.dg	Partner_POC_Name_Title_Ge1	Referrals_Main	OnSuccess			Partner_POC_Name_Title	Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Title			d2dcfa73
 Referrals_Main/OnSuccess__Patient_Full_Name_Generator.dg	Patient_Full_Name_Generat1	Referrals_Main	OnSuccess			Patient_Full_Name	Patient_First_Name;Patient_Last_Name;Patient_MI			8161cbd1
 Referrals_Main/OnSuccess__REF_ID_Generator.dg	REF_ID_Generator1	Referrals_Main	OnSuccess		mint_referral_id		ID		AppFunc	4bbfc647

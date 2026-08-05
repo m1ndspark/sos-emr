@@ -1,0 +1,64 @@
+v_filled = 0;
+v_nomatch = 0;
+v_kept = 0;
+v_unmatched = "";
+for each  p in Encounter_PatientVisit[Employee_Last_Name != null]
+{
+	v_cur = ifnull(p.Employee_Email,"");
+	if(v_cur.trim() != "")
+	{
+		v_kept = v_kept + 1;
+	}
+	else
+	{
+		v_first = ifnull(p.Employee_First_Name,"").trim().toLowerCase();
+		v_last = ifnull(p.Employee_Last_Name,"").trim().toLowerCase();
+		v_email = "";
+		v_title = "";
+		v_init = "";
+		v_nt = "";
+		for each  e in Employees[ID != 0]
+		{
+			if(ifnull(e.Employee_First_Name,"").trim().toLowerCase() == v_first && ifnull(e.Employee_Last_Name,"").trim().toLowerCase() == v_last)
+			{
+				v_email = ifnull(e.Employee_Email,"");
+				v_title = ifnull(e.Employee_Title,"");
+				v_init = ifnull(e.Employee_Initials,"");
+				v_nt = ifnull(e.Employee_Name_Title,"");
+				break;
+			}
+		}
+		if(v_email.trim() == "")
+		{
+			v_nomatch = v_nomatch + 1;
+			v_unmatched = v_unmatched + " | " + ifnull(p.Employee_First_Name,"") + " " + ifnull(p.Employee_Last_Name,"");
+		}
+		else
+		{
+			v_useTitle = ifnull(p.Employee_Title,"");
+			if(v_useTitle.trim() == "")
+			{
+				v_useTitle = v_title;
+			}
+			v_useInit = ifnull(p.Employee_Initials,"");
+			if(v_useInit.trim() == "")
+			{
+				v_useInit = v_init;
+			}
+			v_useNT = ifnull(p.Employee_Name_Title,"");
+			if(v_useNT.trim() == "")
+			{
+				v_useNT = v_nt;
+			}
+			update p
+			[
+				Employee_Email=v_email
+				Employee_Title=v_useTitle
+				Employee_Initials=v_useInit
+				Employee_Name_Title=v_useNT
+			];
+			v_filled = v_filled + 1;
+		}
+	}
+}
+return "Employee email filled: " + v_filled + ". Already had one: " + v_kept + ". No Employees match: " + v_nomatch + "." + v_unmatched;

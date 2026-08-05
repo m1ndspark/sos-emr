@@ -1,0 +1,40 @@
+v_filled = 0;
+v_nosource = 0;
+for each  v_pvs in Encounter_PatientVisit[Referral_Link != null]
+{
+	if(v_pvs.Patient_Address.address_line_1 == null || v_pvs.Patient_Address.address_line_1.trim() == "")
+	{
+		v_ref = Referrals_Main[ID == v_pvs.Referral_Link];
+		v_src1 = "";
+		v_src2 = "";
+		v_city = "";
+		v_state = "";
+		v_zip = "";
+		for each  v_r in v_ref
+		{
+			v_src1 = ifnull(v_r.Patient_Address.address_line_1,"");
+			v_src2 = ifnull(v_r.Patient_Address.address_line_2,"");
+			v_city = ifnull(v_r.Patient_Address.district_city,"");
+			v_state = ifnull(v_r.Patient_Address.state_province,"");
+			v_zip = ifnull(v_r.Patient_Address.postal_Code,"");
+			break;
+		}
+		if(v_src1.trim() != "")
+		{
+			update v_pvs
+			[
+				Patient_Address.address_line_1=v_src1
+				Patient_Address.address_line_2=v_src2
+				Patient_Address.district_city=v_city
+				Patient_Address.state_province=v_state
+				Patient_Address.postal_Code=v_zip
+			];
+			v_filled = v_filled + 1;
+		}
+		else
+		{
+			v_nosource = v_nosource + 1;
+		}
+	}
+}
+return "Addresses filled: " + v_filled + ". No referral address available: " + v_nosource + ".";

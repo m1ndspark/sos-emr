@@ -1,22 +1,42 @@
 v_Email = input.Partner_POC_Email;
-if(v_Email != "")
+if(v_Email != null && v_Email.trim() != "")
 {
-	v_Existing = Partner_Referral_Contacts[Partner_POC_Email == v_Email];
-	v_Found = false;
-	for each  v_Rec in v_Existing
+	v_Email = v_Email.trim();
+	v_Key = v_Email.toLowerCase();
+	v_MatchId = 0;
+	for each  v_Rec in Partner_Referral_Contacts[Partner_POC_Email == v_Email]
 	{
-		v_Rec.Partner_POC_First_Name=input.Partner_POC_First_Name;
-		v_Rec.Partner_POC_Last_Name=input.Partner_POC_Last_Name;
-		v_Rec.Partner_POC_Title=input.Partner_POC_Title;
-		v_Rec.Partner_POC_Phone=input.Partner_POC_Phone;
-		v_Rec.Partner_POC_Email=input.Partner_POC_Email;
-		v_Rec.Partner_Organization=input.Partner_Organization;
-		v_Rec.Partner_Branch=input.Partner_Branch;
-		v_Rec.Partner_POC_Team=input.Partner_POC_Team;
-		v_Found = true;
+		v_MatchId = v_Rec.ID;
 		break;
 	}
-	if(v_Found == false)
+	if(v_MatchId == 0)
+	{
+		for each  v_Scan in Partner_Referral_Contacts[ID != null]
+		{
+			if(v_Scan.Partner_POC_Email != null && v_Scan.Partner_POC_Email.trim().toLowerCase() == v_Key)
+			{
+				v_MatchId = v_Scan.ID;
+				break;
+			}
+		}
+	}
+	if(v_MatchId != 0)
+	{
+		for each  v_Upd in Partner_Referral_Contacts[ID == v_MatchId]
+		{
+			update v_Upd
+			[
+				Partner_POC_First_Name=input.Partner_POC_First_Name
+				Partner_POC_Last_Name=input.Partner_POC_Last_Name
+				Partner_POC_Title=input.Partner_POC_Title
+				Partner_POC_Phone=input.Partner_POC_Phone
+				Partner_Organization=input.Partner_Organization
+				Partner_Branch=input.Partner_Branch
+				Partner_POC_Team=input.Partner_POC_Team
+			];
+		}
+	}
+	else
 	{
 		insert into Partner_Referral_Contacts
 		[
@@ -25,7 +45,6 @@ if(v_Email != "")
 			Partner_POC_Last_Name=input.Partner_POC_Last_Name
 			Partner_POC_Title=input.Partner_POC_Title
 			Partner_POC_Phone=input.Partner_POC_Phone
-			Partner_POC_Email=input.Partner_POC_Email
 			Partner_Organization=input.Partner_Organization
 			Partner_Branch=input.Partner_Branch
 			Partner_POC_Team=input.Partner_POC_Team

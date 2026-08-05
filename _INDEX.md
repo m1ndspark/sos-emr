@@ -1482,3 +1482,44 @@ CREATOR GOTCHA
   corrected one and silently overwrites its result. When a workflow edit "does not
   take", grep the .ds for the field being written before re-editing the code
   (e.g. grep for "Partner_Location_Label=" would have surfaced the second writer).
+
+================================================================================
+SESSION 28 CHECKPOINT CODE SYNC (2026-08-05) - .ds v19, import backfills
+================================================================================
+Ground truth = SOS_Referrals_App_2026-08-05_v19.ds (generated 05-Aug-2026
+11:24:09). Extracted verbatim with ds_sync.py --apply (run_reset_test restored
+from HEAD afterward). Docs for this checkpoint (context/28_import_findings.md,
+context/23 updates) shipped earlier in commit 053decb. Post-sync divergence:
+MATCH=137, DRIFT=1 (run_reset_test), EMPTY=1 (log_change), AMBIGUOUS=2
+(pre-existing Partner_Rate_Stamp_Generator collision). MANIFEST 141 rows.
+
+WORKFLOW REWRITTEN
+  Referrals_Main/OnSuccess__Partner_Contact_Upsert.dg - case-insensitivity fix.
+    Deluge criteria matching on email is case-sensitive, so the exact-match fetch
+    missed an existing Partner_Referral_Contacts row differing only in case and
+    then violated the unique constraint on insert. Now lowercases the key and does
+    a fallback scan (v_Scan.Partner_POC_Email.trim().toLowerCase() == v_Key) before
+    inserting. See context/28_import_findings.md lesson 2.
+
+FUNCTIONS NEW
+  functions/backfill_pvs_from_referral.dg - pulls referral-derived fields onto the
+    PVS after a programmatic/imported Referral_Link (imports do not fire the
+    On-User-Input "Referral Link Pre-Fill"; see context/28 lesson 1). Returns
+    counts (backfilled / no referral found).
+  functions/backfill_pvs_employee_email.dg - fills PVS Employee_Email from the
+    Employees record by match; returns filled / already-had / no-match counts and
+    an unmatched list.
+  functions/set_pvs_provider.dg - args (p_pvsId, p_employeeEmail). Stamps the
+    provider fields onto a PVS and repairs a PVS_ID that ends in "-" by appending
+    the employee initials (with a uniqueness clash check). Built for
+    REF-070326-1254 (stamp Josh, repair "PVS-1199-").
+  functions/backfill_pvs_address_from_referral.dg - *** NEW, NOT in the sync
+    prompt's list *** - fills PVS Patient_Full_Address from the linked referral's
+    address where the PVS has none. Returns filled / no-source counts. Recorded
+    here for visibility; distinct from backfill_pvs_patient_full_address below.
+
+FUNCTION CONFIRMED (MATCH, no change needed)
+  functions/backfill_pvs_patient_full_address.dg - the repo copy already matches
+    v19. It builds Patient_Full_Address from the PVS address sub-fields and counts
+    records that already had an address ("Full addresses built: X. Already had
+    one: Y. No address on record: Z.").
