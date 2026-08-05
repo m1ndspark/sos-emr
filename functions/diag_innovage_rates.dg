@@ -1,0 +1,30 @@
+v_out = "";
+for each  l in Partner_Locations[ID != 0]
+{
+	v_lab = l.Partner_Location_Label;
+	if(v_lab == null)
+	{
+		v_lab = "";
+	}
+	v_par = "";
+	for each  p in Partners[ID == l.Partner_Link]
+	{
+		v_par = p.Partner_Display_Name;
+		break;
+	}
+	if(v_par.toLowerCase().contains("innovage"))
+	{
+		v_out = v_out + "\n== " + v_par + " / label [" + v_lab + "] name [" + l.Partner_Location_Name + "] code [" + l.Partner_Location_Code + "] status [" + l.Partner_Location_Status + "] books [" + l.Books_Customer_ID + "]";
+		v_n = 0;
+		for each  r in Partner_Rates[Partner_Location_Link == l.ID]
+		{
+			v_n = v_n + 1;
+			v_out = v_out + "\n   [" + r.Rate_Type + "] amt=" + r.Rate_Amount + " current=[" + r.Current_Rate + "] cat=[" + r.Rate_Category + "] status=[" + r.Partner_Rate_Status + "]";
+		}
+		if(v_n == 0)
+		{
+			v_out = v_out + "\n   (no rate records)";
+		}
+	}
+}
+return v_out;

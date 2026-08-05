@@ -1417,3 +1417,68 @@ none was accidental):
      Form_Token into Referral_ID for Referrals_Main rows where Referral_ID is
      blank, then clears Form_Token. Reports copied vs already-had-an-ID counts.
      Not itemized in the sync prompt; recorded here for visibility.
+
+================================================================================
+SESSION 29 SYNC (2026-08-05) - .ds v17, location label convention change
+================================================================================
+Ground truth = SOS_Referrals_App_2026-08-05_v17.ds (generated 05-Aug-2026
+04:01:58), committed and copied to SOS_Referrals_App.ds. v16 (03-Aug 10:08:40)
+committed as archive only, NOT extracted. Extracted verbatim with ds_sync.py
+--apply (run_reset_test restored from HEAD afterward). Post-sync divergence:
+MATCH=133, DRIFT=1 (run_reset_test), EMPTY=1 (log_change), AMBIGUOUS=2
+(pre-existing Partner_Rate_Stamp_Generator collision). MANIFEST 137 rows.
+
+WORKFLOW CHANGED
+  Partner_Locations/OnSuccess__Location_Label_Generator.dg (link name
+    Location_Label_Generator). Body is now a single line:
+      input.Partner_Location_Label = input.Partner_Location_Name;
+    Previously built Partner_Display_Name + " - " + Partner_Location_Code. See
+    the LABEL CONVENTION note below.
+
+WORKFLOW DELETED
+  A DUPLICATE workflow existed on Partner_Locations with the same display name
+  "Location Label Generator" (link name Location_Label_Generator1). It carried an
+  older formula and silently overwrote the corrected one on every save. Deleted
+  live 2026-08-03. The repo never had a separate .dg for it (the resolver always
+  collapsed both link names onto OnSuccess__Location_Label_Generator.dg), so
+  there was no repo file to remove. See the Creator gotcha below.
+
+FUNCTION CHANGED
+  functions/backfill_location_labels.dg - return type void -> string (returns a
+  rebuilt count), now writes via an explicit update statement
+  (Partner_Location_Label=loc.Partner_Location_Name).
+
+FUNCTIONS NEW
+  functions/resync_location_names.dg - no args, returns string. Mirrors
+    resync_location_labels but pushes Partner_Locations.Partner_Location_Name into
+    the Partner_Branch text field ("Partner Branch/Location") on Referrals_Main
+    (via Partner_Branch_Link) and Encounter_PatientVisit (via Billing_Branch).
+  functions/diag_empath_labels.dg, functions/diag_esi_references.dg,
+    functions/diag_innovage_rates.dg - all *** NEW, TEMPORARY *** (punch list,
+    delete from Creator after launch). diag_accentcare_rates already existed from
+    Session 28 and matches v17.
+  FLAG: diag_empath_rates was listed in the Session 29 sync prompt as a new
+    temporary function but is NOT present in v17 (0 occurrences). Not created here
+    (no verbatim source; never reconstruct). If it should exist, it was never
+    saved live or was deleted before the v17 export - confirm with Neil.
+
+PARTNER LOCATION LABEL CONVENTION CHANGED (2026-08-03) - AFFECTS EVERY IMPORT FILE
+  Partner_Location_Label is now simply Partner_Location_Name ("Marion",
+  "Suncoast - PIN", "LifePath", "Tampa"). It no longer carries the partner prefix
+  or the location code. Rationale: the label is the display value on six lookups
+  AND the match key for every import; Neil wanted records to read "Marion" rather
+  than "Empath - MAR", and the Partner field is always shown alongside.
+  CONSEQUENCE: any import file whose branch column matched the old "Partner - CODE"
+  format must be rewritten to the plain location name - this includes the
+  Partner_Rates import files and the referral import's Partner Branch/Location
+  column. Full detail in context/09_cognito_import_procedure.md.
+  RISK: labels must stay UNIQUE across ALL partners. Two locations are still named
+  "Main Hospice" - Empath - ESI (now Inactive) and Chapters - HIL. Chapters - HIL
+  should be renamed (tracked in context/23).
+
+CREATOR GOTCHA
+  Two workflows on the same form can share a display name; Creator distinguishes
+  them only by link name (Foo and Foo1). A stale duplicate runs alongside the
+  corrected one and silently overwrites its result. When a workflow edit "does not
+  take", grep the .ds for the field being written before re-editing the code
+  (e.g. grep for "Partner_Location_Label=" would have surfaced the second writer).

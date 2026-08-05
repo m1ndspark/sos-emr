@@ -34,18 +34,21 @@ Owner legend:
 | Re-export the .ds and commit (Session 28 checkpoint item). Done: v15, dated 2026-07-31, captured the Build Patient Full Address workflow fix, the re-added Patient_Full_Address field, the four backfills and six diagnostics (placeholders replaced with verbatim bodies), plus rehearsal-session changes (PVS patient-name field rename, create_invoice fee line items, new backfill_referral_id_from_token). | ccode | CLOSED | was N | 2026-07-31 |
 | Rehearse the go-live import sequence against a small throwaway sample. PASSED end to end 2026-07-31: import Referrals -> resolve_referral_branch_from_text -> backfill_referral_branch -> import PVS -> backfill_pvs_ids -> link_pvs_to_referral -> backfill_pvs_billing_branch -> backfill_pvs_complexity_charge -> Invoice Batch -> Books INV-000005 (2 visits, $888.00), then voided via reset_invoice. Log: context/logs/SOS_Import_Rehearsal_2026-07-31.md. | Neil / cchat | CLOSED | was Y | 2026-07-31 |
 | Rewrite section 5 of 09_cognito_import_procedure.md per finding 5b (imports fire On Success workflows when "Execute form workflows" is checked; On User Input never fires). Done Session 28; also added section 5A findings and hard-verify-mapping checklist steps. | ccode | CLOSED | was N | 2026-07-31 |
+| Empath rates loaded (45 rows, 5 active branches; ESI excluded). | Neil / Josh | CLOSED | was Y | 2026-08-05 |
+| AccentCare rates loaded (54 rows, 6 branches). | Neil / Josh | CLOSED | was Y | 2026-08-05 |
+| InnoVage rates loaded (2 rows, Cares 3008 Assessment only; SOS is contracted with InnoVage for 3008 evaluations only, so the other rate types are intentionally absent). | Neil / Josh | CLOSED | was Y | 2026-08-05 |
+| Empath - ESI deactivated. It is a main contact number, not a branch SOS works with. Zero referral / PVS / invoice / rate references; one billing contact reassigned. Its Books customer remains in Books, unused. | Neil / Josh | CLOSED | was Y | 2026-08-05 |
 
 --------------------------------------------------------------------------------
-## OPEN, BLOCKING MONDAY 2026-08-03
+## OPEN, BLOCKING (launch 2026-08-03; now overdue as of 2026-08-05)
 --------------------------------------------------------------------------------
 
 | Task | Owner | Status | Blocking | Deadline |
 |---|---|---|---|---|
-| Load rates for Chapters HIL / HPH / LIF, VITAS CIT / LEE / SUM / VIL, InnoVage ORL. NOTE 2026-07-31: AccentCare rates were deleted and reloaded mid-session; confirm all six AccentCare branches carry current rates (Current_Rate = Yes) before Monday. | Neil / Josh | OPEN | Y | 2026-08-03 |
-| Enter Books customer IDs for VITAS x4 and Chapters HPH / LIF. | Neil / Josh | OPEN | Y | 2026-08-03 |
-| Turn OFF "hide zero value items" in Books. | Neil / Josh | OPEN | Y | 2026-08-03 |
-| Empath: verify whether Empath - ESI carries a Hospital at Home rate flagged Current_Rate = Yes. ESI (not MAR) is the computed source branch; add_missing_rate_to_uniform_branches returned 0 inserts, meaning no Empath branch can receive a rate type ESI does not already have. Fixing MAR alone does nothing. | Neil / Josh | OPEN | Y | 2026-08-03 |
-| Chapters: hand-enter a source rate card. replicate_uniform_rates has nothing to copy from and reports "SKIPPED - no source branch". | Neil / Josh | OPEN | Y | 2026-08-03 |
+| Chapters rates: 3 branches (HIL / HPH / LIF). No rate card exists anywhere to copy from, so it must be hand-entered. | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
+| VITAS rates: 4 branches (CIT / LEE / SUM / VIL). | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
+| Books customer IDs missing: VITAS CIT / LEE / SUM / VIL and Chapters HPH / LIF. Without these the invoice batch fails at the Books call even when rates exist. | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
+| Turn OFF "hide zero value items" in Books. | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
 | Deliver the 250-visit charge file (Cognito export + charge columns + billing branch), one row per visit. NOTE 2026-07-31: Neil has deferred delivery until the system is proven end to end; deadline stays 2026-08-03 and it stays BLOCKING. The file does NOT need a Complexity_Charge column - backfill_pvs_complexity_charge resolves it from the rate card. Include a charge only where a visit was billed at a rate that has since changed, since the backfill never overwrites an existing value. | Neil / Josh | OPEN | Y | 2026-08-03 |
 
 --------------------------------------------------------------------------------
@@ -61,6 +64,9 @@ Owner legend:
 | After_Hours_Fee and Super_Stat_Fee are manual entry. UPDATE 2026-07-31 (v15): create_invoice_from_selection now BILLS them (plus Equipment/Other) as their own Books line items when > 0, so the "read by nothing" half is resolved. Still manual entry, though - no workflow auto-fills them from Partner_Rates (which carries both rate types). | cchat / ccode | OPEN | N | post-launch |
 | Referrals_Main Patient_Full_Name and Partner_POC_Name_Title generators are On Success; move to On Validate post-launch. | cchat / ccode | OPEN | N | post-launch |
 | Audit the rest of the form for the hidden-on-load / shown-on-user-input pattern. Sections, Facility fields, Type_of_Diversion and the Equipment/Other charge fields are fixed; others may remain. | cchat / ccode | OPEN | N | post-launch |
+| Rename Chapters - HIL off "Main Hospice" so no two location names collide. Location labels must be unique across all partners (Partner_Location_Label is now Partner_Location_Name; Empath - ESI also named "Main Hospice" but is Inactive). | Neil | OPEN | N | post-launch |
+| Delete two duplicate Empath rate rows (Tidewell / High Complexity and Trustbridge / High Complexity, both 545) if they were imported. | Neil / Josh | OPEN | N | post-launch |
+| Delete backfill_referral_id_from_token from Creator. The Form_Token workaround proved unnecessary and that field carries real public-form tokens. | Neil | OPEN | N | post-launch |
 
 --------------------------------------------------------------------------------
 ## PRE-EXISTING CLEANUPS (from context/16, still open)

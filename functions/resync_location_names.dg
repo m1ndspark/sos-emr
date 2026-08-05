@@ -1,0 +1,51 @@
+v_ref = 0;
+v_refSkip = 0;
+v_pvs = 0;
+v_pvsSkip = 0;
+for each  r in Referrals_Main[ID != 0]
+{
+	if(r.Partner_Branch_Link == null)
+	{
+		v_refSkip = v_refSkip + 1;
+	}
+	else
+	{
+		v_l = Partner_Locations[ID == r.Partner_Branch_Link];
+		if(v_l.ID == null)
+		{
+			v_refSkip = v_refSkip + 1;
+		}
+		else
+		{
+			update r
+			[
+				Partner_Branch=v_l.Partner_Location_Name
+			];
+			v_ref = v_ref + 1;
+		}
+	}
+}
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	if(p.Billing_Branch == null)
+	{
+		v_pvsSkip = v_pvsSkip + 1;
+	}
+	else
+	{
+		v_l2 = Partner_Locations[ID == p.Billing_Branch];
+		if(v_l2.ID == null)
+		{
+			v_pvsSkip = v_pvsSkip + 1;
+		}
+		else
+		{
+			update p
+			[
+				Partner_Branch=v_l2.Partner_Location_Name
+			];
+			v_pvs = v_pvs + 1;
+		}
+	}
+}
+return "Referrals updated: " + v_ref + " (skipped " + v_refSkip + "). PVS updated: " + v_pvs + " (skipped " + v_pvsSkip + ").";

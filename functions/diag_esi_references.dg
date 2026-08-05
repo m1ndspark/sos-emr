@@ -1,0 +1,46 @@
+v_id = null;
+v_lab = "";
+for each  l in Partner_Locations[ID != 0]
+{
+	v_x = l.Partner_Location_Label;
+	if(v_x == null)
+	{
+		v_x = "";
+	}
+	if(v_x.trim() == "Empath - ESI")
+	{
+		v_id = l.ID;
+		v_lab = v_x;
+		break;
+	}
+}
+if(v_id == null)
+{
+	return "No Partner_Locations record with label Empath - ESI.";
+}
+v_ref = 0;
+for each  r in Referrals_Main[Partner_Branch_Link == v_id]
+{
+	v_ref = v_ref + 1;
+}
+v_pvs = 0;
+for each  p in Encounter_PatientVisit[Billing_Branch == v_id]
+{
+	v_pvs = v_pvs + 1;
+}
+v_inv = 0;
+for each  i in Invoices[Partner_Location_Link == v_id]
+{
+	v_inv = v_inv + 1;
+}
+v_rate = 0;
+for each  q in Partner_Rates[Partner_Location_Link == v_id]
+{
+	v_rate = v_rate + 1;
+}
+v_bill = 0;
+for each  b in Partner_Billing_Contacts[Partner_Location_Link == v_id]
+{
+	v_bill = v_bill + 1;
+}
+return "Empath - ESI (ID " + v_id + ") references -- Referrals: " + v_ref + " | PVS: " + v_pvs + " | Invoices: " + v_inv + " | Partner_Rates: " + v_rate + " | Billing contacts: " + v_bill;

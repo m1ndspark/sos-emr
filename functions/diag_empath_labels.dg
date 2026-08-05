@@ -1,0 +1,14 @@
+v_out = "";
+for each  l in Partner_Locations[ID != 0]
+{
+	v_lab = l.Partner_Location_Label;
+	if(v_lab == null)
+	{
+		v_lab = "";
+	}
+	if(v_lab.toLowerCase().contains("empath"))
+	{
+		v_out = v_out + "\n[" + v_lab + "] name=[" + l.Partner_Location_Name + "] code=[" + l.Partner_Location_Code + "] status=[" + l.Partner_Location_Status + "]";
+	}
+}
+return v_out;

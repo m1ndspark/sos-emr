@@ -7,7 +7,7 @@ functions/backfill_dm_full_names.dg	backfill_dm_full_names		function					Referra
 functions/backfill_employee_ids.dg	backfill_employee_ids		function		mint_employee_id			Employees	AppFunc	ddc367a0
 functions/backfill_employee_phone_format.dg	backfill_employee_phone_format		function					Employees		3acc5496
 functions/backfill_location_ids.dg	backfill_location_ids		function		mint_location_id			Partner_Locations	AppFunc	1e73ebdd
-functions/backfill_location_labels.dg	backfill_location_labels		function					Partner_Locations;Partners		813337b6
+functions/backfill_location_labels.dg	backfill_location_labels		function					Partner_Locations		30201d68
 functions/backfill_partner_ids.dg	backfill_partner_ids		function		mint_partner_id			Partners	AppFunc	a9e05dea
 functions/backfill_partner_poc_name_title.dg	backfill_partner_poc_name_title		function		set_partner_poc_name_title			Referrals_Main	AppFunc	d7999d8d
 functions/backfill_patient_full_addresses.dg	backfill_patient_full_addresses		function					Referrals_Main		35d96835
@@ -25,6 +25,9 @@ functions/backfill_referral_ids.dg	backfill_referral_ids		function		mint_referra
 functions/create_books_customers.dg	create_books_customers		function					Partner_Billing_Contacts;Partner_Locations	HTTP	9fc3b29b
 functions/create_invoice_from_selection.dg	create_invoice_from_selection		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main	Books;HTTP	a5050e12
 functions/diag_accentcare_rates.dg	diag_accentcare_rates		function					Partner_Locations;Partner_Rates		83952d0a
+functions/diag_empath_labels.dg	diag_empath_labels		function					Partner_Locations		d2fb838c
+functions/diag_esi_references.dg	diag_esi_references		function					Encounter_PatientVisit;Partner_Billing_Contacts;Partner_Locations;Partner_Rates;Referrals_Main		5e56705e
+functions/diag_innovage_rates.dg	diag_innovage_rates		function					Partner_Locations;Partner_Rates;Partners		0425511c
 functions/diag_invoice_batch.dg	diag_invoice_batch		function					Encounter_PatientVisit;Invoice_Batch		39312db2
 functions/diag_partner_rates.dg	diag_partner_rates		function					Partner_Locations;Partner_Rates		3307c87f
 functions/diag_pvs_ids.dg	diag_pvs_ids		function					Encounter_PatientVisit		11fe2f47
@@ -47,6 +50,7 @@ functions/report_partner_rate_coverage.dg	report_partner_rate_coverage		function
 functions/reset_invoice.dg	reset_invoice		function					Encounter_PatientVisit	HTTP	35c275b5
 functions/resolve_referral_branch_from_text.dg	resolve_referral_branch_from_text		function					Partner_Locations;Referrals_Main		eb8395fb
 functions/resync_location_labels.dg	resync_location_labels		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main		5d2244f0
+functions/resync_location_names.dg	resync_location_names		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main		16a84f0e
 functions/run_invoice_batch.dg	run_invoice_batch		function		create_invoice_from_selection			Encounter_PatientVisit;Invoice_Batch	AppFunc	6648bb0b
 functions/run_reset_test.dg	run_reset_test		function		reset_invoice				AppFunc	c131542f
 functions/run_schema_monitor.dg	run_schema_monitor		function		send_via_sendgrid				AppFunc;HTTP	0a797656
@@ -103,7 +107,7 @@ Partner_Billing_Contacts/OnValidate__Partner_Billing_Contact_Branch_Match.dg	Par
 Partner_Contracts/OnSuccess__Partner_Contract_ID_Stamp_Generator.dg	Partner_Contract_ID_Stamp	Partner_Contracts	OnSuccess				ID			947d0d94
 Partner_Contracts/OnValidate__Partner_Contract_Branch_Match.dg	Partner_Contract_Branch_M	Partner_Contracts	OnValidate				Partner_Link;Partner_Location_Link	Partner_Locations		03708d75
 Partner_Locations/OnSuccess__LOC_ID_Generator.dg	LOC_ID_Generator	Partner_Locations	OnSuccess		mint_location_id		ID		AppFunc	b7d237f2
-Partner_Locations/OnSuccess__Location_Label_Generator.dg	Location_Label_Generator	Partner_Locations	OnSuccess			Partner_Location_Label	Partner_Link;Partner_Location_Code	Partners		40527ae3
+Partner_Locations/OnSuccess__Location_Label_Generator.dg	Location_Label_Generator	Partner_Locations	OnSuccess			Partner_Location_Label	Partner_Location_Name			cdb73c7c
 Partner_Locations/OnSuccess__Primary_Office_Auto_Demote.dg	Primary_Office_Auto_Demot	Partner_Locations	OnSuccess				ID;Partner_Link;Primary_Office	Partner_Locations		dae7e672
 Partner_Locations/OnValidate__LOC_Required_Codes.dg	LOC_Required_Codes	Partner_Locations	OnValidate				Partner_Link;Partner_Location_Code	Partners		580a6203
 Partner_Locations/OnValidate__Partner_Link_Lock.dg	LOC_Partner_Lock	Partner_Locations	OnValidate				ID;Partner_Link	Partner_Locations		36b62fd2

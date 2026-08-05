@@ -9,6 +9,31 @@ First established: 2026-07-03 (Session 7), importing the July Cognito export
 "PatientReferral (30).xlsx" (32 referrals).
 
 --------------------------------------------------------------------------------
+0-A. PARTNER LOCATION LABEL CONVENTION CHANGED (2026-08-03) - READ FIRST
+--------------------------------------------------------------------------------
+Partner_Location_Label is now simply Partner_Location_Name: "Marion",
+"Suncoast - PIN", "LifePath", "Tampa". It NO LONGER carries the partner prefix or
+the location code (the old "Empath - MAR" / "Partner - CODE" format is retired).
+
+WHY: the label is the display value on six lookups AND the match key for every
+import. Neil wanted records to read "Marion", not "Empath - MAR"; the Partner
+field is always shown beside it. Live workflow "Location Label Generator" now just
+sets input.Partner_Location_Label = input.Partner_Location_Name.
+
+CONSEQUENCE FOR IMPORTS: any import file whose branch column matched the old
+"Partner - CODE" format MUST be rewritten to the plain location name. This applies
+to:
+  - the referral import's Partner Branch/Location column (Partner_Branch text;
+    resolved to the lookup by resolve_referral_branch_from_text, which matches
+    Partner_Location_Label exactly), and
+  - the Partner_Rates import files (branch match key).
+
+RISK: labels must stay UNIQUE across ALL partners, or the exact-match resolvers
+attach records to the wrong branch. Two locations are still named "Main Hospice"
+- Empath - ESI (now Inactive) and Chapters - HIL. Chapters - HIL should be
+  renamed before its rates/referrals load.
+
+--------------------------------------------------------------------------------
 0. TOOLS / FILES
 --------------------------------------------------------------------------------
 - Empty template (headers only, Creator link names): SOS_Referrals_Import_Template.xlsx
