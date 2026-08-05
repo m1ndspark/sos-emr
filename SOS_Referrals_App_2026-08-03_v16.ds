@@ -1,6 +1,6 @@
 /*
  * Author       : sosmmc
- * Generated on : 05-Aug-2026 04:01:58
+ * Generated on : 03-Aug-2026 10:08:40
  * Version      : 1.0
  */
  application "SOS Referrals App"
@@ -12567,6 +12567,30 @@
 											v_name = v_name + ", " + v_title;
 										}
 										input.Partner_POC_Name_Title = v_name;
+						)
+					}
+				}
+
+			}
+			Location_Label_Generator1 as "Location Label Generator"
+			{
+				type =  form
+				form = Partner_Locations
+
+				record event = on add or edit
+
+				on success
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											v_partnerName = "";
+										for each  p in Partners[ID == input.Partner_Link]
+										{
+											v_partnerName = p.Partner_Display_Name;
+										}
+										input.Partner_Location_Label = v_partnerName + " - " + input.Partner_Location_Name;
 						)
 					}
 				}
