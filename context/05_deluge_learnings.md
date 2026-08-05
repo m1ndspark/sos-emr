@@ -163,3 +163,71 @@ SOS_Referrals_App_2026-07-29.ds)
 - Creator mobile offline mode blocks any form carrying before-submit workflows
   (on load, on user input, field rules). Encounter_PatientVisit and Referrals_Main
   both carry such workflows, so neither can ever be offline-capable.
+
+================================================================================
+CREATOR v6 FINDINGS  (2026-08-05, Session 28 - July import + rate repair)
+================================================================================
+
+CRITERIA MATCHING ON EMAIL FIELDS IS CASE-SENSITIVE
+Partner_Referral_Contacts[Partner_POC_Email == v_Email] MISSES when the stored
+value differs only in letter case. If that field is also `unique`, the miss
+falls through to the insert branch and violates the constraint at runtime:
+"The field 'org' for key 'Email' is configured to reject duplicate values."
+FIX PATTERN: exact-match fetch first (fast path), then a full-table fallback
+scan comparing .trim().toLowerCase() on both sides, and only insert if both
+passes come up empty.
+Found live: 20 of 278 referrals failed the July import - LexieJoiner@ vs the
+stored lexiejoiner@. See workflow Partner_Contact_Upsert.
+
+PHONENUMBER FIELDS REJECT AN EMPTY STRING
+Assigning "" to a field of type phonenumber throws:
+"The value of the field 'X' doesn't conform to a phone number format."
+Assign null instead when the value is blank.
+WATCH WHEN COPYING BETWEEN FORMS: Referrals_Main phone fields are plain `text`;
+Encounter_PatientVisit phone fields are `phonenumber`. A value that is legal on
+one side is not automatically legal on the other.
+Found live: backfill_pvs_from_referral, first execution.
+
+IMPORTS DO NOT FIRE ON USER INPUT
+Extends the existing note that a Deluge assignment does not fire On User Input.
+The import wizard's "Execute form workflows" checkbox covers On Add, On Success
+and On Validate - it does NOT fire On User Input either.
+CONSEQUENCE: Referral Link Pre-Fill is On User Input, so setting Referral_Link
+from link_pvs_to_referral leaves every referral-derived field blank. Any
+programmatic Referral_Link assignment must be followed by
+backfill_pvs_from_referral.
+
+REPORT BULK EDIT DOES NOT RELIABLY WRITE RADIOBUTTON FIELDS
+Bulk-editing Partner_Rate_Status (type radiobuttons) from the Partner Rates
+report reported success and wrote nothing - the field stayed blank across ~170
+records across two attempts. Record DELETIONS from the same UI in the same pass
+did save. Use a function for bulk writes to radiobutton fields.
+
+THE FUNCTION EDITOR DOES PROMPT FOR ARGUMENTS
+Executing a custom function from the Deluge editor opens an "Enter the value for
+the input arguments" dialog. A function with arguments does NOT need a no-arg
+wrapper to be run by hand. run_reset_test was built on the opposite assumption
+and is unnecessary.
+
+set_current_rate DEPENDS ON Partner_Rate_Status - HANDLE WITH CARE
+set_current_rate only considers rows where Partner_Rate_Status == "Active". If
+no row for a given key qualifies, it finds no winner and then sets EVERY row for
+that key to Current_Rate = "No". A blank status therefore SILENTLY UN-PRICES the
+whole rate card the next time backfill_current_rate runs.
+RULE: never run backfill_current_rate without first confirming every rate row
+carries a status. Bulk-imported rate rows arrive with the status blank.
+Found live: wiped ~170 Current_Rate flags on 2026-08-05, recovered with
+repair_partner_rate_status.
+
+STAMPED CHARGES DO NOT FOLLOW A RATE CHANGE
+Complexity_Charge is written onto the PVS at the moment of lookup, and
+backfill_pvs_complexity_charge only fills BLANKS. Changing a rate card therefore
+has no effect on visits already stamped - correct for invoiced visits, a trap
+for un-invoiced Drafts, which keep the old price silently.
+Found live: INV-000006 billed VITAS Sumter Moderate at 343 after the card said
+323. Use reprice_draft_pvs for Draft, un-invoiced visits only.
+
+PROCESS NOTE - READ THIS FILE FIRST
+The "cancel submit takes no message" rule was already documented in this file in
+two places and was still gotten wrong on 2026-08-05. Read context/05 before
+writing any Deluge, not after the parse error.
