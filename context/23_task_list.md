@@ -38,6 +38,13 @@ Owner legend:
 | AccentCare rates loaded (54 rows, 6 branches). | Neil / Josh | CLOSED | was Y | 2026-08-05 |
 | InnoVage rates loaded (2 rows, Cares 3008 Assessment only; SOS is contracted with InnoVage for 3008 evaluations only, so the other rate types are intentionally absent). | Neil / Josh | CLOSED | was Y | 2026-08-05 |
 | Empath - ESI deactivated. It is a main contact number, not a branch SOS works with. Zero referral / PVS / invoice / rate references; one billing contact reassigned. Its Books customer remains in Books, unused. | Neil / Josh | CLOSED | was Y | 2026-08-05 |
+| July referral import (278 records). | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| June partial referral import (6 records: 1209, 1213, 1215, 1216, 1217, 1220). | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| July PVS import (200 records). | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| PVS post-import backfill sequence: link, billing branch, referral backfill, full address, complexity charge (backfill_pvs_from_referral, link_pvs_to_referral, backfill_pvs_billing_branch, backfill_pvs_patient_full_address, backfill_pvs_complexity_charge). | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| Partner Contact Upsert case-sensitivity defect (Deluge email match is case-sensitive; upsert now does a lowercase fallback scan before insert). See context/28_import_findings.md. | cchat | CLOSED | was Y | 2026-08-05 |
+| Telemedicine rates loaded: Empath, AccentCare, VITAS. | Neil / Josh | CLOSED | was Y | 2026-08-05 |
+| VITAS Moderate Complexity rates loaded: Sumter, Villages. | Neil / Josh | CLOSED | was Y | 2026-08-05 |
 
 --------------------------------------------------------------------------------
 ## OPEN, BLOCKING (launch 2026-08-03; now overdue as of 2026-08-05)
@@ -47,9 +54,11 @@ Owner legend:
 |---|---|---|---|---|
 | Chapters rates: 3 branches (HIL / HPH / LIF). No rate card exists anywhere to copy from, so it must be hand-entered. | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
 | VITAS rates: 4 branches (CIT / LEE / SUM / VIL). | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
-| Books customer IDs missing: VITAS CIT / LEE / SUM / VIL and Chapters HPH / LIF. Without these the invoice batch fails at the Books call even when rates exist. | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
+| Books customer IDs missing: Chapters (6), VITAS (4), Cornerstone (5). Without these the invoice batch fails at the Books call even when rates exist. | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
 | Turn OFF "hide zero value items" in Books. | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
-| Deliver the 250-visit charge file (Cognito export + charge columns + billing branch), one row per visit. NOTE 2026-07-31: Neil has deferred delivery until the system is proven end to end; deadline stays 2026-08-03 and it stays BLOCKING. The file does NOT need a Complexity_Charge column - backfill_pvs_complexity_charge resolves it from the rate card. Include a charge only where a visit was billed at a rate that has since changed, since the backfill never overwrites an existing value. | Neil / Josh | OPEN | Y | 2026-08-03 |
+| Set branch on Empath/Polk referrals 1444, 1423, 1297, then re-run backfill_pvs_billing_branch and backfill_pvs_complexity_charge. | Neil / cchat | OPEN | Y | 2026-08-05 |
+| REF-070326-1254: run set_pvs_provider to stamp Josh and repair the PVS_ID "PVS-1199-" (missing initials). | Neil / cchat | OPEN | Y | 2026-08-05 |
+| Deliver the 250-visit charge file. UPDATE 2026-08-05: fulfilled by the July PVS import (200 records) plus the June partial; data is in. Keep OPEN only if additional visits remain to be delivered - otherwise close. backfill_pvs_complexity_charge resolves charges from the rate card and never overwrites an existing value. | Neil / Josh | OPEN | Y | 2026-08-03 |
 
 --------------------------------------------------------------------------------
 ## OPEN, NOT BLOCKING
@@ -57,7 +66,7 @@ Owner legend:
 
 | Task | Owner | Status | Blocking | Deadline |
 |---|---|---|---|---|
-| Delete run_reset_test AND the six diag_* functions (diag_pvs_ids, diag_referral_ids, diag_zztest_referrals, diag_accentcare_rates, diag_referral_import_gaps, diag_pvs_import_gaps) from Creator after launch. run_reset_test also clears the intentional repo DRIFT on functions/run_reset_test.dg. | Neil | OPEN | N | post-launch |
+| Delete run_reset_test AND all diag_* functions from Creator after launch (diag_pvs_ids, diag_referral_ids, diag_zztest_referrals, diag_accentcare_rates, diag_referral_import_gaps, diag_pvs_import_gaps, diag_empath_labels, diag_esi_references, diag_innovage_rates, and any added since). run_reset_test also clears the intentional repo DRIFT on functions/run_reset_test.dg. | Neil | OPEN | N | post-launch |
 | Books line-item description is capped at 2000 characters and create_invoice_from_selection does not truncate. Per-visit blocks embed Reason_for_Referral, which is unbounded; will break on large batches. | cchat / ccode | OPEN | N | post-launch |
 | create_invoice_from_selection has no guard if invokeurl returns a non-map on a transport failure. | cchat / ccode | OPEN | N | post-launch |
 | run_invoice_batch does not filter Clinical_Note_Type, so a Preliminary note is invoiceable. | cchat / ccode | OPEN | N | post-launch |
@@ -67,6 +76,8 @@ Owner legend:
 | Rename Chapters - HIL off "Main Hospice" so no two location names collide. Location labels must be unique across all partners (Partner_Location_Label is now Partner_Location_Name; Empath - ESI also named "Main Hospice" but is Inactive). | Neil | OPEN | N | post-launch |
 | Delete two duplicate Empath rate rows (Tidewell / High Complexity and Trustbridge / High Complexity, both 545) if they were imported. | Neil / Josh | OPEN | N | post-launch |
 | Delete backfill_referral_id_from_token from Creator. The Form_Token workaround proved unnecessary and that field carries real public-form tokens. | Neil | OPEN | N | post-launch |
+| REF-071126-1305: possible cancelled referral, excluded from import. Revisit and confirm whether it should be imported or stays out. | Neil | OPEN | N | post-launch |
+| Referrals_Main lookup/text pairs (e.g. Partner_Link vs Partner_Branch text): show the text field for admin only, hide the redundant pair from the standard view. | cchat / ccode | OPEN | N | post-launch |
 
 --------------------------------------------------------------------------------
 ## PRE-EXISTING CLEANUPS (from context/16, still open)
