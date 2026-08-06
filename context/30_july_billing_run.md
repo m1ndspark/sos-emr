@@ -44,8 +44,9 @@ Notes:
 - Hillsborough, Pinellas, Tidewell and Trustbridge are still understated pending
   five equipment amounts from Josh and Ann (tracked in context/23). Their totals
   will rise once those are entered.
-- Arithmetic: the 16 confirmed rows sum to $67,490. The live read-back was
-  reported as ~$67,290; the $200 delta is unreconciled [CONFIRM].
+- Arithmetic (reconciled): the 16 confirmed rows sum to $67,490 = $65,990
+  complexity + $1,300 premiums (Polk $300, Suncoast - PIN $300, Tidewell $700)
+  + $200 equipment (Sumter $25, Marion $175).
 
 --------------------------------------------------------------------------------
 ## 2. Defect: premium fees not populated on imported visits
