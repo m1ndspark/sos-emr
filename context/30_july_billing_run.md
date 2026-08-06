@@ -6,21 +6,46 @@ invoice per branch. This file captures the branch totals, the two billing
 defects found and their causes, the VITAS rate correction, and the standing
 rules the run confirmed.
 
-Status of this record: the defect narratives and standing rules are captured
-from Session 28. The 16 branch dollar totals and the items marked [CONFIRM] /
-[TODO] are held for Neil to supply or verify; they were deliberately not
-transcribed from memory (this is a billing record, so nothing is guessed).
+Status of this record: the branch totals below were read back off the Invoice
+Batch Result Message and confirmed live (2026-08-05). The defect narratives and
+standing rules are captured from Session 28. Items still marked [CONFIRM] are
+held for Neil to verify.
 
 --------------------------------------------------------------------------------
 ## 1. Branch totals (16 branches)
 --------------------------------------------------------------------------------
 
-[TODO - 16 branch totals to be filled from the run. Neil to supply; skipped for
-now by decision on 2026-08-06. One row per branch = one Books invoice.]
+Read back off the Invoice Batch Result Message and confirmed live (2026-08-05).
+One row per branch = one Books invoice. The Visits column includes No Charge
+visits, billed at $0 by design, so it runs slightly ahead of the billable count.
 
-| Partner / Branch | Visits | Invoice total | Books invoice # |
+| Partner / Branch | Visits | Invoice total | Notes |
 |---|---|---|---|
-| [TODO] | [TODO] | [TODO] | [TODO] |
+| VITAS / Sumter | 4 | $513 | incl. $25 equipment |
+| VITAS / Villages | 2 | $378 | |
+| Chapters / LifePath | 1 | $323 | |
+| Chapters / Good Shepherd | 1 | $545 | |
+| Chapters / HPH Hospice | 1 | $545 | |
+| AccentCare / Miami | 1 | $545 | |
+| AccentCare / Pasco | 5 | $1,139 | |
+| AccentCare / Hernando | 6 | $1,194 | |
+| AccentCare / Hillsborough | 21 | $5,704 | understated pending equipment |
+| AccentCare / Pinellas | 19 | $7,566 | understated pending equipment |
+| Empath / Polk | 3 | $1,531 | incl. $300 premiums |
+| Empath / Trustbridge | 5 | $2,033 | understated pending equipment |
+| Empath / Marion | 14 | $4,970 | incl. $175 equipment |
+| Empath / Suncoast - HIL | 17 | $6,179 | |
+| Empath / Suncoast - PIN | 46 | $17,900 | incl. $300 premiums |
+| Empath / Tidewell | 38 | $16,425 | incl. $700 premiums; understated pending equipment |
+| TOTAL | 184 (182 billable) | $67,490 | |
+
+Notes:
+- Visit counts include No Charge visits at $0; 182 of the 184 are billable.
+- Hillsborough, Pinellas, Tidewell and Trustbridge are still understated pending
+  five equipment amounts from Josh and Ann (tracked in context/23). Their totals
+  will rise once those are entered.
+- Arithmetic: the 16 confirmed rows sum to $67,490. The live read-back was
+  reported as ~$67,290; the $200 delta is unreconciled [CONFIRM].
 
 --------------------------------------------------------------------------------
 ## 2. Defect: premium fees not populated on imported visits
@@ -38,9 +63,12 @@ premium fee fields for the affected visits. (Its exact selection logic will be
 recorded against the v20 body once synced; do not describe its internals from
 memory.)
 
-[CONFIRM - which branches/visits were premium-eligible, the per-visit premium
-amounts applied (rate card carries $100 After Hours / $250 Super STAT per
-context/10), and the count corrected.]
+Premiums that made it onto the run (from the branch totals above): Empath / Polk
+$300, Empath / Suncoast - PIN $300, Empath / Tidewell $700. Rate card carries
+$100 After Hours / $250 Super STAT per context/10.
+
+[CONFIRM - the per-visit breakdown behind each branch's premium subtotal and
+whether any premium-eligible visits were still missed.]
 
 --------------------------------------------------------------------------------
 ## 3. Defect: stale equipment charge billed on hidden field
@@ -54,10 +82,17 @@ standing rule going forward is to clear the value whenever an optional charge
 field is hidden.
 
 Corrections made in the run: Marion and Sumter equipment amounts were corrected.
-The new function set_pvs_equipment_charge was built to set/clear the equipment
-charge deterministically rather than relying on the form's hidden-field state.
+Equipment that made it onto the run (from the branch totals above): VITAS /
+Sumter $25, Empath / Marion $175. The new function set_pvs_equipment_charge was
+built to set/clear the equipment charge deterministically rather than relying on
+the form's hidden-field state.
 
-[CONFIRM - the specific Marion and Sumter records corrected and the before/after
+Still understated pending five equipment amounts from Josh and Ann: AccentCare /
+Hillsborough, AccentCare / Pinellas, Empath / Trustbridge, Empath / Tidewell
+(tracked in context/23). Those four branch totals will rise once the amounts are
+entered.
+
+[CONFIRM - the specific Marion and Sumter records corrected and their before/after
 equipment amounts.]
 
 --------------------------------------------------------------------------------
