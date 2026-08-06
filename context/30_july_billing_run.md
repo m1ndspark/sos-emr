@@ -6,10 +6,12 @@ invoice per branch. This file captures the branch totals, the two billing
 defects found and their causes, the VITAS rate correction, and the standing
 rules the run confirmed.
 
-Status of this record: the branch totals below were read back off the Invoice
-Batch Result Message and confirmed live (2026-08-05). The defect narratives and
-standing rules are captured from Session 28. Items still marked [CONFIRM] are
-held for Neil to verify.
+Status of this record: branch totals, per-visit premium and equipment
+breakdowns, and the VITAS invoice void chain are all confirmed live (2026-08-05,
+read back off the Invoice Batch Result Message). The one open cross-check is the
+Super STAT premium rate: context/10 lists $250, the run applied $200 (see
+section 2). Record IDs and dates are used throughout; patient names are
+deliberately omitted to keep the repo PHI-clean.
 
 --------------------------------------------------------------------------------
 ## 1. Branch totals (16 branches)
@@ -64,12 +66,25 @@ premium fee fields for the affected visits. (Its exact selection logic will be
 recorded against the v20 body once synced; do not describe its internals from
 memory.)
 
-Premiums that made it onto the run (from the branch totals above): Empath / Polk
-$300, Empath / Suncoast - PIN $300, Empath / Tidewell $700. Rate card carries
-$100 After Hours / $250 Super STAT per context/10.
+Applied rates on the run: After Hours $100, Super STAT $200. All premiums were
+recovered by backfill_pvs_premium_fees: $1,300 across 5 visits.
 
-[CONFIRM - the per-visit breakdown behind each branch's premium subtotal and
-whether any premium-eligible visits were still missed.]
+Per-visit breakdown:
+
+| Branch | Referral | Date | Complexity | Premiums |
+|---|---|---|---|---|
+| Empath / Polk | REF-072326-1423 | 7/23 | High | After Hours + Super STAT |
+| Empath / Suncoast - PIN | REF-072826-1466 | 7/28 | Moderate | After Hours + Super STAT |
+| Empath / Tidewell | REF-073026-1489 | 7/30 | High | After Hours + Super STAT |
+| Empath / Tidewell | REF-072726-1459 | 7/27 | High | After Hours + Super STAT |
+| Empath / Tidewell | REF-072626-1447 | 7/27 | High | After Hours only |
+
+Subtotals: Polk $300, Suncoast - PIN $300, Tidewell $700 (3 x After Hours + 2 x
+Super STAT). Total $1,300.
+
+RATE DISCREPANCY TO RECONCILE: context/10 records Super STAT at $250, but this
+run applied $200 (confirmed by the Tidewell arithmetic: 3 x 100 + 2 x 200 =
+700). Confirm which is the contract rate and update context/10 to match. [CONFIRM]
 
 --------------------------------------------------------------------------------
 ## 3. Defect: stale equipment charge billed on hidden field
@@ -88,13 +103,20 @@ Sumter $25, Empath / Marion $175. The new function set_pvs_equipment_charge was
 built to set/clear the equipment charge deterministically rather than relying on
 the form's hidden-field state.
 
+Before/after (recovered from the Equipment Charge Details text):
+
+| Branch | Record | Date | Detail | Before | After | Delta |
+|---|---|---|---|---|---|---|
+| Empath / Marion | PVS-1164-JK | 7/11 | G-Tube | $4,795 | $4,970 | +$175 |
+| VITAS / Sumter | (Sumter visit) | 7/16 | Volar splint | $488 | $513 | +$25 |
+
+Marion's amount was entered via set_pvs_equipment_charge because the form could
+not save at the time (the Partner_POC_Phone defect; see context/05).
+
 Still understated pending five equipment amounts from Josh and Ann: AccentCare /
 Hillsborough, AccentCare / Pinellas, Empath / Trustbridge, Empath / Tidewell
 (tracked in context/23). Those four branch totals will rise once the amounts are
 entered.
-
-[CONFIRM - the specific Marion and Sumter records corrected and their before/after
-equipment amounts.]
 
 --------------------------------------------------------------------------------
 ## 4. VITAS rate correction: 343 vs 323
@@ -114,9 +136,14 @@ original price even after the rate card is corrected. reprice_draft_pvs was buil
 to re-price Draft, un-invoiced visits to the current card; it is for Draft visits
 only and must not touch invoiced ones.
 
-[CONFIRM - disposition of INV-000006 itself (already invoiced at 343): whether it
-was voided via reset_invoice and rebilled at 323, or left as billed with only the
-Draft visits repriced.]
+Disposition (void chain, all voids executed through reset_invoice and voided in
+Books):
+- INV-000006 (VITAS / Sumter, $508): voided. Had billed Moderate at 343 against
+  a card that reads 323.
+- INV-000007 (replacement after reprice_draft_pvs, $488): voided, to add the $25
+  equipment charge.
+- Current live Sumter invoice is the third, $513 (the $488 repriced total plus
+  the $25 equipment correction from section 3).
 
 --------------------------------------------------------------------------------
 ## 5. Standing rules confirmed by the run
