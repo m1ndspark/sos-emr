@@ -45,6 +45,12 @@ Owner legend:
 | Partner Contact Upsert case-sensitivity defect (Deluge email match is case-sensitive; upsert now does a lowercase fallback scan before insert). See context/28_import_findings.md. | cchat | CLOSED | was Y | 2026-08-05 |
 | Telemedicine rates loaded: Empath, AccentCare, VITAS. | Neil / Josh | CLOSED | was Y | 2026-08-05 |
 | VITAS Moderate Complexity rates loaded: Sumter, Villages. | Neil / Josh | CLOSED | was Y | 2026-08-05 |
+| July invoicing run: all 16 branches invoiced into Books, one invoice per branch (July PVS import plus June partial). See context/30_july_billing_run.md. | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| Premium fee backfill: After_Hours_Fee / Super_Stat_Fee populated on imported visits via new backfill_pvs_premium_fees (import left them blank; no workflow auto-fills them from Partner_Rates). | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| Phone normalization: Partner_POC_Phone normalized to E.164 via new normalize_pvs_phones. Raw local-format values (e.g. "(352) 237-6979") made all 200 imported PVS records unsaveable from the form. See context/05. | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| Partner Rate Status repair: repair_partner_rate_status recovered ~170 Current_Rate flags wiped when backfill_current_rate ran against blank-status rows. See context/05. | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| VITAS rate correction: Sumter Moderate Complexity 343 -> 323 (343 was AccentCare's Moderate rate, a cross-partner value). Draft un-invoiced visits repriced via reprice_draft_pvs. See context/30. | Neil / cchat | CLOSED | was Y | 2026-08-05 |
+| Marion and Sumter equipment corrections: stale Equipment_Charge_Amount cleared/corrected; new set_pvs_equipment_charge. See context/30. | Neil / Josh / cchat | CLOSED | was Y | 2026-08-05 |
 
 --------------------------------------------------------------------------------
 ## OPEN, BLOCKING (launch 2026-08-03; now overdue as of 2026-08-05)
@@ -59,6 +65,9 @@ Owner legend:
 | Set branch on Empath/Polk referrals 1444, 1423, 1297, then re-run backfill_pvs_billing_branch and backfill_pvs_complexity_charge. | Neil / cchat | OPEN | Y | 2026-08-05 |
 | REF-070326-1254: run set_pvs_provider to stamp Josh and repair the PVS_ID "PVS-1199-" (missing initials). | Neil / cchat | OPEN | Y | 2026-08-05 |
 | Deliver the 250-visit charge file. UPDATE 2026-08-05: fulfilled by the July PVS import (200 records) plus the June partial; data is in. Keep OPEN only if additional visits remain to be delivered - otherwise close. backfill_pvs_complexity_charge resolves charges from the rate card and never overwrites an existing value. | Neil / Josh | OPEN | Y | 2026-08-03 |
+| Books billing contacts for all 16 customers. Gates SENDING live invoices to partners. Distinct from the missing Books customer IDs above, which gate the batch POST; this gates the send. | Neil / Josh | OPEN | Y | 2026-08-05 |
+| Five equipment amounts from Josh and Ann, needed to finalize equipment charges on the affected visits. | Josh / Ann | OPEN | Y | 2026-08-05 |
+| InnoVage 3008 completion list. | Neil / Josh | OPEN | Y | 2026-08-05 |
 
 --------------------------------------------------------------------------------
 ## OPEN, NOT BLOCKING
@@ -78,6 +87,9 @@ Owner legend:
 | Delete backfill_referral_id_from_token from Creator. The Form_Token workaround proved unnecessary and that field carries real public-form tokens. | Neil | OPEN | N | post-launch |
 | REF-071126-1305: possible cancelled referral, excluded from import. Revisit and confirm whether it should be imported or stays out. | Neil | OPEN | N | post-launch |
 | Referrals_Main lookup/text pairs (e.g. Partner_Link vs Partner_Branch text): show the text field for admin only, hide the redundant pair from the standard view. | cchat / ccode | OPEN | N | post-launch |
+| Invoice_ID and Invoice_ID_Stamp are never generated on the Invoices. | cchat / ccode | OPEN | N | post-launch |
+| Books_Sync_Status still carries placeholder Choice 1 / Choice 2 / Choice 3 values. | Neil | OPEN | N | post-launch |
+| Invoice subtotal fields on the Invoices are not populated. | cchat / ccode | OPEN | N | post-launch |
 
 --------------------------------------------------------------------------------
 ## PRE-EXISTING CLEANUPS (from context/16, still open)

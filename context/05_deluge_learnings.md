@@ -231,3 +231,19 @@ PROCESS NOTE - READ THIS FILE FIRST
 The "cancel submit takes no message" rule was already documented in this file in
 two places and was still gotten wrong on 2026-08-05. Read context/05 before
 writing any Deluge, not after the parse error.
+
+phonenumber FIELDS REJECT VALUES A FUNCTION WROTE IN LOCAL FORMAT
+A phonenumber field with no allowedcountries setting rejects values a function
+wrote in local format. Patient_Phone and Facility_Phone declare
+allowedcountries={us} and get normalized to E.164 on import; Partner_POC_Phone
+did not, and its raw "(352) 237-6979" values made all 200 imported PVS records
+unsaveable from the form, surfacing only the generic "Invalid entries found"
+popup because the offending field was disabled and showed no error of its own.
+RULE: any value a function writes into a format-constrained field must be
+normalized first.
+
+HIDING A FIELD DOES NOT CLEAR IT
+Hiding a field does not clear it. Unticking Additional Charges hid
+Equipment_Charge_Amount but left the value in place, and
+create_invoice_from_selection billed it. Always clear the value when hiding an
+optional charge field.
