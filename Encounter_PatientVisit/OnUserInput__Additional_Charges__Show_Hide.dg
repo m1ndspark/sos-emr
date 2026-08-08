@@ -7,6 +7,8 @@ else
 {
 	hide Equipment_Charge_Amount;
 	hide Equipment_Charge_Details;
+	input.Equipment_Charge_Amount = 0;
+	input.Equipment_Charge_Details = null;
 }
 if(input.Additional_Charges.contains("Other"))
 {
@@ -17,4 +19,61 @@ else
 {
 	hide Other_Charges_Amount;
 	hide Other_Charges_Details;
+	input.Other_Charges_Amount = 0;
+	input.Other_Charges_Details = null;
+}
+v_missing = "";
+if(input.Additional_Charges.contains("After Hours"))
+{
+	v_ah = null;
+	if(input.Billing_Branch != null)
+	{
+		for each  r in Partner_Rates[Partner_Location_Link == input.Billing_Branch && Rate_Type == "After Hours" && Current_Rate == "Yes"]
+		{
+			v_ah = r.Rate_Amount;
+			break;
+		}
+	}
+	if(v_ah == null)
+	{
+		input.After_Hours_Fee = 0;
+		v_missing = v_missing + "After Hours ";
+	}
+	else
+	{
+		input.After_Hours_Fee = v_ah;
+	}
+}
+else
+{
+	input.After_Hours_Fee = 0;
+}
+if(input.Additional_Charges.contains("Super STAT"))
+{
+	v_ss = null;
+	if(input.Billing_Branch != null)
+	{
+		for each  r in Partner_Rates[Partner_Location_Link == input.Billing_Branch && Rate_Type == "Super STAT" && Current_Rate == "Yes"]
+		{
+			v_ss = r.Rate_Amount;
+			break;
+		}
+	}
+	if(v_ss == null)
+	{
+		input.Super_Stat_Fee = 0;
+		v_missing = v_missing + "Super STAT ";
+	}
+	else
+	{
+		input.Super_Stat_Fee = v_ss;
+	}
+}
+else
+{
+	input.Super_Stat_Fee = 0;
+}
+if(v_missing != "")
+{
+	alert "No current rate found for: " + v_missing + ". The fee was set to 0. Add the rate in Partner Rates before invoicing this visit.";
 }

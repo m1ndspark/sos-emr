@@ -1,0 +1,36 @@
+v_t = null;
+for each  p in Encounter_PatientVisit[PVS_ID == p_pvsId]
+{
+	v_t = p;
+	break;
+}
+if(v_t == null)
+{
+	return "No PVS found with PVS_ID " + p_pvsId + ".";
+}
+v_out = "PVS " + p_pvsId + "\n";
+v_p1 = ifnull(v_t.Patient_Phone,"");
+v_p2 = ifnull(v_t.Facility_Phone,"");
+v_p3 = ifnull(v_t.Partner_POC_Phone,"");
+v_d1 = v_p1.replaceAll("[^0-9]","");
+v_d2 = v_p2.replaceAll("[^0-9]","");
+v_d3 = v_p3.replaceAll("[^0-9]","");
+v_out = v_out + "Patient_Phone [" + v_p1 + "] digits=" + v_d1.length() + "\n";
+v_out = v_out + "Facility_Phone [" + v_p2 + "] digits=" + v_d2.length() + "\n";
+v_out = v_out + "Partner_POC_Phone [" + v_p3 + "] digits=" + v_d3.length() + "\n";
+v_out = v_out + "Patient_Email [" + ifnull(v_t.Patient_Email,"") + "]\n";
+v_out = v_out + "Partner_POC_Email [" + ifnull(v_t.Partner_POC_Email,"") + "]\n";
+v_ssn = ifnull(v_t.Patient_SSN,"");
+v_out = v_out + "Patient_SSN [" + v_ssn + "] len=" + v_ssn.length() + " (max 12)\n";
+v_out = v_out + "Patient_Hospice_ID [" + ifnull(v_t.Patient_Hospice_ID,"") + "]\n";
+v_out = v_out + "Type_of_Procedures [" + ifnull(v_t.Type_of_Procedures,"").toString() + "]\n";
+v_out = v_out + "Additional_Charges [" + ifnull(v_t.Additional_Charges,"").toString() + "]\n";
+v_out = v_out + "Complexity_Level [" + ifnull(v_t.Complexity_Level,"") + "]\n";
+v_out = v_out + "Clinical_Note_Type [" + ifnull(v_t.Clinical_Note_Type,"") + "]\n";
+v_out = v_out + "Invoice_Status [" + ifnull(v_t.Invoice_Status,"") + "]\n";
+v_out = v_out + "Employee_Title [" + ifnull(v_t.Employee_Title,"") + "]\n";
+v_out = v_out + "Partner_POC_Title [" + ifnull(v_t.Partner_POC_Title,"") + "]\n";
+v_out = v_out + "Facility_Room_Number [" + ifnull(v_t.Facility_Room_Number,"") + "]\n";
+v_out = v_out + "Patient_Zip [" + ifnull(v_t.Patient_Address.postal_Code,"") + "]\n";
+v_out = v_out + "Patient_State [" + ifnull(v_t.Patient_Address.state_province,"") + "]\n";
+return v_out;

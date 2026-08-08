@@ -14,8 +14,8 @@ if(input.Referral_Link != null)
 		input.Facility_Name = v_Rec.Facility_Name;
 		input.Facility_Room_Number = v_Rec.Facility_Room_Number;
 		input.Facility_Phone = v_Rec.Facility_Phone;
-		input.DM_Full_Name = v_Rec.DM_Full_Name;
-		input.Is_Self_Responsible = v_Rec.Patient_Responsibility;
+		input.DM_Full_Name = v_Rec.AC_Full_Name;
+		input.Is_Self_Responsible = v_Rec.Has_Additional_Contact;
 		v_Found = true;
 		break;
 	}

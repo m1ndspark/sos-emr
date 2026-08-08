@@ -1,0 +1,10 @@
+v_name = "";
+if(input.AC_First_Name != null && input.AC_First_Name.trim() != "")
+{
+	v_name = input.AC_First_Name.trim();
+}
+if(input.AC_Last_Name != null && input.AC_Last_Name.trim() != "")
+{
+	v_name = v_name + " " + input.AC_Last_Name.trim();
+}
+input.AC_Full_Name = v_name.trim();

@@ -1,0 +1,124 @@
+if(p_confirm != "FEES")
+{
+	return "Not run. Pass FEES to confirm.";
+}
+v_filled = 0;
+v_kept = 0;
+v_norate = 0;
+v_skipped = 0;
+v_invoiced = List();
+v_miss = List();
+for each  p in Encounter_PatientVisit[Additional_Charges != null]
+{
+	v_add = p.Additional_Charges;
+	if(v_add == null)
+	{
+		v_add = "";
+	}
+	v_add = v_add.toString();
+	if(p.Billing_Branch == null || v_add.trim() == "")
+	{
+		v_skipped = v_skipped + 1;
+		continue;
+	}
+	v_label = "";
+	for each  l in Partner_Locations[ID == p.Billing_Branch]
+	{
+		v_label = l.Partner_Location_Label;
+		break;
+	}
+	v_ah = 0.0;
+	if(p.After_Hours_Fee != null)
+	{
+		v_ah = p.After_Hours_Fee.toDecimal();
+	}
+	v_ss = 0.0;
+	if(p.Super_Stat_Fee != null)
+	{
+		v_ss = p.Super_Stat_Fee.toDecimal();
+	}
+	v_newAh = v_ah;
+	v_newSs = v_ss;
+	v_touch = false;
+	if(v_add.contains("After Hours"))
+	{
+		if(v_ah <= 0)
+		{
+			v_r1 = null;
+			for each  r in Partner_Rates[Partner_Location_Link == p.Billing_Branch && Rate_Type == "After Hours" && Current_Rate == "Yes"]
+			{
+				v_r1 = r.Rate_Amount;
+				break;
+			}
+			if(v_r1 == null)
+			{
+				v_norate = v_norate + 1;
+				if(!v_miss.contains(v_label + " / After Hours"))
+				{
+					v_miss.add(v_label + " / After Hours");
+				}
+			}
+			else
+			{
+				v_newAh = v_r1;
+				v_touch = true;
+			}
+		}
+		else
+		{
+			v_kept = v_kept + 1;
+		}
+	}
+	if(v_add.contains("Super STAT"))
+	{
+		if(v_ss <= 0)
+		{
+			v_r2 = null;
+			for each  r in Partner_Rates[Partner_Location_Link == p.Billing_Branch && Rate_Type == "Super STAT" && Current_Rate == "Yes"]
+			{
+				v_r2 = r.Rate_Amount;
+				break;
+			}
+			if(v_r2 == null)
+			{
+				v_norate = v_norate + 1;
+				if(!v_miss.contains(v_label + " / Super STAT"))
+				{
+					v_miss.add(v_label + " / Super STAT");
+				}
+			}
+			else
+			{
+				v_newSs = v_r2;
+				v_touch = true;
+			}
+		}
+		else
+		{
+			v_kept = v_kept + 1;
+		}
+	}
+	if(v_touch == true)
+	{
+		update p
+		[
+			After_Hours_Fee=v_newAh
+			Super_Stat_Fee=v_newSs
+		];
+		v_filled = v_filled + 1;
+		if(p.Invoice_Link != null)
+		{
+			v_invoiced.add(p.PVS_ID + " (" + v_label + ")");
+		}
+	}
+}
+v_out = "Visits updated: " + v_filled + ". Fees already set: " + v_kept + ". No current premium rate: " + v_norate + ". Not eligible: " + v_skipped + ".";
+if(v_miss.size() > 0)
+{
+	v_out = v_out + " Missing rates: " + v_miss.toString(", ");
+}
+if(v_invoiced.size() > 0)
+{
+	v_out = v_out + " ALREADY INVOICED - void and re-run these invoices: " + v_invoiced.toString(", ");
+}
+return v_out;

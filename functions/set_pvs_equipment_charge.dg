@@ -1,0 +1,51 @@
+v_target = null;
+for each  p in Encounter_PatientVisit[PVS_ID == p_pvsId]
+{
+	v_target = p;
+	break;
+}
+if(v_target == null)
+{
+	return "No PVS found with PVS_ID " + p_pvsId + ".";
+}
+if(v_target.Invoice_Link != null)
+{
+	return "PVS " + p_pvsId + " is attached to an invoice. Void that invoice first.";
+}
+v_amtTxt = p_amount;
+if(v_amtTxt == null)
+{
+	v_amtTxt = "";
+}
+v_amtTxt = v_amtTxt.trim();
+if(v_amtTxt == "")
+{
+	return "No amount supplied.";
+}
+v_amt = v_amtTxt.toDecimal();
+if(v_amt <= 0)
+{
+	return "Amount must be greater than zero.";
+}
+v_det = p_details;
+if(v_det == null)
+{
+	v_det = "";
+}
+v_det = v_det.trim();
+if(v_det == "")
+{
+	update v_target
+	[
+		Equipment_Charge_Amount=v_amt
+	];
+}
+else
+{
+	update v_target
+	[
+		Equipment_Charge_Amount=v_amt
+		Equipment_Charge_Details=v_det
+	];
+}
+return "PVS " + p_pvsId + " equipment charge set to " + v_amt + ".";

@@ -34,11 +34,6 @@ for each  v_pvs in Encounter_PatientVisit[Referral_Link != null]
 		{
 			v_ssn = ifnull(v_ref.Patient_SSN,"");
 		}
-		v_pemail = ifnull(v_pvs.Patient_Email,"");
-		if(v_pemail.trim() == "")
-		{
-			v_pemail = ifnull(v_ref.Patient_Email,"");
-		}
 		v_hosp = ifnull(v_pvs.Patient_Hospice_ID,"");
 		if(v_hosp.trim() == "")
 		{
@@ -128,11 +123,6 @@ for each  v_pvs in Encounter_PatientVisit[Referral_Link != null]
 		{
 			v_reason = ifnull(v_ref.Referral_Reason,"");
 		}
-		v_goals = ifnull(v_pvs.Goals_of_Care,"");
-		if(v_goals.trim() == "")
-		{
-			v_goals = ifnull(v_ref.Goals_of_Care,"");
-		}
 		v_allerg = ifnull(v_pvs.List_Patient_Allergies,"");
 		if(v_allerg.trim() == "")
 		{
@@ -178,10 +168,6 @@ for each  v_pvs in Encounter_PatientVisit[Referral_Link != null]
 		{
 			v_pocphone = null;
 		}
-		if(v_pemail.trim() == "")
-		{
-			v_pemail = null;
-		}
 		if(v_pocemail.trim() == "")
 		{
 			v_pocemail = null;
@@ -192,7 +178,6 @@ for each  v_pvs in Encounter_PatientVisit[Referral_Link != null]
 			Patient_Full_Name_2=v_full2
 			Patient_MI=v_mi
 			Patient_SSN=v_ssn
-			Patient_Email=v_pemail
 			Patient_Hospice_ID=v_hosp
 			Patient_Phone=v_pphone
 			Facility_Phone=v_facphone
@@ -215,7 +200,6 @@ for each  v_pvs in Encounter_PatientVisit[Referral_Link != null]
 			Partner_Location_Label=v_label
 			Partner_ICD_Codes=v_icd
 			Reason_for_Referral=v_reason
-			Goals_of_Care=v_goals
 			List_Patient_Allergies=v_allerg
 			List_Patient_Anticoagulants=v_antic
 			Advanced_Directives_Details=v_ad

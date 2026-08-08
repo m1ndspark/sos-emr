@@ -2,14 +2,38 @@ if(p_confirm != "RESET")
 {
 	return "ERROR: Nothing was changed. Pass RESET as the second argument to confirm.";
 }
-v_inv = Invoices[ID == p_invoiceId];
-if(v_inv.ID == null)
+v_num = p_invoiceNumber;
+if(v_num == null)
 {
-	return "ERROR: Invoice record not found.";
+	v_num = "";
 }
+v_num = v_num.trim();
+if(v_num == "")
+{
+	return "ERROR: No invoice number supplied.";
+}
+v_id = null;
+v_hits = 0;
+for each  v_r in Invoices[Books_Invoice_Number == v_num]
+{
+	if(v_id == null)
+	{
+		v_id = v_r.ID;
+	}
+	v_hits = v_hits + 1;
+}
+if(v_id == null)
+{
+	return "ERROR: No invoice record found with Books Invoice Number " + v_num + ".";
+}
+if(v_hits > 1)
+{
+	return "ERROR: " + v_hits + " invoice records share Books Invoice Number " + v_num + ". Resolve the duplicate before resetting.";
+}
+v_inv = Invoices[ID == v_id];
 v_count = 0;
 v_list = List();
-for each  v_p in Encounter_PatientVisit[Invoice_Link == p_invoiceId]
+for each  v_p in Encounter_PatientVisit[Invoice_Link == v_id]
 {
 	v_list.add(v_p.PVS_ID);
 	v_count = v_count + 1;
@@ -33,17 +57,20 @@ if(v_inv.Books_Invoice_ID != null && v_inv.Books_Invoice_ID.trim() != "")
 	];
 	if(v_voidResp.get("code") == 0)
 	{
-		v_booksMsg = "Books invoice " + v_inv.Books_Invoice_Number + " voided.";
+		v_booksMsg = "Books invoice " + v_num + " voided.";
 	}
 	else
 	{
-		v_booksMsg = "BOOKS VOID FAILED for " + v_inv.Books_Invoice_Number + ": " + v_voidResp.toString().left(500);
+		v_booksMsg = "BOOKS VOID FAILED for " + v_num + ": " + v_voidResp.toString().left(500);
 	}
 }
-v_inv.Invoice_Record_Status="Void";
-v_inv.Books_Sync_Message="RESET " + zoho.currenttime.toString() + " - " + v_booksMsg + " || " + v_inv.Books_Sync_Message;
-v_inv.Books_Sync_Timestamp=zoho.currenttime;
-v_msg = "Reset complete. Invoice record " + p_invoiceId + " set to Void. Visits returned to Draft: " + v_count;
+update v_inv
+[
+	Invoice_Record_Status="Void"
+	Books_Sync_Message="RESET " + zoho.currenttime.toString() + " - " + v_booksMsg + " || " + ifnull(v_inv.Books_Sync_Message,"")
+	Books_Sync_Timestamp=zoho.currenttime
+];
+v_msg = "Reset complete. Invoice " + v_num + " set to Void. Visits returned to Draft: " + v_count;
 if(v_count > 0)
 {
 	v_msg = v_msg + " (" + v_list.toString(", ") + ")";

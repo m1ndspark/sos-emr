@@ -21,9 +21,17 @@ if(v_b.Date_From > v_b.Date_To)
 	v_b.Result_Message="ERROR: Date From is after Date To.";
 	return v_b.Result_Message;
 }
+v_cap = 0.0;
+if(p_maxTotal != null)
+{
+	v_cap = p_maxTotal.toDecimal();
+}
 v_ids = List();
 v_bad = List();
-v_recs = Encounter_PatientVisit[Billing_Branch == v_b.Partner_Location_Link && Invoice_Status == "Draft" && Visit_Completion_Date >= v_b.Date_From && Visit_Completion_Date <= v_b.Date_To];
+v_running = 0.0;
+v_left = 0;
+v_capped = false;
+v_recs = Encounter_PatientVisit[Billing_Branch == v_b.Partner_Location_Link && Invoice_Status == "Draft" && Visit_Completion_Date >= v_b.Date_From && Visit_Completion_Date <= v_b.Date_To] sort by Visit_Completion_Date;
 for each  v_r in v_recs
 {
 	if(v_r.Invoice_Link == null && v_r.Hold_From_Invoicing != "Yes")
@@ -33,22 +41,56 @@ for each  v_r in v_recs
 		{
 			v_lvl = "";
 		}
-		v_amt = 0.0;
-		if(v_r.Complexity_Charge != null)
+		v_lvl = v_lvl.trim();
+		if(v_lvl != "Visit Cancelled")
 		{
-			v_amt = v_r.Complexity_Charge.toDecimal();
-		}
-		if(v_lvl.trim() == "")
-		{
-			v_bad.add(v_r.PVS_ID + " (no complexity level)");
-		}
-		else if(v_amt <= 0 && v_lvl != "No Charge")
-		{
-			v_bad.add(v_r.PVS_ID + " (" + v_lvl + " has no rate)");
-		}
-		else
-		{
-			v_ids.add(v_r.ID);
+			v_amt = 0.0;
+			if(v_r.Complexity_Charge != null)
+			{
+				v_amt = v_r.Complexity_Charge.toDecimal();
+			}
+			if(v_lvl == "")
+			{
+				v_bad.add(v_r.PVS_ID + " (no complexity level)");
+			}
+			else if(v_amt <= 0 && v_lvl != "No Charge")
+			{
+				v_bad.add(v_r.PVS_ID + " (" + v_lvl + " has no rate)");
+			}
+			else
+			{
+				v_visitTotal = v_amt;
+				if(v_r.After_Hours_Fee != null)
+				{
+					v_visitTotal = v_visitTotal + v_r.After_Hours_Fee.toDecimal();
+				}
+				if(v_r.Super_Stat_Fee != null)
+				{
+					v_visitTotal = v_visitTotal + v_r.Super_Stat_Fee.toDecimal();
+				}
+				if(v_r.Equipment_Charge_Amount != null)
+				{
+					v_visitTotal = v_visitTotal + v_r.Equipment_Charge_Amount.toDecimal();
+				}
+				if(v_r.Other_Charges_Amount != null)
+				{
+					v_visitTotal = v_visitTotal + v_r.Other_Charges_Amount.toDecimal();
+				}
+				if(v_capped == true)
+				{
+					v_left = v_left + 1;
+				}
+				else if(v_cap > 0 && v_ids.size() > 0 && v_running + v_visitTotal > v_cap)
+				{
+					v_capped = true;
+					v_left = v_left + 1;
+				}
+				else
+				{
+					v_ids.add(v_r.ID);
+					v_running = v_running + v_visitTotal;
+				}
+			}
 		}
 	}
 }
@@ -65,24 +107,21 @@ if(v_ids.size() == 0)
 	return v_b.Result_Message;
 }
 v_out = thisapp.create_invoice_from_selection(v_ids);
-v_msg = v_out;
-if(v_out.startsWith("INVID:"))
-{
-	v_pipe = v_out.indexOf("|");
-	if(v_pipe > 6)
-	{
-		v_newInvId = v_out.subString(6,v_pipe).toLong();
-		v_msg = v_out.subString(v_pipe + 1);
-		v_b.Invoice_Link=v_newInvId;
-	}
-}
-v_b.Result_Message=v_msg;
-if(v_msg.startsWith("ERROR"))
+if(v_out.startsWith("ERROR"))
 {
 	v_b.Batch_Status="Failed";
+	v_b.Result_Message=v_out;
 }
 else
 {
 	v_b.Batch_Status="Complete";
+	if(v_left > 0)
+	{
+		v_b.Result_Message=v_out + " | Batched " + v_ids.size() + " visit(s) totalling " + v_running + ". " + v_left + " visit(s) left for the next batch.";
+	}
+	else
+	{
+		v_b.Result_Message=v_out + " | Batched " + v_ids.size() + " visit(s) totalling " + v_running + ".";
+	}
 }
-return v_msg;
+return v_b.Result_Message;

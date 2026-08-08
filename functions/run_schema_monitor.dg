@@ -37,7 +37,7 @@ formsResp = invokeurl
 if(formsResp.get("code") != 3000)
 {
 	thisapp.send_via_sendgrid(alertTo,"SOS EMR schema monitor ERROR (forms)","Get Forms failed. Response: " + formsResp.toString());
-	return;
+	return "ERROR: Get Forms failed.";
 }
 for each  frm in formsResp.get("forms")
 {
@@ -53,7 +53,7 @@ for each  frm in formsResp.get("forms")
 		if(fieldsResp.get("code") != 3000)
 		{
 			thisapp.send_via_sendgrid(alertTo,"SOS EMR schema monitor ERROR (fields)","Get Fields failed for form " + formLink + ". Response: " + fieldsResp.toString());
-			return;
+			return "ERROR: Get Fields failed for form " + formLink + ".";
 		}
 		formDisplay = frm.get("display_name");
 		fieldMap = Map();
@@ -210,7 +210,7 @@ if(previousData == "")
 		]
 	}
 	thisapp.send_via_sendgrid(alertTo,"SOS EMR schema monitor: baseline captured","Baseline captured on " + zoho.currenttime + ". Forms tracked: " + currentMap.size() + ". Schema files committed to schema/ in " + repoOwner + "/" + repoName + ".");
-	return;
+	return "Baseline captured. Forms tracked: " + currentMap.size() + ".";
 }
 prevMap = Map();
 for each  pline in previousData.toList("\n")
@@ -313,7 +313,7 @@ if(suspectPull)
 	warnBody = warnBody + "<p>Forms flagged removed:<br>" + removedForms.toString("<br>") + "</p>";
 	warnBody = warnBody + "</div>";
 	thisapp.send_via_sendgrid(alertTo,"SOS EMR schema monitor: suspected bad pull (no changes applied)",warnBody);
-	return;
+	return "SUSPECTED BAD PULL - nothing written. Forms this run: " + currentMap.size() + ". Last snapshot: " + prevMap.size() + ". Flagged removed: " + removedForms.size() + ".";
 }
 totalChanges = formAddedLines.size() + formRemovedLines.size() + fieldAddedLines.size() + fieldChangedLines.size() + fieldRemovedLines.size();
 legend = "Attribute format is type~mandatory~unique. Type codes: 1 Single Line, 2 Multi Line, 3 Email, 5 Number, 6 Decimal, 8 Currency, 9 Auto Number, 10 Date, 11 Date-Time, 12 Dropdown/Lookup, 13 Radio, 14 Multi Select, 15 Checkbox, 16 Decision Box, 19 File Upload, 20 Formula, 21 Subform, 27 Phone, 29 Name, 30 Address.";
@@ -343,7 +343,7 @@ if(totalChanges == 0)
 	okBody = okBody + "<p style=\"color:#666;font-size:12px;\">" + legend + "</p>";
 	okBody = okBody + "</div>";
 	thisapp.send_via_sendgrid(alertTo,"SOS EMR schema monitor: NO CHANGES (" + zoho.currentdate.toString("MM-dd-yyyy") + ")",okBody);
-	return;
+	return "No field changes this run. Forms checked: " + currentMap.size() + ".";
 }
 insert into Schema_Snapshot
 [
@@ -479,3 +479,29 @@ mailBody = mailBody + "<hr><p><b>ACTIVE FORMS AT THIS RUN (" + activeForms.size(
 mailBody = mailBody + "<p style=\"color:#666;font-size:12px;\">" + legend + "</p>";
 mailBody = mailBody + "</div>";
 thisapp.send_via_sendgrid(alertTo,"SOS EMR schema change detected (" + totalChanges + " changes)",mailBody);
+v_out = "Schema changes detected: " + totalChanges + ".";
+if(formRemovedLines.size() > 0)
+{
+	v_out = v_out + "\nFORMS REMOVED: " + formRemovedLines.toString(" | ");
+}
+if(formAddedLines.size() > 0)
+{
+	v_out = v_out + "\nFORMS ADDED: " + formAddedLines.toString(" | ");
+}
+if(fieldAddedLines.size() > 0)
+{
+	v_out = v_out + "\nFIELDS ADDED: " + fieldAddedLines.toString(" | ");
+}
+if(fieldChangedLines.size() > 0)
+{
+	v_out = v_out + "\nFIELDS CHANGED: " + fieldChangedLines.toString(" | ");
+}
+if(fieldRemovedLines.size() > 0)
+{
+	v_out = v_out + "\nFIELDS REMOVED: " + fieldRemovedLines.toString(" | ");
+}
+if(committedList.size() > 0)
+{
+	v_out = v_out + "\nRepo files updated: " + committedList.toString(", ");
+}
+return v_out;

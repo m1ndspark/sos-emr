@@ -18,4 +18,11 @@ for each  v_r in Partner_Rates[Partner_Location_Link == input.Billing_Branch && 
 if(!v_found)
 {
 	input.Complexity_Charge = 0;
+	v_label = "";
+	for each  v_l in Partner_Locations[ID == input.Billing_Branch]
+	{
+		v_label = ifnull(v_l.Partner_Location_Label,"");
+		break;
+	}
+	alert "No current rate for " + v_label + " / " + input.Complexity_Level + ". The charge has been set to 0. Add the rate in Partner Rates before invoicing this visit.";
 }

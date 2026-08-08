@@ -1,1 +1,6 @@
-thisapp.run_invoice_batch(input.ID);
+v_cap = 0.0;
+if(input.Max_Invoice_Total != null)
+{
+	v_cap = input.Max_Invoice_Total.toDecimal();
+}
+thisapp.run_invoice_batch(input.ID,v_cap);

@@ -1,4 +1,8 @@
+v_MsgFail = "We couldn't find that email address. Double-check it for typos and search again. If you're new here, leave your email as entered, complete the remaining fields, and we'll save everything for next time.";
+v_MsgOk = "Welcome back! We found your details and filled them in on the next page. Click the NEXT button below to continue.";
 response = Map();
+response.put("Lookup_Status","NOT_FOUND");
+response.put("Lookup_Message",v_MsgFail);
 response.put("Partner_POC_First_Name","");
 response.put("Partner_POC_Last_Name","");
 response.put("Partner_POC_Title","");
@@ -7,9 +11,13 @@ response.put("Partner_Organization","");
 response.put("Partner_Branch","");
 response.put("Partner_POC_Team","");
 v_Email = pPocEmail.trim();
+v_Lower = v_Email.toLowerCase();
+v_Found = false;
 v_Contacts = Partner_Referral_Contacts[Partner_POC_Email == v_Email];
 for each  v_Rec in v_Contacts
 {
+	response.put("Lookup_Status","FOUND");
+	response.put("Lookup_Message",v_MsgOk);
 	response.put("Partner_POC_First_Name",v_Rec.Partner_POC_First_Name);
 	response.put("Partner_POC_Last_Name",v_Rec.Partner_POC_Last_Name);
 	response.put("Partner_POC_Title",v_Rec.Partner_POC_Title);
@@ -17,6 +25,29 @@ for each  v_Rec in v_Contacts
 	response.put("Partner_Organization",v_Rec.Partner_Organization);
 	response.put("Partner_Branch",v_Rec.Partner_Branch);
 	response.put("Partner_POC_Team",v_Rec.Partner_POC_Team);
+	v_Found = true;
 	break;
+}
+if(v_Found == false)
+{
+	for each  v_C in Partner_Referral_Contacts[ID != 0]
+	{
+		if(v_Found == false && v_C.Partner_POC_Email != null)
+		{
+			if(v_C.Partner_POC_Email.toString().trim().toLowerCase() == v_Lower)
+			{
+				response.put("Lookup_Status","FOUND");
+				response.put("Lookup_Message",v_MsgOk);
+				response.put("Partner_POC_First_Name",v_C.Partner_POC_First_Name);
+				response.put("Partner_POC_Last_Name",v_C.Partner_POC_Last_Name);
+				response.put("Partner_POC_Title",v_C.Partner_POC_Title);
+				response.put("Partner_POC_Phone",v_C.Partner_POC_Phone);
+				response.put("Partner_Organization",v_C.Partner_Organization);
+				response.put("Partner_Branch",v_C.Partner_Branch);
+				response.put("Partner_POC_Team",v_C.Partner_POC_Team);
+				v_Found = true;
+			}
+		}
+	}
 }
 return response;

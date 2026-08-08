@@ -1,0 +1,87 @@
+if(p_confirm != "PHONES")
+{
+	return "Not run. Pass PHONES to confirm.";
+}
+v_changed = 0;
+v_same = 0;
+v_odd = List();
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	v_a = ifnull(p.Patient_Phone,"");
+	v_b = ifnull(p.Facility_Phone,"");
+	v_c = ifnull(p.Partner_POC_Phone,"");
+	v_da = v_a.replaceAll("[^0-9]","");
+	v_db = v_b.replaceAll("[^0-9]","");
+	v_dc = v_c.replaceAll("[^0-9]","");
+	v_na = v_a;
+	v_nb = v_b;
+	v_nc = v_c;
+	if(v_da.length() == 10)
+	{
+		v_na = "+1" + v_da;
+	}
+	else if(v_da.length() == 11)
+	{
+		v_na = "+" + v_da;
+	}
+	else if(v_da.length() > 0)
+	{
+		v_odd.add(p.PVS_ID + " patient [" + v_a + "]");
+	}
+	if(v_db.length() == 10)
+	{
+		v_nb = "+1" + v_db;
+	}
+	else if(v_db.length() == 11)
+	{
+		v_nb = "+" + v_db;
+	}
+	else if(v_db.length() > 0)
+	{
+		v_odd.add(p.PVS_ID + " facility [" + v_b + "]");
+	}
+	if(v_dc.length() == 10)
+	{
+		v_nc = "+1" + v_dc;
+	}
+	else if(v_dc.length() == 11)
+	{
+		v_nc = "+" + v_dc;
+	}
+	else if(v_dc.length() > 0)
+	{
+		v_odd.add(p.PVS_ID + " poc [" + v_c + "]");
+	}
+	if(v_na.trim() == "")
+	{
+		v_na = null;
+	}
+	if(v_nb.trim() == "")
+	{
+		v_nb = null;
+	}
+	if(v_nc.trim() == "")
+	{
+		v_nc = null;
+	}
+	if(v_na != v_a || v_nb != v_b || v_nc != v_c)
+	{
+		update p
+		[
+			Patient_Phone=v_na
+			Facility_Phone=v_nb
+			Partner_POC_Phone=v_nc
+		];
+		v_changed = v_changed + 1;
+	}
+	else
+	{
+		v_same = v_same + 1;
+	}
+}
+v_out = "Records updated: " + v_changed + ". Unchanged: " + v_same + ".";
+if(v_odd.size() > 0)
+{
+	v_out = v_out + " Left alone, unexpected length: " + v_odd.toString(", ");
+}
+return v_out;

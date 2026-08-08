@@ -1,0 +1,39 @@
+v_lvl = input.Complexity_Level;
+if(v_lvl == null)
+{
+	v_lvl = "";
+}
+v_lvl = v_lvl.trim();
+v_check = false;
+if(v_lvl != "")
+{
+	if(v_lvl != "No Charge")
+	{
+		if(v_lvl != "Visit Cancelled")
+		{
+			v_check = true;
+		}
+	}
+}
+if(v_check == true)
+{
+	v_amt = input.Complexity_Charge;
+	if(v_amt == null)
+	{
+		v_amt = 0;
+	}
+	if(v_amt <= 0)
+	{
+		v_label = "";
+		if(input.Billing_Branch != null)
+		{
+			for each  v_l in Partner_Locations[ID == input.Billing_Branch]
+			{
+				v_label = v_l.Partner_Location_Label;
+				break;
+			}
+		}
+		alert "This visit is set to " + v_lvl + " but has no charge. Add a current rate for " + v_label + " / " + v_lvl + " in Partner Rates, or set Complexity Level to No Charge.";
+		cancel submit;
+	}
+}
