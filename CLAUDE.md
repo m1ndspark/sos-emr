@@ -2,7 +2,8 @@
 
 This file briefs Claude Code at the start of every session in this repo. Read it
 first, then read `MANIFEST.tsv` to locate code, then the files in `context/`.
-Open `_INDEX.md` only for one item's deep history, never wholesale.
+For a single item's history, read its `.dg` and `git log -- <path>`. (`_INDEX.md`
+is a frozen Session 27 stub, superseded by `MANIFEST.tsv`; do not rely on it.)
 
 --------------------------------------------------------------------------------
 WHAT THIS REPO IS
@@ -23,7 +24,9 @@ The working loop:
    before staging, then commits and pushes. Neil does not run git himself.
 4. Neil copies the function out of the repo and pastes it into Creator.
 5. Neil tests in Creator and reports pass or fail.
-6. Claude updates the status row in `_INDEX.md`. History lives in git.
+6. History lives in git: `git log -- <path>` for one item's deep history. When
+   code changed, regenerate the nav index:
+   `python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest`.
 
 --------------------------------------------------------------------------------
 HARD RULES (NON-NEGOTIABLE)
@@ -79,8 +82,9 @@ PRE-COMMIT AUDIT (QA GATE)
 REPO CONVENTIONS
 --------------------------------------------------------------------------------
 - `.dg` files hold pure Deluge only, no comment headers, so they round-trip
-  cleanly back into Creator. Status and per-workflow history live in
-  `_INDEX.md`; generated navigation metadata lives in `MANIFEST.tsv`.
+  cleanly back into Creator. Per-workflow history lives in git
+  (`git log -- <path>`); generated navigation metadata lives in `MANIFEST.tsv`.
+  (`_INDEX.md` is a frozen Session 27 stub, no longer maintained.)
 - One file per workflow. Path encodes form and trigger, e.g.
   `Encounter_PatientVisit/OnUserInput__Has_Referral_ID__Show_Hide.dg`.
 - Standalone functions live in `functions/`.
@@ -113,8 +117,9 @@ START HERE EACH SESSION
 1. Read `MANIFEST.tsv` first. It is the navigation index: one row per workflow or
    standalone function, with columns file, name, form, trigger, field, calls,
    writes, reads, fetches, integrations, hash. Use it to locate the ONE `.dg`
-   that matters. Do not read `_INDEX.md` wholesale; open it only for one item's
-   deep history, reading just that item's block.
+   that matters. For a single item's history, read its `.dg` and
+   `git log -- <path>`. (`_INDEX.md` is frozen at Session 27 and superseded; do
+   not rely on it.)
 2. Read `context/04_open_contradictions.md`. Three items remain unresolved (4-A,
    4-B, 4-D; 4-C resolved June 25) and must not be silently decided. They affect
    any code that touches those areas.
