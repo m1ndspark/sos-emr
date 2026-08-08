@@ -160,3 +160,92 @@ Books):
 --------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+## SESSION 29 (2026-08-08) - INVOICE CAP, EMPATH RE-BATCH, $27,574 GAP
+--------------------------------------------------------------------------------
+
+### Why the cap exists
+Empath requires every invoice to be under $3,000. `run_invoice_batch`
+previously pulled every eligible visit for a branch, so re-running it after a
+reset simply rebuilt the same oversized invoice. Splitting Empath Suncoast-PIN
+alone would have meant seven manual selections.
+
+### run_invoice_batch - signature change
+`run_invoice_batch(int p_batchId, decimal p_maxTotal)`
+
+- Fetches eligible visits **sorted by Visit_Completion_Date**, so splits are
+  chronological and contiguous rather than arbitrary.
+- Computes the **true per-visit total**:
+  `Complexity_Charge + After_Hours_Fee + Super_Stat_Fee +
+  Equipment_Charge_Amount + Other_Charges_Amount`.
+  The previous version only looked at Complexity_Charge, so a cap on that
+  alone would have undershot on any visit carrying premiums or equipment.
+- Adds visits until the next one would push the running total past the cap,
+  then leaves every remaining visit for the next run. `p_maxTotal` of 0 means
+  no cap.
+- A single visit larger than the cap still invoices alone, so the loop cannot
+  stall.
+- Preserves the `Visit Cancelled` skip.
+- Result_Message now reports the batched total and how many visits were left
+  behind.
+
+### Supporting changes
+- `Invoice_Batch` gained **Max_Invoice_Total** (Decimal, not mandatory,
+  blank = no cap), so the limit travels with the batch record rather than
+  being hardcoded per partner.
+- Workflow **Invoice Batch On Create** (Invoice_Batch, record event Created,
+  On Success) now reads that field and passes it as the second argument.
+  This workflow is the only caller - batches are created from the purple "+"
+  on Invoice_Batch_Report, which just adds a record.
+
+### Invoices reset this session
+
+| Invoice | Branch | Was | Visits released |
+|---|---|---|---|
+| INV-000022 | Empath Suncoast - PIN | $17,900 | 46 |
+| INV-000023 | Empath Tidewell | $16,425 | 38 |
+| INV-000021 | Empath Suncoast - HIL | $6,179 | 17 |
+| INV-000024 | Empath Marion | $4,970 | 14 |
+| INV-000037 | (see Books) | ~$17,000 | - |
+
+AccentCare has no sub-$3,000 requirement; INV-000015 ($5,704) and INV-000016
+($7,566) were deliberately left alone.
+
+### Re-batched
+Suncoast - PIN only, into seven capped invoices totalling exactly $17,900:
+INV-000029 ($2,658), INV-000030 ($2,805), INV-000031 ($2,835),
+INV-000032 ($2,633), INV-000033 ($2,921), INV-000034 ($2,817),
+INV-000035 ($1,231).
+
+### THE GAP - $27,574 unbatched
+Tidewell, Suncoast-HIL and Marion were reset and never re-run.
+
+| Branch | Visits | Value |
+|---|---|---|
+| Empath Tidewell | 38 | $16,425 |
+| Empath Suncoast - HIL | 17 | $6,179 |
+| Empath Marion | 14 | $4,970 |
+
+Position at time of check: **$41,091 live in Books** - $38,787 sent plus
+$2,304 still draft (LifePath $323, Sumter $513, HPH $545, Good Shepherd $545,
+Villages $378).
+
+July PVS export totals: $66,878 complexity + $400 equipment, with premiums
+absent from that export. Expected landing point once the three Empath branches
+are re-run: roughly **$68,600**.
+
+ACTION: create a capped Invoice_Batch record (Max Invoice Total 2999) for each
+of the three branches and repeat until Result_Message reports no visits left.
+
+### Books configuration
+- Payment terms set to **Net 30** on all customers, by hand. The Creator
+  payload sends no payment_terms, so Books had been falling back to each
+  customer record's Due on Receipt.
+- Default invoice email subject is editable at Settings -> Templates ->
+  Email Templates. Note that once sending moves to the API, the `subject`
+  parameter in the request overrides the template.
+- `to_mail_ids` on the Books email endpoint takes raw email addresses, so the
+  approval dashboard can send without Books contact persons ever being
+  populated. This removes the "16 name-only customers" blocker from the
+  dashboard send path (it still applies to sending from the Books UI).

@@ -247,3 +247,85 @@ Hiding a field does not clear it. Unticking Additional Charges hid
 Equipment_Charge_Amount but left the value in place, and
 create_invoice_from_selection billed it. Always clear the value when hiding an
 optional charge field.
+
+--------------------------------------------------------------------------------
+SESSION 29 (2026-08-08) - ZOHO FORMS, BOOKS API, .ds STALENESS
+--------------------------------------------------------------------------------
+
+ZOHO FORMS FIELD RULES ARE LIVE; ONLY PAGE RULES OFFER AN ELSE
+A field rule reverts its action on its own when the condition stops matching,
+so no Else branch is needed and none is offered. Else exists only on Page
+Rules. Do not build paired show/hide rules to undo each other.
+
+ZOHO FORMS: ONE RULE PER TARGET QUESTION - GROUP RULES BY CONDITION
+A rule's action list can target many fields, but a given field should appear
+in only one rule. When two branches need to hide the same field, do NOT write
+one rule per branch; write one rule whose condition is the OR of both. Group
+rules by CONDITION, not by outcome. Use Add Group with the OR operator so the
+expression reads ( A1 OR A2 ) - a sub-group inside one group ANDs instead and
+will never match.
+
+ZOHO FORMS PAGE SKIP-TO ONLY JUMPS FORWARD
+Any page that every branch needs must sit either before the branch point or
+after all branches. A skip rule also belongs on the page immediately BEFORE
+the page being skipped, not on the page where the deciding question lives -
+skipping from page 1 jumps over everything in between.
+
+ZOHO FORMS: NOTE ELEMENTS ARE NOT TARGETABLE BY RULES
+The rule action list only offers fields that accept input. A conditional
+message must live in a real input field (read-only Multi Line), not a Note.
+Better still, have the API return the message text itself so no rule is
+needed at all - the field either has a message or it does not.
+
+ZOHO FORMS PREFILL MAPPING CACHES THE RESPONSE SHAPE
+A newly added response key will not appear in the Prefill Mapping dropdown
+until step 2 Test & Verify is re-run. Save the Creator function first, then
+re-run Test & Verify, then map.
+
+CROSS-ORIGIN: NOTHING ON THE HOST PAGE CAN REACH INSIDE THE FORM
+The Zoho form renders in an iframe from forms.zohopublic.com. No CSS or JS
+from WordPress or from a Creator portal page can style or script anything
+inside it; !important does not help because the rule is never delivered to
+that document. Custom CSS is unavailable on the current Forms plan, so
+anything inside the form can only be changed through Themes.
+
+ZOHO FORMS HTML/CSS EXPORT DROPS ALL LOGIC
+Exporting the form as HTML/CSS gives full styling control but does not
+support hidden fields, field rules, page rules, or captcha. For any form with
+branching it is not a usable option.
+
+CREATOR'S PAGE-BUILDER HTML ELEMENT STRIPS SCRIPT TAGS
+Embeds placed in a Creator page must be a bare iframe with no JavaScript.
+
+THE ZOHO FORMS -> CREATOR FIELD MAP CANNOT BE EDITED
+Changing any mapped field requires deleting the integration and re-selecting
+every field by hand. Budget for this before renaming or removing fields on
+Referrals_Main.
+
+ZOHO BOOKS: to_mail_ids TAKES RAW EMAIL ADDRESSES
+POST /invoices/{invoice_id}/email accepts to_mail_ids as a list of email
+addresses, not contact-person IDs, and they go in the request BODY (in the
+URL yields error 1038). This means an in-app approval dashboard can send an
+invoice to any recipient list assembled in Creator without populating Books
+contact persons at all. Error 7008 ("no contact persons associated with this
+invoice") means to_mail_ids was omitted or misplaced.
+
+THE CREATOR INVOICE PAYLOAD SENDS NO payment_terms
+create_invoice_from_selection posts customer_id, date, reference_number and
+line_items only. Books therefore falls back to the customer record's terms.
+All customers were Due on Receipt until set to Net 30 by hand on 2026-08-08.
+If terms need to be per-invoice, add payment_terms to the payload.
+
+EMAIL MATCHING IS CASE-SENSITIVE EVERYWHERE, NOT JUST IN THE UPSERT
+The same defect that broke 20 referral imports (context/28) was present in
+get_partner_referral_contact, the prefill lookup: an exact-match fetch on
+Partner_POC_Email silently returned nothing when the stored address differed
+only in case. Both now carry a lowercase fallback scan. Assume any Deluge
+criteria match on an email field needs one.
+
+THE v19 .ds IS STALE - DO NOT TRUST IT FOR FUNCTION BODIES
+As of 2026-08-08 the committed .ds predates a growing set of live changes.
+Its copy of run_invoice_batch has neither the p_maxTotal cap nor the
+Visit Cancelled skip. reset_invoice, get_partner_referral_contact, and the
+backfill/repair functions written since do not appear in it at all. Re-export
+before relying on it to read any function body.

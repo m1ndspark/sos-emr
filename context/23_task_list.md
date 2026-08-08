@@ -65,10 +65,12 @@ Owner legend:
 | Set branch on Empath/Polk referrals 1444, 1423, 1297, then re-run backfill_pvs_billing_branch and backfill_pvs_complexity_charge. | Neil / cchat | OPEN | Y | 2026-08-05 |
 | REF-070326-1254: run set_pvs_provider to stamp Josh and repair the PVS_ID "PVS-1199-" (missing initials). | Neil / cchat | OPEN | Y | 2026-08-05 |
 | Deliver the 250-visit charge file. UPDATE 2026-08-05: fulfilled by the July PVS import (200 records) plus the June partial; data is in. Keep OPEN only if additional visits remain to be delivered - otherwise close. backfill_pvs_complexity_charge resolves charges from the rate card and never overwrites an existing value. | Neil / Josh | OPEN | Y | 2026-08-03 |
-| Books billing contacts for all 16 customers. Gates SENDING live invoices to partners. Distinct from the missing Books customer IDs above, which gate the batch POST; this gates the send. | Neil / Josh | OPEN | Y | 2026-08-05 |
+| Books billing contacts for all 16 customers. Gates SENDING live invoices FROM THE BOOKS UI. UPDATE 2026-08-08: does NOT gate the planned approval dashboard - POST /invoices/{id}/email takes to_mail_ids as raw email addresses, so the dashboard can send to a recipient list built in Creator with no Books contact persons at all. See context/05. | Neil / Josh | OPEN | Y | 2026-08-05 |
 | Five equipment amounts from Josh and Ann, needed to finalize equipment charges on the affected visits. | Josh / Ann | OPEN | Y | 2026-08-05 |
 | InnoVage 3008 completion list. | Neil / Josh | OPEN | Y | 2026-08-05 |
-
+| Capped re-batch of the three Empath branches reset in Session 29 and never re-run: Tidewell (38 visits, $16,425), Suncoast-HIL (17, $6,179), Marion (14, $4,970). $27,574 of July is on no invoice. Create an Invoice_Batch record per branch with Max Invoice Total 2999 and repeat until Result_Message reports no visits left. See context/30. | Neil | OPEN | Y | 2026-08-08 |
+| Zoho Forms to Creator integration rebuild, 43 partner-entered fields. The field map cannot be edited, so the integration must be deleted and every field re-selected. Gates the form remap. See context/24. | Neil | OPEN | Y | 2026-08-08 |
+| Fresh .ds export (v20). The committed .ds no longer matches live: run_invoice_batch lacks both the p_maxTotal cap and the Visit Cancelled skip, and reset_invoice, get_partner_referral_contact and the backfill/repair functions are absent entirely. Repo sync is blocked on this. | Neil | OPEN | Y | 2026-08-08 |
 --------------------------------------------------------------------------------
 ## OPEN, NOT BLOCKING
 --------------------------------------------------------------------------------
@@ -89,8 +91,14 @@ Owner legend:
 | Referrals_Main lookup/text pairs (e.g. Partner_Link vs Partner_Branch text): show the text field for admin only, hide the redundant pair from the standard view. | cchat / ccode | OPEN | N | post-launch |
 | Invoice_ID and Invoice_ID_Stamp are never generated on the Invoices. | cchat / ccode | OPEN | N | post-launch |
 | Books_Sync_Status still carries placeholder Choice 1 / Choice 2 / Choice 3 values. | Neil | OPEN | N | post-launch |
-| Invoice subtotal fields on the Invoices are not populated. | cchat / ccode | OPEN | N | post-launch |
-
+| Invoice subtotal fields on the Invoices are not populated. The Invoices report shows only visit count and invoice total - no acuity breakdown, no additional-charges breakdown. Estimated 45 min lean / 1.5 hrs full. | cchat / ccode | OPEN | N | post-launch |
+| Imaging Order field rule on the Zoho Form: Service Requested is Imaging Order (only) -> hide "Does the patient have allergies?" and "Is the patient self-responsible?". See context/24. | Neil | OPEN | N | 2026-08-08 |
+| Patient Medical Info page rule on the Zoho Form: Imaging Order (only) -> skip to Imaging Order Details; Finally -> General Information. See context/24. | Neil | OPEN | N | 2026-08-08 |
+| Decide whether Imaging Order (only) also skips the Additional Contact Details page. Undecided. | Neil | OPEN | N | 2026-08-08 |
+| Lookup messages do not appear reliably on the live Zoho Form. API response and prefill mapping both verified correct; suspect the field's Read Only / Hidden setting blocks the write. Next step is call logging inside get_partner_referral_contact. Needs the Change_Log field link names. | cchat | OPEN | N | 2026-08-08 |
+| Partner_Contact_Upsert never updates Partner_Link or Partner_Locations_Link on a match, so a POC who changes branch keeps the old lookup and their next prefill pulls the wrong branch. | cchat | OPEN | N | 2026-08-08 |
+| Empath Super STAT rate: $200 was applied and billed, context/10 says $250. Some partners are 250 and some 200. If Empath is 250, four visits were under-billed by $200 total. | Neil | OPEN | N | 2026-08-08 |
+| Approval dashboard (weekly billing review, per-record APPROVE, multi-visit invoice assembly, running total, warning above $2,999, reviewers Neil and Josh only). Specced, not built. Estimated 1.5-2 days with a staging-record total, 2.5-3 days with a client-side widget. | cchat / ccode | OPEN | N | fast-follow |
 --------------------------------------------------------------------------------
 ## PRE-EXISTING CLEANUPS (from context/16, still open)
 --------------------------------------------------------------------------------
