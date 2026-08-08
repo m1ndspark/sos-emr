@@ -116,7 +116,12 @@ OPEN FIELD-REVIEW ITEMS (not yet decided)
 - Charges / billing (the heavy one): Complexity_Level (High/Moderate/Low + "Hospital at Home")
   vs Partner_Rates Rate_Type (Telemedicine/Low/Moderate/High). Lists MUST match Rate_Type or the
   invoice can't find a price. No "Hospital at Home" rate exists; Telemedicine missing from complexity.
-- After Hours / Super STAT: checkbox (amount auto-from rate card Premium $100/$250) vs manual $ field?
+- After Hours / Super STAT: checkbox (amount from the partner rate card) vs manual $ field?
+  Super STAT is PER-PARTNER (Partner_Rates, all Current and Active as of 2026-08-08):
+  Empath $400, VITAS $500, AccentCare $200, Chapters $200. After Hours $100 as applied.
+  (Corrected 2026-08-08: this bullet previously read a flat "$100/$250", which was wrong.
+  The July run stamped Empath Super STAT at $200, which is AccentCare's rate - a
+  cross-partner error, see context/30 section 2 and context/05.)
 - Referral Partner section: include Partner POC / PR POC Phone / PR POC Email (screenshot has them,
   spec omits)? PR_POC_Title options differ from referral Partner_POC_Title -> align for the pull.
 - Provider Signature: include Employee_Initials (sign-off)? how is signature captured (typed initials + date)?

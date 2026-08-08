@@ -46,9 +46,12 @@ Notes:
 - Hillsborough, Pinellas, Tidewell and Trustbridge are still understated pending
   five equipment amounts from Josh and Ann (tracked in context/23). Their totals
   will rise once those are entered.
-- Arithmetic (reconciled): the 16 confirmed rows sum to $67,490 = $65,990
+- Arithmetic (as billed): the 16 confirmed rows sum to $67,490 = $65,990
   complexity + $1,300 premiums (Polk $300, Suncoast - PIN $300, Tidewell $700)
   + $200 equipment (Sumter $25, Marion $175).
+- Premium correction pending: the $1,300 premium figure used Empath Super STAT at
+  $200 (AccentCare's rate) in error; the correct Empath rate is $400, which raises
+  premiums to $2,100 and the grand total to $68,290. See section 2.
 
 --------------------------------------------------------------------------------
 ## 2. Defect: premium fees not populated on imported visits
@@ -66,10 +69,13 @@ premium fee fields for the affected visits. (Its exact selection logic will be
 recorded against the v20 body once synced; do not describe its internals from
 memory.)
 
-Applied rates on the run: After Hours $100, Super STAT $200. All premiums were
-recovered by backfill_pvs_premium_fees: $1,300 across 5 visits.
+Rates applied on the run: After Hours $100, Super STAT $200. The Super STAT $200
+was WRONG: $200 is AccentCare's Super STAT rate, not Empath's. Empath Super STAT
+is $400 (Partner_Rates, Current and Active as of 2026-08-08; full card: Empath
+$400, VITAS $500, AccentCare $200, Chapters $200). All five premiums were
+written by backfill_pvs_premium_fees.
 
-Per-visit breakdown:
+Per-visit breakdown (Premiums column is what was applied):
 
 | Branch | Referral | Date | Complexity | Premiums |
 |---|---|---|---|---|
@@ -79,12 +85,20 @@ Per-visit breakdown:
 | Empath / Tidewell | REF-072726-1459 | 7/27 | High | After Hours + Super STAT |
 | Empath / Tidewell | REF-072626-1447 | 7/27 | High | After Hours only |
 
-Subtotals: Polk $300, Suncoast - PIN $300, Tidewell $700 (3 x After Hours + 2 x
-Super STAT). Total $1,300.
+Subtotals as billed (Super STAT $200): Polk $300, Suncoast - PIN $300, Tidewell
+$700 = $1,300.
+Corrected (Super STAT $400): Polk $500, Suncoast - PIN $500, Tidewell $1,100 =
+$2,100. Four Super STAT visits were each $200 short, so premiums are under-billed
+by $800 and the run grand total rises from $67,490 to $68,290 once repriced.
 
-RATE DISCREPANCY TO RECONCILE: context/10 records Super STAT at $250, but this
-run applied $200 (confirmed by the Tidewell arithmetic: 3 x 100 + 2 x 200 =
-700). Confirm which is the contract rate and update context/10 to match. [CONFIRM]
+CROSS-PARTNER PREMIUM ERROR (rate resolved, correction pending): same error class
+as the VITAS 343-vs-323 complexity stamp in section 4 - a wrong partner's rate
+stamped onto the PVS. backfill_pvs_premium_fees only fills BLANK premium fields,
+so it will NOT overwrite the wrong $200 values; the affected visits need a premium
+repricing pass (a reprice_draft_pvs equivalent for premiums), then void-and-rebill
+for any already on a live invoice. Tracked as a blocking item in context/23;
+sequence it before the Session 29 Empath re-batch so the re-run picks up $400.
+context/10 corrected 2026-08-08.
 
 --------------------------------------------------------------------------------
 ## 3. Defect: stale equipment charge billed on hidden field

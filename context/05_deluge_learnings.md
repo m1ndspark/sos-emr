@@ -227,6 +227,17 @@ for un-invoiced Drafts, which keep the old price silently.
 Found live: INV-000006 billed VITAS Sumter Moderate at 343 after the card said
 323. Use reprice_draft_pvs for Draft, un-invoiced visits only.
 
+PREMIUM STAMPS HAVE THE SAME TRAP AS COMPLEXITY
+Premium fees (After_Hours_Fee, Super_Stat_Fee) are stamped onto the PVS the same
+way as Complexity_Charge, and backfill_pvs_premium_fees only fills BLANKS, so a
+wrong non-blank premium never self-corrects. Premium rates are PER-PARTNER, so a
+cross-partner value is a live risk (the same error class as the complexity stamp
+above). Found live: the July run stamped Empath Super STAT at $200, which is
+AccentCare's rate, instead of Empath's $400 on four visits, under-billing $800.
+RULE: correcting a stamped premium needs a repricing pass (a reprice_draft_pvs
+equivalent for premiums), then void-and-rebill for invoiced visits;
+backfill_pvs_premium_fees will not do it. See context/30 section 2.
+
 PROCESS NOTE - READ THIS FILE FIRST
 The "cancel submit takes no message" rule was already documented in this file in
 two places and was still gotten wrong on 2026-08-05. Read context/05 before
