@@ -218,6 +218,16 @@ RULE: never run backfill_current_rate without first confirming every rate row
 carries a status. Bulk-imported rate rows arrive with the status blank.
 Found live: wiped ~170 Current_Rate flags on 2026-08-05, recovered with
 repair_partner_rate_status.
+NOTE (repair_partner_rate_status is not in any export): it was executed live on
+2026-08-05 and recovered roughly 170 Current_Rate flags wiped by
+backfill_current_rate. It does not appear in the v19 (08-05 18:25, exported after
+the repair ran) or v20 (08-08) exports, so it was a one-off that was deleted
+after use and has never existed in a versioned artifact. The outcome is the
+recovery recorded just above; the function body is not recoverable from the repo,
+and if the same recovery is needed again it must be rewritten. Do not treat its
+absence as export drift. The closest existing function is fix_accentcare_current_rate
+(present in v20, same shape of repair); worth checking whether the rate-status
+recovery was actually run under that name.
 
 STAMPED CHARGES DO NOT FOLLOW A RATE CHANGE
 Complexity_Charge is written onto the PVS at the moment of lookup, and

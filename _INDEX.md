@@ -1,12 +1,32 @@
 # SOS EMR Code Archive - Master Index
 
-Last updated: July 30, 2026 (Session 27)
+Last updated: August 8, 2026 (Session 30)
 Source of truth: the live Zoho Creator app. This archive mirrors it.
 Sync method: manual. When a workflow is verified working in Creator, paste the
 exact Deluge into its .dg file and update the EXTRACTION and VERIFIED columns.
 
 Rule: .dg files hold pure Deluge only, no comment headers, so they round-trip
 cleanly back into Creator. All status and metadata live here, not in code files.
+
+--------------------------------------------------------------------------------
+SESSION 30 SYNC (2026-08-08) - v20 .ds mirror
+--------------------------------------------------------------------------------
+Repo mirrored to live via SOS_Referrals_App_2026-08-08_v20.ds (commit ea71464).
+ds_sync applied 11 DRIFT + 7 NEW; post-apply divergence is 0 DRIFT / 0 NEW. The
+per-item EXTRACTION/VERIFIED rows below were NOT individually updated for this
+sync - MANIFEST.tsv is the current live-truth nav index (per-row hashes computed
+against the v20 .ds).
+NEW: functions backfill_pvs_premium_fees, reprice_draft_pvs,
+set_pvs_equipment_charge, normalize_pvs_phones, diag_pvs_field_values;
+Referrals_Main workflows DM_Full_Name_Generator, Decision_Maker_Phone_Form1;
+Encounter_PatientVisit OnValidate Complexity Charge Required (live link name
+Complexity_Charge_Require, Zoho 25-char truncation).
+DELETED: run_reset_test (gone from Creator).
+ABSENT FROM v19 AND v20 (not written, not drift): repair_partner_rate_status - a
+one-off repair run live 2026-08-05 and deleted after use; never in a versioned
+artifact. See context/05.
+STILL AMBIGUOUS (known): Partner_Rate_Stamp_Generator (stray duplicate on the
+Partners form; remove in Creator, see context/23). EMPTY (protected): log_change.
 
 Session 4 status legend (Partner Cluster ID work, 2026-06-27):
   PROVEN   = ran clean live in this Creator instance
