@@ -95,9 +95,12 @@ REPO CONVENTIONS
   daily 06:00 schedule.
 - `MANIFEST.tsv` is generated output, never hand-edited. Regenerate with:
   `python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest`.
-  The `.ds` is a local Zoho Creator export from Settings > Application IDE >
-  Export; it is deliberately not a repo artifact (`.gitignore` excludes
-  `*.ds`), and Neil supplies it when the manifest needs regenerating. The hash
+  The `.ds` is a Zoho Creator export from Settings > Application IDE > Export,
+  and it IS a committed repo artifact and the versioned source of truth: each
+  dated export (`SOS_Referrals_App_YYYY-MM-DD_vNN.ds`) is committed, with
+  `SOS_Referrals_App.ds` kept as a copy of the newest (`.gitignore` explicitly
+  does NOT ignore `*.ds`). Definition-only: no record data, no PHI. Neil supplies
+  a fresh export when live has changed, then ds_sync reconciles from it. The hash
   is computed from the `.ds` (live Creator truth), so a hash that does not
   match a `.dg` usually means the repo has drifted from live, NOT that the
   manifest is stale.
