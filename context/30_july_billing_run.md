@@ -263,3 +263,26 @@ of the three branches and repeat until Result_Message reports no visits left.
   approval dashboard can send without Books contact persons ever being
   populated. This removes the "16 name-only customers" blocker from the
   dashboard send path (it still applies to sending from the Books UI).
+
+--------------------------------------------------------------------------------
+## SESSION 30 (2026-08-11) - CLOSURE
+--------------------------------------------------------------------------------
+
+diag_pvs_premium_mismatches found 9 premium mismatches totalling $1,050: 4 x
+Super STAT billed $200 vs card $400 ($800), and 5 x After Hours billed $100 vs
+card $150 ($250). All 9 sit on Sent invoices (INV-000018, INV-000034, INV-000044,
+INV-000045). Neil confirmed the sent rates were INTENTIONAL, so there is no
+rebill.
+
+All of Empath July is now billed and sent; the $27,574 unbatched gap (Session 29
+section above) is CLOSED. reprice_draft_pvs_premiums was never built and is not
+needed - zero mismatches sit on Draft visits, so there is nothing to reprice.
+
+Empath premium card confirmed going forward: After Hours $150, Super STAT $400
+(SOS fee schedule 2025-01-22).
+
+This closes the "correction pending / under-billed $800" framing in sections 1
+and 2 above: those recorded the investigation while the rates were still in
+question. The resolution is no rebill, and the card rates here (AH $150 / SS
+$400) are authoritative. Note the card After Hours is $150, not the $100 the
+July run applied and section 2 recorded.
