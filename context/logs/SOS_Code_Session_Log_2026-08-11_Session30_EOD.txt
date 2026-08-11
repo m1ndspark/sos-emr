@@ -1,0 +1,253 @@
+SOS Code - SOS Session Log - 2026-08-11 (Session 30) - EOD
+
+===============================================================
+PART 1 - WORK THIS SESSION
+===============================================================
+
+--- ZOHO FORM LOOKUP MESSAGE - RESOLVED ---
+
+Root cause of the message never showing: the Lookup Message field was
+set HIDDEN. A hidden field never renders, so the prefill write succeeded
+and nobody saw it. This closes the Session 29 open issue.
+
+Final design:
+- Message field is VISIBLE, placed inside grid "Email Typo Alert".
+- The GRID is hidden by default and shown by a form rule:
+  If Lookup Status Is not empty -> Show grid. (Started as Is NOT_FOUND;
+  changed because a FOUND result reverted the rule and the success
+  message vanished after flashing.)
+- get_partner_referral_contact rewritten: the searched email address is
+  now embedded in BOTH messages ("We couldn't find x@y.com..." /
+  "We found the details for x@y.com...") so a stale message is
+  self-identifying.
+- A temporary DIAG suffix (received email + server time appended to
+  Lookup_Message) proved the webhook fires on every Search click. It
+  has been removed from the live function.
+
+Zoho Forms quirks accepted, not fixed:
+- Clearing the email with the X does not release the stored field value
+  or re-trigger any rule; the value updates only on the next Search
+  click or a page refresh. The embedded email in the message makes this
+  harmless.
+- Testing repeat submissions needs a fresh incognito window per try -
+  Zoho persists partial entry in the session.
+
+--- FORM RE-INTEGRATION ---
+
+A dummy referral with an unrecognized email produced NO row in
+Partner_Referral_Contacts. Cause: the Zoho Forms -> Creator integration
+needed to be re-integrated (field changes had broken it). After
+re-integration the flow works end to end: unknown email -> manual fill
+-> referral in Referrals_Main -> Partner_Contact_Upsert inserts the POC
+row -> repeat search returns FOUND. Test rows deleted from both forms.
+
+--- PVS CHARGE VISIBILITY - BUILT ---
+
+Requirement: only Neil and Josh see dollar amounts on the PVS. Providers
+(portal users) must still set Complexity Level and tick Additional
+Charges.
+
+Design: allowlist gate. v_Billing = true only for
+joshua.kolanko@sosmmc.com / neil.heird@sosmmc.com (zoho.loginuserid,
+lowercased). Section split confirmed in the .ds:
+- Visit_Cost_Drivers_Section = Complexity_Level + Additional_Charges
+  (no dollars) -> visible to everyone on Patient Visit entries.
+- Charges_Section = all dollar fields -> v_Billing only.
+
+Four workflows updated on Encounter_PatientVisit:
+1. Default Hide On Load (Created or Edited / On Load) - Charges_Section
+   gated; Equipment/Other dollar re-shows gated; also now disables
+   Employee_Email.
+2. Entry Type Section Visibility (Created / On User Input of
+   Type_of_Entry) - same gate.
+3. Has Referral_ID Show_Hide (Created / On User Input of
+   Has_Referral_ID) - same gate.
+4. Additional Charges Show Hide (Created or Edited / On User Input of
+   Additional_Charges) - Equipment/Other dollar-field shows gated; the
+   missing-rate alert also gated (providers no longer see rate
+   plumbing). NOTE: a missing rate still zeroes the fee silently for
+   providers - must be caught at invoicing.
+
+System_Fields_Section already hidden for everyone; nothing re-shows it.
+
+Neil is ALSO restricting via portal user permissions - the workflow gate
+is cosmetic; permissions are the real control. Report columns exposing
+charge fields (Josh's reports) still bypass both - flagged.
+
+--- PVS MANDATORY FIELDS - MOVED TO ON VALIDATE ---
+
+Confirmed against current docs/community: Creator enforces field-level
+Mandatory on submit EVEN WHEN the field is hidden by Deluge, which
+blocks every conditional-section submit. Decision: no field-level
+mandatory on the PVS at all; single On Validate workflow enforces
+everything.
+
+New workflow: PVS Required Fields (Encounter_PatientVisit, Created or
+Edited, On Validate). Builds a missing-labels list, one alert, cancel
+submit. Rules:
+- Always: Patient First/Last Name (NOT Patient_Full_Name - that is
+  computed), DOB, Gender, Phone, Location, Address (Line 1 + City +
+  State + Zip; Line 2 optional), Reason for Referral, Employee
+  Name & Title, Employee Email.
+- Patient_Location == "Facility": Facility Name, Phone, Room Number.
+- Type_of_Entry == "Patient Visit": Clinical Note Type, Final Clinical
+  Note, Type of Procedures, Complexity Level, Visit Completion Date.
+- Patient Visit AND v_Billing: Complexity_Charge (providers cannot see
+  it, so it is required only when Neil/Josh submit or edit).
+- Type_of_Entry != "3008": Diversion Tracking.
+
+STILL TO DO: unset the field-level Mandatory flag on all 16 fields
+(double validation until then) and verify the address subfield link
+names (district_city / state_province / postal_Code) survived the
+editor. Asterisks: On Validate cannot add the red asterisk - edit field
+labels manually if wanted (cosmetic, shows even when not applicable).
+
+--- CLICK-TO-CALL - DEFERRED, TASKED ---
+
+Creator renders a click-to-call icon automatically for Phone Number
+TYPE fields only. PVS phone fields are already phonenumber. The plain
+ones in the report popout come from Referrals_Main (Patient_Phone,
+AC_Phone, Facility_Phone, Partner_POC_Phone - all text) and
+Imaging_Orders (Patient_Phone, Facility_Phone - text). Conversion
+deferred: Phone Number fields validate format on CSV import, so convert
+only after any remaining CSV loads; test with a 2-row import first.
+Tracked in context/23.
+
+--- EMPATH PREMIUMS - CLOSED, NO ACTION ---
+
+Built and ran diag_pvs_premium_mismatches (read-only scan comparing
+stored premium fees to the current Partner_Rates card):
+  Mismatches: 9. Correct: 5. No current rate: 0.
+  - 4 x Super STAT stored $200 vs card $400 (PVS-1034-AS, PVS-1049-JK,
+    PVS-1056-AS, PVS-1081-JK)
+  - 5 x After Hours stored $100 vs card $150 (same visits + PVS-1058-AS)
+  - $1,050 total variance.
+
+Built and ran diag_premium_visit_invoices: all five visits are Final and
+linked to SENT invoices (INV-000045 x2, INV-000044, INV-000034,
+INV-000018).
+
+NEIL'S RULING: the sent rates were INTENTIONAL - SOS deliberately billed
+the old premium rates on July invoices. No void, no rebill. Zero
+mismatches exist on Draft visits, so reprice_draft_pvs_premiums has
+nothing to do and was never built. Rate card confirmed correct going
+forward by the SOS fee schedule (2025-01-22): After Hours $150,
+Super STAT $400 (also: Telemedicine $65, Minor $170, Moderate $373,
+Complex $575, Hospital at Home $1,099/day).
+
+ALSO DISCOVERED: all of Empath has been billed and sent - the $27,574
+"gap" (Tidewell / Suncoast-HIL / Marion) was already re-batched
+(Tidewell visits confirmed on INV-000044/45, Sent; invoice numbers now
+run past INV-000045). Both blocking task-list items closed.
+
+The two new diag functions fall under the standing "delete all diag_*"
+cleanup item.
+
+--- VITAS REBILL - IN PROGRESS AT EOD ---
+
+Neil updated VITAS rates in Partner_Rates and wants every batched VITAS
+invoice redone. None have been SENT to the client. State found: only 2
+of the VITAS invoice records carry a Books_Invoice_Number; the rest were
+batched but never reached Books.
+
+Plan (standing at EOD):
+1. reset_invoice on the 2 with Books numbers (voids in Books, releases
+   visits to Draft). Neil may have run these already - VERIFY.
+2. The no-Books-number records CANNOT be reset by reset_invoice (it keys
+   on Books_Invoice_Number). A reset variant keyed on the invoice record
+   is needed - NOT YET WRITTEN. First task next session.
+3. reprice_draft_pvs per VITAS branch label (exact
+   Partner_Location_Label string, second arg REPRICE) - stamped charges
+   NEVER follow a rate change on their own.
+4. Fresh Invoice_Batch per branch, no cap (VITAS has no $3,000 rule).
+
+--- REPO / VERSIONING ---
+
+v21 .ds exported and committed: SOS_Referrals_App_2026-08-11_v21.ds,
+canonical SOS_Referrals_App.ds overwritten. NOTE: v21 predates this
+session's four workflow edits and PVS Required Fields - the NEXT export
+captures them.
+
+context/23_task_list.md updated three times this session (phone
+conversion added; Empath items closed; EOD block: .ds done, VITAS open,
+PVS validation verify open, lookup message closed).
+
+Session-start gap noted: session logs live in the project, but uploads
+(the .ds) do NOT carry between sessions. Fixed by connecting the sos-emr
+repo folder to the session - staging the committed .ds directly now
+works and should be the standard start-of-session move.
+
+===============================================================
+PART 2 - KEY FACTS FOR A COLD THREAD
+===============================================================
+
+- App: SOS Referrals App, Zoho Creator v6, account sosmmc. PVS =
+  Encounter_PatientVisit. Repo: sos-emr (local
+  /Users/neilheird/Claude/GitHub/sos-emr), canonical export
+  SOS_Referrals_App.ds, current v21 2026-08-11.
+- Billing allowlist emails: joshua.kolanko@sosmmc.com,
+  neil.heird@sosmmc.com. Portal profiles: Provider / Deactivated User
+  (assigned by Portal Access By Status on Employees).
+- Visit_Cost_Drivers_Section = Complexity_Level + Additional_Charges;
+  Charges_Section = dollar fields. Charges gated to the allowlist in 4
+  workflows; providers set Complexity Level + Additional Charges.
+- PVS required fields enforced ONLY by On Validate workflow "PVS
+  Required Fields"; field-level Mandatory must stay OFF (hidden
+  mandatory fields block submit in Creator).
+- Empath fee schedule (2025-01-22): AH $150, SS $400. July sent
+  invoices intentionally billed AH $100 / SS $200 - do not "fix".
+- All Empath July billing is sent. VITAS rebill is the open money item.
+- reset_invoice keys on Books_Invoice_Number, voids in Books, sets
+  visits back to Draft, marks the record Void. It cannot touch invoice
+  records that never reached Books.
+- reprice_draft_pvs reprices Complexity_Charge on Draft, un-invoiced
+  visits only; optional branch-label scope; needs REPRICE confirm arg.
+- Zoho Forms: one lookup field per form; hidden fields never render;
+  field rules cannot target Notes; rules do not re-trigger on
+  programmatic/cleared values; X-clear does not release the value until
+  next Search; forms cache partial entries per session (test in
+  incognito); integration field map is not editable - delete and
+  re-integrate after field changes (this silently breaks the
+  Creator push until done).
+- Creator: field-level Mandatory fires on hidden fields; On Validate +
+  alert + cancel submit is the pattern; phonenumber-type fields get a
+  click-to-call icon, text fields do not; changing text -> phonenumber
+  risks CSV import format validation.
+
+===============================================================
+PART 3 - OPEN ITEMS (full list in context/23_task_list.md)
+===============================================================
+
+BLOCKING
+  VITAS rebill: reset variant for no-Books-number invoices (write
+    first), resets, reprice per branch, re-batch.          Neil/cchat
+  Verify PVS Required Fields + unset 16 Mandatory flags.   Neil
+  Zoho Forms -> Creator integration rebuild, 43 fields
+    (was re-integrated this session - confirm the map
+    matches the remap checklist).                          Neil
+  Equipment amounts, 5 items.                              Josh/Ann
+  InnoVage July 3008 list, ~$14,500.                       InnoVage
+
+NOT BLOCKING (new/changed this session)
+  Phone field text -> phonenumber conversion after CSVs.   Neil/cchat
+  Delete diag_pvs_premium_mismatches and
+    diag_premium_visit_invoices with the diag_* sweep.     Neil
+  Referral submit test never run: X-clear + new email +
+    no Search + submit - confirm which address lands.      Neil
+
+===============================================================
+PART 4 - CORRECTIONS / LESSONS
+===============================================================
+
+- Session started cold on the .ds: uploads do not persist across
+  sessions; only project docs and the connected repo folder do.
+- The "paste reprice_draft_pvs_premiums" instruction from Session 29
+  EOD referenced a function that was never written. The diag-first
+  approach then proved it was not needed at all. Diag before repair.
+- Live workflows had drifted from v20 by one line (hide
+  Patient_Full_Address) within hours of the export - always paste the
+  live script before editing a workflow.
+- The premium "under-billing" was intentional business behavior, not a
+  defect. Ask before repairing money data.
+
+END
