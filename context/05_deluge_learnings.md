@@ -350,3 +350,34 @@ Its copy of run_invoice_batch has neither the p_maxTotal cap nor the
 Visit Cancelled skip. reset_invoice, get_partner_referral_contact, and the
 backfill/repair functions written since do not appear in it at all. Re-export
 before relying on it to read any function body.
+
+INTEGRATION-INSERTED RECORDS FIRE ON SUCCESS BUT NEVER ON USER INPUT
+A record created by a native Zoho Forms -> Creator integration (or any API
+insert) triggers On Success workflows but does NOT trigger On User Input
+workflows, because no human typed into a field. Any formatter, generator, or
+ID mint built as On User Input silently skips every form-submitted record.
+Consolidate that logic into one On Success workflow. This is what drove the
+Referrals_Main master-workflow rebuild.
+
+CREATOR DOES NOT GUARANTEE ORDER BETWEEN TWO ON SUCCESS WORKFLOWS
+Two On Success workflows on the same form have no defined execution order
+relative to each other. If step B depends on a value step A wrote, they cannot
+be two separate workflows. Any sequence-dependent chain must live inside a
+single script.
+
+ZOHO FORMS THREE-BOX PHONE FIELDS CANNOT PARSE A DASHED STRING
+A phone field split into area / prefix / line boxes will not accept a prefill
+value like 813-513-1925; the dashes break the split. A prefill webhook feeding
+one of these must return digits only.
+
+SENDGRID HANDLEBARS: ROW-LEVEL CONDITIONALS INSIDE A TABLE GET HOISTED
+An {{#if}} wrapped around a <tr> (or <td>) inside a <table> is pulled ABOVE the
+table by the HTML parser before the template renders, so the conditional row
+lands in the wrong place. Conditionals must wrap a whole <table>, not rows
+inside one. Build one full table per conditional block.
+
+ZEBRA STRIPING BREAKS WHEN CONDITIONAL ROWS ARE HIDDEN
+Alternating row-background striping assumes every row renders. When some rows
+are conditional and drop out, the stripe pattern misaligns. On any table that
+contains conditional content, use cell/row borders instead of background
+striping.

@@ -209,5 +209,37 @@ formatting, standalone functions stored body-only, plus real logic updates to th
 PVS billing-branch show/hide workflows and the Employee phone formatter).
 
 --------------------------------------------------------------------------------
+## Session 31 2026-08-12 - Referrals_Main referral pipeline consolidation
+--------------------------------------------------------------------------------
+Live state of the Referrals_Main form workflows after collapsing the referral
+intake pipeline into a single On Success master. Supersedes the piecemeal
+generators previously bound to this form.
+
+ADDED:
+- Referrals Main On Create - Master (Created / On Success). One script running
+  the whole post-insert pipeline in order:
+  - mints the referral ID and stamps Referral_Date = current date
+  - formats the four phone fields and the SSN
+  - builds Patient_Full_Address, AC_Full_Name, Patient_Full_Name, and
+    Partner_POC_Name_Title
+  - resolves Partner_Location_Label against Active Partner_Locations by name,
+    then writes Partner_Organization, Partner_Branch, Partner_Location_Label,
+    Partner_Link, Partner_Branch_Link, Partner_ID, and Partner_ID_Stamp
+  - runs the contact upsert, including Partner_Link and Partner_Locations_Link
+  Consolidated here because integration-inserted records fire On Success but
+  never On User Input (see context/05), so any generator built as On User Input
+  silently skipped every form-submitted referral.
+
+REMOVED (deleted, absorbed into the master):
+- REF ID Generator
+- Partner Contact Upsert
+
+CHANGED (record event narrowed from "on add or edit" to "on edit"):
+- Patient Full Name Generator
+- Partner POC Name & Title Generator
+  The On Create path for both now lives in the master; these remain only to
+  recompute on a manual edit.
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------

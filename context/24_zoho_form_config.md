@@ -93,6 +93,10 @@ Related behaviours:
 - Rule 1: Service Requested `Is` 3008 -> skip to **Partner Lookup Details**
 - Finally: skip to **Imaging Order Details**
 
+### On page: General Information - Patient Visit skip - SPECCED, NOT BUILT
+- Rule: Service Requested `Is` Patient Visit -> skip to **Partner Lookup
+  Details**
+
 ### On page: Patient Medical Info - NOT BUILT
 - Rule 1: Service Requested `Is` Imaging Order (only) -> skip to
   **Imaging Order Details**
@@ -107,8 +111,10 @@ Details? Undecided.
 
 Fields:
 - Partner POC Email + **Search** button (`.fldSuffixBtn.whookSearchBtn`)
-- Referral Partner Organization
-- Partner Branch/Location
+- Referral Partner Lookup (grouped searchable dropdown, ~80 bare location
+  names; mapped in the Creator integration to Partner_Location_Label). Replaces
+  the former free-text Partner Branch/Location question and the Referral Partner
+  Organization question, both now DELETED.
 - Partner Clinical Team
 - Referral POC First Name / Last Name / Title
 - Referral POC Phone
@@ -150,15 +156,18 @@ Response keys and their mappings:
 | `/result/Lookup_Status` | Lookup Status |
 | `/result/Lookup_Message` | Lookup Message |
 | `/result/Partner_Organization` | Referral Partner Organization |
-| `/result/Partner_Branch` | Partner Branch/Location |
+| `/result/Partner_Branch` | Referral Partner Lookup |
 | `/result/Partner_POC_Team` | Partner Clinical Team |
 | `/result/Partner_POC_First_Name` | Referral POC First Name |
 | `/result/Partner_POC_Last_Name` | Referral POC Last Name |
 | `/result/Partner_POC_Title` | Referral POC Title |
-| `/result/Partner_POC_Phone` | Referral POC Phone |
+| `/result/Partner_POC_Phone` | Partner POC Phone |
 
 Prefill Mapping only refreshes its available key list after re-running
-step 2 Test & Verify. A new response key will not appear until you do.
+step 2 Test & Verify. A new response key will not appear until you do. This
+prefill mapping lives in the form Builder on the Partner POC Email field, NOT
+on the Creator integration screen; the two are separate maps and are edited in
+different places.
 
 The function carries a **case-insensitive fallback scan**. Deluge criteria
 matching on email fields is case-sensitive, so a partner whose stored email
@@ -231,13 +240,21 @@ Native Zoho Forms -> Creator integration writing into `Referrals_Main`.
 change means removing the integration and adding it back, re-selecting every
 field by hand.
 
-Mapping split: 43 partner-entered fields mapped, 13 Creator-generated fields
+Mapping split: 44 partner-entered fields mapped, 12 Creator-generated fields
 NOT mapped, 14 removed fields that must not be re-selected.
+
+Partner_Location_Label is now MAPPED, from the Referral Partner Lookup grouped
+dropdown, so it moved out of the do-not-map list below (one field crossed over:
+43 -> 44 mapped, 13 -> 12 not mapped). The master On Success workflow still
+normalizes it and derives the other partner fields from it.
+
+The stray "Prior POC Email <- Partner POC Email" integration row (left over
+from the dropped Option B email-change design in section 9) was removed.
 
 Do not map (Creator generates these): Partner_Link, Partner_Branch_Link,
 Partner_Organization, Partner_Branch, Partner_ID, Partner_ID_Stamp,
-Partner_Location_Label, Partner_POC_Name_Title, Referral_ID,
-Referral_ID_Stamp, Patient_Full_Name, AC_Full_Name, Patient_Full_Address.
+Partner_POC_Name_Title, Referral_ID, Referral_ID_Stamp, Patient_Full_Name,
+AC_Full_Name, Patient_Full_Address.
 
 Gone - must not be re-selected: Requested_Priority, SOS_Prior_Service,
 Patient_Responsibility, DM_First_Name, DM_Last_Name, DM_Full_Name,
@@ -287,5 +304,6 @@ the Creator-side embed must be a bare iframe.
 | Next diagnostic: log every call inside `get_partner_referral_contact` so a missing message with no log row (Search never fired) can be told apart from a log row with no message (write failed). Needs the Change_Log field link names. | OPEN |
 | Imaging Order field rule | NOT BUILT |
 | Patient Medical Info page rule | NOT BUILT |
+| General Information page rule: Patient Visit -> skip to Partner Lookup Details | SPECCED, NOT BUILT |
 | Does Imaging Order skip Additional Contact Details? | UNDECIDED |
 | Integration rebuild, 43 fields | NOT DONE - blocks the remap |
