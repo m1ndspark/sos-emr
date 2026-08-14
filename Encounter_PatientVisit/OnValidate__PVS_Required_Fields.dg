@@ -1,0 +1,124 @@
+v_User = zoho.loginuserid.toLowerCase();
+v_Billing = false;
+if(v_User == "joshua.kolanko@sosmmc.com" || v_User == "neil.heird@sosmmc.com")
+{
+	v_Billing = true;
+}
+v_IsNew = false;
+if(input.PVS_ID == null || input.PVS_ID.trim() == "")
+{
+	v_IsNew = true;
+}
+v_Missing = List();
+if(input.Patient_First_Name == null || input.Patient_First_Name.trim() == "")
+{
+	v_Missing.add("Patient First Name");
+}
+if(input.Patient_Last_Name == null || input.Patient_Last_Name.trim() == "")
+{
+	v_Missing.add("Patient Last Name");
+}
+if(input.Patient_DOB == null)
+{
+	v_Missing.add("Patient DOB");
+}
+if(input.Patient_Gender == null || input.Patient_Gender == "")
+{
+	v_Missing.add("Patient Gender");
+}
+if(input.Patient_Phone == null || input.Patient_Phone.trim() == "")
+{
+	v_Missing.add("Patient Phone");
+}
+if(input.Patient_Location == null || input.Patient_Location == "")
+{
+	v_Missing.add("Patient Location");
+}
+if(input.Patient_Address.address_line_1 == null || Patient_Address.address_line_1.trim() == "")
+{
+	v_Missing.add("Patient Address Line 1");
+}
+if(input.Patient_Address.district_city == null || Patient_Address.district_city.trim() == "")
+{
+	v_Missing.add("Patient Address City");
+}
+if(input.Patient_Address.state_province == null || Patient_Address.state_province.trim() == "")
+{
+	v_Missing.add("Patient Address State");
+}
+if(input.Patient_Address.postal_Code == null || Patient_Address.postal_Code.trim() == "")
+{
+	v_Missing.add("Patient Address Zip");
+}
+if(input.Reason_for_Referral == null || input.Reason_for_Referral.trim() == "")
+{
+	v_Missing.add("Reason for Referral");
+}
+if(input.Employee_Name_Title == null || input.Employee_Name_Title.trim() == "")
+{
+	v_Missing.add("Provider Name & Title");
+}
+if(input.Employee_Email == null || input.Employee_Email.trim() == "")
+{
+	v_Missing.add("Provider Email");
+}
+if(input.Patient_Location == "Facility")
+{
+	if(input.Facility_Name == null || input.Facility_Name.trim() == "")
+	{
+		v_Missing.add("Facility Name");
+	}
+	if(input.Facility_Phone == null || input.Facility_Phone.trim() == "")
+	{
+		v_Missing.add("Facility Phone");
+	}
+	if(input.Facility_Room_Number == null || input.Facility_Room_Number.trim() == "")
+	{
+		v_Missing.add("Facility Room Number");
+	}
+}
+if(input.Type_of_Entry == "Patient Visit")
+{
+	if(input.Clinical_Note_Type == null || input.Clinical_Note_Type == "")
+	{
+		v_Missing.add("Clinical Note Type");
+	}
+	if(input.Final_Clinical_Note == null || input.Final_Clinical_Note.trim() == "")
+	{
+		v_Missing.add("Clinical Note");
+	}
+	if(v_IsNew)
+	{
+		if(input.Type_of_Procedures == null || input.Type_of_Procedures.isEmpty())
+		{
+			v_Missing.add("Type of Procedure(s)");
+		}
+	}
+	if(input.Complexity_Level == null || input.Complexity_Level == "")
+	{
+		v_Missing.add("Complexity Level");
+	}
+	if(input.Visit_Completion_Date == null)
+	{
+		v_Missing.add("Visit Completion Date");
+	}
+	if(v_Billing && v_IsNew)
+	{
+		if(input.Complexity_Charge == null)
+		{
+			v_Missing.add("Complexity Charge");
+		}
+	}
+}
+if(input.Type_of_Entry != "3008")
+{
+	if(input.Diversion_Tracking == null || input.Diversion_Tracking == "")
+	{
+		v_Missing.add("Diversion Tracking");
+	}
+}
+if(v_Missing.size() > 0)
+{
+	alert "Please complete the following required fields: " + v_Missing.toString(", ");
+	cancel submit;
+}

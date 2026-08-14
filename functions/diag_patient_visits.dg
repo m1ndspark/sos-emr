@@ -1,0 +1,43 @@
+v_Key = pName.trim().toLowerCase();
+v_Lines = List();
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	v_Nm = ifnull(p.Patient_Full_Name_1,"").toString().trim().toLowerCase();
+	if(v_Nm != "" && v_Nm.contains(v_Key))
+	{
+		v_Dos = "no DOS";
+		if(p.Visit_Completion_Date != null)
+		{
+			v_Dos = p.Visit_Completion_Date.toString("yyyy-MM-dd");
+		}
+		v_Branch = "no branch";
+		if(p.Billing_Branch != null)
+		{
+			for each  l in Partner_Locations[ID == p.Billing_Branch]
+			{
+				v_Branch = ifnull(l.Partner_Location_Label,l.Partner_Location_Name);
+				break;
+			}
+		}
+		v_Inv = "not invoiced";
+		if(p.Invoice_Link != null)
+		{
+			for each  i in Invoices[ID == p.Invoice_Link]
+			{
+				v_Inv = ifnull(i.Books_Invoice_Number,"no Books number") + "/" + ifnull(i.Invoice_Record_Status,"?");
+				break;
+			}
+		}
+		v_Amt = 0.0;
+		if(p.Complexity_Charge != null)
+		{
+			v_Amt = p.Complexity_Charge.toDecimal();
+		}
+		v_Lines.add(ifnull(p.PVS_ID,"no PVS ID") + " | DOS " + v_Dos + " | " + ifnull(p.Complexity_Level,"NO LEVEL") + " $" + v_Amt + " | status " + ifnull(p.Invoice_Status,"null") + " | hold " + ifnull(p.Hold_From_Invoicing,"null") + " | " + v_Branch + " | " + v_Inv);
+	}
+}
+if(v_Lines.size() == 0)
+{
+	return "No PVS records matched that name.";
+}
+return v_Lines.size() + " record(s): " + v_Lines.toString(" || ");

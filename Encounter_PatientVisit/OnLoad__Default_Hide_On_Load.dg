@@ -1,3 +1,9 @@
+v_User = zoho.loginuserid.toLowerCase();
+v_Billing = false;
+if(v_User == "joshua.kolanko@sosmmc.com" || v_User == "neil.heird@sosmmc.com")
+{
+	v_Billing = true;
+}
 hide Referral_Link;
 hide Referral_ID;
 hide System_Fields_Section;
@@ -34,6 +40,7 @@ hide Employee_Full_Name;
 show Employee_Name_Title;
 hide Invoice_Status;
 hide Billing_Branch;
+hide Patient_Full_Address;
 if(input.Has_Referral_ID == "No")
 {
 	disable Type_of_Entry;
@@ -87,6 +94,7 @@ disable Employee_Initials;
 disable Employee_Title;
 disable Employee_Full_Name;
 disable Employee_Name_Title;
+disable Employee_Email;
 disable PVS_ID;
 disable Referral_ID;
 disable Referral_ID_Stamp;
@@ -101,7 +109,10 @@ if(input.Type_of_Entry == "Patient Visit")
 	show Final_Clinical_Note_Section;
 	show Type_of_Procedure_Section;
 	show Visit_Cost_Drivers_Section;
-	show Charges_Section;
+	if(v_Billing)
+	{
+		show Charges_Section;
+	}
 	show Diversion_Tracking_Section;
 	show Files_Upload_Section;
 }
@@ -133,7 +144,7 @@ if(input.Diversion_Tracking == "Yes")
 {
 	show Type_of_Diversion;
 }
-if(input.Additional_Charges != null)
+if(v_Billing && input.Additional_Charges != null)
 {
 	if(input.Additional_Charges.contains("Equipment Charge"))
 	{

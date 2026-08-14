@@ -1,0 +1,69 @@
+v_keys = List();
+v_count = Map();
+v_data = Map();
+v_dupAmt = Map();
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	if(p.Visit_Completion_Date != null)
+	{
+		v_nm = ifnull(p.Patient_Full_Name_1,"").toString().trim().toLowerCase();
+		v_dob = "";
+		if(p.Patient_DOB != null)
+		{
+			v_dob = p.Patient_DOB.toString("yyyy-MM-dd");
+		}
+		v_dos = p.Visit_Completion_Date.toString("yyyy-MM-dd");
+		v_key = v_nm + "|" + v_dob + "|" + v_dos;
+		if(v_nm != "")
+		{
+			v_inv = "not invoiced";
+			if(p.Invoice_Link != null)
+			{
+				for each  i in Invoices[ID == p.Invoice_Link]
+				{
+					v_inv = ifnull(i.Books_Invoice_Number,"no Books number") + "/" + ifnull(i.Invoice_Record_Status,"?");
+					break;
+				}
+			}
+			v_amt = 0.0;
+			if(p.Complexity_Charge != null)
+			{
+				v_amt = p.Complexity_Charge.toDecimal();
+			}
+			v_line = ifnull(p.PVS_ID,"no PVS ID") + " DOS " + v_dos + " $" + v_amt + " [" + v_inv + "]";
+			if(!v_keys.contains(v_key))
+			{
+				v_keys.add(v_key);
+				v_count.put(v_key,0);
+				v_data.put(v_key,"");
+				v_dupAmt.put(v_key,0.0);
+			}
+			v_count.put(v_key,v_count.get(v_key) + 1);
+			v_data.put(v_key,v_data.get(v_key) + v_line + " ; ");
+			if(v_count.get(v_key) > 1)
+			{
+				v_dupAmt.put(v_key,v_dupAmt.get(v_key) + v_amt);
+			}
+		}
+	}
+}
+v_out = List();
+v_sets = 0;
+v_extra = 0;
+v_exposure = 0.0;
+for each  v_k in v_keys
+{
+	if(v_count.get(v_k) > 1)
+	{
+		v_sets = v_sets + 1;
+		v_extra = v_extra + v_count.get(v_k) - 1;
+		v_exposure = v_exposure + v_dupAmt.get(v_k);
+		v_out.add("x" + v_count.get(v_k) + ": " + v_data.get(v_k));
+	}
+}
+v_msg = "Duplicate visit sets: " + v_sets + ". Extra records beyond the first: " + v_extra + ". Complexity-charge exposure: $" + v_exposure + ".";
+if(v_out.size() > 0)
+{
+	v_msg = v_msg + " Detail: " + v_out.toString(" || ");
+}
+return v_msg;

@@ -1,5 +1,7 @@
-v_MsgFail = "We couldn't find that email address. Double-check it for typos and search again. If you're new here, leave your email as entered, complete the remaining fields, and we'll save everything for next time.";
-v_MsgOk = "Welcome back! We found your details and filled them in on the next page. Click the NEXT button below to continue.";
+v_Email = pPocEmail.trim();
+v_Lower = v_Email.toLowerCase();
+v_MsgFail = "We couldn't find " + v_Email + " in our records. Double-check it for typos and search again. If you're new here, leave your email as entered, complete the remaining fields, and we'll save everything for next time.";
+v_MsgOk = "Welcome back! We found the details for " + v_Email + " and filled them in on the next page. Click the NEXT button below to continue.";
 response = Map();
 response.put("Lookup_Status","NOT_FOUND");
 response.put("Lookup_Message",v_MsgFail);
@@ -10,44 +12,57 @@ response.put("Partner_POC_Phone","");
 response.put("Partner_Organization","");
 response.put("Partner_Branch","");
 response.put("Partner_POC_Team","");
-v_Email = pPocEmail.trim();
-v_Lower = v_Email.toLowerCase();
-v_Found = false;
-v_Contacts = Partner_Referral_Contacts[Partner_POC_Email == v_Email];
-for each  v_Rec in v_Contacts
+v_MatchId = 0;
+for each  v_Rec in Partner_Referral_Contacts[Partner_POC_Email == v_Email]
 {
-	response.put("Lookup_Status","FOUND");
-	response.put("Lookup_Message",v_MsgOk);
-	response.put("Partner_POC_First_Name",v_Rec.Partner_POC_First_Name);
-	response.put("Partner_POC_Last_Name",v_Rec.Partner_POC_Last_Name);
-	response.put("Partner_POC_Title",v_Rec.Partner_POC_Title);
-	response.put("Partner_POC_Phone",v_Rec.Partner_POC_Phone);
-	response.put("Partner_Organization",v_Rec.Partner_Organization);
-	response.put("Partner_Branch",v_Rec.Partner_Branch);
-	response.put("Partner_POC_Team",v_Rec.Partner_POC_Team);
-	v_Found = true;
+	v_MatchId = v_Rec.ID;
 	break;
 }
-if(v_Found == false)
+if(v_MatchId == 0)
 {
-	for each  v_C in Partner_Referral_Contacts[ID != 0]
+	for each  v_C in Partner_Referral_Contacts[ID != null]
 	{
-		if(v_Found == false && v_C.Partner_POC_Email != null)
+		if(v_C.Partner_POC_Email != null && v_C.Partner_POC_Email.toString().trim().toLowerCase() == v_Lower)
 		{
-			if(v_C.Partner_POC_Email.toString().trim().toLowerCase() == v_Lower)
-			{
-				response.put("Lookup_Status","FOUND");
-				response.put("Lookup_Message",v_MsgOk);
-				response.put("Partner_POC_First_Name",v_C.Partner_POC_First_Name);
-				response.put("Partner_POC_Last_Name",v_C.Partner_POC_Last_Name);
-				response.put("Partner_POC_Title",v_C.Partner_POC_Title);
-				response.put("Partner_POC_Phone",v_C.Partner_POC_Phone);
-				response.put("Partner_Organization",v_C.Partner_Organization);
-				response.put("Partner_Branch",v_C.Partner_Branch);
-				response.put("Partner_POC_Team",v_C.Partner_POC_Team);
-				v_Found = true;
-			}
+			v_MatchId = v_C.ID;
+			break;
 		}
 	}
+}
+if(v_MatchId != 0)
+{
+	v_Con = Partner_Referral_Contacts[ID == v_MatchId];
+	v_Branch = "";
+	v_Org = "";
+	if(v_Con.Partner_Locations_Link != null)
+	{
+		v_Branch = ifnull(v_Con.Partner_Locations_Link.Partner_Location_Name,"");
+	}
+	if(v_Branch == "")
+	{
+		v_Branch = ifnull(v_Con.Partner_Branch,"");
+	}
+	if(v_Con.Partner_Link != null)
+	{
+		v_Org = ifnull(v_Con.Partner_Link.Partner_Display_Name,"");
+	}
+	if(v_Org == "")
+	{
+		v_Org = ifnull(v_Con.Partner_Organization,"");
+	}
+	v_Phone = ifnull(v_Con.Partner_POC_Phone,"").toString().replaceAll("[^0-9]","");
+	if(v_Phone.length() == 11 && v_Phone.startsWith("1"))
+	{
+		v_Phone = v_Phone.subString(1,11);
+	}
+	response.put("Lookup_Status","FOUND");
+	response.put("Lookup_Message",v_MsgOk);
+	response.put("Partner_POC_First_Name",ifnull(v_Con.Partner_POC_First_Name,""));
+	response.put("Partner_POC_Last_Name",ifnull(v_Con.Partner_POC_Last_Name,""));
+	response.put("Partner_POC_Title",ifnull(v_Con.Partner_POC_Title,""));
+	response.put("Partner_POC_Phone",v_Phone);
+	response.put("Partner_Organization",v_Org);
+	response.put("Partner_Branch",v_Branch);
+	response.put("Partner_POC_Team",ifnull(v_Con.Partner_POC_Team,""));
 }
 return response;

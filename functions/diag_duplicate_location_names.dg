@@ -1,0 +1,33 @@
+v_Names = List();
+v_Lines = List();
+for each  v_L in Partner_Locations[Partner_Location_Status == "Active"]
+{
+	v_N = ifnull(v_L.Partner_Location_Name,"").trim().toLowerCase();
+	if(v_N != "" && !v_Names.contains(v_N))
+	{
+		v_Names.add(v_N);
+	}
+}
+for each  v_Name in v_Names
+{
+	v_Count = 0;
+	v_Owners = List();
+	for each  v_L2 in Partner_Locations[Partner_Location_Status == "Active"]
+	{
+		if(v_L2.Partner_Location_Name != null && v_L2.Partner_Location_Name.trim().toLowerCase() == v_Name)
+		{
+			v_Count = v_Count + 1;
+			v_Loc = Partner_Locations[ID == v_L2.ID];
+			v_Owners.add(ifnull(v_Loc.Partner_Link.Partner_Display_Name,"?") + " / " + v_Loc.Partner_Location_Name);
+		}
+	}
+	if(v_Count > 1)
+	{
+		v_Lines.add("DUPLICATE x" + v_Count + ": " + v_Owners.toString(" | "));
+	}
+}
+if(v_Lines.size() == 0)
+{
+	return "No duplicate Active location names.";
+}
+return v_Lines.toString(" || ");

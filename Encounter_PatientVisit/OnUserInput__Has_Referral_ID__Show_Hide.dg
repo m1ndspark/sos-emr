@@ -1,3 +1,9 @@
+v_User = zoho.loginuserid.toLowerCase();
+v_Billing = false;
+if(v_User == "joshua.kolanko@sosmmc.com" || v_User == "neil.heird@sosmmc.com")
+{
+	v_Billing = true;
+}
 if(input.Has_Referral_ID == "Yes")
 {
 	show Referral_Link;
@@ -73,7 +79,10 @@ else if(input.Has_Referral_ID == "No")
 	show Final_Clinical_Note_Section;
 	show Type_of_Procedure_Section;
 	show Visit_Cost_Drivers_Section;
-	show Charges_Section;
+	if(v_Billing)
+	{
+		show Charges_Section;
+	}
 	show Diversion_Tracking_Section;
 	show Files_Upload_Section;
 	hide Cares_3008_Completion_Section;

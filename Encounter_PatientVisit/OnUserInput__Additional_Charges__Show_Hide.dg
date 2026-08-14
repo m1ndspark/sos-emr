@@ -1,7 +1,16 @@
+v_User = zoho.loginuserid.toLowerCase();
+v_Billing = false;
+if(v_User == "joshua.kolanko@sosmmc.com" || v_User == "neil.heird@sosmmc.com")
+{
+	v_Billing = true;
+}
 if(input.Additional_Charges.contains("Equipment Charge"))
 {
-	show Equipment_Charge_Amount;
-	show Equipment_Charge_Details;
+	if(v_Billing)
+	{
+		show Equipment_Charge_Amount;
+		show Equipment_Charge_Details;
+	}
 }
 else
 {
@@ -12,8 +21,11 @@ else
 }
 if(input.Additional_Charges.contains("Other"))
 {
-	show Other_Charges_Amount;
-	show Other_Charges_Details;
+	if(v_Billing)
+	{
+		show Other_Charges_Amount;
+		show Other_Charges_Details;
+	}
 }
 else
 {
@@ -73,7 +85,7 @@ else
 {
 	input.Super_Stat_Fee = 0;
 }
-if(v_missing != "")
+if(v_Billing && v_missing != "")
 {
-	alert "No current rate found for: " + v_missing + ". The fee was set to 0. Add the rate in Partner Rates before invoicing this visit.";
+	alert "No current rate found for: " + v_missing + ". The price was set to $0. Add the rate in the Partner Rates table before invoicing this visit.";
 }

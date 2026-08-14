@@ -1,0 +1,29 @@
+v_ids = List();
+v_ids.add("PVS-1034-AS");
+v_ids.add("PVS-1049-JK");
+v_ids.add("PVS-1056-AS");
+v_ids.add("PVS-1058-AS");
+v_ids.add("PVS-1081-JK");
+v_log = List();
+for each  v_pid in v_ids
+{
+	for each  p in Encounter_PatientVisit[PVS_ID == v_pid]
+	{
+		v_line = v_pid + ": Invoice_Status=" + ifnull(p.Invoice_Status,"null");
+		if(p.Invoice_Link == null)
+		{
+			v_line = v_line + ", no Invoice_Link";
+		}
+		else
+		{
+			for each  i in Invoices[ID == p.Invoice_Link]
+			{
+				v_line = v_line + ", linked to " + ifnull(i.Books_Invoice_Number,"no Books number") + " (record status " + ifnull(i.Invoice_Record_Status,"null") + ")";
+				break;
+			}
+		}
+		v_log.add(v_line);
+		break;
+	}
+}
+return v_log.toString(" | ");

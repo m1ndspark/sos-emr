@@ -45,6 +45,27 @@ HARD RULES (NON-NEGOTIABLE)
 - No em dashes in any SOS content.
 
 --------------------------------------------------------------------------------
+PLATFORM FACTS (CREATOR / DELUGE BEHAVIOR, CONFIRMED LIVE)
+--------------------------------------------------------------------------------
+Durable behaviors that shape how code must be structured. See context/05 for the
+full learnings log.
+- Integration-inserted records (Zoho Forms to Creator, or any API insert) fire
+  On Success workflows but NEVER On User Input. Any formatter, generator, or ID
+  mint that must run on a form-submitted record has to live in On Success.
+- Creator does not guarantee execution order between two On Success workflows on
+  the same form. Sequence-dependent steps must live in one script, not split
+  across two On Success workflows.
+- Field-level Mandatory fires even on Deluge-hidden fields, so it blocks submit
+  on a field the user cannot see. The PVS enforces requirements only through an
+  On Validate workflow (alert + cancel submit); all 16 field-level Mandatory
+  flags on the PVS must stay OFF.
+- On Validate runs before the stamp generator, so an empty PVS_ID is a reliable
+  "is this a new record" test inside an On Validate workflow.
+- Partner_ID_Stamp is the Partners record ID, not the referral's ID.
+- Active Partner_Locations names must be unique across all partners. When a
+  county name repeats across partners, embed the brand in the location name.
+
+--------------------------------------------------------------------------------
 CODE DELIVERY RULES
 --------------------------------------------------------------------------------
 - Full function only. Never partial snippets or diffs unless Neil asks.

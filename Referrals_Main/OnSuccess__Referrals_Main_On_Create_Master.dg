@@ -1,0 +1,247 @@
+thisapp.mint_referral_id(input.ID);
+v_RefDate = zoho.currentdate;
+v_Vals = List();
+v_Vals.add(input.Patient_Phone);
+v_Vals.add(input.AC_Phone);
+v_Vals.add(input.Partner_POC_Phone);
+v_Vals.add(input.Facility_Phone);
+v_Out = List();
+for each  v_Raw in v_Vals
+{
+	v_F = "";
+	if(v_Raw != null)
+	{
+		v_D = v_Raw.toString().replaceAll("[^0-9]","");
+		if(v_D.length() == 10)
+		{
+			v_F = v_D.subString(0,3) + "-" + v_D.subString(3,6) + "-" + v_D.subString(6,10);
+		}
+		else
+		{
+			v_F = v_D;
+		}
+	}
+	v_Out.add(v_F);
+}
+v_SSN = "";
+if(input.Patient_SSN != null)
+{
+	v_S = input.Patient_SSN.toString().replaceAll("[^0-9]","");
+	if(v_S.length() == 9)
+	{
+		v_SSN = v_S.subString(0,3) + "-" + v_S.subString(3,5) + "-" + v_S.subString(5,9);
+	}
+	else
+	{
+		v_SSN = v_S;
+	}
+}
+v_Addr = "";
+if(input.Patient_Address.address_line_1 != null && Patient_Address.address_line_1.trim() != "")
+{
+	v_Addr = input.Patient_Address.address_line_1.trim();
+}
+if(input.Patient_Address.address_line_2 != null && Patient_Address.address_line_2.trim() != "")
+{
+	v_Addr = v_Addr + ", " + input.Patient_Address.address_line_2.trim();
+}
+if(input.Patient_Address.district_city != null && Patient_Address.district_city.trim() != "")
+{
+	v_Addr = v_Addr + ", " + input.Patient_Address.district_city.trim();
+}
+if(input.Patient_Address.state_province != null && Patient_Address.state_province.trim() != "")
+{
+	v_Addr = v_Addr + ", " + input.Patient_Address.state_province.trim();
+}
+if(input.Patient_Address.postal_Code != null && Patient_Address.postal_Code.trim() != "")
+{
+	v_Addr = v_Addr + " " + input.Patient_Address.postal_Code.trim();
+}
+v_Addr = v_Addr.trim();
+v_ACFull = "";
+if(input.AC_First_Name != null && input.AC_First_Name.trim() != "")
+{
+	v_ACFull = input.AC_First_Name.trim();
+}
+if(input.AC_Last_Name != null && input.AC_Last_Name.trim() != "")
+{
+	v_ACFull = (v_ACFull + " " + input.AC_Last_Name.trim()).trim();
+}
+v_Full = "";
+if(input.Patient_First_Name != null && input.Patient_First_Name.trim() != "")
+{
+	v_Full = input.Patient_First_Name.trim();
+}
+if(input.Patient_MI != null && input.Patient_MI.trim() != "")
+{
+	if(v_Full != "")
+	{
+		v_Full = v_Full + " ";
+	}
+	v_Full = v_Full + input.Patient_MI.trim();
+}
+if(input.Patient_Last_Name != null && input.Patient_Last_Name.trim() != "")
+{
+	if(v_Full != "")
+	{
+		v_Full = v_Full + " ";
+	}
+	v_Full = v_Full + input.Patient_Last_Name.trim();
+}
+v_NameTitle = "";
+if(input.Partner_POC_First_Name != null && input.Partner_POC_First_Name.trim() != "")
+{
+	v_NameTitle = input.Partner_POC_First_Name.trim();
+}
+if(input.Partner_POC_Last_Name != null && input.Partner_POC_Last_Name.trim() != "")
+{
+	if(v_NameTitle != "")
+	{
+		v_NameTitle = v_NameTitle + " ";
+	}
+	v_NameTitle = v_NameTitle + input.Partner_POC_Last_Name.trim();
+}
+if(input.Partner_POC_Title != null && input.Partner_POC_Title.trim() != "")
+{
+	if(v_NameTitle != "")
+	{
+		v_NameTitle = v_NameTitle + ", ";
+	}
+	v_NameTitle = v_NameTitle + input.Partner_POC_Title.trim();
+}
+v_LocId = null;
+v_PartnerId = null;
+v_LocName = "";
+v_LocLabel = "";
+v_Org = "";
+v_PID = "";
+if(input.Partner_Location_Label != null && input.Partner_Location_Label.trim() != "")
+{
+	v_Sel = input.Partner_Location_Label.trim();
+	v_SelKey = v_Sel.toLowerCase();
+	v_Loc = Partner_Locations[Partner_Location_Name == v_Sel && Partner_Location_Status == "Active"];
+	if(v_Loc.ID == null)
+	{
+		for each  v_L2 in Partner_Locations[Partner_Location_Status == "Active"]
+		{
+			if(v_L2.Partner_Location_Name != null && v_L2.Partner_Location_Name.trim().toLowerCase() == v_SelKey)
+			{
+				v_Loc = Partner_Locations[ID == v_L2.ID];
+				break;
+			}
+		}
+	}
+	if(v_Loc.ID != null)
+	{
+		v_LocId = v_Loc.ID;
+		v_PartnerId = v_Loc.Partner_Link;
+		v_LocName = v_Loc.Partner_Location_Name;
+		v_LocLabel = v_Loc.Partner_Location_Label;
+		v_Org = v_Loc.Partner_Link.Partner_Display_Name;
+		v_PID = v_Loc.Partner_Link.Partner_ID;
+	}
+}
+for each  v_Rec in Referrals_Main[ID == input.ID]
+{
+	update v_Rec
+	[
+		Referral_Date=v_RefDate
+		Patient_Phone=v_Out.get(0)
+		AC_Phone=v_Out.get(1)
+		Partner_POC_Phone=v_Out.get(2)
+		Facility_Phone=v_Out.get(3)
+		Patient_SSN=v_SSN
+		Patient_Full_Address=v_Addr
+		AC_Full_Name=v_ACFull
+		Patient_Full_Name=v_Full
+		Partner_POC_Name_Title=v_NameTitle
+	];
+	if(v_LocId != null)
+	{
+		update v_Rec
+		[
+			Partner_Organization=v_Org
+			Partner_Branch=v_LocName
+			Partner_Location_Label=v_LocLabel
+			Partner_Link=v_PartnerId
+			Partner_Branch_Link=v_LocId
+			Partner_ID=v_PID
+			Partner_ID_Stamp=v_PartnerId.toString()
+		];
+	}
+}
+v_Email = input.Partner_POC_Email;
+if(v_Email != null && v_Email.trim() != "")
+{
+	v_Email = v_Email.trim();
+	v_Key = v_Email.toLowerCase();
+	v_MatchId = 0;
+	for each  v_C in Partner_Referral_Contacts[Partner_POC_Email == v_Email]
+	{
+		v_MatchId = v_C.ID;
+		break;
+	}
+	if(v_MatchId == 0)
+	{
+		for each  v_Scan in Partner_Referral_Contacts[ID != null]
+		{
+			if(v_Scan.Partner_POC_Email != null && v_Scan.Partner_POC_Email.trim().toLowerCase() == v_Key)
+			{
+				v_MatchId = v_Scan.ID;
+				break;
+			}
+		}
+	}
+	if(v_MatchId != 0)
+	{
+		for each  v_Upd in Partner_Referral_Contacts[ID == v_MatchId]
+		{
+			update v_Upd
+			[
+				Partner_POC_First_Name=input.Partner_POC_First_Name
+				Partner_POC_Last_Name=input.Partner_POC_Last_Name
+				Partner_POC_Title=input.Partner_POC_Title
+				Partner_POC_Phone=v_Out.get(2)
+				Partner_Organization=v_Org
+				Partner_Branch=v_LocName
+				Partner_POC_Team=input.Partner_POC_Team
+				Partner_POC_Name_Title=v_NameTitle
+			];
+			if(v_LocId != null)
+			{
+				update v_Upd
+				[
+					Partner_Link=v_PartnerId
+					Partner_Locations_Link=v_LocId
+				];
+			}
+		}
+	}
+	else
+	{
+		v_NewId = insert into Partner_Referral_Contacts
+		[
+			Partner_POC_Email=v_Email
+			Partner_POC_First_Name=input.Partner_POC_First_Name
+			Partner_POC_Last_Name=input.Partner_POC_Last_Name
+			Partner_POC_Title=input.Partner_POC_Title
+			Partner_POC_Phone=v_Out.get(2)
+			Partner_Organization=v_Org
+			Partner_Branch=v_LocName
+			Partner_POC_Team=input.Partner_POC_Team
+			Partner_POC_Name_Title=v_NameTitle
+			Added_User=zoho.loginuser
+		];
+		if(v_LocId != null)
+		{
+			for each  v_New in Partner_Referral_Contacts[ID == v_NewId]
+			{
+				update v_New
+				[
+					Partner_Link=v_PartnerId
+					Partner_Locations_Link=v_LocId
+				];
+			}
+		}
+	}
+}
