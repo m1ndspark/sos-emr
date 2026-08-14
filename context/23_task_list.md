@@ -114,6 +114,11 @@ Owner legend:
 | Rename "Partner POC Phone" on the Zoho Form for consistency with its Referral POC siblings. | Neil | OPEN | N | post-launch |
 | Delete test referrals REF-1047 through REF-1055 and the neilheird@gmail.com row in Partner_Referral_Contacts. (Replaces the REF-1047 to 1052 range noted at checkpoint.) | Neil | OPEN | N | post-launch |
 | RingCentral email notifications configured for new voicemail, fax sent, and fax received. CLOSED 2026-08-13. | Neil | CLOSED | N | 2026-08-13 |
+| Fix 22 InnoVage referral DOBs stored with a 20xx century (e.g. a DOB reading 2043-04-16 should be 1943-04-16). | Neil | OPEN | N | - |
+| Confirm whether "Patient N-1" (Creator) and "Patient N-2" (3008 log) - same surname initial N, same DOB, different first name - are the same patient. Neil holds the identity key (kept out of the repo). | Neil | OPEN | N | - |
+| Resolve a DOB conflict for one InnoVage patient (initials C.D.): the 3008 log shows 1958-06-06, Creator shows 1956-10-30. Neil holds the identity key (kept out of the repo). | Neil | OPEN | N | - |
+| Review name-particle handling on import: at least two InnoVage patients with a "De " surname particle imported without the "De". Fix the importer so particles are preserved. | cchat | OPEN | N | - |
+| Populate the new 3008 section in the PVS, including 3008 Notes, which will carry follow-up and delay reasons for the InnoVage MPU report beginning with the August cycle. | Neil | OPEN | N | - |
 --------------------------------------------------------------------------------
 ## PRE-EXISTING CLEANUPS (from context/16, still open)
 --------------------------------------------------------------------------------

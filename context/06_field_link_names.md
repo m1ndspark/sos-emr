@@ -112,6 +112,23 @@ SECTION  System_Fields_Section   (no Forms counterpart; backend / generated)
                                     from it. See context/07.
   Partner_ID               text     Custom script
   Partner_ID_Stamp         text     Custom script
+  Referral_Added_Time      Date-Time  NEW 2026-08-13. Captures the referral
+                                    submission time. Schema mirror captured it
+                                    2026-08-14 (schema/Referrals_Main.md, field 58,
+                                    "Date-Time (11)").
+                                    RESERVED NAME: Added_Time is a reserved link
+                                    name in Creator v6 and cannot be used as a
+                                    field link name, so the custom field is named
+                                    Referral_Added_Time and is populated from the
+                                    system Added_Time field.
+                                    BACKFILL CAVEAT: backfilled from the system
+                                    Added_Time via backfill_referral_added_time,
+                                    so for any record migrated from Cognito it
+                                    holds the IMPORT timestamp (2026-08-05 09:43 to
+                                    11:33), NOT the referral submission time. Only
+                                    reliable for referrals created after
+                                    2026-08-13. Do not treat it as submission time
+                                    for imported records.
 
 --------------------------------------------------------------------------------
 DISCREPANCIES / NOTES

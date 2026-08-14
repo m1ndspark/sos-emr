@@ -1,0 +1,15 @@
+v_updated = 0;
+v_skipped = 0;
+for each  r in Referrals_Main[Referral_Added_Time == null]
+{
+	if(r.Added_Time != null)
+	{
+		r.Referral_Added_Time=r.Added_Time;
+		v_updated = v_updated + 1;
+	}
+	else
+	{
+		v_skipped = v_skipped + 1;
+	}
+}
+return "Referral Added Time backfill - updated: " + v_updated + " | skipped: " + v_skipped;
