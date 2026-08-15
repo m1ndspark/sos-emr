@@ -114,11 +114,17 @@ Owner legend:
 | Rename "Partner POC Phone" on the Zoho Form for consistency with its Referral POC siblings. | Neil | OPEN | N | post-launch |
 | Delete test referrals REF-1047 through REF-1055 and the neilheird@gmail.com row in Partner_Referral_Contacts. (Replaces the REF-1047 to 1052 range noted at checkpoint.) | Neil | OPEN | N | post-launch |
 | RingCentral email notifications configured for new voicemail, fax sent, and fax received. CLOSED 2026-08-13. | Neil | CLOSED | N | 2026-08-13 |
-| Fix 22 InnoVage referral DOBs stored with a 20xx century (e.g. a DOB reading 2043-04-16 should be 1943-04-16). | Neil | OPEN | N | - |
+| Fix InnoVage and Chapters DOB records storing a 20xx century: 22 InnoVage rows plus two Chapters records (initials G.S. DOB 2044-10-09, W.W. DOB 2045-07-06). Reports already correct this at read time (subtract 100 years from any DOB with year >= 2000); the stored Creator records are still wrong. Neil holds the identity key. | Neil | OPEN | N | - |
 | Confirm whether "Patient N-1" (Creator) and "Patient N-2" (3008 log) - same surname initial N, same DOB, different first name - are the same patient. Neil holds the identity key (kept out of the repo). | Neil | OPEN | N | - |
 | Resolve a DOB conflict for one InnoVage patient (initials C.D.): the 3008 log shows 1958-06-06, Creator shows 1956-10-30. Neil holds the identity key (kept out of the repo). | Neil | OPEN | N | - |
 | Review name-particle handling on import: at least two InnoVage patients with a "De " surname particle imported without the "De". Fix the importer so particles are preserved. | cchat | OPEN | N | - |
 | Populate the new 3008 section in the PVS, including 3008 Notes, which will carry follow-up and delay reasons for the InnoVage MPU report beginning with the August cycle. | Neil | OPEN | N | - |
+| MPU reporting: v2 report template rolled out to all five partner reports (Empath, AccentCare, InnoVage, Chapters, VITAS). Chapters was the last report never built. DONE 2026-08-15. | cchat / Neil | DONE | N | 2026-08-15 |
+| MPU hospital savings model rebuilt on verified CY2026 CMS source files; July reissued for all partners. The April-July model double-counted services packaged under J1 Comprehensive APCs (paracentesis / thoracentesis); verified against CY2026 Addendum D1 and Addendum J. DONE 2026-08-15. | cchat / Neil | DONE | N | 2026-08-15 |
+| Paste backfill_referral_added_time into Creator and run it. Carried from Session 31, still not done. | Neil | OPEN | N | - |
+| PVS-1112-JK carries a clinical note byte-identical to PVS-1108-JK for a different patient (template copy-paste). Medical-record integrity issue. | Neil | OPEN | N | - |
+| Decide whether to notify partners that July MPU reports were reissued under corrected (CY2026) methodology, and in what words. | Neil | OPEN | N | - |
+| Imaging / X-Ray has no hospital benchmark and SOS does not perform the study - it is outsourced and the vendor bills hospice directly. Needs the vendor's rate before a benchmark can be built. 32 of AccentCare's 51 July visits and 5 of VITAS's 6 sit outside the savings model for want of benchmarks. | Neil | OPEN | N | - |
 --------------------------------------------------------------------------------
 ## PRE-EXISTING CLEANUPS (from context/16, still open)
 --------------------------------------------------------------------------------

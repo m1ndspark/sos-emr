@@ -1,0 +1,252 @@
+SOS Code - SOS Session Log - 2026-08-15 (Session 32) - EOD
+
+Scope: MPU monthly partner reporting. No Creator/Deluge work this session
+except the one open backfill from Session 31.
+
+NOTE (repo copy): patient names and DOBs in Part 4 are pseudonymized to
+initials to keep this repo PHI-clean. Neil holds the identity key outside
+the repo. The rest of the log is verbatim.
+
+===============================================================
+PART 1 - WORK SINCE THE LAST CHECKPOINT
+===============================================================
+
+V2 TEMPLATE FINISHED AND ROLLED OUT
+- Report month on the cover changed from green to #657AE9, matching the
+  paragraph titles. Green is gone from the reports entirely.
+- Added white space below every "Volume, Services, and Delivery" heading.
+- InnoVage rebuilt on v2: 12 pages, five charts replacing the partner-level
+  tables (time of day, grouped site chart, provider, turnaround stacked
+  bar, same-day rate by referral hour). Heatmap restyled onto the v2 ramp
+  with the colorbar dropped. Disclaimers moved to last.
+- VITAS built on v2, 8 pages, then 9 after the upside page.
+- Chapters built on v2, 10 pages. It was the last report never built.
+- Empath and AccentCare rebuilt.
+- All five July reports now exist on v2.
+
+SMALL-PARTNER FIXES, NOW AUTOMATIC IN THE BUILDER
+- Bar width scales down when a chart has few categories, so three
+  time-of-day windows no longer render as slabs.
+- Daily Delivery page suppressed below 15 visits, and its caption is now
+  generated from data. The old hardcoded line ("weekend activity is
+  limited but not absent") was false for VITAS.
+- Savings chart suppressed when only one procedure qualifies.
+- Paracentesis/thoracentesis disclaimer drops out when the partner had none.
+- Singular/plural agreement fixed everywhere ("1 referral", not
+  "1 referrals"). Found on Chapters.
+- The "top three account for" clause only prints when three or more
+  service types exist. Also found on Chapters.
+
+UTILIZATION UPSIDE - NEW SECTION
+- Its own page after Aggregate Monthly Savings, on Empath, AccentCare,
+  VITAS and Chapters.
+- Basis is volume scenarios holding mix and savings-per-qualifying-visit
+  constant. Neil ruled out census-based projections because no partner
+  census exists.
+- Scenario steps adapt: percentage growth (+25/50/100%) at 10 or more
+  qualifying visits, whole added visits (+1/+2/+5) below that.
+- States the excluded-visit count plainly and says actual avoidance is
+  higher than modeled.
+
+BRANCH CHARTS - 15-VISIT RULE ADOPTED
+- Branches above 15 visits get Services Performed and Visit Complexity as
+  charts with a one-line readout; Patient Visit Detail starts on its own
+  page.
+- Branches at or below 15 keep tables. July: Empath 3 charted,
+  AccentCare 2, VITAS 0, Chapters 0.
+
+TABLES RESTYLED ONTO THE CHART RAMP
+- Header #0B0B5B, alternating #F0F0FF, peak #CFCFE7, total #AEAED0,
+  detail header #4C4C89.
+- Headline total-savings cell reverses out: #0B0B5B fill, white bold.
+- Pending #FFF2CC and cancelled #D9D9D9 kept as-is. They encode status,
+  not magnitude.
+
+===============================================================
+PART 2 - THE BIG ONE: THE SAVINGS MODEL WAS WRONG
+===============================================================
+
+WHAT HAPPENED
+Neil asked to extend hospital benchmarks beyond the four we had. Pulling
+the actual CY2026 CMS files to do that revealed the existing model was
+structurally wrong and had been since April.
+
+THE ERROR
+Every report from April through July used a twelve-line itemized stack
+summing an ED facility visit, labs, imaging, ultrasound guidance,
+observation, and the procedure facility fee. Under CY2026 OPPS,
+paracentesis (49083) and thoracentesis (32557) carry status indicator J1,
+the primary procedure of a Comprehensive APC. Medicare pays ONE amount
+covering every covered Part B service on the claim. Our stack added those
+services on top of a payment that already included them. Every hospital
+total was double-counted.
+
+HOW IT WAS VERIFIED
+Neil pulled six CMS file sets across the session. The decisive one was
+the CY2026 NFRM OPPS Addenda, which contains Addendum D1 (status
+indicator definitions) and Addendum J (the C-APC Payment Policy
+Exclusions list, 14 entries). Those two files settled everything.
+
+- J1 verbatim: "all covered Part B services on the claim are packaged
+  with the primary J1 service for the claim, except the Comprehensive APC
+  payment policy exclusions found in the most recent Addendum J."
+- J2 verbatim: "Packaged APC payment if billed on the same claim as a
+  HCPCS code assigned status indicator J1." So the ED visit packages.
+- Where no J1 exists (catheter, G-tube), J2 clause (1) makes the ED visit
+  itself the comprehensive payment.
+- Ambulance is the ONLY line in our stacks outside the packaging.
+- Status K drugs (albumin P9047) are NOT excluded, so albumin packages.
+  Two other AI models told Neil it pays on top. It does not.
+- Status R blood products are not excluded either.
+
+THINGS OTHER AI MODELS GOT WRONG, CAUGHT AGAINST THE FILES
+- Mileage quoted at $8.80; the AFS file says $9.33 urban, $9.42 rural.
+- Albumin quoted at $185-$370; P9047 is $53.324 per 50 mL (12.5 g), so
+  30-40 g is $159.97-$213.30.
+- 99284 quoted at 4.15 RVU / $138.61; the file says 3.54 RVU / $123.46.
+- 99283 quoted at 3.05 RVU / $101.87; the file says 2.08 RVU / $72.42.
+- 88112-26 quoted at 1.45 RVU / $48.43; the file says 0.78 RVU / $25.90.
+- A wage-index table contained a chained arithmetic error - it computed a
+  factor of 0.9052 from wage index 0.8420, then reused 0.9052 as the wage
+  index on the next line.
+- One adjudication cited 42 CFR 419.32 as the C-APC packaging authority.
+  419.32 is only conversion-factor arithmetic. The packaging rule is
+  419.2(b); the C-APC construct lives in the final rule preamble.
+- 49083 has PC/TC indicator 0, so modifier -26 does not apply to it. That
+  one was my error, caught by the adversarial review.
+
+WAGE INDEX - A CLEAN FINDING
+Every Florida CBSA carries wage index 1.0369. The state rural floor lifts
+all of them to the same value - Orlando's pre-floor is 0.9568, Tampa's
+0.8776, Pensacola's 0.7784, all overridden. There is no geographic
+variation to model in Florida. At the 60% labor share the factor is
+1.02214.
+
+NEIL'S RULINGS
+- Ship the actual-Medicare-payment model, not the itemized one.
+- Reissue July rather than correct going forward only.
+- Display the highest realistic rates, with disclaimers carrying the
+  methodology. That is the High column: ALS1 non-emergency round trip,
+  30 statute miles, ED Level 5.
+
+LOCKED CY2026 BENCHMARKS
+  Paracentesis        2,176.12   (was 4,488.11)
+  Thoracentesis       2,911.43   (was 4,519.79)
+  Catheter Management 1,779.11   (was 1,828.07)
+  G-Tube/PEG          1,792.10   (was 1,868.33)
+
+RESTATED JULY SAVINGS
+  Empath      81,588.50  (was 158,426.86)
+  AccentCare  29,509.14  (was  55,496.33)
+  VITAS        1,456.11  (was   1,505.07)
+  Chapters     1,631.12  (new report)
+Do NOT use the pre-correction figures for month-over-month.
+
+PRESENTATION CHANGES THAT CAME WITH IT
+- CPT tables now SHOW packaged lines at $0.00 with the APC named. This
+  demonstrates we are not double counting and reads as more rigorous, not
+  less.
+- No starred estimates remain anywhere. Every figure traces to a file.
+- Four disclaimers rewritten: Rate Sources (names each source file),
+  Comprehensive APC Packaging (explains the zero lines), Encounter
+  Assumptions (states the High column choices), Financial Responsibility.
+
+THE FINANCIAL RESPONSIBILITY POINT - THE WHOLE POINT OF THE REPORT
+For a patient on the Medicare hospice benefit, care related to the
+terminal diagnosis is the HOSPICE's financial responsibility, not
+Medicare's. Hospitals bill hospices under private contract; non-contracted
+facilities bill chargemaster rates far above Medicare allowable. Our
+figures are therefore a conservative FLOOR on avoided cost, never a
+ceiling. That is now stated in every clinical report.
+
+===============================================================
+PART 3 - KEY FACTS FOR A COLD THREAD
+===============================================================
+
+READ FIRST, IN THIS ORDER
+1. claude/SOS_MPU_Savings_Model_CY2026.md - the corrected model, the
+   source files, the computation rules, the locked figures. NEW this
+   session. Supersedes every hospital figure anywhere else.
+2. claude/SOS_MPU_Reporting_Decisions_Log.md - all of Neil's rulings.
+   Wins over the v1 instructions wherever they conflict.
+3. claude/SOS_MPU_Reporting_Instructions_v1.md - the original spec.
+
+CMS SOURCE FILES TO PULL EVERY YEAR
+- CY2026 NFRM OPPS Addenda (Addendum D1 + Addendum J). MOST IMPORTANT.
+  From cms.gov CMS-1834-FC page, Related Links, "2026 NFRM OPPS Addenda".
+- OPPS Addendum B (July web update supersedes the final-rule figure -
+  49083 is 926.63, not the 937.33 one model quoted).
+- RVU26AR (PPRRVU nonQPP + GPCI2026). CF 33.4009 non-QP, 33.57 QP.
+- Ambulance Fee Schedule PUF. MAC 09102, Florida.
+- IPPS FY2026 Tables 2,3,4A,4B for the wage index (Table 3, by CBSA).
+- CLFS - held but unused, because labs package.
+All are in /root/mpu/rates in the session container, which is ephemeral.
+Re-download next cycle.
+
+COMPUTATION RULES
+- Facility = Addendum B national rate x [(0.60 x wage index) + 0.40].
+- Florida wage index is 1.0369 statewide. Factor 1.02214.
+- Physician = (Work x 1.000) + (Facility PE x 0.956) + (MP x 1.503),
+  times 33.4009. Those GPCIs are Rest of Florida, locality 99.
+- Ambulance, MAC 09102 locality 99 urban base: A0428 BLS non-emerg
+  281.31, A0426 ALS1 non-emerg 337.57, A0427 ALS1 emerg 534.49,
+  A0425 mileage 9.33/mile urban.
+- Round trip is modeled. The hospice pays for the ride home.
+
+BUILD PIPELINE (all in /root/mpu)
+  build_base.py -> classify.py -> master.py -> insights.py
+  prep_partner.py <Partner> <Display>   (writes partner_report.json)
+  charts_v2.py                          (writes v2_*.png + v2_facts.json)
+  node build_docx_v2.js <output.docx>
+InnoVage is separate: charts_innovage_v2.py + chart.py + build_innovage.js.
+
+JULY DELIVERABLES, ALL IN /Users/neilheird/Claude/MPU Reporting
+  MPU_Empath_July_2026_v2.docx      23 pages
+  MPU_AccentCare_July_2026_v2.docx  17 pages
+  MPU_InnoVage_July_2026.docx       12 pages
+  MPU_Chapters_July_2026_v2.docx    10 pages
+  MPU_VITAS_July_2026_v2.docx        9 pages
+  July2026_MPU_Normalized_Data.xlsx
+  July2026_MPU_Insights_Brief.txt
+
+===============================================================
+PART 4 - OPEN ITEMS
+===============================================================
+
+CARRIED FROM SESSION 31, STILL OPEN
+- backfill_referral_added_time still needs to be pasted into Creator and
+  run. Neil's action.
+
+DATA QUALITY, NOT BLOCKING
+- 22 of 83 July InnoVage referrals store DOB with a 20xx century. Chapters
+  has two more (initials G.S. DOB 2044-10-09, W.W. DOB 2045-07-06). Reports
+  correct by subtracting 100 years from any DOB with year >= 2000; the
+  Creator records still need fixing.
+- PVS-1112-JK carries a clinical note byte-identical to PVS-1108-JK for a
+  DIFFERENT patient. Template copy-paste. Medical-record integrity issue,
+  worth resolving on its own.
+- N. duplicate (Creator vs 3008 log, same DOB, different first name), C.D.
+  DOB conflict, a surname particle ("De ") dropped on import, V.A.
+  duplicate, J.D.M. duplicate, two completions dated before their referral.
+- Clinical-side missing PVS: 12 referrals, 4 of which resolve to a visit
+  under a twin referral. Reclassifying moves conversion 94.0% -> 96.0%.
+  Neil has not ruled.
+
+MODEL GAPS
+- Service lines with no hospital benchmark: Imaging / X-Ray,
+  Consultation/Evaluation, Wound/Fracture Care, Pleural Catheter/Chest
+  Tube, Tracheostomy Management, IV Access/Infusion, Lab Draw, Foot Care,
+  Ultrasound/Evaluation. 32 of AccentCare's 51 July visits and 5 of
+  VITAS's 6 fall outside the savings model.
+- SOS does NOT perform X-ray. It is outsourced and the vendor bills
+  hospice directly. Any Imaging / X-Ray benchmark must account for the
+  vendor charge, which Neil does not have to hand.
+- Outlier payments (42 CFR 419.43(d), capped at 3.0% of program payments)
+  are not modeled.
+- Josh's code list has been unchanged since April and contains no clinical
+  gaps that matter under packaging. Ascitic fluid cytology and albumin
+  both package.
+
+DECISION NOT YET MADE
+- Whether to notify partners that July was reissued with corrected
+  methodology, and in what words.
