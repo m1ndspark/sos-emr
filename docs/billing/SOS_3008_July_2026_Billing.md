@@ -92,20 +92,106 @@ The only thing that breaks it is a branch with no 3008 rate on file, and
 
 ---
 
-## 6. `3008_july_map.csv` - NOT IN THIS REPO
+## 6. The 76-row map stays out of this repo
 
-The 76-row map (referral ID, completion date, provider last name) was built in
-the ephemeral session container and did not reach the machine that maintains this
-repo. It is not committed.
+**Decided 2026-08-19.** Neither `3008_july_map.csv` nor the equivalent data block
+inside `create_3008_pvs_july` is committed here.
 
-Two things to decide before it is:
+Why. The rows carry no patient names and no DOBs, only referral ID, completion
+date and provider last name. But a live referral ID bound to a real date of
+service is patient-identifying: it is a record locator for a specific person, and
+the date of service is itself an identifier. CLAUDE.md guarantees that this repo
+holds field link names rather than patient data, and a 76-row roster of real
+referrals with service dates is patient data. It does not belong here.
 
-1. **Recover it.** The authoritative copy is whatever Neil holds, or it can be
-   regenerated from `sos_3008_log_july_2026.xlsx` plus the Creator referral
-   records.
-2. **Decide whether it belongs here at all.** Referral IDs bound to completion
-   dates are patient-identifying in context, and this repo is PHI-clean by hard
-   rule. If it is committed, it should carry no patient names.
+What that costs, and it is a real cost:
 
-Until then, the hardcoded ID list inside `create_3008_pvs_july` in Creator is the
-only copy of the mapping.
+- `docs/billing/create_3008_pvs_july.dg` **does not round-trip into Creator.**
+  Every line of logic is there verbatim and reviewable; only the `v_rows.add(...)`
+  block is replaced by a comment. Pasting the repo copy into Creator would produce
+  a function that creates nothing.
+- **The copy in Creator is now the only copy of the mapping.** If that function is
+  edited or deleted before the backfill runs, the mapping is gone and has to be
+  rebuilt from `sos_3008_log_july_2026.xlsx` against the Creator referral records.
+
+Two things for Neil:
+
+1. **Confirm the call.** If you would rather have the rows tracked, say so and
+   they go in.
+2. **Keep a copy of the map outside the repo** before the Creator function is
+   touched. That is tracked as an OPEN row in `context/23_task_list.md`.
+
+---
+
+## 7. Defect found in the delivered body: PVS_ID sequence is off by one
+
+Found by ccode 2026-08-19 when the real body was committed and compared against
+the other two PVS minters in the repo. **Fix this before running COMMIT.**
+
+### The two conventions
+
+Every existing minter treats `Sequence_Tracker.Object_Sequence` as **the next
+free number**. `Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg` and
+`functions/backfill_pvs_ids.dg` both do:
+
+```
+v_seq = t.Object_Sequence;          // read N
+update t [ Object_Sequence = v_seq + 1 ];   // store N+1
+break;
+... "PVS-" + v_seq                  // issue PVS-N
+```
+
+`create_3008_pvs_july` does the opposite. It treats the tracker as **the last
+used number**:
+
+```
+for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
+{
+    v_seq = v_st.Object_Sequence + 1;   // read N, compute N+1
+    v_st.Object_Sequence = v_seq;       // store N+1
+}
+v_pvsRow.PVS_ID = "PVS-" + v_seq + ...  // issue PVS-(N+1)
+```
+
+### What that costs
+
+Say the tracker holds `N` when COMMIT runs.
+
+| | Issued | Tracker left at |
+|---|---|---|
+| Expected (repo convention) | PVS-N through PVS-(N+75) | N+76, the next free |
+| Actual | PVS-(N+1) through PVS-(N+76) | N+76, the **last used** |
+
+Two consequences:
+
+1. **PVS-N is skipped.** A gap in the ID sequence. Cosmetic, harmless.
+2. **The next PVS created after the backfill duplicates PVS-(N+76).** The form's
+   stamp generator reads N+76, treats it as free, and issues it a second time.
+   Two different visits, same PVS_ID, in a system where PVS_ID is the billing
+   record locator. This one is not cosmetic.
+
+### Why DRYRUN will not catch it
+
+The mint sits inside `if(pMode == "COMMIT")`. A DRYRUN produces a clean-looking
+report and never touches `Sequence_Tracker`. The duplicate appears only after
+COMMIT, on the next visit anyone creates through the form.
+
+### The fix
+
+Match the existing convention:
+
+```
+for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
+{
+    v_seq = v_st.Object_Sequence;
+    v_st.Object_Sequence = v_seq + 1;
+    break;
+}
+```
+
+The `break` matters too. Both existing minters have it; this one does not. It is
+harmless while exactly one PVS row exists in `Sequence_Tracker`, which is the
+design, but it double-increments if a second ever appears.
+
+Left verbatim in the repo so the file still matches Creator. Fix in Creator,
+re-extract, then run DRYRUN.

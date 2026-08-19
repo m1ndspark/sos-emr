@@ -1,1 +1,138 @@
-/* PENDING EXTRACTION - send_pvs_fax. Written 2026-08-19 (Session 34) in an ephemeral session container and pasted into Creator; the container is gone and no copy reached this machine. Replace this entire file with the verified Deluge copied out of Creator. Behavior is specified in docs/fax/SOS_PVS_Fax_System_Design.md section 8. */
+map send_pvs_fax(int pPvsID, string pToName, string pToPartner, string pToFax, string pToAttn, string pRemarks, string pNumberSource, string pOverrideReason, list pImageUrls, list pAttachFiles, int pAttempt, int pOriginalFaxID)
+{
+	v_out = Map();
+	v_pvs = Encounter_PatientVisit[ID == pPvsID];
+	v_seqVal = 0;
+	for each  v_rec in Sequence_Tracker[Object_Prefix == "FAX"]
+	{
+		v_seqVal = v_rec.Object_Sequence;
+		v_seqVal = v_seqVal + 1;
+		v_rec.Object_Sequence = v_seqVal;
+	}
+	v_faxId = "FAX-" + zoho.currentdate.toString("MMddyy") + "-" + leftpad(v_seqVal.toString(),4).replaceAll(" ","0",true);
+	v_digits = pToFax.replaceAll("[^0-9]","",true);
+	if(v_digits.length() == 10)
+	{
+		v_digits = "1" + v_digits;
+	}
+	v_e164 = "+" + v_digits;
+	v_log = insert into Fax_Log
+	[
+		PVS_Link = pPvsID
+		Referral_Link = v_pvs.Referral_Link
+		Partner_Location_Link = v_pvs.Billing_Branch
+		Fax_ID = v_faxId
+		Destination_Fax = v_e164
+		Destination_Name = pToName
+		Number_Source = pNumberSource
+		Override_Reason = pOverrideReason
+		Cover_Remarks = pRemarks
+		Fax_Status = "Building"
+		Attempt_Number = pAttempt
+		Original_Fax_Link = pOriginalFaxID
+		Sent_By = zoho.loginuserid
+		Submitted_Time = zoho.currenttime
+	];
+	v_logId = v_log.ID;
+	v_row = Fax_Log[ID == v_logId];
+	v_html = thisapp.build_pvs_fax_html(pPvsID,v_faxId,pToName,pToPartner,pToFax,pToAttn,pRemarks,pImageUrls);
+	v_dobTxt = "";
+	if(v_pvs.Patient_DOB != null)
+	{
+		v_dobTxt = v_pvs.Patient_DOB.toString("MM/dd/yyyy");
+	}
+	v_footer = "<div style='width:100%;font-family:Helvetica,Arial,sans-serif;font-size:7pt;color:#4C4C89;padding:0 0.65in;border-top:1px solid #BFBFBF;padding-top:4px;'><span style='float:left;'>" + ifnull(v_pvs.Patient_Full_Name_1,"") + " &nbsp;|&nbsp; DOB " + v_dobTxt + " &nbsp;|&nbsp; PVS " + ifnull(v_pvs.PVS_ID,"") + " &nbsp;|&nbsp; " + v_faxId + "</span><span style='float:right;'>Confidential &mdash; Protected Health Information &nbsp;|&nbsp; Page <span class='pageNumber'></span> of <span class='totalPages'></span></span></div>";
+	v_opt = Collection();
+	v_opt.insert("units","in");
+	v_opt.insert("page-width","8.5");
+	v_opt.insert("page-height","11");
+	v_opt.insert("top-margin","0.6");
+	v_opt.insert("bottom-margin","0.75");
+	v_opt.insert("left-margin","0.65");
+	v_opt.insert("right-margin","0.65");
+	v_opt.insert("print-background",true);
+	v_opt.insert("custom-header-footer",true);
+	v_opt.insert("header","<div></div>");
+	v_opt.insert("footer",v_footer);
+	v_opt.insert("footer-spacing","5");
+	v_opt.insert("disable-javascript",true);
+	v_opt.insert("mask-html",true);
+	v_pdf = zoho.file.convertToPDF(v_html,v_opt);
+	v_pdf.setFileName(v_faxId + ".pdf");
+	v_row.Fax_PDF = v_pdf;
+	v_token = thisapp.get_rc_token();
+	if(v_token == "")
+	{
+		v_row.Fax_Status = "Failed";
+		v_row.Fax_Error_Reason = "No RingCentral access token";
+		v_row.Completed_Time = zoho.currenttime;
+		v_out.put("fax_id",v_faxId);
+		v_out.put("log_id",v_logId);
+		v_out.put("status","Failed");
+		v_out.put("error","No RingCentral access token");
+		return v_out;
+	}
+	v_parts = List();
+	v_pTo = Map();
+	v_pTo.put("paramName","to");
+	v_pTo.put("content",v_e164);
+	v_pTo.put("stringPart","true");
+	v_parts.add(v_pTo);
+	v_pRes = Map();
+	v_pRes.put("paramName","faxResolution");
+	v_pRes.put("content","High");
+	v_pRes.put("stringPart","true");
+	v_parts.add(v_pRes);
+	v_pCov = Map();
+	v_pCov.put("paramName","coverIndex");
+	v_pCov.put("content","0");
+	v_pCov.put("stringPart","true");
+	v_parts.add(v_pCov);
+	v_pdf.setParamName("attachment");
+	v_parts.add(v_pdf);
+	if(pAttachFiles != null)
+	{
+		for each  v_f in pAttachFiles
+		{
+			v_f.setParamName("attachment");
+			v_parts.add(v_f);
+		}
+	}
+	v_resp = invokeurl
+	[
+		url :"https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/fax"
+		type :POST
+		files:v_parts
+		headers:{"Authorization":"Bearer " + v_token,"Accept":"application/json"}
+	];
+	v_msgId = "";
+	if(v_resp.get("id") != null)
+	{
+		v_msgId = v_resp.get("id").toString();
+	}
+	if(v_msgId != "")
+	{
+		v_row.RC_Message_ID = v_msgId;
+		v_row.Fax_Status = "Queued";
+		v_row.Last_Polled_Time = zoho.currenttime;
+		if(v_resp.get("conversationId") != null)
+		{
+			v_row.RC_Conversation_ID = v_resp.get("conversationId").toString();
+		}
+		v_pvs.Fax_Status = "Queued";
+		v_out.put("status","Queued");
+	}
+	else
+	{
+		v_row.Fax_Status = "Failed";
+		v_row.Fax_Error_Reason = v_resp.toString().left(250);
+		v_row.Completed_Time = zoho.currenttime;
+		v_pvs.Fax_Status = "Failed";
+		v_out.put("status","Failed");
+		v_out.put("error",v_resp.toString().left(250));
+	}
+	v_out.put("fax_id",v_faxId);
+	v_out.put("log_id",v_logId);
+	v_out.put("rc_message_id",v_msgId);
+	return v_out;
+}

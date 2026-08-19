@@ -1,1 +1,34 @@
-/* PENDING EXTRACTION - get_rc_token. Written 2026-08-19 (Session 34) in an ephemeral session container and pasted into Creator; the container is gone and no copy reached this machine. Replace this entire file with the verified Deluge copied out of Creator. Behavior is specified in docs/fax/SOS_PVS_Fax_System_Design.md section 8. */
+string get_rc_token()
+{
+	v_cfg = API_Config[Config_Name == "RingCentral"];
+	if(v_cfg.count() == 0)
+	{
+		return "";
+	}
+	if(v_cfg.RC_Access_Token != null && v_cfg.RC_Access_Token != "" && v_cfg.RC_Token_Expiry != null)
+	{
+		if(v_cfg.RC_Token_Expiry > zoho.currenttime)
+		{
+			return v_cfg.RC_Access_Token.toString();
+		}
+	}
+	v_basic = zoho.encryption.base64Encode(v_cfg.RC_Client_ID + ":" + v_cfg.RC_Client_Secret);
+	v_body = Map();
+	v_body.put("grant_type","urn:ietf:params:oauth:grant-type:jwt-bearer");
+	v_body.put("assertion",v_cfg.RC_JWT_Assertion.toString());
+	v_resp = invokeurl
+	[
+		url :"https://platform.ringcentral.com/restapi/oauth/token"
+		type :POST
+		parameters:v_body
+		headers:{"Authorization":"Basic " + v_basic,"Content-Type":"application/x-www-form-urlencoded","Accept":"application/json"}
+	];
+	v_token = "";
+	if(v_resp.get("access_token") != null)
+	{
+		v_token = v_resp.get("access_token").toString();
+		v_cfg.RC_Access_Token = v_token;
+		v_cfg.RC_Token_Expiry = zoho.currenttime.addMinutes(115);
+	}
+	return v_token;
+}

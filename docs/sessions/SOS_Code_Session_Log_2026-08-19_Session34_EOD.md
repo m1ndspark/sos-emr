@@ -243,9 +243,14 @@ first. It is self-contained.
 
 All artifacts were produced in the session container under `/root/mpu/fax` and
 delivered to Neil as files. **The container is ephemeral.** The functions and the
-template are pasted into Creator; that is the durable copy. The `.dg` files under
-`docs/fax/deluge/` are PENDING placeholders until the verified bodies are
-extracted from Creator.
+template are pasted into Creator; that is the durable copy.
+
+UPDATE 2026-08-19, after this log was first written: the real bodies were
+recovered from the container and committed. All four fax functions are verbatim
+in `docs/fax/deluge/`. `create_3008_pvs_july` is in `docs/billing/` with its 76
+data rows redacted and all logic intact. Because these came from the container
+rather than a Creator export, they should still be re-extracted and diffed once a
+fresh `.ds` export exists.
 
 ### Carried forward, unchanged
 

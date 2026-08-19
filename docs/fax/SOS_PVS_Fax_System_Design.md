@@ -51,7 +51,9 @@ Plain language, in order. This is the contract the code implements.
    prefix), inserts the `Fax_Log` record, builds the HTML via
    `build_pvs_fax_html`, renders the PDF through `zoho.file.convertToPDF`,
    attaches the PDF to the log, gets a token from `get_rc_token`, and posts
-   multipart to RingCentral. The PVS `Fax_Status` becomes `Queued` or `Failed`.
+   multipart to RingCentral. The `Fax_Log` row is inserted as `Building`, then
+   moves to `Queued` or `Failed`. The PVS `Fax_Status` becomes `Queued` or
+   `Failed`. See section 4.2 on the two different `Fax_Status` fields.
 10. **Poll.** `poll_fax_status` runs on a schedule against every `Queued` record.
     Sent closes the record. A failure records `faxErrorCode` and routes to
     `Retry Pending` or `Permanent Fail`. Anything still `Queued` past 4 hours is
@@ -86,8 +88,33 @@ Completed) DOES fax.
 
 Status as of the 2026-08-19 06:01 schema capture: both fields exist on the form,
 but `Fax_Status` carries only Not Sent / Queued / Sent. **`Failed` is missing and
-must be added**, otherwise `send_pvs_fax` and `poll_fax_status` cannot write the
+must be added.** `send_pvs_fax` writes `Queued` and `Failed`; `poll_fax_status`
+writes `Sent` and `Failed`. Without the choice, both functions fail to write the
 failure state. See `schema/Encounter_PatientVisit.md`.
+
+> ### There are TWO `Fax_Status` fields and they are NOT the same
+>
+> This is the single easiest thing to get wrong in this system.
+>
+> | | `Encounter_PatientVisit.Fax_Status` | `Fax_Log.Fax_Status` |
+> |---|---|---|
+> | Purpose | the visit's headline state, for reports and the digest | the transmission's full lifecycle, for the audit trail |
+> | Choices | Not Sent, Queued, Sent, Failed | Building, Queued, Sent, Failed, Retry Pending, Stuck, Permanent Fail |
+> | Count | 4 | 7 |
+>
+> Written by:
+>
+> | Function | Writes to PVS | Writes to Fax_Log |
+> |---|---|---|
+> | `send_pvs_fax` | Queued, Failed | **Building**, Queued, Failed |
+> | `poll_fax_status` | Sent, Failed | Sent, **Retry Pending**, **Stuck**, **Permanent Fail** |
+>
+> A PVS never carries Building, Retry Pending, Stuck or Permanent Fail. Those
+> four are lifecycle states of one transmission, and only the log holds them.
+>
+> The three-option capture in `schema/Encounter_PatientVisit.md` is reading the
+> **PVS** field. It says nothing about the `Fax_Log` field, which does not exist
+> yet at all.
 
 ### 4.3 `API_Config` - new form
 
@@ -112,11 +139,45 @@ Roughly 25 fields. A hidden form: Deluge inserts only, no user entry. It is the
 audit record of every transmission, and it holds the rendered PDF as an
 attachment so the archive matches exactly what was sent.
 
-It carries, at minimum: the fax ID, the PVS link, destination number, whether the
-number was overridden and what the address-book value was, sender identity,
-remarks text, attachment selection, the rendered PDF, the RingCentral message ID,
-send status, `faxErrorCode`, attempt count, and the timestamps for queued, sent
-and failed.
+These are the 22 fields the two functions actually reference. This list is
+derived from the delivered bodies in `docs/fax/deluge/`, so it is the minimum
+that must exist for either function to save.
+
+| Field | Type | Written by |
+|---|---|---|
+| `Fax_ID` | single line | send |
+| `PVS_Link` | lookup to Encounter_PatientVisit | send |
+| `Referral_Link` | lookup to Referrals_Main | send |
+| `Partner_Location_Link` | lookup to Partner_Locations | send |
+| `Destination_Fax` | single line (E.164) | send |
+| `Destination_Name` | single line | send |
+| `Number_Source` | single line or dropdown | send |
+| `Override_Reason` | multi line | send |
+| `Cover_Remarks` | multi line | send |
+| `Fax_Status` | dropdown, **7 options** (below) | send and poll |
+| `Attempt_Number` | number | send writes, poll reads |
+| `Original_Fax_Link` | lookup to Fax_Log (self) | send |
+| `Sent_By` | single line or user field | send |
+| `Submitted_Time` | date-time | send writes, poll reads |
+| `Fax_PDF` | file upload | send |
+| `RC_Message_ID` | single line | send writes, poll reads |
+| `RC_Conversation_ID` | single line | send |
+| `Last_Polled_Time` | date-time | send and poll |
+| `Completed_Time` | date-time | send and poll |
+| `Fax_Error_Code` | single line | poll |
+| `Fax_Error_Reason` | single line, 250 chars | send and poll |
+| `Page_Count` | number | poll |
+
+**`Fax_Log.Fax_Status` takes seven options**, and is not the same field as
+`Encounter_PatientVisit.Fax_Status`:
+
+```
+Building | Queued | Sent | Failed | Retry Pending | Stuck | Permanent Fail
+```
+
+`send_pvs_fax` inserts the row as `Building`, then moves it to `Queued` or
+`Failed`. `poll_fax_status` moves it to `Sent`, `Retry Pending`, `Stuck` or
+`Permanent Fail`. Miss any one option and the corresponding write silently fails.
 
 Status: **NOT YET CREATED as specified.** The 2026-08-19 schema capture shows a
 `Fax_Log` form with only two fields, `Fax_ID` and `PVS_Link`. This is what
@@ -241,14 +302,82 @@ one page per image attachment.
 
 ## 8. Deluge functions
 
-Bodies live in `docs/fax/deluge/`. Creator is the source of truth for all four.
+Real bodies live in `docs/fax/deluge/`, committed 2026-08-19. They came from
+the session container, not from a Creator export, so treat them as the
+as-delivered copy. Creator remains the source of truth; re-extract and diff
+once a fresh `.ds` export exists.
 
 | Function | What it does | Status |
 |---|---|---|
 | `build_pvs_fax_html` | Returns the finished HTML for a PVS. `@@NAME@@` tokens, per-token HTML escaping with the note and amendment banner exempt. | written, in Creator |
-| `get_rc_token` | Reads `API_Config`. Returns the cached token if it has more than 5 minutes left, otherwise mints a new one from the JWT bearer grant and stores it with a 115 minute expiry. **Nothing else ever touches a token.** | written, in Creator |
-| `send_pvs_fax` | Stamps the fax ID, inserts the `Fax_Log` record, renders the PDF through `zoho.file.convertToPDF`, attaches it to the log, posts multipart to RingCentral, records Queued or Failed. | written, in Creator |
-| `poll_fax_status` | Polls every Queued record, closes Sent ones, records `faxErrorCode` on failures, routes to Retry Pending or Permanent Fail, marks anything Queued past 4 hours as Stuck. Returns a one-line summary so Creator's scheduled-workflow history is a usable run trail. | written, **does not save** until `Fax_Log` exists in full |
+| `get_rc_token` | Reads `API_Config`. Returns the cached token if `RC_Token_Expiry` is still in the future, otherwise mints a new one from the JWT bearer grant and stores it with a 115 minute expiry. **Nothing else ever touches a token.** | written, in Creator |
+| `send_pvs_fax` | Stamps the fax ID, inserts the `Fax_Log` record as `Building`, renders the PDF through `zoho.file.convertToPDF`, attaches it to the log, posts multipart to RingCentral, records Queued or Failed on both the log and the PVS. | written, in Creator |
+| `poll_fax_status` | Polls every Queued record, closes Sent ones, records `faxErrorCode` on failures, routes to Retry Pending or Permanent Fail, marks anything Queued past 4 hours as Stuck. Permanent Fail is taken either from a no-retry error code or from `Attempt_Number >= 3`. Returns a one-line summary so Creator's scheduled-workflow history is a usable run trail. | written, **does not save** until `Fax_Log` exists in full |
+
+---
+
+### 8.1 Two defects in the delivered bodies
+
+Found by ccode when the real bodies were committed. Neither blocks the build;
+both should be fixed in Creator and re-extracted.
+
+**1. `send_pvs_fax` prints an em dash on every faxed page.** The running footer
+contains:
+
+```
+Confidential &mdash; Protected Health Information
+```
+
+`&mdash;` renders as an em dash, and CLAUDE.md forbids em dashes in any SOS
+content. It is an HTML entity, so a literal-character grep does not catch it and
+the pre-commit hook did not flag it. Replace with a hyphen or a pipe. Left
+verbatim in the repo rather than edited here, so the file still matches what is
+running in Creator.
+
+(The two `&mdash;` occurrences in `build_pvs_fax_html` are different and are
+fine: they sit inside the escaping logic, repairing a double-escaped entity that
+arrives in source data. They do not introduce an em dash of our own.)
+
+**2. `get_rc_token` has no 5-minute safety margin.** The design called for
+returning the cached token only when it has more than 5 minutes left. The code
+actually reads:
+
+```
+if(v_cfg.RC_Token_Expiry > zoho.currenttime)
+```
+
+which hands back a token with one second left on it, and the fax POST then fails
+on an expired bearer. The fix is `zoho.currenttime.addMinutes(5)`. Worth doing
+before the first live send, since the failure mode is an intermittent,
+hard-to-reproduce fax failure.
+
+**3. `poll_fax_status`'s no-retry list may not match the ruling.** The ruling is
+"retry 3 times, but only on codes RingCentral has already given up on, never on
+busy." The code routes to `Permanent Fail` only for:
+
+```
+NoFaxMachine | WrongNumber | NotAcceptingFax | InvalidNumber
+NumberBlocked | InternationalDisabled
+```
+
+and retries everything else. No busy or no-answer code appears in that list, so a
+busy line currently routes to `Retry Pending`, which is the one thing the ruling
+says not to do. Neil to confirm the exact `faxErrorCode` strings RingCentral
+returns for a busy line and for no answer, then add them. Not guessed here.
+
+**4. `send_pvs_fax` omits `break` on the `Sequence_Tracker` read.** Harmless
+while exactly one FAX row exists, which is the design, but every other minter in
+the repo has the `break`. Note also that this function uses the "last used"
+convention while the PVS minters use "next free"; that is self-consistent for FAX
+because nothing else mints a fax ID, but it is worth knowing when reading across
+the two. The same mismatch IS a live defect in `create_3008_pvs_july`, see
+`docs/billing/SOS_3008_July_2026_Billing.md` section 7.
+
+Related, and for Neil to confirm: the stored expiry is 115 minutes. That is
+correct only if the RingCentral app issues a 7200-second access token. If it
+issues the more common 3600-second token, every cached token is treated as valid
+for roughly an hour after it has actually died. **VERIFY LIVE** against the
+`expires_in` value in the first real token response.
 
 ---
 
@@ -259,7 +388,7 @@ Bodies live in `docs/fax/deluge/`. Creator is the source of truth for all four.
 - The 4am digest function.
 - The `PVS_Fax_Review` page.
 - Faxes Sent and Fax Exceptions reports.
-- Add the `Failed` choice to `Fax_Status`.
+- Add the `Failed` choice to `Encounter_PatientVisit.Fax_Status` (4 options total).
 - Add `Partner_PVS_Fax` to `Partner_Billing_Contacts`.
 
 ## 10. Blocking, on Neil
