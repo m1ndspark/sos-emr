@@ -6,8 +6,8 @@ map send_pvs_fax(int pPvsID, string pToName, string pToPartner, string pToFax, s
 	for each  v_rec in Sequence_Tracker[Object_Prefix == "FAX"]
 	{
 		v_seqVal = v_rec.Object_Sequence;
-		v_seqVal = v_seqVal + 1;
-		v_rec.Object_Sequence = v_seqVal;
+		v_rec.Object_Sequence = v_seqVal + 1;
+		break;
 	}
 	v_faxId = "FAX-" + zoho.currentdate.toString("MMddyy") + "-" + leftpad(v_seqVal.toString(),4).replaceAll(" ","0",true);
 	v_digits = pToFax.replaceAll("[^0-9]","",true);
@@ -41,7 +41,7 @@ map send_pvs_fax(int pPvsID, string pToName, string pToPartner, string pToFax, s
 	{
 		v_dobTxt = v_pvs.Patient_DOB.toString("MM/dd/yyyy");
 	}
-	v_footer = "<div style='width:100%;font-family:Helvetica,Arial,sans-serif;font-size:7pt;color:#4C4C89;padding:0 0.65in;border-top:1px solid #BFBFBF;padding-top:4px;'><span style='float:left;'>" + ifnull(v_pvs.Patient_Full_Name_1,"") + " &nbsp;|&nbsp; DOB " + v_dobTxt + " &nbsp;|&nbsp; PVS " + ifnull(v_pvs.PVS_ID,"") + " &nbsp;|&nbsp; " + v_faxId + "</span><span style='float:right;'>Confidential &mdash; Protected Health Information &nbsp;|&nbsp; Page <span class='pageNumber'></span> of <span class='totalPages'></span></span></div>";
+	v_footer = "<div style='width:100%;font-family:Helvetica,Arial,sans-serif;font-size:7pt;color:#4C4C89;padding:0 0.65in;border-top:1px solid #BFBFBF;padding-top:4px;'><span style='float:left;'>" + ifnull(v_pvs.Patient_Full_Name_1,"") + " &nbsp;|&nbsp; DOB " + v_dobTxt + " &nbsp;|&nbsp; PVS " + ifnull(v_pvs.PVS_ID,"") + " &nbsp;|&nbsp; " + v_faxId + "</span><span style='float:right;'>Confidential - Protected Health Information &nbsp;|&nbsp; Page <span class='pageNumber'></span> of <span class='totalPages'></span></span></div>";
 	v_opt = Collection();
 	v_opt.insert("units","in");
 	v_opt.insert("page-width","8.5");

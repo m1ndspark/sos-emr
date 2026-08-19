@@ -41,7 +41,7 @@ string build_pvs_fax_html(int pPvsID, string pFaxID, string pToName, string pToP
 	v_banner = "";
 	if(v_noteType == "Addendum")
 	{
-		v_banner = "<div class='amend'>AMENDED NOTE &mdash; SUPERSEDES THE PREVIOUSLY FAXED SUMMARY</div>";
+		v_banner = "<div class='amend'>AMENDED NOTE - SUPERSEDES THE PREVIOUSLY FAXED SUMMARY</div>";
 	}
 	v_pvsIdTxt = ifnull(v_pvs.PVS_ID,"").toString();
 	v_imgPages = "";
@@ -94,7 +94,7 @@ string build_pvs_fax_html(int pPvsID, string pFaxID, string pToName, string pToP
 		v_val = v_val.replaceAll("<","&lt;",true);
 		v_val = v_val.replaceAll(">","&gt;",true);
 		v_val = v_val.replaceAll("&amp;nbsp;","&nbsp;",true);
-		v_val = v_val.replaceAll("&amp;mdash;","&mdash;",true);
+		v_val = v_val.replaceAll("&amp;mdash;","-",true);
 		v_html = v_html.replaceAll("@@" + v_key + "@@",v_val,true);
 	}
 	v_noteHtml = ifnull(v_pvs.Final_Clinical_Note,"").toString().trim();

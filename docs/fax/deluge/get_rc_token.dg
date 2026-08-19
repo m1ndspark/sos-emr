@@ -7,7 +7,7 @@ string get_rc_token()
 	}
 	if(v_cfg.RC_Access_Token != null && v_cfg.RC_Access_Token != "" && v_cfg.RC_Token_Expiry != null)
 	{
-		if(v_cfg.RC_Token_Expiry > zoho.currenttime)
+		if(v_cfg.RC_Token_Expiry > zoho.currenttime.addMinutes(5))
 		{
 			return v_cfg.RC_Access_Token.toString();
 		}
@@ -27,8 +27,14 @@ string get_rc_token()
 	if(v_resp.get("access_token") != null)
 	{
 		v_token = v_resp.get("access_token").toString();
+		v_ttl = 3600;
+		if(v_resp.get("expires_in") != null)
+		{
+			v_ttl = v_resp.get("expires_in").toLong();
+		}
+		v_mins = v_ttl / 60;
 		v_cfg.RC_Access_Token = v_token;
-		v_cfg.RC_Token_Expiry = zoho.currenttime.addMinutes(115);
+		v_cfg.RC_Token_Expiry = zoho.currenttime.addMinutes(v_mins);
 	}
 	return v_token;
 }

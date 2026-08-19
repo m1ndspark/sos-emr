@@ -12,8 +12,8 @@ string create_3008_pvs_july(string pMode)
 	   referrals with service dates is patient data.
 
 	   THIS FILE THEREFORE DOES NOT ROUND-TRIP INTO CREATOR. The complete
-	   function, row list included, lives in Creator and is the only copy.
-	   Everything below this block is verbatim.
+	   function, row list included, lives in Creator and is the only copy
+	   besides a CSV held outside the repo. Everything below is verbatim.
 	   See docs/billing/SOS_3008_July_2026_Billing.md section 6.
 	   --------------------------------------------------------------- */
 	v_made = 0;
@@ -108,8 +108,9 @@ string create_3008_pvs_july(string pMode)
 			v_seq = 0;
 			for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
 			{
-				v_seq = v_st.Object_Sequence + 1;
-				v_st.Object_Sequence = v_seq;
+				v_seq = v_st.Object_Sequence;
+				v_st.Object_Sequence = v_seq + 1;
+				break;
 			}
 			v_pvsRow = Encounter_PatientVisit[ID == v_new.ID];
 			v_pvsRow.PVS_ID = "PVS-" + v_seq + "-" + v_emp.Employee_Initials;

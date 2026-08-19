@@ -123,62 +123,35 @@ Two things for Neil:
 
 ---
 
-## 7. Defect found in the delivered body: PVS_ID sequence is off by one
+## 7. PVS_ID sequence defect - FOUND AND FIXED
 
-Found by ccode 2026-08-19 when the real body was committed and compared against
-the other two PVS minters in the repo. **Fix this before running COMMIT.**
+Found by ccode 2026-08-19 when the real body was first committed and compared
+against the other PVS minters in the repo. **Fixed in source and re-extracted the
+same day.** Recorded here because it would have been silent, and because it
+explains why the DRYRUN gate matters.
 
-### The two conventions
+### What was wrong
 
-Every existing minter treats `Sequence_Tracker.Object_Sequence` as **the next
-free number**. `Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg` and
-`functions/backfill_pvs_ids.dg` both do:
-
-```
-v_seq = t.Object_Sequence;          // read N
-update t [ Object_Sequence = v_seq + 1 ];   // store N+1
-break;
-... "PVS-" + v_seq                  // issue PVS-N
-```
-
-`create_3008_pvs_july` does the opposite. It treats the tracker as **the last
-used number**:
+Every minter in this repo treats `Sequence_Tracker.Object_Sequence` as **the next
+free number**. `create_3008_pvs_july` treated it as the last used one:
 
 ```
-for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
-{
-    v_seq = v_st.Object_Sequence + 1;   // read N, compute N+1
-    v_st.Object_Sequence = v_seq;       // store N+1
-}
-v_pvsRow.PVS_ID = "PVS-" + v_seq + ...  // issue PVS-(N+1)
+v_seq = v_st.Object_Sequence + 1;   // read N, compute N+1
+v_st.Object_Sequence = v_seq;       // store N+1
+... "PVS-" + v_seq                  // issue PVS-(N+1)
 ```
 
-### What that costs
+With the tracker at `N`, that issues `PVS-(N+1)` through `PVS-(N+76)` and leaves
+the tracker at N+76, the **last used** value rather than the next free one. `PVS-N`
+is skipped, which is a harmless gap. The damage is at the other end: the next PVS
+created through the form reads N+76, treats it as free, and issues it a second
+time. **Two visits, one `PVS_ID`, in a system where `PVS_ID` is the billing record
+locator.**
 
-Say the tracker holds `N` when COMMIT runs.
+DRYRUN could not have caught it. The mint sits inside `if(pMode == "COMMIT")`, so
+a dry run produces a clean report and never touches `Sequence_Tracker`.
 
-| | Issued | Tracker left at |
-|---|---|---|
-| Expected (repo convention) | PVS-N through PVS-(N+75) | N+76, the next free |
-| Actual | PVS-(N+1) through PVS-(N+76) | N+76, the **last used** |
-
-Two consequences:
-
-1. **PVS-N is skipped.** A gap in the ID sequence. Cosmetic, harmless.
-2. **The next PVS created after the backfill duplicates PVS-(N+76).** The form's
-   stamp generator reads N+76, treats it as free, and issues it a second time.
-   Two different visits, same PVS_ID, in a system where PVS_ID is the billing
-   record locator. This one is not cosmetic.
-
-### Why DRYRUN will not catch it
-
-The mint sits inside `if(pMode == "COMMIT")`. A DRYRUN produces a clean-looking
-report and never touches `Sequence_Tracker`. The duplicate appears only after
-COMMIT, on the next visit anyone creates through the form.
-
-### The fix
-
-Match the existing convention:
+### The fix, now in place
 
 ```
 for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
@@ -189,9 +162,18 @@ for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
 }
 ```
 
-The `break` matters too. Both existing minters have it; this one does not. It is
-harmless while exactly one PVS row exists in `Sequence_Tracker`, which is the
-design, but it double-increments if a second ever appears.
+Reads N, issues `PVS-N`, stores N+1, and breaks. This matches
+`Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg` and
+`functions/backfill_pvs_ids.dg` exactly.
 
-Left verbatim in the repo so the file still matches Creator. Fix in Creator,
-re-extract, then run DRYRUN.
+The `break` matters independently: without it the loop double-increments if a
+second `PVS` row ever appears in `Sequence_Tracker`.
+
+The identical defect was in `send_pvs_fax`'s `FAX` minter and is also fixed. See
+`docs/fax/SOS_PVS_Fax_System_Design.md` section 8.1, defect 5. All four minters in
+the repo now share the one convention.
+
+### What is left
+
+Nothing on this defect. The remaining gate on the backfill is Neil running DRYRUN,
+reviewing the output, then COMMIT.

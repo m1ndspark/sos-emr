@@ -302,82 +302,131 @@ one page per image attachment.
 
 ## 8. Deluge functions
 
-Real bodies live in `docs/fax/deluge/`, committed 2026-08-19. They came from
-the session container, not from a Creator export, so treat them as the
-as-delivered copy. Creator remains the source of truth; re-extract and diff
-once a fresh `.ds` export exists.
+Real bodies live in `docs/fax/deluge/`, committed 2026-08-19 and re-extracted
+the same day after the five fixes in 8.1. They came from the session container,
+not from a Creator export, so treat them as the as-delivered copy. Creator
+remains the source of truth; re-extract and diff once a fresh `.ds` export
+exists.
 
 | Function | What it does | Status |
 |---|---|---|
 | `build_pvs_fax_html` | Returns the finished HTML for a PVS. `@@NAME@@` tokens, per-token HTML escaping with the note and amendment banner exempt. | written, in Creator |
-| `get_rc_token` | Reads `API_Config`. Returns the cached token if `RC_Token_Expiry` is still in the future, otherwise mints a new one from the JWT bearer grant and stores it with a 115 minute expiry. **Nothing else ever touches a token.** | written, in Creator |
+| `get_rc_token` | Reads `API_Config`. Returns the cached token if it has more than 5 minutes left, otherwise mints a new one from the JWT bearer grant and stores it with an expiry derived from the response's `expires_in` (3600 second fallback). **Nothing else ever touches a token.** | written, in Creator |
 | `send_pvs_fax` | Stamps the fax ID, inserts the `Fax_Log` record as `Building`, renders the PDF through `zoho.file.convertToPDF`, attaches it to the log, posts multipart to RingCentral, records Queued or Failed on both the log and the PVS. | written, in Creator |
 | `poll_fax_status` | Polls every Queued record, closes Sent ones, records `faxErrorCode` on failures, routes to Retry Pending or Permanent Fail, marks anything Queued past 4 hours as Stuck. Permanent Fail is taken either from a no-retry error code or from `Attempt_Number >= 3`. Returns a one-line summary so Creator's scheduled-workflow history is a usable run trail. | written, **does not save** until `Fax_Log` exists in full |
 
 ---
 
-### 8.1 Two defects in the delivered bodies
+### 8.1 Five defects found and fixed
 
-Found by ccode when the real bodies were committed. Neither blocks the build;
-both should be fixed in Creator and re-extracted.
+Found by ccode 2026-08-19 when the real bodies were first committed (`fc4276d`),
+except defect 5 which Neil caught. **All five are fixed in source and the
+corrected bodies are re-extracted here** as of `fc4276d`'s follow-up commit.
 
-**1. `send_pvs_fax` prints an em dash on every faxed page.** The running footer
-contains:
+| # | Function | Defect | Status |
+|---|---|---|---|
+| 1 | `create_3008_pvs_july` | `PVS_ID` sequence off by one, would duplicate a billing record locator | FIXED |
+| 2 | `send_pvs_fax`, `build_pvs_fax_html` | `&mdash;` rendered an em dash on every faxed page | FIXED |
+| 3 | `get_rc_token` | no safety margin on the cached token | FIXED |
+| 4 | `poll_fax_status` | busy and no-answer routed to retry, against the ruling | FIXED, one caveat |
+| 5 | `send_pvs_fax` | `FAX` sequence off by one, same shape as defect 1 | FIXED |
 
-```
-Confidential &mdash; Protected Health Information
-```
-
-`&mdash;` renders as an em dash, and CLAUDE.md forbids em dashes in any SOS
-content. It is an HTML entity, so a literal-character grep does not catch it and
-the pre-commit hook did not flag it. Replace with a hyphen or a pipe. Left
-verbatim in the repo rather than edited here, so the file still matches what is
-running in Creator.
-
-(The two `&mdash;` occurrences in `build_pvs_fax_html` are different and are
-fine: they sit inside the escaping logic, repairing a double-escaped entity that
-arrives in source data. They do not introduce an em dash of our own.)
-
-**2. `get_rc_token` has no 5-minute safety margin.** The design called for
-returning the cached token only when it has more than 5 minutes left. The code
-actually reads:
-
-```
-if(v_cfg.RC_Token_Expiry > zoho.currenttime)
-```
-
-which hands back a token with one second left on it, and the fax POST then fails
-on an expired bearer. The fix is `zoho.currenttime.addMinutes(5)`. Worth doing
-before the first live send, since the failure mode is an intermittent,
-hard-to-reproduce fax failure.
-
-**3. `poll_fax_status`'s no-retry list may not match the ruling.** The ruling is
-"retry 3 times, but only on codes RingCentral has already given up on, never on
-busy." The code routes to `Permanent Fail` only for:
-
-```
-NoFaxMachine | WrongNumber | NotAcceptingFax | InvalidNumber
-NumberBlocked | InternationalDisabled
-```
-
-and retries everything else. No busy or no-answer code appears in that list, so a
-busy line currently routes to `Retry Pending`, which is the one thing the ruling
-says not to do. Neil to confirm the exact `faxErrorCode` strings RingCentral
-returns for a busy line and for no answer, then add them. Not guessed here.
-
-**4. `send_pvs_fax` omits `break` on the `Sequence_Tracker` read.** Harmless
-while exactly one FAX row exists, which is the design, but every other minter in
-the repo has the `break`. Note also that this function uses the "last used"
-convention while the PVS minters use "next free"; that is self-consistent for FAX
-because nothing else mints a fax ID, but it is worth knowing when reading across
-the two. The same mismatch IS a live defect in `create_3008_pvs_july`, see
+**1. `create_3008_pvs_july` minted `PVS_ID` off by one.** It read N, issued
+`PVS-(N+1)` and stored N+1, leaving the tracker at the last-used value instead of
+the next-free one. The next PVS created through the form would then have
+duplicated the backfill's last `PVS_ID`. Two visits, one billing record locator.
+DRYRUN could not catch it because the mint sits inside the COMMIT branch. Now
+reads N, issues `PVS-N`, stores N+1, `break`. Full write-up in
 `docs/billing/SOS_3008_July_2026_Billing.md` section 7.
 
-Related, and for Neil to confirm: the stored expiry is 115 minutes. That is
-correct only if the RingCentral app issues a 7200-second access token. If it
-issues the more common 3600-second token, every cached token is treated as valid
-for roughly an hour after it has actually died. **VERIFY LIVE** against the
-`expires_in` value in the first real token response.
+**2. Em dashes on every faxed page.** `send_pvs_fax`'s running footer carried
+`Confidential &mdash; Protected Health Information`, and `build_pvs_fax_html`'s
+amendment banner carried `AMENDED NOTE &mdash; SUPERSEDES...`. Both are now
+hyphens. The entity form is why no literal-character grep and no pre-commit hook
+caught them.
+
+The token-escaping line was tightened at the same time. It used to restore a
+double-escaped entity back to an em dash:
+
+```
+v_val = v_val.replaceAll("&amp;mdash;","&mdash;",true);   // was
+v_val = v_val.replaceAll("&amp;mdash;","-",true);         // now
+```
+
+So an em dash arriving in source data is now converted to a hyphen rather than
+reinstated. The `&nbsp;` repair on the line above is unchanged and still correct.
+
+**3. `get_rc_token` had no safety margin, and hardcoded the TTL.** It read
+`RC_Token_Expiry > zoho.currenttime`, so it would hand back a token with one
+second left and the fax POST would fail on an expired bearer. It also stored a
+fixed 115 minute expiry, which was only correct if the app happened to issue a
+7200-second token.
+
+Both are fixed, and the fix is better than the original design. The read now
+carries a real margin:
+
+```
+if(v_cfg.RC_Token_Expiry > zoho.currenttime.addMinutes(5))
+```
+
+and the write derives the window from the response instead of assuming it:
+
+```
+v_ttl = 3600;
+if(v_resp.get("expires_in") != null)
+{
+    v_ttl = v_resp.get("expires_in").toLong();
+}
+v_mins = v_ttl / 60;
+v_cfg.RC_Token_Expiry = zoho.currenttime.addMinutes(v_mins);
+```
+
+`expires_in` is read off the token response with a 3600-second fallback, so the
+cache window is correct whatever the app issues. **This closes the VERIFY LIVE
+item on token TTL that stood in the previous revision of this document.** Nothing
+needs checking against a live response any more.
+
+**4. `poll_fax_status` retried busy lines, against the ruling.** The ruling is
+"retry 3 times, but only on codes RingCentral has already given up on, never on
+busy." The no-retry list contained no busy or no-answer code, so both routed to
+`Retry Pending`. `LineBusy` and `NoAnswer` now lead the list:
+
+```
+LineBusy | NoAnswer | NoFaxMachine | WrongNumber
+NotAcceptingFax | InvalidNumber | NumberBlocked | InternationalDisabled
+```
+
+> **Caveat, and it is the only one left open here.** These enum strings have not
+> been confirmed against a real RingCentral failure. They are a best read of
+> RingCentral's documentation, not verified behavior. The first genuine send
+> failure is the moment to check the actual `faxErrorCode` string against this
+> list. A mismatch is not loud: an unrecognized code silently falls through to
+> `Retry Pending`, which for a busy line is exactly the behavior the ruling
+> forbids. `Fax_Error_Reason` stores the raw response, so the real string will be
+> on the log record when it happens.
+
+**5. `send_pvs_fax` minted the `FAX` sequence off by one.** Same shape as defect
+1: read N, issue N+1, store N+1, no `break`. Caught by Neil, not by the original
+audit, which noted the convention mismatch but wrongly judged it self-consistent
+and therefore harmless. It was not: every fax ID would have been one ahead of the
+tracker, and the tracker left one short. Now reads N, issues `FAX-N`, stores N+1,
+`break`, matching `OnSuccess__PVS_Stamp_Generator` and `backfill_pvs_ids`.
+
+**All four minters in the repo now share one convention:**
+`Sequence_Tracker.Object_Sequence` is the **next free** number. Read it, issue it,
+store it plus one, `break`. Any new minter must follow it.
+
+### 8.2 Two residuals, neither worth blocking on
+
+- **A literal em dash character in source data still passes through.** The
+  escaping chain catches the `&mdash;` entity but not U+2014 typed directly into,
+  say, the Remarks textarea. Low likelihood, and it is provider-entered text
+  rather than SOS-authored content, but the faxed page is still SOS output.
+- **`send_pvs_fax` has no guard for a missing `FAX` row in `Sequence_Tracker`.**
+  If the row were absent, `v_seqVal` stays 0 and the fax silently gets
+  `FAX-MMDDYY-0000`. The row exists, so this is theoretical.
+  `functions/backfill_pvs_ids.dg` shows the pattern if a guard is ever wanted: it
+  tracks a `v_found` flag and skips the record rather than minting a bad ID.
 
 ---
 

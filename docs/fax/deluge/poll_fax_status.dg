@@ -5,7 +5,7 @@ string poll_fax_status()
 	{
 		return "aborted: no RingCentral access token";
 	}
-	v_noRetry = {"NoFaxMachine","WrongNumber","NotAcceptingFax","InvalidNumber","NumberBlocked","InternationalDisabled"};
+	v_noRetry = {"LineBusy","NoAnswer","NoFaxMachine","WrongNumber","NotAcceptingFax","InvalidNumber","NumberBlocked","InternationalDisabled"};
 	v_polled = 0;
 	v_sent = 0;
 	v_retry = 0;
