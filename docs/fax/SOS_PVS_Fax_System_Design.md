@@ -1,11 +1,17 @@
 # SOS PVS Fax System - Design Spec
 
-Designed 2026-08-19 (Session 34). Build started the same day and is roughly half
-complete. This document is the spec: it stands on its own and is the file to read
-first before touching any of this code.
+Designed 2026-08-19 (Session 34), built through Session 35 the same day. This
+document is the spec: it stands on its own and is the file to read first before
+touching any of this code.
+
+**State: auth is live, nothing has been faxed yet.** All four functions compile
+and authenticate against RingCentral. Section 12 lists the three live-form gaps
+standing between that and a working send. Section 11 is the gotchas list.
 
 Platform: Zoho Creator (Deluge) plus the RingCentral Fax API.
-Session log: [docs/sessions/SOS_Code_Session_Log_2026-08-19_Session34_EOD.md](../sessions/SOS_Code_Session_Log_2026-08-19_Session34_EOD.md)
+Session logs:
+[Session 34](../sessions/SOS_Code_Session_Log_2026-08-19_Session34_EOD.md) (design),
+[Session 35](../sessions/SOS_Code_Session_Log_2026-08-19_Session35_EOD.md) (build).
 
 ---
 
@@ -86,11 +92,13 @@ Status: **not created.**
 `Visit_Status` drives the fax gate: never fax a cancelled visit; Attempted (Not
 Completed) DOES fax.
 
-Status as of the 2026-08-19 06:01 schema capture: both fields exist on the form,
-but `Fax_Status` carries only Not Sent / Queued / Sent. **`Failed` is missing and
-must be added.** `send_pvs_fax` writes `Queued` and `Failed`; `poll_fax_status`
-writes `Sent` and `Failed`. Without the choice, both functions fail to write the
-failure state. See `schema/Encounter_PatientVisit.md`.
+Status: **DONE (Session 35).** Both fields exist and Neil added the `Failed`
+choice, so the field now carries all four values.
+
+> Caveat on the mirror, not on the work: `schema/Encounter_PatientVisit.md` was
+> captured at 06:01 on 2026-08-19, **before** that change, so it still shows only
+> Not Sent / Queued / Sent. The next 06:00 schema-monitor run will catch up. Do
+> not read the stale capture as the field being wrong.
 
 > ### There are TWO `Fax_Status` fields and they are NOT the same
 >
@@ -113,8 +121,9 @@ failure state. See `schema/Encounter_PatientVisit.md`.
 > four are lifecycle states of one transmission, and only the log holds them.
 >
 > The three-option capture in `schema/Encounter_PatientVisit.md` is reading the
-> **PVS** field. It says nothing about the `Fax_Log` field, which does not exist
-> yet at all.
+> **PVS** field, and it predates Neil adding `Failed`. It says nothing about the
+> `Fax_Log` field, which is a separate field on a separate form and is currently
+> short four of its seven choices. See section 12.
 
 ### 4.3 `API_Config` - new form
 
@@ -130,8 +139,9 @@ touches it.
 | `RC_Access_Token` | multi line |
 | `RC_Token_Expiry` | date-time |
 
-Status: **DONE, saves clean.** Confirmed in `schema/API_Config.md`. The three
-credential values are still empty and are the blocking item (section 8).
+Status: **DONE and loaded (Session 35).** Confirmed in `schema/API_Config.md`. The
+client ID, secret and JWT assertion are populated and authenticating. See section
+10.
 
 ### 4.4 `Fax_Log` - new form
 
@@ -179,10 +189,21 @@ Building | Queued | Sent | Failed | Retry Pending | Stuck | Permanent Fail
 `Failed`. `poll_fax_status` moves it to `Sent`, `Retry Pending`, `Stuck` or
 `Permanent Fail`. Miss any one option and the corresponding write silently fails.
 
-Status: **NOT YET CREATED as specified.** The 2026-08-19 schema capture shows a
-`Fax_Log` form with only two fields, `Fax_ID` and `PVS_Link`. This is what
-blocked `poll_fax_status` from saving. Creating the full field set, then
-re-saving `poll_fax_status`, is the next build step.
+Status: **BUILT (Session 35), with three gaps.** `schema/Fax_Log.md`, captured
+15:05 on 2026-08-19, shows 24 fields. `poll_fax_status` now saves. Two extra
+fields exist that the code does not use, `Attachments_Included` and
+`Fax_Log_ID_Stamp`, which is fine.
+
+Three things do not line up with the delivered code, and none is caught by the
+function compiling:
+
+| Code expects | Live form has |
+|---|---|
+| `Partner_Location_Link` | `Partner_Locations` |
+| `Sent_By` | `Employees` |
+| `Fax_Status` with 7 choices | `Fax_Status` with 4 |
+
+**See section 12.** These block the first real send.
 
 ### 4.5 `PVS_Fax_Review` - new page
 
@@ -432,17 +453,136 @@ store it plus one, `break`. Any new minter must follow it.
 
 ## 9. Still to build
 
-- The `Fax_Log` form in full, then re-save `poll_fax_status`.
 - `retry_failed_faxes`.
-- The 4am digest function.
+- The 4:00 am digest function.
 - The `PVS_Fax_Review` page.
 - Faxes Sent and Fax Exceptions reports.
-- Add the `Failed` choice to `Encounter_PatientVisit.Fax_Status` (4 options total).
-- Add `Partner_PVS_Fax` to `Partner_Billing_Contacts`.
+- `Partner_PVS_Fax` on `Partner_Billing_Contacts`.
+- Optional: a validation workflow rejecting a fax number that is not 10 or 11
+  digits.
+- The three live-form gaps in section 12.
 
-## 10. Blocking, on Neil
+---
 
-**RingCentral Client ID, Client Secret and JWT assertion.** Create a REST API App
-with JWT auth, scopes Fax + Read Messages + Read Call Log, bound to the extension
-that owns (813) 626-3312, graduated to production. Nothing sends until these are
-in `API_Config`.
+## 10. RingCentral - AUTH IS LIVE
+
+Closed 2026-08-19 (Session 35). This section previously read "Blocking, on Neil".
+
+| Setting | Value |
+|---|---|
+| App type | REST API App, **private** |
+| Auth | **JWT**, refresh tokens on |
+| Scopes | `ReadMessages`, `Faxes`, `ReadCallLog` (confirmed by the live token response, not by the console) |
+| Bound to | the extension owning (813) 626-3312 |
+| Credentials | client ID, secret and JWT assertion loaded into `API_Config` |
+
+`poll_fax_status` returns `polled 0, sent 0, retry pending 0, permanent fail 0,
+stuck 0`. **The whole chain compiles, authenticates and runs.**
+
+**Token TTL, settled.** The live response returns `expires_in` **3600**, not the
+7199 RingCentral's documentation implies. `get_rc_token` reads `expires_in` off the
+response rather than hardcoding, so this needs no further action. Had the original
+hardcoded 115 minute expiry survived, every token would have been treated as valid
+for roughly an hour after it died, and the failure would have shown up as
+intermittent, hard-to-reproduce fax failures. The Session 34 fix paid for itself on
+the first live call.
+
+Nothing has actually been faxed yet. Auth working is not the same as a send
+working, and section 12 lists what stands between the two.
+
+---
+
+## 11. Creator and RingCentral gotchas
+
+Every one of these cost real time in Session 35. A cold thread will hit all of
+them. Read this before touching Creator or the RingCentral console.
+
+### Creator
+
+**Execute prints info output only, never return values.** Creator's function
+Execute view shows whatever `info` statements write. It does **not** show the
+value a function returns. "Executed successfully" with a blank pane is a **PASS**,
+not a silent failure. If you want to see a return value, `info` it.
+
+**`insert into` returns the record ID as a NUMBER, not a record.** So `v_new.ID`
+is a field access on a number and throws `Invalid collection object found`. Use
+the variable directly as the ID, or set the field inside the insert. This is what
+broke `create_3008_pvs_july` on its COMMIT run; see
+`docs/billing/SOS_3008_July_2026_Billing.md` section 8.
+
+**Creator auto-names a lookup field after the SOURCE FORM.** Add a lookup to
+`Partner_Locations` and the field arrives named `Partner_Locations`, not whatever
+you intended to call it. Renaming the **display** name does not rename the **link**
+name, and Deluge references the link name. Rename the link name explicitly, and
+confirm it in `schema/<Form>.md` afterwards. This one is still biting: see section
+12.
+
+**A self-lookup works, but the form must be saved first.** You cannot add a lookup
+pointing at the form you are currently creating. Save the form, reopen it, then add
+the field. `Fax_Log.Original_Fax_Link` is a self-lookup and was built this way.
+
+**"Blank" is ambiguous, and it cost several turns.** "`poll_fax_status` is blank"
+meant the **function body** was a stub. It was read as the **output** being blank.
+When reporting, say which.
+
+### RingCentral
+
+**The Redirect URI field only appears for the Authorization Code flow.** Selecting
+JWT removes it from the app form. Its absence is correct and is not a
+misconfiguration to hunt for.
+
+**The JWT credential is created on a separate Console screen**, under the account
+menu, not on the app itself. You create the app, then go elsewhere to mint the JWT,
+then bring it back.
+
+**`expires_in` is 3600, not the 7199 the docs imply.** Never hardcode a token
+lifetime from documentation. Read `expires_in` off the token response, which is
+what `get_rc_token` does. A hardcoded window that is too long serves dead tokens
+and fails intermittently, which is the worst failure shape to debug.
+
+**Scopes are confirmed by the token response, not the console.** The live response
+reported `ReadMessages`, `Faxes`, `ReadCallLog`. Trust that over what the app
+screen displays.
+
+---
+
+## 12. Live-form gaps found at sync time
+
+Found by ccode 2026-08-19 by diffing the delivered Deluge against
+`schema/Fax_Log.md`, captured 15:05 that day, **after** the form was built. These
+are current, and none of them is caught by "the function compiles".
+
+**1. `Fax_Log.Fax_Status` has 4 choices. The code needs 7.**
+
+| | |
+|---|---|
+| Live form | `Not Sent`, `Queued`, `Sent`, `Failed` |
+| Code writes | `Building`, `Queued`, `Sent`, `Failed`, `Retry Pending`, `Stuck`, `Permanent Fail` |
+| Missing | **`Building`, `Retry Pending`, `Stuck`, `Permanent Fail`** |
+
+`send_pvs_fax` inserts every row as `Building`, so **the first real send writes a
+choice the field does not have.** `poll_fax_status` cannot route a failure to
+`Retry Pending` or `Permanent Fail`, and cannot mark anything `Stuck`. `Not Sent`
+is on the form but neither function ever writes it to the log; that value belongs
+on the PVS field, not here. See section 4.4.
+
+**2. `Fax_Log.Partner_Location_Link` does not exist. The live field is
+`Partner_Locations`.** Exactly the lookup auto-naming gotcha from section 11,
+unfixed. `send_pvs_fax` writes `Partner_Location_Link = v_pvs.Billing_Branch`.
+
+**3. `Fax_Log.Sent_By` does not exist. The live field is `Employees`.** Same
+gotcha, and note the type differs too: the code writes `zoho.loginuserid` into what
+is now a lookup.
+
+**Either the form is renamed to match the code, or the code is changed to match the
+form.** Renaming the two link names is the smaller change and keeps the delivered
+bodies correct.
+
+> **VERIFY LIVE, and it matters.** Gaps 2 and 3 raise a question this repo cannot
+> answer: `send_pvs_fax` is reported as saving and compiling in Creator, yet it
+> writes two field names the live form does not have. Either it was edited in
+> Creator to match the real names, in which case **the repo copy is stale** and
+> needs re-extracting, or Creator did not validate those names at save time and the
+> failure is waiting for the first send. Open `send_pvs_fax` in Creator and check
+> which. The `Fax_Status` gap is real either way, because a bad choice value is a
+> string write that compiles fine and fails at runtime.

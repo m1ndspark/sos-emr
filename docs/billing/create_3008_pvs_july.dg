@@ -2,18 +2,22 @@ string create_3008_pvs_july(string pMode)
 {
 	v_rows = List();
 	/* ---------------------------------------------------------------
-	   76 rows WITHHELD. Each is "REF-MMDDYY-NNNN|YYYY-MM-DD|LastName":
-	   referral ID, 3008 completion date, provider last name.
+	   76 rows WITHHELD. Each is "REF-MMDDYY-NNNN|YYYY-MM-DD|First Last":
+	   referral ID, 3008 completion date, SOS clinician first and last name.
 
-	   Kept out of this repo deliberately. There are no patient names and
-	   no DOBs, but a real referral ID bound to a real date of service is
-	   patient-identifying, and CLAUDE.md guarantees this repo holds field
-	   link names rather than patient data. A 76-row roster of live
-	   referrals with service dates is patient data.
+	   MORE identifying than the Session 34 version, not less. That one
+	   carried only a provider surname; this one names the SOS clinician
+	   who saw each patient, so each row now ties a specific person to a
+	   specific encounter on a specific date. Still no patient names and
+	   no DOBs, but a live referral ID bound to a date of service is
+	   patient-identifying on its own, and CLAUDE.md guarantees this repo
+	   holds field link names rather than patient data.
 
 	   THIS FILE THEREFORE DOES NOT ROUND-TRIP INTO CREATOR. The complete
-	   function, row list included, lives in Creator and is the only copy
-	   besides a CSV held outside the repo. Everything below is verbatim.
+	   function, row list included, lives in Creator, in
+	   MPU Reporting/deluge/create_3008_pvs_july.dg, and in
+	   MPU Reporting/3008_july_map.csv. None of the three is versioned.
+	   Everything below this block is verbatim.
 	   See docs/billing/SOS_3008_July_2026_Billing.md section 6.
 	   --------------------------------------------------------------- */
 	v_made = 0;
@@ -27,7 +31,9 @@ string create_3008_pvs_july(string pMode)
 		v_parts = v_line.toList("|");
 		v_rid = v_parts.get(0).toString();
 		v_done = v_parts.get(1).toString().toDate();
-		v_last = v_parts.get(2).toString();
+		v_who = v_parts.get(2).toString();
+		v_first = v_who.getPrefix(" ");
+		v_last = v_who.getSuffix(" ");
 		v_ref = Referrals_Main[Referral_ID == v_rid];
 		if(v_ref.count() == 0)
 		{
@@ -41,11 +47,11 @@ string create_3008_pvs_july(string pMode)
 			v_skipDup = v_skipDup + 1;
 			continue;
 		}
-		v_emp = Employees[Employee_Last_Name == v_last && Employee_Status == "Active"];
+		v_emp = Employees[Employee_First_Name == v_first && Employee_Last_Name == v_last && Employee_Status == "Active"];
 		if(v_emp.count() == 0)
 		{
 			v_noEmp = v_noEmp + 1;
-			v_log.add(v_rid + " no employee " + v_last);
+			v_log.add(v_rid + " no employee " + v_who);
 			continue;
 		}
 		v_rate = 0;
@@ -59,10 +65,22 @@ string create_3008_pvs_july(string pMode)
 			v_log.add(v_rid + " no 3008 rate on " + v_ref.Partner_Location_Label);
 			continue;
 		}
+		v_seq = 0;
+		for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
+		{
+			v_seq = v_st.Object_Sequence;
+			break;
+		}
 		if(pMode == "COMMIT")
 		{
+			for each  v_st2 in Sequence_Tracker[Object_Prefix == "PVS"]
+			{
+				v_st2.Object_Sequence = v_seq + 1;
+				break;
+			}
 			v_new = insert into Encounter_PatientVisit
 			[
+				PVS_ID = "PVS-" + v_seq + "-" + v_emp.Employee_Initials
 				Has_Referral_ID = "Yes"
 				Referral_Link = v_ref.ID
 				Type_of_Entry = "3008"
@@ -105,15 +123,6 @@ string create_3008_pvs_july(string pMode)
 				Invoice_Status = "Draft"
 				Hold_From_Invoicing = "No"
 			];
-			v_seq = 0;
-			for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
-			{
-				v_seq = v_st.Object_Sequence;
-				v_st.Object_Sequence = v_seq + 1;
-				break;
-			}
-			v_pvsRow = Encounter_PatientVisit[ID == v_new.ID];
-			v_pvsRow.PVS_ID = "PVS-" + v_seq + "-" + v_emp.Employee_Initials;
 		}
 		v_made = v_made + 1;
 	}
