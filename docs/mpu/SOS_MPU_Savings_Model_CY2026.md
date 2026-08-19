@@ -2,6 +2,12 @@
 
 **Two-pathway blended model. Adopted 2026-08-17 (Session 33).**
 
+**This file is canonical.** The copy in the MPU Reporting folder is a working
+copy. If the two disagree, this one wins. Reconciled against the working copy
+2026-08-19 (Session 34): FY2026 DRG weights and GMLOS, the 32555 physician fee,
+the admitted pathway component breakdown, the explicit IPPS formula, and the
+IPPS outlier / DSH / IME exclusion note were merged in from it.
+
 Supersedes the single-pathway model adopted 2026-08-15 (Session 32), and every
 hospital cost figure in `SOS_MPU_Reporting_Instructions_v1.md` and in the
 Decisions Log section 3.
@@ -82,11 +88,13 @@ Session 32.
 
 ## MS-DRGs adopted (Pathway B)
 
-| DRG | Description | Applies to |
-|---|---|---|
-| 393 | Other digestive system diagnoses **with MCC** | Paracentesis, G-tube |
-| 186 | Pleural effusion **with MCC** | Thoracentesis |
-| 695 | Kidney and urinary tract signs and symptoms **with MCC** | Catheter |
+Weights and GMLOS are FY2026 IPPS Table 5.
+
+| DRG | Description | Weight | GMLOS | Applies to |
+|---|---|---|---|---|
+| 393 | Other digestive system diagnoses **with MCC** | 1.5993 | 4.2 | Paracentesis, G-tube |
+| 186 | Pleural effusion **with MCC** | 1.5585 | 4.2 | Thoracentesis |
+| 695 | Kidney and urinary tract signs and symptoms **with MCC** | 1.1438 | 3.6 | Catheter |
 
 **Always the with-MCC tier.** A hospice patient carries a major complication by
 definition of being on hospice.
@@ -105,24 +113,40 @@ family. That was Josh's correction to the earlier DRG 432 assumption.
 | Catheter Management | 1,779.11 | 9,683.52 | 26.8% | **3,897.49** |
 | G-Tube / PEG | 1,792.10 | 13,091.97 | 6.7% | **2,549.19** |
 
-The **blended** column is the figure that appears in partner reports.
+The **blended** column is the figure that appears in partner reports. Each row
+reconciles to the blend formula within a penny.
 
-Component values behind the discharged column:
+### Discharged pathway components (Pathway A)
 
 ```
 A0426 ALS1 non-emergency round trip     675.14
-A0425 30 statute miles                  279.90
-APC 5301 paracentesis                   947.15
-APC 5025 ED Level 5                     621.90   (primary for catheter, G-tube)
-99285 physician                         178.46
+A0425 30 statute miles round trip       279.90
+APC 5301 paracentesis facility          947.15
+APC 5025 ED Level 5 facility            621.90   (primary for thoracentesis,
+                                                  catheter, G-tube)
+99285 ED physician                      178.46
 49083 physician                          95.47
+32555 physician                          96.99
 51702 physician                          23.71
 43762 physician                          36.70
 ```
 
+Everything else on the claim packages at 0.00.
+
 Other adjusted APCs if needed: 5024 ED Level 4 435.74, 5371 G-tube facility
 260.91, 5734 catheter facility 138.94. ED physician at other levels: 99283 72.42,
 99284 123.46.
+
+### Admitted pathway components (Pathway B)
+
+```
+DRG amount   393    11,921.77
+             186    11,617.64
+             695     8,526.31
+plus         round-trip transport      955.04
+             99285 ED physician        178.46
+             procedure physician fee   (per the discharged list above)
+```
 
 ---
 
@@ -183,11 +207,17 @@ A0426 ALS1 non-emergency 337.57 | A0427 ALS1 emergency 534.49 | A0425 mileage
 9.33 per statute mile urban, 9.42 rural. Round trip is modeled - the hospice pays
 for the ride home.
 
-**INPATIENT (Pathway B):** MS-DRG relative weight (IPPS Table 5) x the FY2026
-standardized amounts (Tables 1A-1E), adjusted by the Florida wage index and
-capital rate. FY2026 operating labor $4,456.72, nonlabor $2,295.89 (quality
-reporting and meaningful EHR user, wage index above 1); capital $524.15; Florida
-GAF 1.0251.
+**INPATIENT (Pathway B):**
+
+```
+DRG weight x [(operating labor 4,456.72 x wage index) + operating nonlabor 2,295.89]
+  + (capital 524.15 x GAF x DRG weight)
+```
+
+Those are the FY2026 standardized amounts (IPPS Tables 1A-1E), at the
+quality-reporting and meaningful-EHR-user rates, wage index above 1. Florida GAF
+1.0251. Weights and GMLOS come from IPPS Table 5 and are listed in the MS-DRG
+section above.
 
 **ENCOUNTER ASSUMPTIONS:** ALS1 non-emergency round trip, 30 statute miles,
 ED Level 5, with-MCC DRG tier. These are business decisions, not data. Neil's
@@ -301,5 +331,7 @@ July page counts: Empath 23, AccentCare 17, Chapters 12, InnoVage 12, VITAS 11.
   albumin both package, so neither needs adding.
 - Outlier payments (42 CFR 419.43(d), capped at 3.0% of program payments) are not
   modeled.
+- IPPS cost outlier payments and DSH / IME add-ons are not modeled either. Both
+  would raise the admitted pathway, so the blend stays conservative.
 - Whether to notify partners that July reports were reissued under corrected
   methodology, and in what words, is Neil's call and still open.

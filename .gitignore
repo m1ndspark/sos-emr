@@ -21,6 +21,10 @@ secrets.*
 # migration), not a credential file. Its name matches *token* above; keep it
 # tracked. Any real token/credential file must still never be committed.
 !functions/backfill_referral_id_from_token.dg
+# Exception: same reasoning. This is the Deluge function that mints and caches
+# the RingCentral access token; it holds no secret itself (the Client ID,
+# Client Secret and JWT assertion live in the API_Config form in Creator).
+!docs/fax/deluge/get_rc_token.dg
 
 # Logs / temp
 *.log
