@@ -13,11 +13,24 @@ CODE DELIVERY
 - Always show the full function, never partial snippets or diffs unless asked.
 - Forms and workflows are a single unit. Evaluate any field change against all
   known workflows and propose the matching workflow change at the same time.
+- SELF-REVIEW BEFORE PRESENTING (added 2026-08-20). Every piece of code is
+  checked for correctness and any defect fixed BEFORE Neil sees it. Never
+  deliver code carrying a flag. A flag on delivered code is a known defect, and
+  shipping it moves the work of finding it onto Neil.
+  The ONLY exception is a flag Neil explicitly accepts. That acceptance is
+  recorded in the session log along with its reason, so a later reader can tell
+  an accepted tradeoff from an oversight.
+  This is the code counterpart of the pre-commit gate in context/08. The gate
+  catches what reaches the repo; this rule catches what reaches Neil, which is
+  earlier.
 
 HANDLING UNCERTAINTY
 - Never guess. Stop and ask if anything is unclear.
 - Ask before assuming form names, field names, data types, relationships, intent.
-- Flag risks clearly, then continue unless the risk is blocking.
+- Flag risks clearly, then continue unless the risk is blocking. NARROWED
+  2026-08-20: this applies to DESIGN AND PROCESS risks only, not to code. A
+  known defect in code is not a risk to flag and continue past; it is fixed
+  before delivery. See the self-review rule under CODE DELIVERY.
 - Never describe Creator UI from memory. Ask for screenshots or doc links.
 
 KNOWN SYNTAX RULES (DO NOT REPEAT THESE MISTAKES)

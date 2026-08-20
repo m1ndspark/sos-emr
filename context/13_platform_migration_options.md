@@ -63,3 +63,20 @@ one of them:
 --------------------------------------------------------------------------------
 Open decision space. No action approved. Revisit only if the build horizon shifts
 from "operating the EMR" to "years of new feature-building."
+
+CROSS-REFERENCE, added 2026-08-20 (Session 36):
+context/31_modernization_spec_brief.md holds the task brief for a
+Creator-to-modern-stack conversion spec, scoped and confirmed by Neil that day.
+The two files answer different questions and neither supersedes the other:
+
+  THIS FILE (13)  should we move, and to what? Host and app-layer candidates,
+                  the shared-responsibility principle, the BAA question.
+  FILE 31         what would have to be written down before we could move?
+                  Entity model, trigger translation, Creator workarounds a
+                  rebuild should not inherit, ID/concurrency, business rules,
+                  integration contracts, HIPAA application layer.
+
+File 31 is deliberately STACK-AGNOSTIC. It does not assume any of the candidates
+in sections 3 and 4 above, and writing it does not commit to moving. The spec
+itself is not written and has no deadline. Section 2's application-layer
+responsibilities are carried into file 31 section 3.7 as a required section.

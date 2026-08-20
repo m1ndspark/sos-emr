@@ -381,3 +381,57 @@ Alternating row-background striping assumes every row renders. When some rows
 are conditional and drop out, the stripe pattern misaligns. On any table that
 contains conditional content, use cell/row borders instead of background
 striping.
+
+ATTACHMENTS_SELECT:UI.ADD(LIST) DOES POPULATE A MULTI-SELECT AT RUNTIME
+Confirmed live 2026-08-20. A multi-select field's choices CAN be built at runtime:
+    <field>:ui.clear();
+    <field>:ui.add(v_list);
+THIS CORRECTS AN EARLIER CLAIM IN THIS REPO THAT IT WAS IMPOSSIBLE. It is not.
+Valid in On Load and On User Input ONLY. It does NOT work in On Validate, On
+Success, or a standalone function, because those run with no form UI attached.
+Used by the PVS Fax Review On Load to build the attachment picker from the PVS
+file-upload fields.
+
+A FORM CANNOT BE TOGGLED TO STATELESS AFTER IT EXISTS
+"Data will be stored in Zoho Creator" is set at creation and is not editable
+afterward. To make an existing form stateless:
+  Open Form Builder > More > Duplicate, with "Data will be stored in Zoho
+  Creator" UNCHECKED, then delete the original and rename the duplicate.
+Everything bound to the original name (workflows, report references, page
+links) has to be repointed after the rename. Confirmed 2026-08-20 building
+PVS_Fax_Review.
+
+CREATOR V6 KEEPS THE REPORT URL STATIC, SO A RECORD ID CANNOT BE READ FROM THE
+ADDRESS BAR
+When a record detail or edit view opens from a report, the address bar stays on
+#Report:<ReportName>. The record ID never appears in the URL. Any flow that needs
+to hand a record ID to another form or page must get it from somewhere else: add
+the System ID field as a REPORT COLUMN and read it from there. Confirmed
+2026-08-20 wiring the PVS report to PVS_Fax_Review.
+
+STANDALONE FUNCTION .DG FILES ARE BODY-ONLY
+Per repo convention a standalone function's .dg holds the body without the
+declaration line, so it round-trips as the Creator function editor expects.
+Consequence when pasting OUT of the repo INTO Creator: the declaration line has
+to be re-added by hand, with the correct return type, name and parameter list.
+The signature is recorded in MANIFEST.tsv and in the function's own docs.
+
+CREATOR PHONE FIELDS CANNOT RESOLVE A COUNTRY FROM A ZOHO FORMS "(813) 300-2086"
+Confirmed live 2026-08-20. A Creator phone field configured
+allowedcountries={us} / defaultcountry="us" stores digits UNFORMATTED. Zoho Forms
+sends the display format "(813) 300-2086" with NO country code. Creator cannot
+resolve a country from that string, so it:
+  - renders the wrong country flag on the field, and
+  - marks the field INVALID as soon as the record is opened,
+which blocks a save on a record nobody actually edited.
+The value is not corrupt, it is unresolvable. Creator needs the country, and
+neither the parentheses-and-space format nor a bare ten digits supplies it.
+FIX IS TWO PARTS, neither started:
+  1. Normalize to +1 plus ten digits AT THE POINT THE REFERRAL IS WRITTEN, so
+     nothing new arrives unresolvable.
+  2. A one-time backfill over existing rows.
+Part 1 without part 2 leaves every existing record broken; part 2 without part 1
+re-breaks on the next intake. Tracked in context/23_task_list.md.
+RELATED, ALREADY IN THIS FILE: "PHONENUMBER FIELDS REJECT AN EMPTY STRING" and
+the Referrals_Main text vs Encounter_PatientVisit phonenumber type mismatch. Same
+family of problem, different trigger.

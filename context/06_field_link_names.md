@@ -162,3 +162,24 @@ DISCREPANCIES / NOTES
   Advanced_Directives_Details (sheet: Radio/No,Yes; actual: Multi Line). Types above
   are corrected. Patient_Has_Advanced_Directives = Radio [No, Yes] and
   Advanced_Directives_Details = Multi Line both CONFIRMED live by Neil 2026-07-04.
+
+- NEW FIELDS, created 2026-08-20 (Session 36):
+    Partner_Billing_Contacts
+      Partner_PVS_Fax        Phone (allowedcountries={us}, defaultcountry="us")
+                             The clinical-note fax destination for the branch.
+                             NOT the pre-existing Partner_Billing_POC_Fax, which
+                             stays unused because invoices are not faxed.
+                             CONFIRMED LIVE in schema/Partner_Billing_Contacts.md,
+                             captured 08-20-2026 09:38:28 AM.
+                             NOTE: no Partner_Billing_Contacts row has this
+                             populated yet, which still blocks a first fax send.
+                             See context/23_task_list.md.
+    Encounter_PatientVisit
+      PVS_3008_Upload        File Upload, max 3 files, local drive source, placed
+                             in the Cares 3008 Completion Section.
+                             NOT YET IN THE SCHEMA MIRROR: schema/
+                             Encounter_PatientVisit.md was last captured
+                             08-19-2026 06:01:10 AM, before this field existed.
+                             The next 06:00 monitor run will pick it up. Recorded
+                             here from Neil's confirmation, per the rule that
+                             schema/ wins on conflict once it has caught up.
