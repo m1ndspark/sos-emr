@@ -1,0 +1,150 @@
+v_raw = ifnull(input.PVS_Link,"").toString().trim();
+v_ok = true;
+v_gate = "";
+if(v_raw == "")
+{
+	v_ok = false;
+	v_gate = "No PVS supplied. Open this page from a Patient Visit Summary record.";
+}
+v_pid = 0;
+if(v_ok)
+{
+	v_pid = v_raw.toLong();
+	if(Encounter_PatientVisit[ID == v_pid].count() == 0)
+	{
+		v_ok = false;
+		v_gate = "PVS record " + v_raw + " was not found.";
+	}
+}
+if(!v_ok)
+{
+	input.Gate_Message = v_gate;
+	input.Result_Message = "";
+	disable Gate_Message;
+	disable Result_Message;
+	hide Patient_Display;
+	hide Note_Preview;
+	hide Destination_Name;
+	hide Destination_Fax;
+	hide Override_Unlock;
+	hide Override_Fax;
+	hide Override_Fax_Confirm;
+	hide Override_Reason;
+	hide Cover_Remarks;
+	hide Attachments_Select;
+}
+else
+{
+	v_pvs = Encounter_PatientVisit[ID == v_pid];
+	v_dob = "";
+	if(v_pvs.Patient_DOB != null)
+	{
+		v_dob = v_pvs.Patient_DOB.toString("MM/dd/yyyy");
+	}
+	v_dos = "";
+	if(v_pvs.Visit_Completion_Date != null)
+	{
+		v_dos = v_pvs.Visit_Completion_Date.toString("MM/dd/yyyy");
+	}
+	input.Patient_Display = ifnull(v_pvs.Patient_Full_Name_1,"") + "  |  DOB " + v_dob + "  |  DOS " + v_dos + "  |  " + ifnull(v_pvs.PVS_ID,"");
+	input.Note_Preview = ifnull(v_pvs.Final_Clinical_Note,"");
+	v_noteType = ifnull(v_pvs.Clinical_Note_Type,"").toString();
+	v_visit = ifnull(v_pvs.Visit_Status,"").toString();
+	v_faxRaw = "";
+	v_toName = "";
+	v_bcCount = 0;
+	v_branch = 0;
+	if(v_pvs.Billing_Branch != null)
+	{
+		v_branch = v_pvs.Billing_Branch.toLong();
+	}
+	if(v_branch > 0)
+	{
+		v_bcSet = Partner_Billing_Contacts[Partner_Location_Link == v_branch && Partner_Billing_POC_Status == "Active" && Partner_PVS_Fax != ""];
+		v_bcCount = v_bcSet.count();
+		for each  v_bc in v_bcSet
+		{
+			v_faxRaw = ifnull(v_bc.Partner_PVS_Fax,"").toString().trim();
+			v_toName = (ifnull(v_bc.Partner_Billing_POC_First_Name,"") + " " + ifnull(v_bc.Partner_Billing_POC_Last_Name,"")).trim();
+			break;
+		}
+	}
+	v_digits = v_faxRaw.replaceAll("[^0-9]","",true);
+	if(v_digits.length() == 11 && v_digits.startsWith("1"))
+	{
+		v_digits = v_digits.subString(1,11);
+	}
+	v_faxDisp = "";
+	if(v_digits.length() == 10)
+	{
+		v_faxDisp = "(" + v_digits.subString(0,3) + ") " + v_digits.subString(3,6) + "-" + v_digits.subString(6,10);
+	}
+	if(v_toName == "")
+	{
+		v_toName = ifnull(v_pvs.Partner_Location_Label,"").toString();
+	}
+	v_gate = "Ready to fax.";
+	if(v_visit == "Cancelled")
+	{
+		v_gate = "Blocked: visit status is Cancelled.";
+	}
+	else if(v_noteType == "Preliminary")
+	{
+		v_gate = "Blocked: clinical note type is Preliminary. Set it to Final or Addendum before faxing.";
+	}
+	else if(ifnull(v_pvs.Final_Clinical_Note,"").toString().trim() == "")
+	{
+		v_gate = "Blocked: the clinical note is empty.";
+	}
+	else if(v_bcCount > 1)
+	{
+		v_faxDisp = "";
+		v_toName = "";
+		v_gate = "Blocked: " + v_bcCount + " active billing contacts carry a PVS fax number for this branch. Correct the duplicate, or check Override and enter the number to use.";
+	}
+	else if(v_bcCount == 0)
+	{
+		v_gate = "No PVS fax number on file for this billing branch. Check Override and enter one.";
+	}
+	else if(v_faxDisp == "")
+	{
+		v_gate = "The PVS fax number on file is not 10 digits. Check Override and enter a valid number.";
+	}
+	input.Destination_Name = v_toName;
+	input.Destination_Fax = v_faxDisp;
+	input.Gate_Message = v_gate;
+	v_amend = "";
+	if(v_noteType == "Addendum")
+	{
+		v_amend = "AMENDED NOTE. This replaces the Patient Visit Summary previously faxed for this visit. ";
+	}
+	input.Cover_Remarks = v_amend + "Patient Visit Summary for " + ifnull(v_pvs.Patient_Full_Name_1,"") + ", date of service " + v_dos + ". Please contact our office with any questions.";
+	v_choices = List();
+	v_all = ifnull(v_pvs.Clinical_Note_File_Upload,"").toString() + "," + ifnull(v_pvs.PVS_File_Upload,"").toString() + "," + ifnull(v_pvs.PVS_3008_Upload,"").toString();
+	for each  v_f in v_all.toList(",")
+	{
+		v_name = v_f.toString().trim();
+		if(v_name != "")
+		{
+			v_choices.add(v_name);
+		}
+	}
+	clear Attachments_Select;
+	if(v_choices.size() > 0)
+	{
+		input.Attachments_Select:ui.add(v_choices);
+	}
+	else
+	{
+		hide Attachments_Select;
+	}
+	input.Result_Message = "";
+	disable Patient_Display;
+	disable Destination_Name;
+	disable Destination_Fax;
+	disable Gate_Message;
+	disable Result_Message;
+	hide Override_Fax;
+	hide Override_Fax_Confirm;
+	hide Override_Reason;
+}

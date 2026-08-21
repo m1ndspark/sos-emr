@@ -21,17 +21,22 @@ functions/backfill_pvs_from_referral.dg	backfill_pvs_from_referral		function				
 functions/backfill_pvs_ids.dg	backfill_pvs_ids		function					Encounter_PatientVisit;Sequence_Tracker		42e956ad
 functions/backfill_pvs_patient_full_address.dg	backfill_pvs_patient_full_address		function					Encounter_PatientVisit		be83bd14
 functions/backfill_pvs_premium_fees.dg	backfill_pvs_premium_fees		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		d3c4067c
+functions/backfill_referral_added_time.dg	backfill_referral_added_time		function					Referrals_Main		c1c4d85a
 functions/backfill_referral_branch.dg	backfill_referral_branch		function					Partner_Locations;Referrals_Main		d72f2ef9
 functions/backfill_referral_branch_from_contact.dg	backfill_referral_branch_from_contact		function					Partner_Referral_Contacts;Referrals_Main		7b81f9db
 functions/backfill_referral_id_from_token.dg	backfill_referral_id_from_token		function					Referrals_Main		2b862da1
 functions/backfill_referral_id_stamp.dg	backfill_referral_id_stamp		function					Referrals_Main		bec7bb7f
 functions/backfill_referral_ids.dg	backfill_referral_ids		function		mint_referral_id			Referrals_Main	AppFunc	afc9eb5f
+functions/build_pvs_fax_html.dg	build_pvs_fax_html		function					Encounter_PatientVisit;Referrals_Main		fcaae102
+functions/create_3008_pvs_july.dg	create_3008_pvs_july		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		efb09763
 functions/create_books_customers.dg	create_books_customers		function					Partner_Billing_Contacts;Partner_Locations	HTTP	9fc3b29b
-functions/create_invoice_from_selection.dg	create_invoice_from_selection		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main	Books;HTTP	a5050e12
+functions/create_invoice_from_selection.dg	create_invoice_from_selection		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main	Books;HTTP	7387e2e5
 functions/diag_accentcare_rates.dg	diag_accentcare_rates		function					Partner_Locations;Partner_Rates		83952d0a
+functions/diag_config_write.dg	diag_config_write		function							619ee9a3
 functions/diag_duplicate_location_names.dg	diag_duplicate_location_names		function					Partner_Locations		8f094f3d
 functions/diag_duplicate_visits.dg	diag_duplicate_visits		function					Encounter_PatientVisit		aa6fc5a3
 functions/diag_empath_labels.dg	diag_empath_labels		function					Partner_Locations		d2fb838c
+functions/diag_employees.dg	diag_employees		function					Employees		fec5a73f
 functions/diag_esi_references.dg	diag_esi_references		function					Encounter_PatientVisit;Partner_Billing_Contacts;Partner_Locations;Partner_Rates;Referrals_Main		5e56705e
 functions/diag_innovage_rates.dg	diag_innovage_rates		function					Partner_Locations;Partner_Rates;Partners		0425511c
 functions/diag_invoice_batch.dg	diag_invoice_batch		function					Encounter_PatientVisit;Invoice_Batch		39312db2
@@ -46,6 +51,7 @@ functions/diag_referral_ids.dg	diag_referral_ids		function					Referrals_Main		e
 functions/diag_zztest_referrals.dg	diag_zztest_referrals		function					Referrals_Main		1f6e58ca
 functions/fix_accentcare_current_rate.dg	fix_accentcare_current_rate		function					Partner_Locations;Partner_Rates;Partners		11dbf983
 functions/get_partner_referral_contact.dg	get_partner_referral_contact		function					Partner_Referral_Contacts		739bf295
+functions/get_rc_token.dg	get_rc_token		function						HTTP	267ca38b
 functions/link_pvs_to_referral.dg	link_pvs_to_referral		function					Encounter_PatientVisit;Referrals_Main		2cdc90b2
 functions/log_change.dg	log_change		function							da39a3ee
 functions/mint_assignment_id.dg	mint_assignment_id		function					Assignments;Sequence_Tracker		9012ac26
@@ -54,6 +60,7 @@ functions/mint_location_id.dg	mint_location_id		function					Partner_Locations;P
 functions/mint_partner_id.dg	mint_partner_id		function					Partners;Sequence_Tracker		56af41ff
 functions/mint_referral_id.dg	mint_referral_id		function					Referrals_Main;Sequence_Tracker		06f388e4
 functions/normalize_pvs_phones.dg	normalize_pvs_phones		function					Encounter_PatientVisit		c9f56edd
+functions/poll_fax_status.dg	poll_fax_status		function		get_rc_token			Encounter_PatientVisit	AppFunc;HTTP	a716c9be
 functions/replicate_uniform_rates.dg	replicate_uniform_rates		function					Partner_Locations;Partner_Rates;Partners		c6109783
 functions/report_partner_rate_coverage.dg	report_partner_rate_coverage		function					Partner_Locations;Partner_Rates;Partners		25544b04
 functions/reprice_draft_pvs.dg	reprice_draft_pvs		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		c3adf543
@@ -64,6 +71,7 @@ functions/resync_location_names.dg	resync_location_names		function					Encounter
 functions/run_invoice_batch.dg	run_invoice_batch		function		create_invoice_from_selection			Encounter_PatientVisit;Invoice_Batch	AppFunc	4e64a1b9
 functions/run_schema_monitor.dg	run_schema_monitor		function		send_via_sendgrid				AppFunc;HTTP	f14c8c36
 functions/seed_schema_to_github.dg	seed_schema_to_github		function						Email;HTTP	aac9159a
+functions/send_pvs_fax.dg	send_pvs_fax		function		build_pvs_fax_html;get_rc_token			Encounter_PatientVisit;Sequence_Tracker	AppFunc;HTTP	aed1f0e0
 functions/send_via_sendgrid.dg	send_via_sendgrid		function						HTTP	a593170f
 functions/set_current_rate.dg	set_current_rate		function					Partner_Rates		584a618b
 functions/set_partner_poc_name_title.dg	set_partner_poc_name_title		function					Referrals_Main		c11204b4
@@ -113,6 +121,7 @@ Imaging_Orders/OnUserInput__Referral_Link__Imaging_Referral_Link_Pre_Fill.dg	Ima
 Imaging_Orders/OnValidate__Imaging_Order_Provider_Gate.dg	Imaging_Order_Provider_Ga	Imaging_Orders	OnValidate					Employees		4289bcd9
 Invoice_Batch/OnLoad__Invoice_Batch_On_Load_Disable.dg	Invoice_Batch_On_Load_Dis	Invoice_Batch	OnLoad			Batch_Status;Invoice_Link;Result_Message				7652f97a
 Invoice_Batch/OnSuccess__Invoice_Batch_On_Create.dg	Invoice_Batch_On_Create	Invoice_Batch	OnSuccess		run_invoice_batch		ID;Max_Invoice_Total		AppFunc	e7532b11
+PVS_Fax_Review/OnLoad__PVS_Fax_Review_On_Load.dg	PVS_Fax_Review_On_Load	PVS_Fax_Review	OnLoad			Attachments_Select;Cover_Remarks;Destination_Fax;Destination_Name;Gate_Message;Note_Preview;Override_Fax;Override_Fax_Confirm;Override_Reason;Override_Unlock;Patient_Display;Result_Message	PVS_Link	Encounter_PatientVisit;Partner_Billing_Contacts		49ae0a45
 Partner_Billing_Contacts/OnSuccess__Partner_Billing_Contact_Stamp_Generator.dg	Partner_Billing_Contact_S	Partner_Billing_Contacts	OnSuccess			Partner_Billing_Contact_ID_Stamp	ID			5ea63366
 Partner_Billing_Contacts/OnUserInput__Partner_Billing_POC_Fax__Format.dg	Partner_Billing_POC_Fax_F	Partner_Billing_Contacts	OnUserInput	Partner_Billing_POC_Fax		Partner_Billing_POC_Fax				47e5eacc
 Partner_Billing_Contacts/OnUserInput__Partner_Billing_POC_Phone__Format.dg	Partner_Billing_POC_Phone	Partner_Billing_Contacts	OnUserInput	Partner_Billing_POC_Phone		Partner_Billing_POC_Phone				eefccaff

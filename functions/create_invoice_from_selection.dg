@@ -96,18 +96,17 @@ for each  v_id in v_visits
 	{
 		v_dob = v_p.Patient_DOB.toString("M/d/yyyy");
 	}
+	v_body = "NAME: " + ifnull(v_p.Patient_Full_Name_1,"") + "\n";
+	v_body = v_body + "DOB: " + v_dob + "\n";
+	v_body = v_body + "MRN: " + ifnull(v_p.Patient_Hospice_ID,"") + "\n";
+	v_body = v_body + "REF DATE: " + v_refDate + "\n";
+	v_body = v_body + "REASON: " + ifnull(v_p.Reason_for_Referral,"") + "\n";
+	v_body = v_body + "DOS: " + v_p.Visit_Completion_Date.toString("M/d/yyyy") + "\n";
+	v_body = v_body + "===\n";
 	v_n = v_lineSeq.get(v_key) + 1;
 	v_lineSeq.put(v_key,v_n);
 	v_lineQty.put(v_key,v_lineQty.get(v_key) + 1);
-	v_block = "#" + v_n + "\n";
-	v_block = v_block + "NAME: " + v_p.Patient_Full_Name_1 + "\n";
-	v_block = v_block + "DOB: " + v_dob + "\n";
-	v_block = v_block + "MRN: " + v_p.Patient_Hospice_ID + "\n";
-	v_block = v_block + "REF DATE: " + v_refDate + "\n";
-	v_block = v_block + "REASON: " + v_p.Reason_for_Referral + "\n";
-	v_block = v_block + "DOS: " + v_p.Visit_Completion_Date.toString("M/d/yyyy") + "\n";
-	v_block = v_block + "===\n";
-	v_lineDesc.put(v_key,v_lineDesc.get(v_key) + v_block);
+	v_lineDesc.put(v_key,v_lineDesc.get(v_key) + "#" + v_n + "\n" + v_body);
 	v_feeNames = List();
 	v_feeAmts = List();
 	v_feeNames.add("After Hours");
@@ -137,7 +136,10 @@ for each  v_id in v_visits
 				v_lineDesc.put(v_fKey,"");
 				v_lineSeq.put(v_fKey,0);
 			}
+			v_fn = v_lineSeq.get(v_fKey) + 1;
+			v_lineSeq.put(v_fKey,v_fn);
 			v_lineQty.put(v_fKey,v_lineQty.get(v_fKey) + 1);
+			v_lineDesc.put(v_fKey,v_lineDesc.get(v_fKey) + "#" + v_fn + "\n" + v_body);
 		}
 	}
 }
