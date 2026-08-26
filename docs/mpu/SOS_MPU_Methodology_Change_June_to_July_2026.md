@@ -1,8 +1,16 @@
 # SOS MPU - Cost Savings Methodology
 
-**What changed between the June and July reports, and why.**
+**How the hospital benchmarks are built, and what changed along the way.**
 
 Prepared for the walkthrough with Josh, 2026-08-20.
+Amended 2026-08-21 after independent verification against CMS source files. Two
+material corrections in that pass, both documented below.
+Amended again 2026-08-21 after a line-by-line clinical read of all 21 Empath
+evaluation notes. One paracentesis had been misclassified as an evaluation
+because the note read "successfully removed" and only "fluid was removed" was on
+the performed-phrase list. The list was extended and every month reclassified,
+which moved six additional historical visits into the performed category. All
+figures below are post-correction.
 
 ---
 
@@ -10,223 +18,324 @@ Prepared for the walkthrough with Josh, 2026-08-20.
 
 We were adding up hospital charges line by line, the way a bill looks. Medicare
 does not pay that way, so we rebuilt the model to pay the way Medicare actually
-pays, one bundled amount per encounter, and then weighted it by how often the
-procedure really ends in an admission.
+pays, one bundled amount per encounter where bundling applies, and then weighted
+it by how often the procedure is billed to a patient who is already an inpatient.
 
 ---
 
 ## Change 1. Lines that used to stand alone are now inside one payment
 
 June priced a hospital episode as a twelve-line stack. Each line had its own
-dollar figure and they were summed.
+dollar figure and they were summed. That is not how OPPS pays.
 
-Under CY2026 OPPS, a paracentesis and a thoracentesis are **J1** Comprehensive
-APC procedures. When a J1 is on the claim, Medicare pays **one** amount that
-covers the entire outpatient encounter. Every other service on that claim pays
-zero. Not a discount, zero.
+**Corrected 2026-08-21.** The original version of this document said all four
+procedures anchor on a J1 comprehensive APC. That is only half right, and the
+CY2026 Addendum B confirms it:
 
-| Was a separate line | Now |
-|---|---|
-| ED visit facility fee | Packaged into the J1 comprehensive payment |
-| Laboratory panels | Packaged |
-| Imaging | Packaged |
-| Ultrasound guidance | Packaged |
-| Observation hours | Packaged |
-| Albumin (P9047) | Packaged |
-| Blood products | Packaged |
-| Ascitic fluid cytology (88104 / 88108) | Packaged |
-| Procedure facility fee | This **is** the comprehensive payment |
-| Ambulance | **Still separate**, the only one |
+| CPT | Status indicator | Packages the claim? |
+|---|---|---|
+| 99285 ED visit Level 5 | J2 | Yes |
+| 49083 paracentesis | **T** | **No** |
+| 32555 thoracentesis | **T** | **No** |
+| 32557 pleural drainage, indwelling | J1 | Yes, but this is not our code |
+| 51702 catheter | Q1 | Conditionally packaged |
+| 43762 G-tube | T | No |
 
-So the honest answer to "where did that cost go?" is: it did not go away. It was
-never a separate payment in the first place. It is inside the one number.
+So:
 
-**When there is no J1 code.** Catheter management and G-tube management have no
-J1 procedure. In those cases the ED visit itself becomes the comprehensive
-payment, and it packages everything else on the claim. Same principle, different
-anchor.
+- **Catheter management and G-tube replacement** are priced on the Level 5 ED
+  visit, which is J2 and does package every other covered Part B service on the
+  claim. The packaging argument holds for these two.
+- **Paracentesis and thoracentesis** are status T. Status T does not package the
+  claim. Laboratory studies, imaging and observation billed alongside them would
+  be paid separately, and we do not include them.
 
-**Why ambulance survives.** CMS publishes fourteen categories excluded from C-APC
-packaging. Ambulance is on that list. Nothing else in our stack is.
+The practical effect is that our paracentesis and thoracentesis outpatient
+figures are **lower than a real claim would be**, not higher. The savings are
+conservative. The dollar figures were always right; the explanation was not.
 
-**The common pushback.** "Albumin is expensive, surely that pays on top." It does
-not. Albumin is status K, non-pass-through, and status K is not one of the
-fourteen exclusions. Two AI models told us otherwise; the CY2026 Addendum J
-exclusion list says no.
+**Why ambulance is always separate.** CMS excludes ambulance from C-APC packaging
+along with status F, G, H, L and U services, mammography and preventive services.
+Ambulance is the only line in our stack on that list.
+
+**The common pushback.** "Albumin is expensive, surely that pays on top." Where
+packaging applies, it does not. Albumin is status K, and status K is not on the
+exclusion list.
 
 ---
 
-## Change 2. We now price both ways the patient can go
+## Change 2. We now price both ways the patient can be treated
 
-June assumed a single hospital pathway. That was Josh's objection: a paracentesis
-is almost never done in the ER. It happens in interventional radiology, and the
-real fork is whether the patient goes home the same day or gets admitted.
+June assumed a single hospital pathway. That assumption was wrong: a paracentesis
+is almost never done in the ER. It happens in interventional radiology, and often
+on a patient who is already admitted.
 
-Every procedure is now priced twice and blended.
+Every procedure is priced twice and blended.
 
-| | Pathway A - treated and discharged | Pathway B - admitted |
+| | Pathway A - hospital outpatient | Pathway B - inpatient |
 |---|---|---|
-| Facility | Comprehensive APC payment | MS-DRG for the entire inpatient stay |
+| Facility | OPPS payment | MS-DRG for the entire stay |
 | Transport | round-trip ambulance | round-trip ambulance |
 | Professional | physician fees | ED physician fee + procedure physician fee |
 
 ```
-BLENDED = A x (1 - admit%) + B x admit%
+BLENDED = A x (1 - inpatient share) + B x inpatient share
 ```
 
-The admit% is not an assumption. It is how often that CPT actually resolved to an
-inpatient stay in **Florida**, from the 2025 Part B claims file, carrier 09102.
+### The weighting, corrected 2026-08-21
 
-| CPT | Procedure | Admitted |
-|---|---|---|
-| 49083 | paracentesis | 32.8% |
-| 32555 | thoracentesis | 76.1% |
-| 51702 | catheter | 26.8% |
-| 43762 | G-tube | 6.7% |
+The original table of shares did not reconcile to the source file. Pulled fresh
+from the 2025 Physician/Supplier Procedure Summary, carrier 09102, Florida, the
+inpatient place-of-service shares are:
 
-Florida, not national, because they diverge. Catheter management is 63% ER in
-Florida against 36% nationally.
+| CPT | Procedure | Was | **Is** |
+|---|---|---|---|
+| 49083 | paracentesis | 32.8% | **77.3%** |
+| 32555 | thoracentesis | 76.1% | **32.3%** |
+| 51702 | catheter | 26.8% | **1.6%** |
+| 43762 | G-tube | 6.7% | **3.6%** |
+
+Paracentesis and thoracentesis were transposed. The old paracentesis figure of
+32.8% is almost exactly thoracentesis's true 32.3%, and the old thoracentesis
+figure of 76.1% is almost exactly paracentesis's true 77.3%. Catheter and G-tube
+were simply wrong.
+
+This is the single largest correction in the model, because paracentesis is our
+highest-volume procedure by a wide margin.
+
+**Two limits on this number, and they should be stated to any partner who asks.**
+The PSPS file carries no hospice indicator, so these shares describe Florida
+Medicare generally, not hospice patients. And place of service records that the
+patient was an inpatient when the procedure was billed, which is not the same as
+this encounter having caused an admission. We use it as the best available public
+proxy and we say so.
+
+A third limit is internal: CMS suppressed 98 of the 153 Florida rows for small
+cell size, so these shares are computed on the reported rows only. Suppression
+hits small cells, so the bulk of volume is captured, but the shares are not exact.
 
 ### Worked example, paracentesis
 
 ```
-Discharged      $2,176.12
-Admitted       $13,150.74
-Admit rate         32.8%
+Outpatient      $2,176.12
+Inpatient      $13,150.74
+Inpatient share    77.3%
 
-($2,176.12 x 0.672) + ($13,150.74 x 0.328)
-= $1,462.35 + $4,313.44
-= $5,775.80
+($2,176.12 x 0.227) + ($13,150.74 x 0.773)
+= $493.98 + $10,165.52
+= $10,659.50
 ```
 
 ---
 
 ## Change 3. We were using the wrong thoracentesis code
 
-Every report from April through July used CPT **32557**.
+Every report from April through July used CPT **32557**, which is pleural drainage
+by indwelling catheter, a chest tube. The aspiration code, which is what we
+actually do, is **32555**. Verified against AMA coding references: 32554 and
+32555 are aspiration where the needle or catheter comes out at the end of the
+procedure; 32556 and 32557 leave a catheter in for continuing drainage.
 
-32557 is pleural drainage by **indwelling catheter**, a chest tube. It is 98.6%
-inpatient, which would have forced nearly every thoracentesis down the admitted
-pathway.
-
-The aspiration code, which is what we actually do, is **32555**.
-
-This is a clean correction, not a judgment call.
-
----
-
-## Change 4. The DRG is now ascites-generic
-
-June used DRG 432, which is cirrhosis-specific.
-
-Josh's point: patients need a tap for many reasons, not just cirrhosis. Pinning
-the model to a cirrhosis DRG made it wrong for everyone else.
-
-| DRG | Description | Applies to |
-|---|---|---|
-| 393 | Other digestive system diagnoses with MCC | paracentesis, G-tube |
-| 186 | Pleural effusion with MCC | thoracentesis |
-| 695 | Kidney and urinary tract signs with MCC | catheter |
-
-Always the **with MCC** tier. A patient on hospice carries a major complication
-by definition of being on hospice.
+A residual error from this correction was found on 2026-08-21. The inpatient
+pathway had been updated to the 32555 physician fee of $96.99 but the outpatient
+pathway had not, leaving it $33.18 low. Corrected: thoracentesis outpatient is
+**$1,885.57**.
 
 ---
 
-## Change 5. SOS's own rate is now the partner's contract rate
+## Change 4. The DRG is ascites-generic
 
-June used a flat internal rate table for what SOS charges.
+June used DRG 432, which is cirrhosis-specific. Patients need a tap for many
+reasons, so pinning the model to a cirrhosis DRG made it wrong for everyone else.
 
-July uses the actual contracted rate for that partner at that visit's acuity,
-because that is the number the partner recognizes on its own invoice. Empath High
-is 575, AccentCare High is 545, and so on.
+| DRG | Description | Applies to | FY2026 weight |
+|---|---|---|---|
+| 393 | Other digestive system diagnoses with MCC | paracentesis, G-tube | 1.5993 |
+| 186 | Pleural effusion with MCC | thoracentesis | 1.5585 |
+| 695 | Kidney and urinary tract signs with MCC | catheter | 1.1438 |
+
+Always the with-MCC tier. A patient on hospice carries a major complication by
+definition of being on hospice.
+
+---
+
+## Change 5. SOS's own rate is the partner's contract rate
+
+June used a flat internal rate table. July uses the actual contracted rate for
+that partner at that visit's acuity, because that is the number the partner
+recognizes on its own invoice.
+
+Rates come from the Partner Rates report in Creator. Filter to Rate Category
+`Acuity Level` **plus** the `Telemedicine` rate, which sits under Rate Category
+`Service`. Filtering on Acuity Level alone silently drops Telemedicine.
 
 Savings is hospital benchmark minus what the partner actually paid SOS.
 
 ---
 
-## Change 6. Encounter assumptions are now stated
+## Change 6. Encounter assumptions are stated
 
-June did not disclose them. July does, and they are set to the highest realistic
-scenario with the methodology disclosed:
-
-- ALS1 non-emergency ambulance, round trip
-- 30 statute miles
+- ALS1 non-emergency ambulance, round trip, 30 statute miles: $955.04
 - ED Level 5
-- With MCC
-- Florida wage index 1.0369
-
-One note on the wage index: it is 1.0369 for **every** Florida CBSA. The state
-rural floor lifts them all to the same value. Orlando's raw index is 0.9568,
-Tampa's 0.8776, so there is no geographic variation to model in Florida.
+- With MCC on the inpatient pathway
+- Florida wage index 1.0369, which the state rural floor applies to every Florida
+  CBSA, so there is no geographic variation to model
+- OPPS labor-related share 60 percent
+- Capital adjusted by the capital GAF
 
 ---
 
-## Change 7. The report no longer shows per-CPT line items
+## Change 7. No per-CPT line items in the report
 
 The twelve-line tables are gone. They implied the lines pay separately, which is
-exactly the error we corrected.
-
-Replaced by three narrative paragraphs and one range chart per procedure: a dot
-at the discharged figure, a dot at the admitted figure, a diamond at the blend.
+the error we corrected. Replaced by narrative and one range chart per procedure:
+a hollow dot at the outpatient figure, a filled dot at the inpatient figure, a
+green diamond at the blend.
 
 ---
 
 ## Where the numbers landed
 
-### Blended benchmark per episode
+### Blended benchmark per episode, current as of 2026-08-21
 
-| Procedure | Discharged | Admitted | FL admit % | Blended |
+| Procedure | Outpatient | Inpatient | FL inpatient share | Blended |
 |---|---|---|---|---|
-| Paracentesis | 2,176.12 | 13,150.74 | 32.8% | **5,775.80** |
-| Thoracentesis | 1,852.39 | 12,848.13 | 76.1% | **10,220.14** |
-| Catheter | 1,779.11 | 9,683.52 | 26.8% | **3,897.49** |
-| G-Tube / PEG | 1,792.10 | 13,091.97 | 6.7% | **2,549.19** |
+| Paracentesis | 2,176.12 | 13,150.74 | 77.3% | **10,659.50** |
+| Thoracentesis | 1,885.57 | 12,848.13 | 32.3% | **5,426.48** |
+| Catheter | 1,779.11 | 9,683.52 | 1.6% | **1,905.58** |
+| G-Tube / PEG | 1,792.10 | 13,091.97 | 3.6% | **2,198.90** |
 
-### July total savings by partner
+### Savings history for these figures
 
-| Partner | June method | Interim fix | CURRENT (valid) |
+| Partner | Session 33 | 2026-08-21 rebuild | **Current, corrected** |
 |---|---|---|---|
-| Empath | 158,426.86 | 81,588.50 | **237,682.63** |
-| AccentCare | 55,496.33 | 29,509.14 | **77,884.92** |
-| Chapters | - | 1,631.12 | **5,230.80** |
-| VITAS | 1,505.07 | 1,456.11 | **3,574.49** |
+| Empath, July | 237,682.63 | 225,762.85 | **357,735.06** |
+| AccentCare, July | 77,884.92 | 76,401.61 | **127,275.64** |
 
-Only the CURRENT column is valid. The interim column was the packaging fix before
-the pathway fix; it is on the page only so nobody is surprised by a number they
-saw in passing.
+Only the final column is valid. The middle column corrected visit classification
+and contracted rates; the final column corrects the inpatient shares and the
+performed-phrase list.
+
+### Year to date, both partners restated on the current model
+
+| Month | Empath | AccentCare |
+|---|---|---|
+| April 2026 | 200,831.96 | 20,278.62 |
+| May 2026 | 227,126.16 | 51,429.16 |
+| June 2026 | 247,494.94 | 77,394.82 |
+| July 2026 | 357,735.06 | 127,275.64 |
+| **YTD** | **1,033,188.12** | **276,378.24** |
+
+---
+
+## June restatement status
+
+**Corrected 2026-08-21.** An earlier version said June was never restated and no
+June-to-July comparison was possible. That is no longer true. April, May and June
+have been rebuilt on the current model for both partners and appear on the Year
+to Date page of each July report.
+
+Two adjustments make the historical months comparable, both documented in the
+build spec:
+
+1. The `Visit Cancelled` acuity value did not exist in Cognito before July.
+   Cancellations in April, May and June are detected from clinical note text.
+2. May recorded imaging coordination visits as `No Charge` rather than
+   `Telemedicine`. Those rows are reclassified, since billing status is not an
+   acuity. Eleven May rows and two June rows moved for Empath.
+
+What you cannot do is compare a restated month to the report originally issued
+for that month. Those used the old method.
+
+---
+
+## Independent verification log
+
+Checked 2026-08-21 against CMS source files rather than accepted from this
+document.
+
+**Verified to the cent.**
+
+- FY2026 IPPS Table 5 weights: DRG 393 at 1.5993, DRG 186 at 1.5585, DRG 695 at
+  1.1438.
+- FY2026 IPPS Table 1A: labor-related $4,456.72, nonlabor-related $2,295.89.
+  Capital standard federal rate $524.15.
+- All four inpatient figures rebuild from those values at wage index 1.0369 with
+  the capital GAF, to within two cents.
+- CY2026 OPPS Addendum B, January and July releases identical for our codes:
+  49083 at $926.63, 32555 at $640.89, 99285 at $608.43. Wage-adjusted at
+  0.6 x 1.0369 + 0.4, these reproduce the outpatient figures for paracentesis,
+  catheter and G-tube exactly.
+- CY2026 PFS relative value file: every physician fee reproduces exactly at the
+  $33.4009 conversion factor and the Rest of Florida GPCIs of 1.000, 0.956 and
+  1.503. 99285 $178.46, 49083 $95.47, 32555 $96.99, 32557 $134.07, 51702 $23.71,
+  43762 $36.70.
+- CPT 32555 versus 32557 definitions, confirmed against AMA-derived references.
+- J1 and J2 packaging rules and the ambulance exclusion, confirmed against the
+  CY2026 OPPS final rule.
+- Blend arithmetic, verified programmatically.
+
+**Found wrong and corrected.**
+
+- The four inpatient shares. Paracentesis and thoracentesis transposed; catheter
+  and G-tube materially off.
+- Thoracentesis outpatient figure, $33.18 low.
+- The J1 packaging claim for paracentesis and thoracentesis.
+- One performed paracentesis classified as an evaluation, and the phrase list
+  that caused it.
+
+**Still unverified.**
+
+- CY2026 Ambulance Fee Schedule, MAC 09102: the $955.04 transport figure. Every
+  other input has been traced to source; this one has not.
 
 ---
 
 ## Answers to the questions Josh will ask
 
-**"The number went UP. Didn't you say we were overstating it?"**
-Both are true. Removing the double count pushed it down. Adding the admitted
-pathway pushed it further up, because an admission costs far more than an
-outpatient visit and thoracentesis admits 76% of the time. Net, it went up.
+**"Why did paracentesis nearly double?"**
+Because the inpatient share was wrong. It was carrying thoracentesis's 32.8%
+when the Florida file says 77.3%. An inpatient stay costs six times what the
+outpatient encounter does, so the weighting drives almost everything.
 
-**"Why is thoracentesis so much higher than paracentesis?"**
-Almost entirely the admit rate. 76.1% versus 32.8%. Discharged, the two are
-within a few hundred dollars of each other.
+**"How did that happen?"**
+The two procedures were transposed somewhere between the source file and the
+model. It was caught by pulling the file and rebuilding the shares from scratch.
+
+**"Why did the paracentesis count change from 31 to 32?"**
+A performed paracentesis was reading as an evaluation. The note said six liters
+"was successfully removed" and our phrase list only had "fluid was removed." All
+21 Empath evaluation notes were then read in full, one at a time. That one was the
+only error; the other twenty were correct. The phrase list was extended and every
+month reclassified, which moved six more historical visits into the performed
+category, mostly at AccentCare.
+
+**"Do evaluations mean the patient refused?"**
+Almost never. Of 21 Empath evaluations in July, the reason was clinical in
+nineteen: no drainable fluid on ultrasound, blood pressure too low to tap safely,
+anticoagulation, or a tunneled drain already scheduled for the next day. Two were
+patient preference. An evaluation is a provider correctly deciding not to do a
+procedure, and it still counts as a visit and a diversion.
 
 **"Are we inflating this?"**
-The opposite. These are Medicare rates. A hospital bills a hospice under private
-contract, and a non-contracted facility bills chargemaster, both well above
-Medicare. We do not model outlier payments, DSH or IME either, and all three
-would raise the admitted pathway. The figure is a floor.
+No. These are Medicare rates. A hospital bills a hospice under private contract,
+and a non-contracted facility bills chargemaster, both well above Medicare. We do
+not model outlier payments, DSH or IME. And because paracentesis and thoracentesis
+do not package, the services billed alongside them are missing from our figure
+entirely. It is a floor.
 
 **"Can we compare this to June?"**
-No. June was never restated on this model. A June-to-July comparison is
-method-over-method, not month-over-month. The first clean comparison is July to
-August.
+Yes. April through June are restated on the current model. You cannot compare to
+the reports originally issued for those months.
 
 **"Why isn't every visit in the savings number?"**
-Nine service lines have no hospital benchmark at all: Imaging / X-Ray,
+Nine service lines have no published hospital benchmark: Imaging / X-Ray,
 Consultation/Evaluation, Wound/Fracture Care, Pleural Catheter/Chest Tube,
 Tracheostomy Management, IV Access/Infusion, Lab Draw, Foot Care,
-Ultrasound/Evaluation. 64 of Empath's 118 July visits fall outside the model.
-Actual avoidance is higher than what we show.
+Ultrasound/Evaluation. 66 of Empath's 118 July visits and 29 of AccentCare's 49
+fall outside the model. Actual avoidance is higher than what we show.
 
-**"Where did the ER visit charge go?"**
-Into the comprehensive payment, when there is a J1 procedure on the claim. Where
-there is no J1, the ER visit IS the comprehensive payment.
+**"What does the inpatient share actually measure?"**
+That the patient was already an inpatient when the procedure was billed. It is a
+proxy for how these procedures get delivered, not proof that a given visit would
+have caused an admission. Say it that way if a partner asks.
