@@ -330,13 +330,27 @@ Catheter and G-tube anchor on the J2 emergency visit, which packages everything 
 
 Pull from the Partner Rates report, filtering Rate Category `Acuity Level` **plus** the `Telemedicine` rate, which sits under Rate Category `Service`. Filtering on Acuity Level alone silently drops Telemedicine.
 
-| Acuity | Empath | AccentCare |
-|---|---|---|
-| High Complexity | $575.00 | $545.00 |
-| Moderate Complexity | **$373.00** | $343.00 |
-| Low Complexity | $170.00 | $150.00 |
-| Telemedicine | $65.00 | $55.00 |
-| No Charge | $0.00 | $0.00 |
+| Acuity | Empath | AccentCare | VITAS | Chapters |
+|---|---|---|---|---|
+| High Complexity | $575.00 | $545.00 | $545.00 | $545.00 |
+| Moderate Complexity | **$373.00** | $343.00 | $343.00 | $323.00 |
+| Low Complexity | $170.00 | $150.00 | $150.00 | $150.00 |
+| Telemedicine | $65.00 | $55.00 | $55.00 | none |
+| No Charge | $0.00 | $0.00 | $0.00 | $0.00 |
+
+**Chapters, added 2026-08-26.** High 545, Moderate 323, Low 150. The rates are
+uniform across HPH Hospice, LifePath and Good Shepherd; there is no per-site
+variation to carry. **No Telemedicine rate exists for Chapters.** That is an
+absence, not a zero. A Chapters visit classified Telemedicine has no rate to
+price against and must be raised rather than defaulted to another partner's $55.00
+or to zero.
+
+**VITAS, added 2026-08-26.** High 545, Moderate 343, Low 150, Telemedicine 55.
+Identical to AccentCare across the board, which is a coincidence of the rate
+sheet and not a reason to source one from the other. **VITAS Lake is not in the
+rates report at all.** Neil ruled 2026-08-26 that Lake uses Sumter's rates. That
+ruling is a substitution, so it is recorded here rather than inferred at build
+time, and it is revisited when Lake appears in a rates report of its own.
 
 **Corrected 2026-08-25.** Through 2026-08-22 the Empath column read $343.00 Moderate, $150.00 Low and $55.00 Telemedicine. Those are AccentCare's rates; every Empath acuity except High had been filled from the wrong partner. Decisions Log section 3 has Empath at High 575, Moderate 373, Low 170, Telemedicine 65. Neil ruled Moderate $373.00 on 2026-08-25. Moderate is the only one of the three that reaches a savings figure: it overstated Empath July by $330.00 across 11 qualifying visits, 6 catheter and 5 G-tube. Low and Telemedicine touch no qualifying visit in July.
 
@@ -354,37 +368,34 @@ This is the one input never traced to a CMS source file. Everything else has bee
 
 ### 8.5 Regression baselines
 
-**VOID as of 2026-08-25. Do not regression-test against the figures below.** They were produced from the truncated 153-row PSPS extract described in 8.1 and from the wrong Empath Moderate rate. Empath's true July total is approximately $230,633.65 against the $357,735.06 shown, AccentCare's approximately $81,632.41 against $127,275.64. Replace this whole section with fresh baselines taken from the corrected rebuild, and only then restore it as a regression gate.
+**ACTIVE as of 2026-08-26.** These replace the voided figures produced from the
+truncated 153-row PSPS extract and the wrong Empath Moderate rate. They are taken
+from the corrected July builds and are **restored as a regression gate**: a build
+that does not reproduce the row below for its partner is wrong until proven
+otherwise.
 
-Retained below only as the fingerprint of the defective build.
+July 2026, all partners:
 
-Empath July 2026:
+| Partner | Visits | Qualifying | Savings |
+|---|---|---|---|
+| Empath | 118 | 54 | $233,810 |
+| AccentCare | 51 | 19 | $76,566 |
+| VITAS | 6 | 1 | $3,554 |
+| Chapters | 3 | 1 | $5,111 |
 
-```
-Paracentesis           32 visits   hospital $341,104.00   SOS $18,400.00   savings $322,704.00
-Thoracentesis           1 visit    hospital   $5,426.48   SOS    $575.00   savings   $4,851.48
-Catheter Management    11 visits   hospital  $20,961.38   SOS  $4,933.00   savings  $16,028.38
-G-Tube/PEG Management   8 visits   hospital  $17,591.20   SOS  $3,440.00   savings  $14,151.20
-TOTAL                  52 visits   hospital $385,083.06   SOS $27,348.00   savings $357,735.06
-average per qualifying visit $6,879.52
-annualized $4,292,820.72
-outside the model 66 of 118, transport-only floor $63,032.64
-```
+InnoVage is a different report type and has no savings model. Its July baseline is
+**83 referrals, 76 evaluations completed, 91.6%**. There is no dollar figure and
+one must not be produced for it.
 
-Branch savings: Suncoast Pinellas $152,769.02, Tidewell $91,436.44, Hospice of Marion County $45,673.70, Suncoast Hillsborough $37,602.40, Trustbridge $20,169.00, Polk $10,084.50, Empath Main/Primary $0.
+**How to use this gate.** Compare visits, qualifying count, and savings for the
+partner being rebuilt. All three must match. Visits matching while qualifying
+drifts means the classifier or the clinical review gate moved. Qualifying matching
+while savings drifts means a rate or a benchmark moved, and 8.3 is the first place
+to look.
 
-AccentCare July 2026:
-
-```
-Paracentesis           11 visits   hospital $117,254.50   SOS  $5,995.00   savings $111,259.50
-Catheter Management     3 visits   hospital   $5,716.74   SOS    $836.00   savings   $4,880.74
-G-Tube/PEG Management   6 visits   hospital  $13,193.40   SOS  $2,058.00   savings  $11,135.40
-TOTAL                  20 visits   hospital $136,164.64   SOS  $8,889.00   savings $127,275.64
-average per qualifying visit $6,363.78
-outside the model 29 of 49
-```
-
-Branch savings: Pinellas $76,075.88, Hillsborough $37,373.46, Miami $10,114.50, Pasco $3,711.80, Hernando $0, Broward no volume.
+The prior baselines, retained through 2026-08-25 as the fingerprint of the
+defective build, are removed. They were wrong in both directions and keeping them
+next to correct figures invites someone to test against the wrong row.
 
 ### 8.6 Year to date
 
@@ -412,6 +423,40 @@ Traced to a CMS source file and reproducing to the cent: FY2026 IPPS Table 5 wei
 Not traced: the $955.04 ambulance figure.
 
 Full detail lives in `SOS_MPU_Methodology_Change_June_to_July_2026.md`.
+
+**The Empath rate question is CLOSED. Do not reopen it.** `Partner Rates Report
+(13).xlsx`, dated 21 Aug, shows Empath Moderate 343, Low 150, Telemedicine 55 and
+Polk High 545. Those figures contradict the table in 8.3. Neil ruled 2026-08-26
+that his confirmations govern and that the export is stale. 8.3 stands: Empath is
+High 575, Moderate 373, Low 170, Telemedicine 65.
+
+Anyone re-deriving rates from a rates export will hit this contradiction again and
+conclude the spec is wrong. It is not. Stop, and cite this paragraph.
+
+### 8.8 Report types
+
+Three master templates now exist, not one. Pick the type before building
+anything: they differ in what they compute, not only in how they look.
+
+**(a) Hospice savings.** Empath and AccentCare today, VITAS and Chapters
+eventually. The full model in sections 8.1 through 8.7 applies. This is what the
+rest of this document describes unless it says otherwise.
+
+**(b) 3008 evaluations.** InnoVage. **There is no savings model and no dollar
+figure is ever produced for it.** Two sources: the normalized workbook supplies
+referrals, and the 3008 completion log supplies completions. They join on
+referral ID.
+
+The rule that is easy to get wrong: **count both referrals and completions by the
+referral's routed site, not the completion log's site.** The two disagree on 4 of
+76 July records. Routing is where the work was assigned, which is what the partner
+is being reported on. Using the completion log's site moves those four records to
+whichever site happened to finish them and silently changes both counts.
+
+**(c) Low volume.** VITAS and Chapters. Three pages, no charts, every visit on one
+line. Chart furniture on three visits reads as padding, so it is dropped. A
+partner moves off this template when its volume makes a chart honest, which is a
+judgment call for Neil rather than a threshold in code.
 
 ---
 

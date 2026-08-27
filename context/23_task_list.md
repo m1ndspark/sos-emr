@@ -221,6 +221,13 @@ Owner legend:
 | Reporting data cards across referrals, PVS, invoicing. | cchat / ccode | OPEN | N | fast-follow |
 | Supplemental-addendum billing; in-app subscription record view. | cchat / ccode | OPEN | N | fast-follow |
 | Deferred past 8/3: Books-to-QuickBooks sync, WorkDrive, new referral form as August intake, Imaging_Orders + lab build, AWS voice pipeline. | Neil / cchat | OPEN | N | deferred |
+| InnoVage "Status basis" paragraph rewrite. Referrals and evals are distinct: SOS completes evals, not referrals. Last sentence needs revision and the eval count needs choosing. | cchat | OPEN | N | 2026-08-26 |
+| N/A placeholders, Chapters alert box and the InnoVage paragraph exist only in the cchat workspace. The partner-folder FINAL files predate them. | cchat | OPEN | N | 2026-08-26 |
+| Hospice ID junk-value check on Referrals_Main.Patient_Hospice_ID with an alert message. Reject na, n/a, none, unknown, blank. NO structural or format validation: partner ID formats vary and are not knowable. July defects came from Cognito exports, not Creator, so there are no records to fix, only the forward path to close. | cchat | OPEN | N | 2026-08-26 |
+| DOB century defect. 103 July rows across all partners carry a DOB in 2030 to 2045 from two-digit year entry in the Cognito era. Reports display these corrected; underlying records untouched. Decide whether a backfill is warranted. | Neil | OPEN | N | 2026-08-26 |
+| Third master template for the low-volume report type (VITAS, Chapters) not yet saved to the repo. | ccode | OPEN | N | 2026-08-26 |
+| VITAS and Chapters have no year-to-date pages. No prior month has been restated on the current model for either partner. | cchat | OPEN | N | 2026-08-26 |
+| Gmail draft to Andrea Garr lost its signature phone links and logo when rewritten via the API. Neil to re-insert the signature in Gmail. | Neil | OPEN | N | 2026-08-26 |
 
 --------------------------------------------------------------------------------
 END
