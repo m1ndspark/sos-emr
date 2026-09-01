@@ -63,7 +63,10 @@ SECTION  Patient_Location_Section
 SECTION  Patient_Medical_Details_Section
   Referral_Reason              Multi Line  <- What is the reason for this referral?
   Goals_of_Care               Multi Line  <- Goals of Care
-  X_Ray_Needed                Radio       <- Will an X-Ray be needed for this referral?  [No, Yes, I'm Not Sure]
+  X_Ray_Needed                Radio       <- Will this referral require imaging (X-ray or other)?  [No, Yes, I'm Not Sure]
+                                          (label changed Session 38, 2026-08-31; was "Will an X-Ray be
+                                           needed for this referral?". Link name and the three values
+                                           are UNCHANGED, so no Deluge or mapping was affected.)
   Patient_Has_Allergies       Radio       <- Does the patient have allergies?  [No, Yes, Unable to Verify]
   List_Patient_Allergies      Multi Line  <- List all allergies
   Patient_Has_Anticoagulants  Radio       <- Does the patient use anticoagulant meds?  [No, Yes, Unable to Verify]
@@ -77,9 +80,25 @@ SECTION  General_Information_Section
   Additional_Information   Multi Line        <- Provide any additional details that may relate to this referral.
   General_Files_Upload     Multi File Upload <- General Files Upload
 
-SECTION  X_Ray_Request_Details
-  Reason_for_X_Ray_Request     Multi Line        <- Reason for X-Ray Request
-  Upload_X_Ray_Request_Files   Multi File Upload <- Upload X-Ray Request Files
+SECTION  Imaging Order Details   (STALE ROWS CORRECTED Session 38, 2026-08-31)
+  The old X_Ray_Request_Details rows below this file carried
+  (Reason_for_X_Ray_Request, Upload_X_Ray_Request_Files) do not exist in the live
+  schema. Replaced with the live Imaging fields per schema/Referrals_Main.md,
+  captured 2026-08-31.
+
+  Imaging_Type_Order           Single Line       <- Imaging Test(s) to be Ordered      (row 7)
+  Imaging_Body_Site            Single Line       <- Body Part / Affected Area          (row 8, NEW Session 38)
+  Imaging_Order_Indication     Multi Line        <- Reason for Imaging Order(s)        (row 9)
+  Imaging_Orders_Upload        Multi File Upload <- Upload Imaging Orders              (row 10)
+
+  Imaging_Body_Site sits between Imaging_Type_Order and Imaging_Order_Indication
+  and is NOT Mandatory. Note the type split either side of it: Imaging_Type_Order
+  is single-line text, Imaging_Order_Indication is a textarea. Imaging_Body_Site
+  follows Imaging_Type_Order and is single line.
+
+  NOT YET MAPPED in the Forms -> Creator integration. The Creator field exists;
+  the integration row does not, so it stays empty on every submission until the
+  rebuild. See context/24 section 10.
 
 SECTION  Lab_Request_Reason_Section
   Reason_for_Lab_Request       Multi Line        <- Reason for Lab Request

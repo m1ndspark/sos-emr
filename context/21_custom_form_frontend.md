@@ -62,7 +62,10 @@ Flow:
     -> Creator form record
 
 Why the Lambda hop is REQUIRED and not optional: Creator Custom APIs authenticate
-with OAuth, and a client secret cannot live in browser JavaScript. Lambda is the
+with OAuth, and a client secret cannot live in browser JavaScript.
+[CORRECTED Session 38, 2026-08-31: Custom APIs also support PublicKey auth, so a
+browser can post directly and this paragraph overstates the case. See the
+Session 38 section at the end of this file.] Lambda is the
 credential holder. It also does the server-side validation, since there is no longer
 a form engine doing it.
 
@@ -112,6 +115,65 @@ plugin admin panel.
 Open questions for that phase: file uploads (Creator file fields vs S3 presign), spam
 and bot protection without a form engine, and whether Lambda or Creator owns
 duplicate detection.
+
+--------------------------------------------------------------------------------
+## Session 38 re-investigation, 2026-08-31: SET ASIDE AGAIN
+--------------------------------------------------------------------------------
+Picked the hand-built form back up while working the Zoho Forms imaging branch,
+and closed it again the same session. Three findings, recorded so the next person
+does not spend the time twice.
+
+**1. A browser CAN post to Creator directly. The Lambda hop is not strictly
+required after all.** Creator Custom APIs support **PublicKey** authentication,
+which is designed for exactly this: an unauthenticated client calling a published
+endpoint without OAuth and without a client secret in JavaScript. This corrects
+the "Why the Lambda hop is REQUIRED and not optional" paragraph above, which was
+written assuming OAuth was the only option.
+
+That removes the credential argument for Lambda. It does NOT remove Lambda from
+the design on its own, since server-side validation still has to live somewhere,
+but the chain browser -> Creator Custom API is now technically open.
+
+**2. Record creation must go through REST API v2.1 with workflows triggered.**
+A Custom API that creates the record with a Deluge `insert into` **skips both
+On Validate and On Success**, and there is no override or parameter that turns
+them back on. For Referrals_Main that would bypass the master On Success
+workflow, which is what derives every partner field from Partner_Location_Label
+and mints the Referral ID. A record created that way arrives unstamped and
+unlinked.
+
+So the Custom API cannot be a thin Deluge wrapper. It has to call REST API v2.1
+with workflow triggering switched on, or the whole downstream chain silently does
+not run. This is the same class of finding as context/09 section 5 (imports fire
+On Success only when "Execute form workflows" is checked, and On User Input never
+fires at all).
+
+**3. A PHP proxy is permanently off the table.** No hosting BAA exists and none
+is being pursued, so Cloudways and WordPress cannot be in the PHI path. This is
+not a "not yet", it is a closed door, and it retires options 1 and 3 in the list
+above for good rather than leaving them as rejected-for-now.
+
+**Status unchanged: DECIDED IN PRINCIPLE, NOT SCHEDULED, nothing built.**
+Referrals stay on Zoho Forms. The Session 38 imaging work was done in Zoho Forms
+for that reason.
+
+--------------------------------------------------------------------------------
+## Session 38 note: form link names are immutable
+--------------------------------------------------------------------------------
+Relevant here because it is a standing Zoho Forms constraint, not a one-off.
+
+A Zoho Forms link name is fixed at creation. Only the title and the nickname can
+be changed afterwards. The live referral form's link name is
+`PatientReferralsHCO` and it presents as "Patient Referral"; the two cannot be
+brought into line.
+
+Getting a cleaner URL would mean duplicating the form, which mints a new perma
+and forces the Forms -> Creator integration to be removed and rebuilt field by
+field. REJECTED Session 38. Full detail in context/24 section 1.
+
+This is one more entry in the column of things a hand-built form would not have,
+alongside layout and conditional-logic control. It is not on its own a reason to
+build one.
 
 --------------------------------------------------------------------------------
 END

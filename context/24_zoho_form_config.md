@@ -13,16 +13,27 @@ intake, plus the platform limits that shaped it. Sections marked
 | Item | Value |
 |---|---|
 | Zoho Forms org | SOSReferralForm |
-| Builder form (current work) | `PatientReferralsHCO` |
+| Live form (link name) | `PatientReferralsHCO` |
+| Title / nickname | Patient Referral |
 | Public form perma | `_WhhCPE6GSg7iEZZyE6YGawxwZHr4Izij2oGuzkAGds` |
 | Builder URL | forms.zoho.com/SOSReferralForm/form/PatientReferralsHCO/builder |
 | Rules URL | forms.zoho.com/SOSReferralForm/form/PatientReferralsHCO/rules |
 | Custom domain | referral.sosreferrals.com |
 | Target Creator form | `Referrals_Main` |
 
-**[NEEDS INPUT]** - `PatientReferral` and `PatientReferralsHCO` are two
-different forms in the same org. Confirm which is live and whether one is
-being retired.
+RESOLVED Session 38, 2026-08-31. `PatientReferralsHCO` is the live form.
+`PatientReferral` is the previous app build and is not in use.
+
+**Form link names are fixed at creation.** Only the title and the nickname can
+be edited afterwards, which is why the link name still reads PatientReferralsHCO
+while the form presents as "Patient Referral". A cleaner URL would require
+duplicating the form, which mints a new perma and forces a full integration
+rebuild. REJECTED Session 38: the URL is not worth re-selecting every field by
+hand and re-testing the whole intake path.
+
+STILL OPEN, separate row in context/23: the Creator page `Patient_Referrals`
+embeds form `PatientReferral` in its HTML snippet. That is a stale reference to
+the previous build and serves the wrong form to anyone arriving that way.
 
 --------------------------------------------------------------------------------
 ## 2. Page order
@@ -81,29 +92,58 @@ Related behaviours:
 - Hide: Will an X-Ray be needed for this referral? / Does the patient use
   anticoagulant meds?
 
-### Imaging Order only - NOT BUILT
+### Imaging Order only - BUILT Session 38
 - If: Service Requested `Is` Imaging Order (only)
 - Hide: Does the patient have allergies? / Is the patient self-responsible?
+
+### Trigger question relabel - Session 38
+The imaging trigger question now reads **"Will this referral require imaging
+(X-ray or other)?"**. Label only. The link name `X_Ray_Needed` and its three
+values (No / Yes / I'm Not Sure) are unchanged, so no rule, no mapping and no
+Creator field was affected.
+
+**The "3008 & Imaging Order Combined" rule must stay.** It hides the trigger
+question for 3008 and Imaging Order (only), which leaves it blank for those
+services. The General Information page rule below depends on that blank: it is
+what stops the trigger question from ever being evaluated on a non-Patient-Visit
+path. Removing the field rule would silently break the page rule.
 
 --------------------------------------------------------------------------------
 ## 5. Page rules
 --------------------------------------------------------------------------------
 
-### On page: General Information - BUILT
-- Rule 1: Service Requested `Is` 3008 -> skip to **Partner Lookup Details**
-- Finally: skip to **Imaging Order Details**
+Both page rules below were BUILT in Session 38, 2026-08-31. They replace the
+earlier General Information rule and the two specced-but-unbuilt entries.
 
-### On page: General Information - Patient Visit skip - SPECCED, NOT BUILT
-- Rule: Service Requested `Is` Patient Visit -> skip to **Partner Lookup
-  Details**
-
-### On page: Patient Medical Info - NOT BUILT
+### On page: Patient Medical Info - BUILT Session 38
 - Rule 1: Service Requested `Is` Imaging Order (only) -> skip to
   **Imaging Order Details**
 - Finally: skip to **General Information**
 
-OPEN QUESTION: does Imaging Order (only) also skip Additional Contact
-Details? Undecided.
+### On page: General Information - BUILT Session 38
+- Rule 1: Service Requested `Is` Patient Visit AND trigger question
+  `Is not` Yes -> skip to **Partner Lookup Details**
+- Rule 2: Service Requested `Is` 3008 -> skip to **Partner Lookup Details**
+- Finally: skip to **Imaging Order Details**
+
+### Net effect
+The existing **Imaging Order Details** page now serves two branches, and no
+second imaging page was needed:
+
+| Service | Trigger question | Sees Imaging Order Details |
+|---|---|---|
+| Imaging Order (only) | hidden, blank | yes, reached from Patient Medical Info |
+| Patient Visit | Yes | yes, falls through General Information |
+| Patient Visit | No | no |
+| Patient Visit | I'm Not Sure | no |
+| 3008 | hidden, blank | no |
+
+`Is not` Yes is what makes No and I'm Not Sure behave identically. Both skip the
+imaging page. If a future ruling needs I'm Not Sure to collect imaging detail,
+that condition is the single place to change.
+
+OPEN QUESTION, still undecided: does Imaging Order (only) also skip Additional
+Contact Details?
 
 --------------------------------------------------------------------------------
 ## 6. Partner Lookup Details page
@@ -240,8 +280,43 @@ Native Zoho Forms -> Creator integration writing into `Referrals_Main`.
 change means removing the integration and adding it back, re-selecting every
 field by hand.
 
-Mapping split: 44 partner-entered fields mapped, 12 Creator-generated fields
-NOT mapped, 14 removed fields that must not be re-selected.
+Mapping split as specced Session 29: 44 partner-entered fields mapped, 12
+Creator-generated fields NOT mapped, 14 removed fields that must not be
+re-selected.
+
+**Session 38 count disagrees with that figure.** The live integration was read
+back on 2026-08-31 and carries **38 rows**, not 44. The row-by-row map is in
+`claude/SOS_ZohoForm_Config.md` section 8, which is a cchat-side document and is
+NOT on the ccode machine, so the 38 rows are not reproduced here yet. Do not
+treat the 44 above as the live state. Whoever has that document should paste
+section 8 into this section; a placeholder is left below rather than a
+reconstructed list, because a wrong field map on a referral intake is worse than
+a missing one.
+
+### 38-row live integration map - NOT YET CAPTURED IN THIS REPO
+Source: `claude/SOS_ZohoForm_Config.md` section 8 (cchat side).
+Needed here: all 38 form-field -> Creator-field rows, plus the confirmed-unmapped
+list. Raised Session 38.
+
+### Confirmed unmapped, found Session 38
+No file upload field appears in the live integration. `General_Files_Upload`,
+`Imaging_Orders_Upload` and `File_upload` have no row, so partner uploads are
+not reaching Creator. Whether that is a defect depends on a ruling that has not
+been made: see context/23, OPEN BLOCKING. If uploads are expected, the rebuild
+must add them.
+
+### Suspect mapping, found Session 38
+The Creator Additional Information textarea is mapped to the form's
+"Do you have additional information to share with us?" **Yes/No radio**, not to
+a text field. If that is what the live map says, the textarea is storing the
+literal string "Yes" and the partner's note is being discarded. Verify against a
+live record before the rebuild.
+
+### Imaging_Body_Site must be added
+The rebuild is 38 existing rows **plus** `Imaging_Body_Site` <- "Body Part /
+Affected Area". The Creator field already exists (see schema/Referrals_Main.md,
+captured 2026-08-31); the integration row does not, so the field stays empty on
+every submission until the rebuild happens.
 
 Partner_Location_Label is now MAPPED, from the Referral Partner Lookup grouped
 dropdown, so it moved out of the do-not-map list below (one field crossed over:
@@ -302,8 +377,13 @@ the Creator-side embed must be a bare iframe.
 |---|---|
 | Lookup messages do not appear reliably on the live form. API response and mapping both verified correct. Suspect the field's Read Only / Hidden setting blocks the prefill write. | OPEN |
 | Next diagnostic: log every call inside `get_partner_referral_contact` so a missing message with no log row (Search never fired) can be told apart from a log row with no message (write failed). Needs the Change_Log field link names. | OPEN |
-| Imaging Order field rule | NOT BUILT |
-| Patient Medical Info page rule | NOT BUILT |
-| General Information page rule: Patient Visit -> skip to Partner Lookup Details | SPECCED, NOT BUILT |
+| Imaging Order field rule | BUILT Session 38 |
+| Patient Medical Info page rule | BUILT Session 38 |
+| General Information page rule: Patient Visit -> skip to Partner Lookup Details | BUILT Session 38, as Patient Visit AND trigger question Is not Yes |
 | Does Imaging Order skip Additional Contact Details? | UNDECIDED |
-| Integration rebuild, 43 fields | NOT DONE - blocks the remap |
+| Integration rebuild: 38 live rows + Imaging_Body_Site | NOT DONE - the new field does not reach Creator until it is |
+| 38-row live map not captured in this repo (cchat-side doc) | OPEN |
+| No file upload field mapped: General_Files_Upload, Imaging_Orders_Upload, File_upload | OPEN - ruling needed |
+| Additional Information textarea mapped to the Yes/No radio | OPEN - verify against a live record |
+| Creator page Patient_Referrals embeds the stale form PatientReferral | OPEN |
+| Referral_Type choices on Referrals_Main do not match the form's Service list | OPEN |
