@@ -241,5 +241,38 @@ CHANGED (record event narrowed from "on add or edit" to "on edit"):
   recompute on a manual edit.
 
 --------------------------------------------------------------------------------
+## Session 38 EOD 2026-09-01 - new diagnostic function
+--------------------------------------------------------------------------------
+
+NEW standalone function (functions/):
+
+- `diag_form_fields(string p_formLink)` - Deluge, default namespace, returns
+  string.
+
+  Behaviour:
+  - Called with a **blank** argument, it lists every form in the app.
+  - Called with a **form link name**, it dumps every field on that form: link
+    name, display name, type, mandatory, unique and detail, plus a total field
+    count at the end.
+
+  Uses the `sos_schema_monitor` connection and the same type map as
+  `run_schema_monitor`, so its type labels read identically to the generated
+  `schema/*.md` files.
+
+  Why it exists: `run_schema_monitor` only reports **changes**. There was no way
+  to ask the live app what a form holds right now without waiting for a delta or
+  reading a capture that might predate the field you are asking about.
+  `diag_form_fields` answers that directly, on demand.
+
+  Written against `Referrals_Main`, which is where the need surfaced: the
+  Session 38 integration rebuild introduced a Patient MBI field that postdates
+  the 2026-08-31 06:01 schema capture, so its link name could not be confirmed
+  from `schema/Referrals_Main.md`. See context/24 section 10.
+
+  It is a `diag_*` function and therefore falls under the existing post-launch
+  cleanup row in context/23: delete every `diag_*` function from Creator after
+  launch.
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------

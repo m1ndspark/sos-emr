@@ -39,18 +39,30 @@ the previous build and serves the wrong form to anyone arriving that way.
 ## 2. Page order
 --------------------------------------------------------------------------------
 
+NINE pages. Corrected Session 38 EOD, 2026-09-01.
+
 | # | Page |
 |---|---|
 | 1 | Referral Details |
 | 2 | Patient Details |
 | 3 | Patient Details Cont'd |
-| 4 | Additional Contact Details |
-| 5 | Patient Location |
-| 6 | Patient Medical Info |
-| 7 | General Information |
-| 8 | Imaging Order Details |
-| 9 | Partner Lookup Details |
-| 10 | Referral Partner Details |
+| 4 | Patient Location |
+| 5 | Patient Medical Info |
+| 6 | General Information |
+| 7 | Imaging Order Details |
+| 8 | Referral Partner Lookup |
+| 9 | Referral Partner Details |
+
+**There is no Additional Contact page.** Earlier revisions of this file listed a
+tenth page, "Additional Contact Details", sitting between Patient Details Cont'd
+and Patient Location. It does not exist. The additional-contact questions are
+**grids on Patient Details Cont'd**, revealed in place by field rule 2 in
+section 4. Anything in this repo that treats Additional Contact as its own page -
+a page count of ten, a page rule that targets it, an open question about whether
+a service skips it - is wrong on that point and is corrected here.
+
+Page 8 was also written in earlier revisions as "Partner Lookup Details". The
+live page names are as tabled above.
 
 Branch point is **Service Requested** on page 1.
 Choices: Patient Visit / 3008 / Imaging Order (only).
@@ -80,55 +92,139 @@ Related behaviours:
 ## 4. Field rules
 --------------------------------------------------------------------------------
 
-### 3008 Suppression - BUILT
+All ELEVEN live field rules, in the order they appear on the Rules screen, as of
+Session 38 EOD, 2026-09-01. This list is complete: a rule that is not below is
+not on the form.
+
+### 1. 3008 - ENABLED
 - If: Service Requested `Is` 3008
 - Show: 3008 Files Upload
-- Hide: Does the patient have Advanced Directives? / Do you have additional
-  information to share with us?
+- Hide: Patient DOB grid / Patient SSN grid / What is the reason for this
+  referral? / ICD-10 grid / Does the patient have Advanced Directives? / Is the
+  patient self-responsible? / Do you have additional information to share with us?
 
-### 3008 & Imaging Order Combined - BUILT
+Wider than the "3008 Suppression" rule recorded earlier in Session 38, which had
+only Advanced Directives and the additional-information question in its hide
+list. The DOB and SSN grids, reason for referral, the ICD-10 grid and
+self-responsible were added after that entry was written.
+
+### 2. Additional Contact - ENABLED
+- If: Is there an additional/emergency contact for this patient? `Is` Yes
+- Show: the additional-contact grids on Patient Details Cont'd
+
+This is the rule that makes Additional Contact a reveal-in-place block rather
+than a page. See section 2.
+
+### 3. Patient Location - ENABLED
+- If: `( A1 OR A2 )` where A1 = Where is the patient currently located? `Is`
+  Home, A2 = the same question `Is Empty`
+- Hide: the facility grids
+
+`Is Empty` is in the condition so the facility block stays hidden before the
+question has been answered, not only after Home is picked.
+
+### 4. Allergies - ENABLED
+- If: Does the patient have allergies? `Is` Yes
+- Show: List all allergies
+
+### 5. Anticoagulants - ENABLED
+- If: Does the patient use anticoagulant meds? `Is` Yes
+- Show: List anticoagulant medications
+
+### 6. Advanced Directives - ENABLED
+- If: Does the patient have Advanced Directives? `Is` Yes
+- Show: Advanced Directives Details
+
+### 7. Additional Information - DISABLED, slated for deletion
+Duplicate of rule 11: same trigger question, same intent. It is switched off, so
+it is not live behaviour, and it should be deleted rather than left dormant. One
+rule per target question is the constraint the whole ruleset is built on
+(section 3), and a second rule aimed at the same targets is exactly what that
+constraint exists to prevent. Left in place only so removing it is a deliberate
+act rather than a side effect.
+
+### 8. 3008 & Imaging Order Combined - ENABLED
 - If: `( A1 OR A2 )` where A1 = Service Requested `Is` 3008,
   A2 = Service Requested `Is` Imaging Order (only)
-- Hide: Will an X-Ray be needed for this referral? / Does the patient use
-  anticoagulant meds?
+- Hide: Will this referral require imaging (X-ray or other)? / Does the patient
+  use anticoagulant meds?
 
-### Imaging Order only - BUILT Session 38
+### 9. Imaging Order - ENABLED
 - If: Service Requested `Is` Imaging Order (only)
 - Hide: Does the patient have allergies? / Is the patient self-responsible?
 
-### Trigger question relabel - Session 38
-The imaging trigger question now reads **"Will this referral require imaging
-(X-ray or other)?"**. Label only. The link name `X_Ray_Needed` and its three
-values (No / Yes / I'm Not Sure) are unchanged, so no rule, no mapping and no
-Creator field was affected.
+### 10. Partner Lookup - ENABLED
+- If: `( A1 OR A2 )` where A1 = Lookup Status `Is Empty`,
+  A2 = Partner POC Email `Is Empty`
+- Hide: Email Lookup Alert
 
-**The "3008 & Imaging Order Combined" rule must stay.** It hides the trigger
-question for 3008 and Imaging Order (only), which leaves it blank for those
-services. The General Information page rule below depends on that blank: it is
-what stops the trigger question from ever being evaluated on a non-Patient-Visit
-path. Removing the field rule would silently break the page rule.
+The alert is suppressed until a lookup has actually run against an entered
+email, so an untouched page never shows it.
+
+### 11. General Information - ENABLED
+- If: Do you have additional information to share with us? `Is` Yes
+- Show: the additional-details textarea / General Files Upload
+
+### Trigger question relabel - Session 38
+The imaging trigger question reads **"Will this referral require imaging (X-ray
+or other)?"**. Label only. The link name `X_Ray_Needed` and its three values
+(No / Yes / I'm Not Sure) are unchanged, so no rule, no mapping and no Creator
+field was affected.
+
+**Rule 8 must stay.** It hides the trigger question for 3008 and for Imaging
+Order (only), which leaves it blank on those services. The General Information
+page rule in section 5 depends on that blank: it is what stops the trigger
+question from ever being evaluated on a non-Patient-Visit path. Removing the
+field rule would silently break the page rule.
 
 --------------------------------------------------------------------------------
 ## 5. Page rules
 --------------------------------------------------------------------------------
 
-Both page rules below were BUILT in Session 38, 2026-08-31. They replace the
-earlier General Information rule and the two specced-but-unbuilt entries.
+Three page rules, as they stand at Session 38 EOD, 2026-09-01.
 
-### On page: Patient Medical Info - BUILT Session 38
+### On page: Patient Location
+- Rule 1: Service Requested `Is` 3008 -> skip to **General Information**
+- Finally: skip to **Patient Medical Info**
+
+CHANGED this session. Rule 1 previously sent 3008 straight to **Referral Partner
+Lookup**, which skipped General Information along with Patient Medical Info.
+3008 now collects General Information and leaves that page by Rule 2 below.
+
+### On page: Patient Medical Info
 - Rule 1: Service Requested `Is` Imaging Order (only) -> skip to
   **Imaging Order Details**
 - Finally: skip to **General Information**
 
-### On page: General Information - BUILT Session 38
-- Rule 1: Service Requested `Is` Patient Visit AND trigger question
-  `Is not` Yes -> skip to **Partner Lookup Details**
-- Rule 2: Service Requested `Is` 3008 -> skip to **Partner Lookup Details**
+### On page: General Information
+- Rule 1: Service Requested `Is` Patient Visit AND "Will this referral require
+  imaging (X-ray or other)?" `Is not` Yes -> skip to **Referral Partner Lookup**
+- Rule 2: Service Requested `Is` 3008 -> skip to **Referral Partner Lookup**
 - Finally: skip to **Imaging Order Details**
 
-### Net effect
-The existing **Imaging Order Details** page now serves two branches, and no
-second imaging page was needed:
+### Pathway matrix
+Which pages each service actually sees, derived from the three rules above.
+
+| # | Page | Patient Visit | 3008 | Imaging Order (only) |
+|---|---|---|---|---|
+| 1 | Referral Details | yes | yes | yes |
+| 2 | Patient Details | yes | yes | yes |
+| 3 | Patient Details Cont'd | yes | yes | yes |
+| 4 | Patient Location | yes | yes | yes |
+| 5 | Patient Medical Info | yes | **skipped** | yes |
+| 6 | General Information | yes | yes | **skipped** |
+| 7 | Imaging Order Details | only when the imaging question is Yes | no | yes |
+| 8 | Referral Partner Lookup | yes | yes | yes |
+| 9 | Referral Partner Details | yes | yes | yes |
+
+Pages 1-4 and 8-9 are on all three paths: they sit before the branch point or
+after every branch, which is what the forward-only skip-to limit in section 3
+requires. Only two pages are ever skipped, one per service, and Imaging Order
+Details is the single page whose inclusion depends on an answer rather than on
+the service.
+
+**Imaging Order Details serves two branches** and no second imaging page was
+needed:
 
 | Service | Trigger question | Sees Imaging Order Details |
 |---|---|---|
@@ -142,24 +238,36 @@ second imaging page was needed:
 imaging page. If a future ruling needs I'm Not Sure to collect imaging detail,
 that condition is the single place to change.
 
-OPEN QUESTION, still undecided: does Imaging Order (only) also skip Additional
-Contact Details?
+The old OPEN QUESTION here - "does Imaging Order (only) also skip Additional
+Contact Details?" - is VOID. There is no Additional Contact page to skip; the
+additional-contact grids live on Patient Details Cont'd, which every service
+sees, and they are governed by field rule 2, not by a page rule.
 
 --------------------------------------------------------------------------------
-## 6. Partner Lookup Details page
+## 6. Referral Partner Lookup page (page 8)
 --------------------------------------------------------------------------------
+
+Naming: **Referral Partner Lookup** is both the name of page 8 and the name of
+the grouped dropdown question that sits on it. Where it matters below, "the page"
+and "the question" are said explicitly.
 
 Fields:
 - Partner POC Email + **Search** button (`.fldSuffixBtn.whookSearchBtn`)
-- Referral Partner Lookup (grouped searchable dropdown, ~80 bare location
-  names; mapped in the Creator integration to Partner_Location_Label). Replaces
-  the former free-text Partner Branch/Location question and the Referral Partner
-  Organization question, both now DELETED.
+- Referral Partner Lookup, the question (grouped searchable dropdown, ~80 bare
+  location names). Replaces the former free-text Partner Branch/Location question
+  and the Referral Partner Organization question, both now DELETED. It **should**
+  be mapped in the Creator integration to `Partner_Location_Label`; after the
+  Session 38 rebuilds it is mapped to `Partner_Organization` instead, which is
+  OPEN BUG 1 in section 10.
 - Partner Clinical Team
 - Referral POC First Name / Last Name / Title
 - Referral POC Phone
-- Lookup Status (read-only, receives FOUND / NOT_FOUND)
+- Lookup Status (read-only, receives FOUND / NOT_FOUND). Paired with Partner POC
+  Email in field rule 10, which hides the Email Lookup Alert until a lookup has
+  run.
 - Lookup Message (read-only Multi Line, receives the display text)
+- Email Lookup Alert (hidden by field rule 10 until both Lookup Status and
+  Partner POC Email are non-empty)
 - Verification Code (captcha)
 
 ### The problem this page had
@@ -276,19 +384,128 @@ Referrals_Main. Typos have the same cost and the same answer.
 
 Native Zoho Forms -> Creator integration writing into `Referrals_Main`.
 
-**HARD LIMITATION: an existing field map cannot be edited.** Any field
-change means removing the integration and adding it back, re-selecting every
-field by hand.
+**HARD LIMITATION: an existing field map cannot be edited.** Any field change
+means removing the integration and adding it back, re-selecting every field by
+hand. That is why this section carries the map verbatim, and why a mis-selection
+is a rebuild rather than a correction.
 
-### The live map, 38 rows
-Read verbatim off the integration screen on 2026-08-31 (Session 38). This is the
-authoritative record of what the live integration does. Anything in this file
-that disagrees with it is wrong.
+### The live map, 40 rows
+State at Session 38 EOD, 2026-09-01. The map was **deleted and rebuilt twice**
+this session; this is the result of the second rebuild and it supersedes the
+38-row table filed earlier the same session (kept below as history). The two
+added rows are `Patient_MBI` and `Imaging_Body_Site`.
 
-The Creator link-name column is not on that screen; it is resolved from
-`schema/Referrals_Main.md` (captured 2026-08-31) so the map is usable from
-Deluge. All 38 Creator field names matched a live schema display name exactly,
-which is a check on the transcription as well as a convenience.
+Row numbers below are this file's ordering, kept aligned with the 38-row table so
+the diff is readable. They are not a claim about the order of the rows on the
+integration screen.
+
+| # | Creator link name | Creator field | Zoho Forms question |
+|---|---|---|---|
+| 1 | `Referral_Source` | Referral Source | Referral Source |
+| 2 | `Referral_Type` | Service | Service Requested |
+| 3 | `Patient_First_Name` | Patient First Name | Patient First Name |
+| 4 | `Patient_Last_Name` | Patient Last Name | Patient Last Name |
+| 5 | `Patient_DOB` | Patient DOB | Patient DOB |
+| 6 | `Patient_Gender` | Patient Gender | Biological Sex |
+| 7 | `Patient_Hospice_ID` | Patient Hospice ID | Hospice ID |
+| 7a | `Patient_MBI` * | Patient MBI | Patient MBI |
+| 8 | `Patient_Phone` | Patient Phone | Patient Phone |
+| 9 | `Has_Additional_Contact` | Is there an additional contact? | Is there an additional/emergency contact for this patient? |
+| 10 | `AC_First_Name` | AC First Name | AC First Name |
+| 11 | `AC_Last_Name` | AC Last Name | AC Last Name |
+| 12 | `AC_Phone` | AC Phone | AC Phone |
+| 13 | `AC_Relationship_to_Patient` | AC Relationship to Patient | Relation to Patient |
+| 14 | `Patient_Location` | Patient Location | Where is the patient currently located? |
+| 15 | `Facility_Name` | Facility Name | Facility Name |
+| 16 | `Facility_Phone` | Facility Phone | Facility Phone |
+| 17 | `Facility_Room_Number` | Facility Room Number | Room # |
+| 18 | `Patient_Address` | Patient Address | Patient Address |
+| 19 | `Referral_Reason` | Reason for Referral | What is the reason for this referral? |
+| 20 | `Partner_ICD_Codes` | Partner ICD Codes | ICD-10 Codes |
+| 21 | `X_Ray_Needed` | Will an X-Ray be needed for this referral? | Will this referral require imaging (X-ray or other)? |
+| 22 | `Patient_Has_Allergies` | Does this patient have allergies? | Does the patient have allergies? |
+| 23 | `List_Patient_Allergies` | List Patient Allergies | List all allergies |
+| 24 | `Patient_Has_Anticoagulants` | Does the patient take anticoagulants? | Does the patient use anticoagulant meds? |
+| 25 | `List_Patient_Anticoagulants` | List Patient Anticoagulants | **List all allergies** - WRONG, see OPEN BUG 2 |
+| 26 | `Patient_Has_Advanced_Directives` | Does the patient have Advanced Directives? | Does the patient have Advanced Directives? |
+| 27 | `Advanced_Directives_Details` | Advanced Directives Details | Advanced Directives Details |
+| 28 | `Additional_Information` | Additional Information | Do you have additional information to share with us? |
+| 29 | `Imaging_Type_Order` | Imaging Test(s) to be Ordered | List Imaging test(s) to be Ordered |
+| 30 | `Imaging_Order_Indication` | Reason for Imaging Order(s) | Reason for Imaging Order(s) |
+| 30a | `Imaging_Body_Site` | Body Part / Affected Area | Body Part / Affected Area |
+| 31 | `Partner_POC_First_Name` | Partner POC First Name | Referral POC First Name |
+| 32 | `Partner_POC_Last_Name` | Partner POC Last Name | Referral POC Last Name |
+| 33 | `Partner_POC_Title` | Partner POC Title | Referral POC Title |
+| 34 | `Partner_POC_Team` | Partner POC Team | Partner Clinical Team |
+| 35 | `Partner_POC_Phone` | Partner POC Phone | Partner POC Phone |
+| 36 | `Partner_POC_Email` | Partner POC Email | Partner POC Email |
+| 37 | `Partner_Organization` | Partner Organization | **Referral Partner Lookup** - WRONG, see OPEN BUG 1 |
+| 38 | `Form_Token` | Form Token | Form Token |
+
+\* `Patient_MBI` is the expected link name but is NOT confirmed. The field does
+not appear in `schema/Referrals_Main.md` as captured 2026-08-31 06:01, which is a
+60-field snapshot taken before this field existed. Confirm it on the next
+`run_schema_monitor` or `diag_form_fields("Referrals_Main")` run before writing
+Deluge against it.
+
+`Imaging_Body_Site` is now MAPPED. The "row to ADD on the pending rebuild" note
+that used to sit here is CLOSED: the rebuild happened, and the field was picked up
+in it. The rebuild row count to hit is no longer 39.
+
+--------------------------------------------------------------------------------
+### OPEN BUG 1 - BLOCKING: Partner Organization mapped in place of Partner Location Label
+--------------------------------------------------------------------------------
+
+Row 37. The rebuild selected **Partner Organization** as the target for the
+Referral Partner Lookup dropdown. **`Partner_Location_Label` is not mapped at
+all** - it moved off the map and into the unmapped list below.
+
+Why it breaks billing. The "Referrals Main On Create - Master" workflow
+(Referrals_Main, Created / On Success - see context/19) resolves the billing
+branch by reading `Partner_Location_Label` and matching it against Active
+`Partner_Locations` by name. That field is now empty on every form-submitted
+referral, so no location resolves, `Partner_Branch_Link` is left null, and the
+referral lands with **no billing branch**. Everything downstream that keys off
+the branch - rate lookup, invoice grouping - has nothing to key off.
+
+Evidence: **REF-1064** shows Partner Organization = "Pasco", which is a location
+name, not an organization, and Partner Branch/Location blank. The dropdown is
+~80 bare location names (section 6), so writing it into the organization field
+puts a location string in an org field and starves the resolver at the same time.
+
+Fix, on the next rebuild: map **Partner Location Label** to the Referral Partner
+Lookup question, and **drop Partner Organization from the map entirely**. Creator
+derives Partner_Organization in the master workflow, from the resolved location.
+It must not be fed from the form.
+
+--------------------------------------------------------------------------------
+### OPEN BUG 2 - BLOCKING: List Patient Anticoagulants mapped to the allergies question
+--------------------------------------------------------------------------------
+
+Row 25. `List_Patient_Anticoagulants` is mapped to the Forms question **"List all
+allergies"** instead of **"List anticoagulant meds"**. Reported symptom:
+anticoagulant text lands in the allergies field. Either way the two clinical
+answers are not landing in their own Creator fields, and anticoagulant history is
+not reliable on any referral submitted since the rebuild.
+
+Fix, on the next rebuild: point row 25 at **"List anticoagulant meds"**. Row 23
+(`List_Patient_Allergies` <- "List all allergies") is correct and stays.
+
+Both bugs are mis-selections made while re-picking 40 fields by hand, which is
+the failure mode the HARD LIMITATION above guarantees. On the next rebuild, check
+the map against this table row by row before saving.
+
+--------------------------------------------------------------------------------
+### SUPERSEDED: the 38-row map filed earlier in Session 38
+--------------------------------------------------------------------------------
+
+Read verbatim off the integration screen on 2026-08-31, before the map was
+deleted and rebuilt twice. **This is history, not live state.** It is kept because
+it is the only record of what the integration did between the Session 29 build
+and the Session 38 rebuilds, and because the two bugs above are visible as a diff
+against it: row 37 targeted `Partner_Location_Label` here and now targets
+`Partner_Organization`; row 25 targeted "List anticoagulant meds" here and now
+targets "List all allergies".
 
 | # | Creator link name | Creator field | Zoho Forms question |
 |---|---|---|---|
@@ -331,16 +548,11 @@ which is a check on the transcription as well as a convenience.
 | 37 | `Partner_Location_Label` | Partner Location Label | Referral Partner Lookup |
 | 38 | `Form_Token` | Form Token | Form Token |
 
-### Row to ADD on the pending rebuild
-`Imaging_Body_Site` <- "Body Part / Affected Area", inserted after row 30. The
-Creator field already exists; the integration row does not, so the field stays
-empty on every submission until the rebuild happens. The rebuild is therefore 39
-rows, not 38.
-
 ### Confirmed NOT mapped, 21 fields
-Verified against the same screen on 2026-08-31. This supersedes the old
-"do not map" list, which was shorter and was written from the schema rather than
-read off the integration.
+Updated for the 40-row map. `Partner_Organization` left this list (it is now
+row 37, wrongly - OPEN BUG 1) and `Partner_Location_Label` joined it (it should
+not be here - same bug). The count is unchanged at 21 only because the two
+swapped places.
 
 | Creator link name | Creator field |
 |---|---|
@@ -351,10 +563,10 @@ read off the integration.
 | `Email_Changed` | Has your email changed? |
 | `General_Files_Upload` | General Files Upload |
 | `Imaging_Orders_Upload` | Upload Imaging Orders |
-| `File_upload` | File upload |
+| `File_upload` | File upload (the 3008 upload, `File_Upload_3008` in the Session 38 EOD naming - see section 11) |
 | `Partner_Link` | Partner Lookup |
 | `Partner_Branch_Link` | Partner Branch Lookup |
-| `Partner_Organization` | Partner Organization |
+| `Partner_Location_Label` | Partner Location Label - SHOULD BE MAPPED, OPEN BUG 1 |
 | `Partner_Branch` | Partner Branch/Location |
 | `Referral_ID` | Referral ID |
 | `Referral_Date` | Referral Date |
@@ -366,55 +578,39 @@ read off the integration.
 | `Partner_ID_Stamp` | Partner ID Stamp |
 | `Referral_Added_Time` | Referral Added Time |
 
-### Reconciliation, and the retired 44
-38 mapped + 21 unmapped + `Imaging_Body_Site` = **60**, which is exactly the
-field count in `schema/Referrals_Main.md` as captured 2026-08-31. Every field on
-the form is accounted for, and the only one in neither list is the new one
-awaiting the rebuild.
+The three upload fields are unmapped for a platform reason, not an oversight.
+Section 11 has the cause and the two ways out.
+
+### Reconciliation
+40 mapped + 21 unmapped = **61**, which is the 60 fields in
+`schema/Referrals_Main.md` as captured 2026-08-31 plus `Patient_MBI`, added after
+that capture. Every field on the form is accounted for.
 
 **The Session 29 figure of 44 mapped / 12 not mapped / 14 removed is RETIRED.**
 It was a spec written from the Creator schema and was never verified against the
-integration screen. It is not a target for the rebuild and should not be used to
-check the rebuild's row count; the number to hit is 39. The Session 29 split is
-left out of this section deliberately rather than corrected in place, because
-two counts sitting side by side is how it got mistaken for live state in the
-first place.
-
-### OPEN: no file upload field is mapped
-`General_Files_Upload`, `Imaging_Orders_Upload` and `File_upload` all appear in
-the unmapped list above, confirmed against the live screen. Partner uploads are
-not reaching Creator at all.
-
-Owner Neil. Open. **Blocking if uploads are expected in Creator** - that ruling
-has not been made. If they are expected this is a live data-loss defect, not a
-gap, and every referral submitted with an attachment since the integration was
-built has lost it. The rebuild must add them.
+integration screen. It is not a target for any rebuild and should not be used to
+check a rebuild's row count; the number to hit is 40. The Session 29 split is left
+out of this section deliberately rather than corrected in place, because two
+counts sitting side by side is how it got mistaken for live state in the first
+place. The Session 38 figure of 39 is likewise dead: it assumed the 38-row map
+plus `Imaging_Body_Site`, and the rebuild landed on 40.
 
 ### OPEN: Additional Information is mapped to a Yes/No radio
-Row 28 above. The Creator `Additional_Information` textarea is mapped to the
-form's "Do you have additional information to share with us?" question, which is
-a Yes/No radio, not a text field. It is therefore likely storing the literal
-string "Yes" rather than the partner's note.
+Row 28, unchanged through both rebuilds. The Creator `Additional_Information`
+textarea is mapped to the form's "Do you have additional information to share
+with us?" question, which is a Yes/No radio, not a text field. It is therefore
+likely storing the literal string "Yes" rather than the partner's note. The real
+note text is the field revealed by field rule 11 (section 4), which is a separate
+question.
 
 Owner Neil. Open. Not blocking. Needs verification against live records: pull a
 referral where the partner answered Yes and check what the textarea actually
-holds. If confirmed, the real note field has to be identified before the rebuild,
-since the rebuild is the only chance to correct the mapping.
+holds. If confirmed, the correct source question has to be picked up on the next
+rebuild.
 
-Partner_Location_Label is MAPPED, from the Referral Partner Lookup grouped
-dropdown; it is row 37 of the live map above. The master On Success workflow
-still normalizes it and derives the other partner fields from it.
-(This paragraph previously carried a "43 -> 44 mapped, 13 -> 12 not mapped"
-count from the Session 29 spec. Removed with the rest of that count.)
-
-The stray "Prior POC Email <- Partner POC Email" integration row (left over
-from the dropped Option B email-change design in section 9) was removed.
-
-Do not map (Creator generates these): superseded by the verified 21-row
-"Confirmed NOT mapped" table above, which was read off the integration screen.
-The old 12-name list here was written from the schema and was missing
-Patient_MI, Patient_SSN, Prior_POC_Email, Email_Changed, the three upload
-fields, Referral_Date and Referral_Added_Time.
+The stray "Prior POC Email <- Partner POC Email" integration row (left over from
+the dropped Option B email-change design in section 9) was removed and has not
+come back in either rebuild.
 
 Gone - must not be re-selected: Requested_Priority, SOS_Prior_Service,
 Patient_Responsibility, DM_First_Name, DM_Last_Name, DM_Full_Name,
@@ -424,7 +620,68 @@ Lab_Type_Orders, Lab_Order_Indication, Requested_Lab_Vendor,
 Lab_Files_Upload.
 
 --------------------------------------------------------------------------------
-## 11. Styling and embedding
+## 11. File uploads do not reach Creator - BLOCKED on a platform limit
+--------------------------------------------------------------------------------
+
+None of `General_Files_Upload`, `Imaging_Orders_Upload` or `File_Upload_3008`
+appear in the integration's **Creator field dropdown**. They cannot be mapped.
+This is not an oversight in the rebuild and it is not fixed by rebuilding again:
+the fields are not offered for selection.
+
+### Cause
+Creator file fields carry an **Upload Mode** of Single or Multiple. The **Max
+file limit** control only exists in Multiple mode, so setting the limit to 1 does
+not make a field single-upload - it leaves the field in multi-upload mode with a
+limit of one. All three fields are in Multiple mode.
+
+The Forms integration is written against **single-attachment** Creator fields.
+Zoho's own documentation states that where a form question carries more than one
+file, "only one will be pushed, as Zoho Creator allows only one attachment per
+field." A multi-upload field is therefore not a valid target and is filtered out
+of the dropdown.
+
+Supporting observation: the Creator meta API reports these three fields as
+**Type 46**. Zoho documents File Upload as type **19** and does not document 46
+anywhere. File Upload is also **not in Creator's list of convertible field
+types**, so a field that is locked into the wrong mode has to be **replaced**,
+not converted.
+
+### Next test
+Set one of the three fields to **Single Upload** - or, if the mode cannot be
+changed on an existing field, add a **new** field explicitly created as Single -
+then reopen the integration and recheck whether it now appears in the Creator
+field dropdown. That single check decides between the direct fix and the fallback
+below.
+
+### Fallback if Single Upload does not unlock the dropdown
+Route the files through WorkDrive and pull them into Creator with Deluge:
+
+1. Zoho Forms > **Manage Form Attachments** > store to **Zoho WorkDrive**.
+2. Map each upload question to a Creator **Multi Line** field, which receives the
+   file URLs rather than the files.
+3. An **On Success** Deluge routine fetches each URL with
+   `getUrl().toFile()` and writes the result into the real upload field.
+
+Cost: one API call per file. It is the only path that puts the actual file in
+Creator if the field type stays unmappable.
+
+### Interim state - retrieval gap, not data loss
+Nothing submitted is being lost:
+- attachments arrive on the **Zoho Forms notification email**, and
+- all entries and their files are retained in **Zoho Forms > All Entries**.
+
+So the files exist and can be retrieved by hand. What is broken is automation
+that reads the file off the Creator record.
+
+**It blocks the SendGrid imaging-order email**, which attaches the order document
+from the Creator record. With no file on the record there is nothing to attach,
+so that email cannot go out on its own. Treat this as blocking for the imaging
+order path, and as a manual-retrieval nuisance everywhere else.
+
+Owner Neil. Open.
+
+--------------------------------------------------------------------------------
+## 12. Styling and embedding
 --------------------------------------------------------------------------------
 
 **Cross-origin.** The form renders in an iframe served from
@@ -455,21 +712,31 @@ the Creator-side embed must be a bare iframe.
   markup and one appended by the script
 
 --------------------------------------------------------------------------------
-## 12. Open issues
+## 13. Open issues
 --------------------------------------------------------------------------------
 
 | Item | Status |
 |---|---|
+| **Integration: Partner Organization mapped to Referral Partner Lookup, Partner Location Label not mapped.** Starves the master workflow's branch resolver; referrals land with no billing branch. Evidence REF-1064. Section 10, OPEN BUG 1. | OPEN - BLOCKING |
+| **Integration: List Patient Anticoagulants mapped to "List all allergies".** Section 10, OPEN BUG 2. | OPEN - BLOCKING |
+| **File uploads cannot be mapped at all** - the three upload fields are not in the integration's Creator field dropdown, because they are multi-upload (Type 46) and the integration only accepts single-attachment fields. Section 11. | OPEN - BLOCKING the SendGrid imaging-order email |
+| Next test on the uploads: set one field to Single Upload, or add a new field created as Single, then recheck the dropdown. Section 11. | OPEN |
+| `Patient_MBI` link name unconfirmed - the field postdates the 2026-08-31 schema capture. Confirm with `diag_form_fields("Referrals_Main")`. | OPEN |
+| Integration rebuild to correct both bugs above. A field map cannot be edited, so this is another full delete and re-add, 40 rows re-selected by hand. | OPEN |
 | Lookup messages do not appear reliably on the live form. API response and mapping both verified correct. Suspect the field's Read Only / Hidden setting blocks the prefill write. | OPEN |
 | Next diagnostic: log every call inside `get_partner_referral_contact` so a missing message with no log row (Search never fired) can be told apart from a log row with no message (write failed). Needs the Change_Log field link names. | OPEN |
+| Additional Information textarea mapped to the Yes/No radio. Row 28, survived both rebuilds. Verify against a live record. | OPEN - not blocking |
+| Creator page `Patient_Referrals` embeds the stale form `PatientReferral` | OPEN |
+| `Referral_Type` choices on Referrals_Main do not match the form's Service list | OPEN |
+| Field rule 7 "Additional Information" is a disabled duplicate of rule 11. Delete it. | OPEN - tidiness |
+| Page count is nine, not ten; there is no Additional Contact page | CORRECTED Session 38 EOD, section 2 |
+| All 11 field rules recorded | DONE Session 38 EOD, section 4 |
+| All 3 page rules recorded, plus the pathway matrix | DONE Session 38 EOD, section 5 |
+| Patient Location page rule: 3008 now goes to General Information, not Referral Partner Lookup | CHANGED Session 38, section 5 |
 | Imaging Order field rule | BUILT Session 38 |
 | Patient Medical Info page rule | BUILT Session 38 |
-| General Information page rule: Patient Visit -> skip to Partner Lookup Details | BUILT Session 38, as Patient Visit AND trigger question Is not Yes |
-| Does Imaging Order skip Additional Contact Details? | UNDECIDED |
-| Integration rebuild: 39 rows (38 live + Imaging_Body_Site) | NOT DONE - the new field does not reach Creator until it is |
-| 38-row live map not captured in this repo | CLOSED Session 38 - filed verbatim in section 10 |
-| No file upload field mapped: General_Files_Upload, Imaging_Orders_Upload, File_upload | OPEN - ruling needed, blocking if uploads are expected. Confirmed against the live screen |
-| Additional Information textarea mapped to the Yes/No radio | OPEN - confirmed in the live map, row 28. Verify against a live record |
-| Session 29 count of 44 mapped | RETIRED Session 38 - never verified against the integration screen, superseded by the 38-row map |
-| Creator page Patient_Referrals embeds the stale form PatientReferral | OPEN |
-| Referral_Type choices on Referrals_Main do not match the form's Service list | OPEN |
+| General Information page rule: Patient Visit -> skip to Referral Partner Lookup | BUILT Session 38, as Patient Visit AND trigger question Is not Yes |
+| Does Imaging Order skip Additional Contact Details? | VOID - no such page, section 5 |
+| `Imaging_Body_Site` reaches Creator | CLOSED Session 38 EOD - mapped in the 40-row rebuild |
+| 38-row live map not captured in this repo | CLOSED Session 38 - filed in section 10, now SUPERSEDED by the 40-row map |
+| Session 29 count of 44 mapped; Session 38 rebuild target of 39 rows | BOTH RETIRED - the live count is 40 |
