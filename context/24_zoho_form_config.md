@@ -444,9 +444,14 @@ integration screen.
 
 \* `Patient_MBI` is the expected link name but is NOT confirmed. The field does
 not appear in `schema/Referrals_Main.md` as captured 2026-08-31 06:01, which is a
-60-field snapshot taken before this field existed. Confirm it on the next
-`run_schema_monitor` or `diag_form_fields("Referrals_Main")` run before writing
-Deluge against it.
+60-field snapshot taken before this field existed.
+
+`diag_form_fields("Referrals_Main")` settles it: it dumps every field on the form
+with its link name on demand (context/19). The next scheduled `run_schema_monitor`
+run picks it up too, on the 06:00 daily schedule, and rewrites
+`schema/Referrals_Main.md`. Either confirms it; the diagnostic just does not
+require waiting for the schedule. Do not write Deluge against this link name
+until one of them has.
 
 `Imaging_Body_Site` is now MAPPED. The "row to ADD on the pending rebuild" note
 that used to sit here is CLOSED: the rebuild happened, and the field was picked up
@@ -483,10 +488,20 @@ It must not be fed from the form.
 --------------------------------------------------------------------------------
 
 Row 25. `List_Patient_Anticoagulants` is mapped to the Forms question **"List all
-allergies"** instead of **"List anticoagulant meds"**. Reported symptom:
-anticoagulant text lands in the allergies field. Either way the two clinical
-answers are not landing in their own Creator fields, and anticoagulant history is
-not reliable on any referral submitted since the rebuild.
+allergies"** instead of **"List anticoagulant meds"**.
+
+Effect: **the allergy text lands in the anticoagulants field.** The map runs
+Forms question -> Creator field, so the answer to "List all allergies" is written
+into `List_Patient_Anticoagulants`. Row 23 writes the same answer into
+`List_Patient_Allergies`, so the allergy text is duplicated across both fields and
+**the anticoagulant answer is not written anywhere**. On any referral submitted
+since the rebuild, `List_Patient_Anticoagulants` holds allergies, and the
+partner's anticoagulant answer is lost from Creator. It is still retrievable from
+Zoho Forms > All Entries (section 11).
+
+Clinically this is the dangerous one of the two bugs: a field labelled
+anticoagulants that actually holds allergy text reads as a positive
+anticoagulant history that was never entered.
 
 Fix, on the next rebuild: point row 25 at **"List anticoagulant meds"**. Row 23
 (`List_Patient_Allergies` <- "List all allergies") is correct and stays.
@@ -563,7 +578,7 @@ swapped places.
 | `Email_Changed` | Has your email changed? |
 | `General_Files_Upload` | General Files Upload |
 | `Imaging_Orders_Upload` | Upload Imaging Orders |
-| `File_upload` | File upload (the 3008 upload, `File_Upload_3008` in the Session 38 EOD naming - see section 11) |
+| `File_Upload_3008` | 3008 File upload (in section `Details_Section_3008`; renamed from `File_upload` / "File upload" on 2026-09-01) |
 | `Partner_Link` | Partner Lookup |
 | `Partner_Branch_Link` | Partner Branch Lookup |
 | `Partner_Location_Label` | Partner Location Label - SHOULD BE MAPPED, OPEN BUG 1 |
@@ -627,6 +642,13 @@ None of `General_Files_Upload`, `Imaging_Orders_Upload` or `File_Upload_3008`
 appear in the integration's **Creator field dropdown**. They cannot be mapped.
 This is not an oversight in the rebuild and it is not fixed by rebuilding again:
 the fields are not offered for selection.
+
+`File_Upload_3008` is CONFIRMED, read off the Creator field properties panel:
+Field name **"3008 File upload"**, Field link name **`File_Upload_3008`**, inside
+section **`Details_Section_3008`**. It was renamed on **2026-09-01**. The
+`File_upload` / "File upload" naming in `schema/Referrals_Main.md` as captured
+2026-08-31 predates that rename and is stale; the next schema monitor run
+replaces it.
 
 ### Cause
 Creator file fields carry an **Upload Mode** of Single or Multiple. The **Max
@@ -718,10 +740,10 @@ the Creator-side embed must be a bare iframe.
 | Item | Status |
 |---|---|
 | **Integration: Partner Organization mapped to Referral Partner Lookup, Partner Location Label not mapped.** Starves the master workflow's branch resolver; referrals land with no billing branch. Evidence REF-1064. Section 10, OPEN BUG 1. | OPEN - BLOCKING |
-| **Integration: List Patient Anticoagulants mapped to "List all allergies".** Section 10, OPEN BUG 2. | OPEN - BLOCKING |
+| **Integration: List Patient Anticoagulants mapped to "List all allergies".** Allergy text lands in the anticoagulants field and the anticoagulant answer never reaches Creator. Section 10, OPEN BUG 2. | OPEN - BLOCKING |
 | **File uploads cannot be mapped at all** - the three upload fields are not in the integration's Creator field dropdown, because they are multi-upload (Type 46) and the integration only accepts single-attachment fields. Section 11. | OPEN - BLOCKING the SendGrid imaging-order email |
 | Next test on the uploads: set one field to Single Upload, or add a new field created as Single, then recheck the dropdown. Section 11. | OPEN |
-| `Patient_MBI` link name unconfirmed - the field postdates the 2026-08-31 schema capture. Confirm with `diag_form_fields("Referrals_Main")`. | OPEN |
+| `Patient_MBI` link name unconfirmed - the field postdates the 2026-08-31 schema capture. `diag_form_fields("Referrals_Main")` settles it on demand; the next scheduled schema monitor run also picks it up. | OPEN |
 | Integration rebuild to correct both bugs above. A field map cannot be edited, so this is another full delete and re-add, 40 rows re-selected by hand. | OPEN |
 | Lookup messages do not appear reliably on the live form. API response and mapping both verified correct. Suspect the field's Read Only / Hidden setting blocks the prefill write. | OPEN |
 | Next diagnostic: log every call inside `get_partner_referral_contact` so a missing message with no log row (Search never fired) can be told apart from a log row with no message (write failed). Needs the Change_Log field link names. | OPEN |
