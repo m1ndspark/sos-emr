@@ -1,15 +1,16 @@
-v_updated = 0;
-v_skipped = 0;
-for each  r in Referrals_Main[Referral_Added_Time == null]
+v_Updated = 0;
+v_Skipped = 0;
+for each  rec in Referrals_Main[Referral_Added_Time == null]
 {
-	if(r.Added_Time != null)
+	v_Added = rec.Added_Time;
+	if(v_Added != null)
 	{
-		r.Referral_Added_Time=r.Added_Time;
-		v_updated = v_updated + 1;
+		rec.Referral_Added_Time=v_Added;
+		v_Updated = v_Updated + 1;
 	}
 	else
 	{
-		v_skipped = v_skipped + 1;
+		v_Skipped = v_Skipped + 1;
 	}
 }
-return "Referral Added Time backfill - updated: " + v_updated + " | skipped: " + v_skipped;
+return "Updated: " + v_Updated + " | Skipped (no Added_Time): " + v_Skipped;

@@ -125,6 +125,15 @@ REPO CONVENTIONS
   is computed from the `.ds` (live Creator truth), so a hash that does not
   match a `.dg` usually means the repo has drifted from live, NOT that the
   manifest is stale.
+- Any `.ds` Neil provides in chat is saved to the repo root immediately, without
+  being asked: write it as the next dated `SOS_Referrals_App_YYYY-MM-DD_vNN.ds`,
+  refresh `SOS_Referrals_App.ds` to match, run ds_sync, and commit. Never ask
+  Neil to re-upload a `.ds` he has already supplied.
+- Before asking Neil which fields exist on a form, read `schema/` and the newest
+  `.ds`. If the repo is not reachable in the session, say so up front instead of
+  asking field questions.
+- Repo `.md` edits are Claude's job. Only ask Neil to change things inside
+  Creator, and name the exact workflow or function.
 
 --------------------------------------------------------------------------------
 SECRETS AND PHI (CRITICAL)

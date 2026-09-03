@@ -1,0 +1,264 @@
+v_key = ifnull(p_refKey,"").trim();
+if(v_key == "")
+{
+	return "SKIP-NOKEY";
+}
+v_ref = Referrals_Main[Referral_ID == v_key];
+if(v_ref.count() == 0)
+{
+	if(v_key.matches("^[0-9]+$"))
+	{
+		v_ref = Referrals_Main[ID == v_key.toLong()];
+	}
+}
+if(v_ref.count() == 0)
+{
+	return "SKIP-NOTFOUND";
+}
+v_type = ifnull(v_ref.Referral_Type,"").trim();
+if(v_type != "Patient Visit")
+{
+	return "SKIP-TYPE";
+}
+v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+if(v_cfg.count() == 0)
+{
+	return "SKIP-NOCONFIG";
+}
+v_token = ifnull(v_cfg.Zepto_Send_Token,"").trim();
+if(v_token == "")
+{
+	return "SKIP-NOTOKEN";
+}
+v_dash = "&mdash;";
+v_from = "notifications@sosreferrals.com";
+v_vals = Map();
+v_vals.put("REFID",ifnull(v_ref.Referral_ID,""));
+v_vals.put("REFDATE",if(v_ref.Referral_Date == null,"",v_ref.Referral_Date.toString("M/d/yyyy")));
+v_vals.put("SERVICE",ifnull(v_ref.Referral_Type,""));
+v_vals.put("PATNAME",ifnull(v_ref.Patient_Full_Name,""));
+v_vals.put("PATDOB",ifnull(v_ref.Patient_DOB1,""));
+v_vals.put("PATGENDER",ifnull(v_ref.Patient_Gender,""));
+v_vals.put("PATLOC",ifnull(v_ref.Patient_Location,""));
+v_vals.put("PATADDR",ifnull(v_ref.Patient_Full_Address,""));
+v_vals.put("FACNAME",ifnull(v_ref.Facility_Name,""));
+v_vals.put("FACROOM",ifnull(v_ref.Facility_Room_Number,""));
+v_vals.put("FACPHONE",ifnull(v_ref.Facility_Phone,""));
+v_vals.put("PATPHONE",ifnull(v_ref.Patient_Phone,""));
+v_vals.put("HOSPID",ifnull(v_ref.Patient_Hospice_ID,""));
+v_vals.put("ACNAME",ifnull(v_ref.AC_Full_Name,""));
+v_vals.put("ACPHONE",ifnull(v_ref.AC_Phone,""));
+v_vals.put("REASON",ifnull(v_ref.Referral_Reason,""));
+v_vals.put("ALLERGIES",ifnull(v_ref.List_Patient_Allergies,""));
+v_vals.put("ANTICOAG",ifnull(v_ref.List_Patient_Anticoagulants,""));
+v_vals.put("ADVDIR",ifnull(v_ref.Advanced_Directives_Details,""));
+v_vals.put("IMGTEST",ifnull(v_ref.Imaging_Type_Order,""));
+v_vals.put("IMGSITE",ifnull(v_ref.Imaging_Body_Site,""));
+v_vals.put("IMGREASON",ifnull(v_ref.Imaging_Order_Indication,""));
+v_vals.put("PARTNER",ifnull(v_ref.Partner_Organization,""));
+v_vals.put("BRANCH",ifnull(v_ref.Partner_Branch,""));
+v_vals.put("POCNAME",ifnull(v_ref.Partner_POC_Name_Title,""));
+v_vals.put("POCPHONE",ifnull(v_ref.Partner_POC_Phone,""));
+v_vals.put("POCEMAIL",ifnull(v_ref.Partner_POC_Email,""));
+v_vals.put("POCTEAM",ifnull(v_ref.Partner_POC_Team,""));
+v_keys = v_vals.keys();
+for each  v_k in v_keys
+{
+	if(v_vals.get(v_k).toString().trim() == "")
+	{
+		v_vals.put(v_k,v_dash);
+	}
+}
+for each  v_k in {"ALLERGIES","ANTICOAG","ADVDIR"}
+{
+	if(v_vals.get(v_k) == v_dash)
+	{
+		v_vals.put(v_k,"NA");
+	}
+}
+v_source = v_vals.get("PARTNER");
+if(v_vals.get("BRANCH") != v_dash)
+{
+	v_source = v_source + " &ndash; " + v_vals.get("BRANCH");
+}
+v_phoneLink = v_vals.get("PATPHONE");
+if(v_phoneLink != v_dash)
+{
+	v_phoneLink = "<a href=\"tel:" + v_phoneLink.replaceAll("[^0-9]","") + "\" style=\"color:#2634a3; text-decoration:none; font-weight:bold;\">" + v_vals.get("PATPHONE") + "</a>";
+}
+v_acPhoneLink = v_vals.get("ACPHONE");
+if(v_acPhoneLink != v_dash)
+{
+	v_acPhoneLink = "<a href=\"tel:" + v_acPhoneLink.replaceAll("[^0-9]","") + "\" style=\"color:#2634a3; text-decoration:none; font-weight:bold;\">" + v_vals.get("ACPHONE") + "</a>";
+}
+v_facPhoneLink = v_vals.get("FACPHONE");
+if(v_facPhoneLink != v_dash)
+{
+	v_facPhoneLink = "<a href=\"tel:" + v_facPhoneLink.replaceAll("[^0-9]","") + "\" style=\"color:#2634a3; text-decoration:none; font-weight:bold;\">" + v_vals.get("FACPHONE") + "</a>";
+}
+v_pocPhoneLink = v_vals.get("POCPHONE");
+if(v_pocPhoneLink != v_dash)
+{
+	v_pocPhoneLink = "<a href=\"tel:" + v_pocPhoneLink.replaceAll("[^0-9]","") + "\" style=\"color:#2634a3; text-decoration:none; font-weight:bold;\">" + v_vals.get("POCPHONE") + "</a>";
+}
+v_pocEmailLink = v_vals.get("POCEMAIL");
+if(v_pocEmailLink != v_dash)
+{
+	v_pocEmailLink = "<a href=\"mailto:" + v_pocEmailLink + "\" style=\"color:#2634a3; text-decoration:none;\">" + v_vals.get("POCEMAIL") + "</a>";
+}
+v_block = List();
+v_block.add("#SEC|Referral Info");
+v_block.add("Referral ID|" + v_vals.get("REFID") + "|1");
+v_block.add("Referral Date|" + v_vals.get("REFDATE") + "|0");
+v_block.add("Service Request Type|" + v_vals.get("SERVICE") + "|0");
+v_block.add("Referral Source|" + v_source + "|1");
+v_block.add("#SEC|Patient Info");
+v_block.add("Name|" + v_vals.get("PATNAME") + "|1");
+v_block.add("Date of Birth|" + v_vals.get("PATDOB") + "|0");
+v_block.add("Gender|" + v_vals.get("PATGENDER") + "|0");
+v_block.add("Current Location|" + v_vals.get("PATLOC") + "|1");
+if(ifnull(v_ref.Patient_Location,"") == "Home")
+{
+	v_block.add("Address|" + v_vals.get("PATADDR") + "|0");
+}
+else
+{
+	v_block.add("Facility|" + v_vals.get("FACNAME") + "|1");
+	v_block.add("Room / Unit|" + v_vals.get("FACROOM") + "|0");
+	v_block.add("Facility Phone|" + v_facPhoneLink + "|0");
+}
+v_block.add("Phone|" + v_phoneLink + "|0");
+v_block.add("Hospice ID|" + v_vals.get("HOSPID") + "|0");
+if(ifnull(v_ref.Has_Additional_Contact,"") == "Yes")
+{
+	v_block.add("#SEC|Primary Contact");
+	v_block.add("Additional POC|" + v_vals.get("ACNAME") + "|1");
+	v_block.add("Additional POC Phone|" + v_acPhoneLink + "|0");
+}
+v_block.add("#SEC|Medical Info");
+v_block.add("Reason for Referral|" + v_vals.get("REASON") + "|0");
+v_block.add("Allergies|" + v_vals.get("ALLERGIES") + "|0");
+v_block.add("Anticoagulants|" + v_vals.get("ANTICOAG") + "|0");
+v_block.add("Advanced Directives|" + v_vals.get("ADVDIR") + "|0");
+if(ifnull(v_ref.X_Ray_Needed,"") == "Yes")
+{
+	v_block.add("#SEC|Imaging Orders");
+	v_block.add("Imaging Test(s)|" + v_vals.get("IMGTEST") + "|1");
+	v_block.add("Body Part / Affected Area|" + v_vals.get("IMGSITE") + "|0");
+	v_block.add("Reason for Imaging|" + v_vals.get("IMGREASON") + "|0");
+	v_block.add("Order Document|See the Zoho Forms entry for this referral|0");
+}
+v_block.add("#SEC|Partner Info");
+v_block.add("Referral Partner|" + v_vals.get("PARTNER") + "|1");
+v_block.add("Billing Branch|" + v_vals.get("BRANCH") + "|0");
+v_block.add("Referred By|" + v_vals.get("POCNAME") + "|0");
+v_block.add("Phone|" + v_pocPhoneLink + "|0");
+v_block.add("Email|" + v_pocEmailLink + "|0");
+v_block.add("Clinical Team|" + v_vals.get("POCTEAM") + "|0");
+v_secStyle = "background-color:#0b0b5b; padding:10px 24px; font-family:Arial,Helvetica,sans-serif; font-size:13px; font-weight:bold; color:#ffffff; letter-spacing:.05em; text-transform:uppercase;";
+v_lblBase = "width:40%; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:20px; color:#4c4c89; padding:11px 0;";
+v_valBase = "width:60%; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#000000; padding:11px 0;";
+v_border = " border-bottom:1px solid #e6e6ef;";
+v_body = "";
+v_open = false;
+v_i = 0;
+v_n = v_block.size();
+for each  v_item in v_block
+{
+	v_parts = v_item.toList("|");
+	if(v_parts.get(0) == "#SEC")
+	{
+		if(v_open)
+		{
+			v_body = v_body + "</table></td></tr>";
+			v_open = false;
+		}
+		v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">" + v_parts.get(1) + "</td></tr>";
+		v_body = v_body + "<tr><td style=\"padding:0 24px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">";
+		v_open = true;
+	}
+	else
+	{
+		v_last = true;
+		if(v_i + 1 < v_n)
+		{
+			if(!v_block.get(v_i + 1).startsWith("#SEC|"))
+			{
+				v_last = false;
+			}
+		}
+		v_lbl = v_lblBase;
+		v_val = v_valBase;
+		if(!v_last)
+		{
+			v_lbl = v_lbl + v_border;
+			v_val = v_val + v_border;
+		}
+		if(v_parts.get(2) == "1")
+		{
+			v_val = v_val + " font-weight:bold;";
+		}
+		v_body = v_body + "<tr><td class=\"stack lbl\" valign=\"top\" style=\"" + v_lbl + "\">" + v_parts.get(0) + "</td>";
+		v_body = v_body + "<td class=\"stack val\" valign=\"top\" style=\"" + v_val + "\">" + v_parts.get(1) + "</td></tr>";
+	}
+	v_i = v_i + 1;
+}
+if(v_open)
+{
+	v_body = v_body + "</table></td></tr>";
+}
+v_html = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+v_html = v_html + "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head>";
+v_html = v_html + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />";
+v_html = v_html + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />";
+v_html = v_html + "<title>Patient Referral</title>";
+v_html = v_html + "<style type=\"text/css\">@media only screen and (max-width:600px){.container{width:100% !important;}.stack{display:block !important;width:100% !important;box-sizing:border-box !important;}.lbl{background:#f0f0ff !important;border-bottom:0 !important;padding-bottom:2px !important;font-size:11px !important;text-transform:uppercase;letter-spacing:.05em;color:#4c4c89 !important;}.val{border-top:0 !important;padding-top:2px !important;font-size:16px !important;}.hero{font-size:19px !important;line-height:25px !important;}}</style>";
+v_html = v_html + "</head><body style=\"margin:0; padding:0; background-color:#eef0f6;\">";
+v_html = v_html + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#eef0f6;\"><tr><td align=\"center\" style=\"padding:20px 10px 32px 10px;\">";
+v_html = v_html + "<table role=\"presentation\" class=\"container\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff;\">";
+v_html = v_html + "<tr><td style=\"background-color:#00003c; padding:20px 24px;\">";
+v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#8d8db8; letter-spacing:.06em; text-transform:uppercase;\">SOS Mobile Medical Care</div>";
+v_html = v_html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">New Patient Referral</div>";
+v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_vals.get("PATNAME") + " &nbsp;&bull;&nbsp; " + v_vals.get("REFID") + "</div>";
+v_html = v_html + "</td></tr>";
+v_html = v_html + v_body;
+v_html = v_html + "<tr><td align=\"center\" style=\"padding:26px 24px 8px 24px;\"><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td align=\"center\" bgcolor=\"#0b0b5b\" style=\"border-radius:4px;\">";
+v_html = v_html + "<a href=\"https://creatorapp.zoho.com/sosmmc/sos-referrals-app/#Report:Referrals_Main_Report\" style=\"display:inline-block; padding:13px 34px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;\">Open Referral</a>";
+v_html = v_html + "</td></tr></table></td></tr>";
+v_html = v_html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
+v_html = v_html + "</table></td></tr></table></body></html>";
+v_subject = "New Patient Visit Referral - " + v_vals.get("PATNAME") + " - " + v_vals.get("REFID");
+v_fromMap = Map();
+v_fromMap.put("address",v_from);
+v_fromMap.put("name","SOS Mobile Medical Care");
+v_toList = List();
+for each  v_addr in {"neil.heird@sosmmc.com","sosreferrals@sosmmc.com"}
+{
+	v_addrMap = Map();
+	v_addrMap.put("address",v_addr);
+	v_entry = Map();
+	v_entry.put("email_address",v_addrMap);
+	v_toList.add(v_entry);
+}
+v_payload = Map();
+v_payload.put("from",v_fromMap);
+v_payload.put("to",v_toList);
+v_payload.put("subject",v_subject);
+v_payload.put("htmlbody",v_html);
+v_hdr = Map();
+v_hdr.put("Accept","application/json");
+v_hdr.put("Content-Type","application/json");
+v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+v_resp = invokeurl
+[
+	url :"https://api.zeptomail.com/v1.1/email"
+	type :POST
+	body:v_payload.toString()
+	headers:v_hdr
+	detailed:true
+];
+if(v_resp.get("responseCode") == 201)
+{
+	return "SENT " + v_vals.get("REFID");
+}
+return "FAIL " + v_resp.toString();

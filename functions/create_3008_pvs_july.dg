@@ -1,0 +1,190 @@
+v_rows = List();
+v_rows.add("REF-071026-1301|2026-07-13|Kayla Kolanko");
+v_rows.add("REF-071026-1302|2026-07-13|Kayla Kolanko");
+v_rows.add("REF-071326-1311|2026-07-13|Kayla Kolanko");
+v_rows.add("REF-071326-1312|2026-07-13|Kayla Kolanko");
+v_rows.add("REF-071326-1309|2026-07-13|Kayla Kolanko");
+v_rows.add("REF-071326-1315|2026-07-13|Kayla Kolanko");
+v_rows.add("REF-071326-1314|2026-07-13|Kayla Kolanko");
+v_rows.add("REF-071426-1328|2026-07-14|Kayla Kolanko");
+v_rows.add("REF-071426-1333|2026-07-14|Kayla Kolanko");
+v_rows.add("REF-071426-1335|2026-07-14|Kayla Kolanko");
+v_rows.add("REF-071526-1348|2026-07-14|Kayla Kolanko");
+v_rows.add("REF-071526-1349|2026-07-14|Kayla Kolanko");
+v_rows.add("REF-071426-1330|2026-07-14|Kayla Kolanko");
+v_rows.add("REF-071526-1356|2026-07-15|Kayla Kolanko");
+v_rows.add("REF-071426-1343|2026-07-15|Kayla Kolanko");
+v_rows.add("REF-071726-1366|2026-07-17|Kayla Kolanko");
+v_rows.add("REF-071726-1368|2026-07-17|Kayla Kolanko");
+v_rows.add("REF-071726-1370|2026-07-17|Kayla Kolanko");
+v_rows.add("REF-071726-1367|2026-07-17|Kayla Kolanko");
+v_rows.add("REF-071726-1378|2026-07-20|Kayla Kolanko");
+v_rows.add("REF-072126-1393|2026-07-22|Kayla Kolanko");
+v_rows.add("REF-072126-1395|2026-07-22|Kayla Kolanko");
+v_rows.add("REF-072126-1396|2026-07-22|Kayla Kolanko");
+v_rows.add("REF-072126-1399|2026-07-22|Kayla Kolanko");
+v_rows.add("REF-072926-1467|2026-07-22|Kayla Kolanko");
+v_rows.add("REF-072226-1409|2026-07-23|Kayla Kolanko");
+v_rows.add("REF-072226-1410|2026-07-23|Kayla Kolanko");
+v_rows.add("REF-072226-1411|2026-07-23|Kayla Kolanko");
+v_rows.add("REF-072226-1408|2026-07-23|Kayla Kolanko");
+v_rows.add("REF-072926-1470|2026-07-29|Kayla Kolanko");
+v_rows.add("REF-072926-1471|2026-07-29|Kayla Kolanko");
+v_rows.add("REF-072926-1472|2026-07-29|Kayla Kolanko");
+v_rows.add("REF-072926-1473|2026-07-29|Kayla Kolanko");
+v_rows.add("REF-072926-1474|2026-07-29|Kayla Kolanko");
+v_rows.add("REF-072926-1475|2026-07-29|Kayla Kolanko");
+v_rows.add("REF-070126-1232|2026-07-01|Ann Smith");
+v_rows.add("REF-070126-1231|2026-07-01|Ann Smith");
+v_rows.add("REF-070126-1229|2026-07-01|Ann Smith");
+v_rows.add("REF-070126-1228|2026-07-01|Ann Smith");
+v_rows.add("REF-070126-1227|2026-07-01|Ann Smith");
+v_rows.add("REF-070126-1226|2026-07-01|Ann Smith");
+v_rows.add("REF-070226-1238|2026-07-02|Ann Smith");
+v_rows.add("REF-070226-1239|2026-07-02|Ann Smith");
+v_rows.add("REF-070226-1242|2026-07-02|Ann Smith");
+v_rows.add("REF-070226-1243|2026-07-02|Ann Smith");
+v_rows.add("REF-070226-1244|2026-07-02|Ann Smith");
+v_rows.add("REF-070226-1245|2026-07-02|Ann Smith");
+v_rows.add("REF-070226-1246|2026-07-02|Ann Smith");
+v_rows.add("REF-070526-1259|2026-07-06|Ann Smith");
+v_rows.add("REF-070626-1263|2026-07-06|Ann Smith");
+v_rows.add("REF-070626-1264|2026-07-06|Ann Smith");
+v_rows.add("REF-070626-1265|2026-07-06|Ann Smith");
+v_rows.add("REF-070826-1290|2026-07-08|Ann Smith");
+v_rows.add("REF-070826-1280|2026-07-08|Ann Smith");
+v_rows.add("REF-070826-1278|2026-07-08|Ann Smith");
+v_rows.add("REF-070826-1288|2026-07-08|Ann Smith");
+v_rows.add("REF-070826-1284|2026-07-09|Ann Smith");
+v_rows.add("REF-070826-1282|2026-07-09|Ann Smith");
+v_rows.add("REF-070826-1281|2026-07-09|Ann Smith");
+v_rows.add("REF-070826-1279|2026-07-09|Ann Smith");
+v_rows.add("REF-070826-1283|2026-07-09|Ann Smith");
+v_rows.add("REF-070926-1296|2026-07-09|Ann Smith");
+v_rows.add("REF-070926-1299|2026-07-09|Ann Smith");
+v_rows.add("REF-072426-1424|2026-07-24|Ann Smith");
+v_rows.add("REF-072426-1425|2026-07-24|Ann Smith");
+v_rows.add("REF-072426-1431|2026-07-24|Ann Smith");
+v_rows.add("REF-072426-1433|2026-07-24|Ann Smith");
+v_rows.add("REF-072426-1434|2026-07-24|Ann Smith");
+v_rows.add("REF-072426-1435|2026-07-26|Ann Smith");
+v_rows.add("REF-072426-1437|2026-07-26|Ann Smith");
+v_rows.add("REF-072426-1438|2026-07-26|Ann Smith");
+v_rows.add("REF-072426-1439|2026-07-26|Ann Smith");
+v_rows.add("REF-072726-1448|2026-07-27|Ann Smith");
+v_rows.add("REF-072826-1463|2026-07-28|Ann Smith");
+v_rows.add("REF-072826-1464|2026-07-28|Ann Smith");
+v_rows.add("REF-073126-1495|2026-07-31|Ann Smith");
+v_made = 0;
+v_skipDup = 0;
+v_noRef = 0;
+v_noRate = 0;
+v_noEmp = 0;
+v_log = List();
+for each  v_line in v_rows
+{
+	v_parts = v_line.toList("|");
+	v_rid = v_parts.get(0).toString();
+	v_done = v_parts.get(1).toString().toDate();
+	v_who = v_parts.get(2).toString();
+	v_first = v_who.getPrefix(" ");
+	v_last = v_who.getSuffix(" ");
+	v_ref = Referrals_Main[Referral_ID == v_rid];
+	if(v_ref.count() == 0)
+	{
+		v_noRef = v_noRef + 1;
+		v_log.add(v_rid + " no referral");
+		continue;
+	}
+	v_dup = Encounter_PatientVisit[Referral_Link == v_ref.ID && Type_of_Entry == "3008"];
+	if(v_dup.count() > 0)
+	{
+		v_skipDup = v_skipDup + 1;
+		continue;
+	}
+	v_emp = Employees[Employee_First_Name == v_first && Employee_Last_Name == v_last && Employee_Status == "Active"];
+	if(v_emp.count() == 0)
+	{
+		v_noEmp = v_noEmp + 1;
+		v_log.add(v_rid + " no employee " + v_who);
+		continue;
+	}
+	v_rate = 0;
+	for each  v_r in Partner_Rates[Partner_Location_Link == v_ref.Partner_Branch_Link && Rate_Type == "Cares 3008 Assessment" && Current_Rate == "Yes"]
+	{
+		v_rate = v_r.Rate_Amount;
+	}
+	if(v_rate == 0)
+	{
+		v_noRate = v_noRate + 1;
+		v_log.add(v_rid + " no 3008 rate on " + v_ref.Partner_Location_Label);
+		continue;
+	}
+	v_seq = 0;
+	for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
+	{
+		v_seq = v_st.Object_Sequence;
+		break;
+	}
+	if(pMode == "COMMIT")
+	{
+		for each  v_st2 in Sequence_Tracker[Object_Prefix == "PVS"]
+		{
+			v_st2.Object_Sequence=v_seq + 1;
+			break;
+		}
+		v_new = insert into Encounter_PatientVisit
+		[
+			PVS_ID="PVS-" + v_seq + "-" + v_emp.Employee_Initials
+			Has_Referral_ID="Yes"
+			Referral_Link=v_ref.ID
+			Type_of_Entry="3008"
+			Patient_Full_Name_1=v_ref.Patient_Full_Name
+			Patient_Full_Name_2=v_ref.Patient_Full_Name
+			Patient_First_Name=v_ref.Patient_First_Name
+			Patient_MI=v_ref.Patient_MI
+			Patient_Last_Name=v_ref.Patient_Last_Name
+			Patient_DOB=v_ref.Patient_DOB
+			Patient_Gender=v_ref.Patient_Gender
+			Patient_Hospice_ID=v_ref.Patient_Hospice_ID
+			Patient_Phone=v_ref.Patient_Phone
+			Patient_Location=v_ref.Patient_Location
+			Facility_Name=v_ref.Facility_Name
+			Facility_Phone=v_ref.Facility_Phone
+			Facility_Room_Number=v_ref.Facility_Room_Number
+			Patient_Full_Address=v_ref.Patient_Full_Address
+			Reason_for_Referral=v_ref.Referral_Reason
+			Was_3008_Completed="Yes"
+			Cares_3008_Completion_Date=v_done
+			Visit_Completion_Date=v_done
+			Complexity_Level="Cares 3008 Assessment"
+			Complexity_Charge=v_rate
+			Employee_First_Name=v_emp.Employee_First_Name
+			Employee_Last_Name=v_emp.Employee_Last_Name
+			Employee_Title=v_emp.Employee_Title
+			Employee_Initials=v_emp.Employee_Initials
+			Employee_Email=v_emp.Employee_Email
+			Employee_Name_Title=v_emp.Employee_Name_Title
+			Employee_Full_Name=v_emp.Employee_First_Name + " " + v_emp.Employee_Last_Name
+			Partner_Organization=v_ref.Partner_Organization
+			Partner_Branch=v_ref.Partner_Branch
+			Partner_POC_Name_Title=v_ref.Partner_POC_Name_Title
+			Partner_POC_Team=v_ref.Partner_POC_Team
+			Partner_POC_Phone=v_ref.Partner_POC_Phone
+			Partner_POC_Email=v_ref.Partner_POC_Email
+			Billing_Branch=v_ref.Partner_Branch_Link
+			Referral_ID=v_rid
+			Partner_ID=v_ref.Partner_ID
+			Invoice_Status="Draft"
+			Hold_From_Invoicing="No"
+			Added_User=zoho.loginuser
+		];
+	}
+	v_made = v_made + 1;
+}
+v_out = pMode + " | would create " + v_made + " | duplicates skipped " + v_skipDup + " | missing referral " + v_noRef + " | missing employee " + v_noEmp + " | missing 3008 rate " + v_noRate;
+if(v_log.size() > 0)
+{
+	v_out = v_out + "\n" + v_log.toString("\n");
+}
+return v_out;

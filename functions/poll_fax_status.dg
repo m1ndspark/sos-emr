@@ -1,0 +1,78 @@
+v_token = thisapp.get_rc_token();
+if(v_token == "")
+{
+	return "aborted: no RingCentral access token";
+}
+v_noRetry = {"LineBusy","NoAnswer","NoFaxMachine","WrongNumber","NotAcceptingFax","InvalidNumber","NumberBlocked","InternationalDisabled"};
+v_polled = 0;
+v_sent = 0;
+v_retry = 0;
+v_perm = 0;
+v_stuck = 0;
+for each  v_row in Fax_Log[Fax_Status == "Queued"]
+{
+	if(v_row.RC_Message_ID != null && v_row.RC_Message_ID != "")
+	{
+		v_polled = v_polled + 1;
+		v_resp = invokeurl
+		[
+			url :"https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/message-store/" + v_row.RC_Message_ID
+			type :GET
+			headers:{"Authorization":"Bearer " + v_token,"Accept":"application/json"}
+		];
+		v_row.Last_Polled_Time=zoho.currenttime;
+		if(v_resp.get("faxPageCount") != null)
+		{
+			v_row.Page_Count=v_resp.get("faxPageCount").toLong();
+		}
+		v_status = "";
+		if(v_resp.get("messageStatus") != null)
+		{
+			v_status = v_resp.get("messageStatus").toString();
+		}
+		v_pvs = Encounter_PatientVisit[ID == v_row.PVS_Link];
+		if(v_status == "Sent")
+		{
+			v_row.Fax_Status="Sent";
+			v_row.Completed_Time=zoho.currenttime;
+			v_pvs.Fax_Status="Sent";
+			v_sent = v_sent + 1;
+		}
+		else if(v_status == "SendingFailed")
+		{
+			v_code = "";
+			if(v_resp.get("faxErrorCode") != null)
+			{
+				v_code = v_resp.get("faxErrorCode").toString();
+			}
+			v_row.Fax_Error_Code=v_code;
+			v_row.Fax_Error_Reason=v_resp.toString().left(250);
+			v_row.Completed_Time=zoho.currenttime;
+			v_pvs.Fax_Status="Failed";
+			if(v_noRetry.contains(v_code))
+			{
+				v_row.Fax_Status="Permanent Fail";
+				v_perm = v_perm + 1;
+			}
+			else if(v_row.Attempt_Number >= 3)
+			{
+				v_row.Fax_Status="Permanent Fail";
+				v_perm = v_perm + 1;
+			}
+			else
+			{
+				v_row.Fax_Status="Retry Pending";
+				v_retry = v_retry + 1;
+			}
+		}
+		else if(v_row.Submitted_Time != null)
+		{
+			if(v_row.Submitted_Time.addHour(4) < zoho.currenttime)
+			{
+				v_row.Fax_Status="Stuck";
+				v_stuck = v_stuck + 1;
+			}
+		}
+	}
+}
+return "polled " + v_polled + ", sent " + v_sent + ", retry pending " + v_retry + ", permanent fail " + v_perm + ", stuck " + v_stuck;

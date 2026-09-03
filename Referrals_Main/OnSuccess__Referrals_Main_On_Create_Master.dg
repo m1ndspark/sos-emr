@@ -245,3 +245,22 @@ if(v_Email != null && v_Email.trim() != "")
 		}
 	}
 }
+v_AsgExisting = Assignments[Referral_Link == input.ID].count();
+if(v_AsgExisting == 0)
+{
+	v_AsgId = insert into Assignments
+	[
+		Referral_Link=input.ID
+		Patient_First_Name=input.Patient_First_Name
+		Patient_Last_Name=input.Patient_Last_Name
+		Patient_DOB=input.Patient_DOB1
+		Patient_Phone=v_Out.get(0)
+		Patient_Address=input.Patient_Address
+		Patient_Location=input.Patient_Location
+		Facility_Name=input.Facility_Name
+		Facility_Phone=v_Out.get(3)
+		Facility_Room_Number=input.Facility_Room_Number
+		Added_User=zoho.loginuser
+	];
+	thisapp.mint_assignment_id(v_AsgId);
+}

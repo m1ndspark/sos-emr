@@ -1,0 +1,132 @@
+ownerName = "sosmmc";
+appName = "sos-referrals-app";
+baseUrl = "https://www.zohoapis.com/creator/v2.1/meta/" + ownerName + "/" + appName;
+typeMap = Map();
+typeMap.put("1","Single Line");
+typeMap.put("2","Multi Line");
+typeMap.put("3","Email");
+typeMap.put("5","Number");
+typeMap.put("6","Decimal");
+typeMap.put("8","Currency");
+typeMap.put("9","Auto Number");
+typeMap.put("10","Date");
+typeMap.put("11","Date-Time");
+typeMap.put("12","Dropdown/Lookup");
+typeMap.put("13","Radio");
+typeMap.put("14","Multi Select");
+typeMap.put("15","Checkbox");
+typeMap.put("16","Decision Box");
+typeMap.put("19","File Upload");
+typeMap.put("20","Formula");
+typeMap.put("21","Subform");
+typeMap.put("27","Phone");
+typeMap.put("29","Name");
+typeMap.put("30","Address");
+outLines = List();
+if(p_formLink == null || p_formLink.trim() == "")
+{
+	formsResp = invokeurl
+	[
+		url :baseUrl + "/forms"
+		type :GET
+		connection:"sos_schema_monitor"
+	];
+	if(formsResp.get("code") != 3000)
+	{
+		return "ERROR: Get Forms failed. Response: " + formsResp.toString();
+	}
+	outLines.add("FORMS IN " + appName);
+	outLines.add("");
+	outLines.add("| Link Name | Display Name |");
+	outLines.add("|---|---|");
+	formCount = 0;
+	for each  frm in formsResp.get("forms")
+	{
+		outLines.add("| " + frm.get("link_name") + " | " + frm.get("display_name") + " |");
+		formCount = formCount + 1;
+	}
+	outLines.add("");
+	outLines.add("Total forms: " + formCount);
+	return outLines.toString("\n");
+}
+fieldsResp = invokeurl
+[
+	url :baseUrl + "/form/" + p_formLink + "/fields"
+	type :GET
+	connection:"sos_schema_monitor"
+];
+if(fieldsResp.get("code") != 3000)
+{
+	return "ERROR: Get Fields failed for form " + p_formLink + ". Response: " + fieldsResp.toString();
+}
+outLines.add("FIELD DUMP - " + p_formLink);
+outLines.add("Generated: " + zoho.currentdate.toString("yyyy-MM-dd HH:mm"));
+outLines.add("");
+outLines.add("| # | Link Name | Display Name | Type | Mandatory | Unique | Detail |");
+outLines.add("|---|---|---|---|---|---|---|");
+rowNum = 0;
+for each  fld in fieldsResp.get("fields")
+{
+	fLink = fld.get("link_name");
+	if(fLink != null)
+	{
+		rowNum = rowNum + 1;
+		tcStr = fld.get("type").toLong().toString();
+		tName = typeMap.get(tcStr);
+		if(tName == null)
+		{
+			typeLabel = "Type " + tcStr;
+		}
+		else
+		{
+			typeLabel = tName + " (" + tcStr + ")";
+		}
+		dName = fld.get("display_name");
+		if(dName == null)
+		{
+			dName = "";
+		}
+		mandStr = "no";
+		if(fld.get("mandatory") == true)
+		{
+			mandStr = "YES";
+		}
+		uniqStr = "no";
+		if(fld.get("unique") == true)
+		{
+			uniqStr = "YES";
+		}
+		detail = "";
+		if(fld.get("choices") != null)
+		{
+			chList = List();
+			for each  ch in fld.get("choices")
+			{
+				chList.add(ch.get("value"));
+			}
+			detail = "choices: " + chList.toString(", ");
+		}
+		else if(fld.get("subfields") != null)
+		{
+			sfList = List();
+			for each  sf in fld.get("subfields")
+			{
+				sfName = sf.get("link_name");
+				if(sf.get("is_hidden") == true)
+				{
+					sfName = sfName + " (hidden)";
+				}
+				sfList.add(sfName);
+			}
+			detail = "subfields: " + sfList.toString(", ");
+		}
+		else if(fld.get("max_char") != null)
+		{
+			detail = "max " + fld.get("max_char");
+		}
+		outLines.add("| " + rowNum + " | " + fLink + " | " + dName + " | " + typeLabel + " | " + mandStr + " | " + uniqStr + " | " + detail + " |");
+	}
+}
+outLines.add("");
+outLines.add("Total fields: " + rowNum);
+return outLines.toString("\n");

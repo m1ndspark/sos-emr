@@ -1,0 +1,127 @@
+alertTo = "neil.heird@sosmmc.com";
+maxList = 100;
+validRefs = List();
+for each  r in Referrals_Main[Referral_ID != null]
+{
+	rid = r.Referral_ID;
+	if(rid != null && rid.trim() != "")
+	{
+		validRefs.add(rid.trim().toUpperCase());
+	}
+}
+flagCount = 0;
+scanCount = 0;
+blockList = List();
+for each  pv in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && QC_Reviewed != "Yes"]
+{
+	scanCount = scanCount + 1;
+	reasons = List();
+	noteRaw = pv.Final_Clinical_Note;
+	if(noteRaw == null)
+	{
+		noteRaw = "";
+	}
+	noteTxt = noteRaw.replaceAll("<[^>]*>","");
+	noteTxt = noteTxt.replaceAll("&nbsp;"," ",true);
+	noteTxt = noteTxt.trim();
+	if(noteTxt == "")
+	{
+		reasons.add("Clinical note is blank");
+	}
+	if(pv.Referral_Link == null)
+	{
+		reasons.add("Referral Link is empty");
+	}
+	pvRef = pv.Referral_ID;
+	if(pvRef == null)
+	{
+		pvRef = "";
+	}
+	pvRef = pvRef.trim();
+	if(pvRef == "")
+	{
+		reasons.add("Referral ID is blank");
+	}
+	else if(!validRefs.contains(pvRef.toUpperCase()))
+	{
+		reasons.add("Referral ID " + pvRef + " does not exist in Referrals_Main");
+	}
+	if(pv.Visit_Completion_Date == null)
+	{
+		reasons.add("Visit Completion Date is blank");
+	}
+	pOrg = pv.Partner_Organization;
+	if(pOrg == null)
+	{
+		pOrg = "";
+	}
+	if(pOrg.trim() == "")
+	{
+		reasons.add("Referral Partner is blank");
+	}
+	if(reasons.size() > 0)
+	{
+		flagCount = flagCount + 1;
+		if(blockList.size() < maxList)
+		{
+			pvId = pv.PVS_ID;
+			if(pvId == null || pvId.trim() == "")
+			{
+				pvId = "(no PVS ID)";
+			}
+			ptName = pv.Patient_Full_Name_1;
+			if(ptName == null || ptName.trim() == "")
+			{
+				ptName = "(no patient name)";
+			}
+			prov = pv.Employee_Name_Title;
+			if(prov == null || prov.trim() == "")
+			{
+				prov = "(no provider)";
+			}
+			addedStr = "(unknown)";
+			if(pv.Added_Time != null)
+			{
+				addedStr = pv.Added_Time.toString("MM-dd-yyyy");
+			}
+			blk = "<div style=\"margin:0 0 12px 0;padding:10px 12px;background:#fdf0f0;border-left:3px solid #b00020;\">";
+			blk = blk + "<b>" + pvId + "</b> &middot; " + ptName + "<br>";
+			blk = blk + "<span style=\"color:#666;font-size:12px;\">Provider: " + prov + " &middot; Record ID: " + pv.ID + " &middot; Added: " + addedStr + "</span>";
+			blk = blk + "<ul style=\"margin:6px 0 0 18px;padding:0;\">";
+			for each  rsn in reasons
+			{
+				blk = blk + "<li>" + rsn + "</li>";
+			}
+			blk = blk + "</ul></div>";
+			blockList.add(blk);
+		}
+	}
+}
+if(flagCount == 0)
+{
+	okBody = "<div style=\"font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;\">";
+	okBody = okBody + "<p><b>SOS EMR PVS exclusion monitor ran on " + zoho.currenttime + ".</b></p>";
+	okBody = okBody + "<p style=\"padding:8px 12px;background:#f0f7f0;border-left:3px solid #2e7d32;\"><b>NOTHING FLAGGED.</b><br>Every unreviewed Patient Visit record passed all four checks.</p>";
+	okBody = okBody + "<p>Records scanned: " + scanCount + "</p>";
+	okBody = okBody + "<p style=\"color:#666;font-size:12px;\">Checks: clinical note blank, Referral Link empty, Referral ID missing or unmatched in Referrals_Main, Visit Completion Date blank, Referral Partner blank.</p>";
+	okBody = okBody + "</div>";
+	thisapp.send_via_sendgrid(alertTo,"SOS EMR PVS exclusion monitor: nothing flagged (" + zoho.currentdate.toString("MM-dd-yyyy") + ")",okBody);
+	return "No records flagged. Scanned: " + scanCount + ".";
+}
+mailBody = "<div style=\"font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;\">";
+mailBody = mailBody + "<p><b>SOS EMR PVS exclusion monitor ran on " + zoho.currenttime + ".</b></p>";
+mailBody = mailBody + "<p style=\"padding:8px 12px;background:#fdf0f0;border-left:3px solid #b00020;\"><b>" + flagCount + " record(s) need review.</b><br>Each one failed at least one completeness check and may not be a real visit. Open the record, decide whether it is legitimate, then set <b>QC Reviewed</b> to <b>Yes</b> to clear it from this email.</p>";
+mailBody = mailBody + "<p>Unreviewed Patient Visit records scanned: " + scanCount + "</p>";
+if(flagCount > maxList)
+{
+	mailBody = mailBody + "<p style=\"padding:8px 12px;background:#fff8e1;border-left:3px solid #f9a825;\"><b>Showing the first " + maxList + " of " + flagCount + ".</b> Clear some and the rest will appear on the next run.</p>";
+}
+mailBody = mailBody + "<hr>";
+for each  b in blockList
+{
+	mailBody = mailBody + b;
+}
+mailBody = mailBody + "<p style=\"color:#666;font-size:12px;\">Checks: clinical note blank, Referral Link empty, Referral ID missing or unmatched in Referrals_Main, Visit Completion Date blank, Referral Partner blank. A record only leaves this list when QC Reviewed is set to Yes.</p>";
+mailBody = mailBody + "</div>";
+thisapp.send_via_sendgrid(alertTo,"SOS EMR PVS exclusion monitor: " + flagCount + " to review (" + zoho.currentdate.toString("MM-dd-yyyy") + ")",mailBody);
+return "Records flagged: " + flagCount + ". Scanned: " + scanCount + ".";

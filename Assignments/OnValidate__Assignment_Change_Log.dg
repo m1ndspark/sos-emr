@@ -25,28 +25,6 @@ if(input.Employee_Link != null)
 	}
 }
 thisapp.log_change("Assignments",v_rid,v_did,"Employee",v_emp_old,v_emp_new,v_user);
-v_ad_old = "";
-if(oldRec.Accepted_Date != null)
-{
-	v_ad_old = oldRec.Accepted_Date.toString();
-}
-v_ad_new = "";
-if(input.Accepted_Date != null)
-{
-	v_ad_new = input.Accepted_Date.toString();
-}
-thisapp.log_change("Assignments",v_rid,v_did,"Accepted Date",v_ad_old,v_ad_new,v_user);
-v_sv_old = "";
-if(oldRec.Scheduled_Visit_Date != null)
-{
-	v_sv_old = oldRec.Scheduled_Visit_Date.toString();
-}
-v_sv_new = "";
-if(input.Scheduled_Visit_Date != null)
-{
-	v_sv_new = input.Scheduled_Visit_Date.toString();
-}
-thisapp.log_change("Assignments",v_rid,v_did,"Scheduled Visit Date",v_sv_old,v_sv_new,v_user);
 v_addr_old = "";
 if(oldRec.Patient_Address != null)
 {
@@ -58,7 +36,6 @@ if(input.Patient_Address != null)
 	v_addr_new = input.Patient_Address.toString();
 }
 thisapp.log_change("Assignments",v_rid,v_did,"Patient Address",v_addr_old,v_addr_new,v_user);
-thisapp.log_change("Assignments",v_rid,v_did,"Assignment Status",oldRec.Assignment_Status,input.Assignment_Status,v_user);
 thisapp.log_change("Assignments",v_rid,v_did,"Assignment Notes",oldRec.Assignment_Notes,input.Assignment_Notes,v_user);
 thisapp.log_change("Assignments",v_rid,v_did,"Patient Location",oldRec.Patient_Location,input.Patient_Location,v_user);
 thisapp.log_change("Assignments",v_rid,v_did,"Facility Name",oldRec.Facility_Name,input.Facility_Name,v_user);

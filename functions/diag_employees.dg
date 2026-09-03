@@ -1,0 +1,7 @@
+v_out = "";
+for each  v_e in Employees[ID != 0]
+{
+	v_out = v_out + ifnull(v_e.Employee_Last_Name,"NULL") + " | " + ifnull(v_e.Employee_First_Name,"NULL") + " | " + ifnull(v_e.Employee_Status,"NULL") + " | " + ifnull(v_e.Employee_Initials,"NULL") + "\n";
+}
+info v_out;
+return "count " + Employees[ID != 0].count();

@@ -1,0 +1,10 @@
+v_cfg = API_Config[Config_Name == "RingCentral"];
+if(v_cfg.count() == 0)
+{
+	return "no record";
+}
+v_cfg.RC_Access_Token="WRITE_TEST";
+v_cfg.RC_Token_Expiry=zoho.currenttime;
+v_after = API_Config[Config_Name == "RingCentral"];
+info "token now: " + ifnull(v_after.RC_Access_Token,"NULL");
+return "done";
