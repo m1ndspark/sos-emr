@@ -93,5 +93,5 @@ identifier form is available.
 ## 6. Related
 
 - `schema/API_Config.md` - the `Zepto_Send_Token` field and ZEPTOMAIL record
-- `context/checkpoints/2026-09-02_Session39.md` - the session this was built in
+- `context/logs/SOS_Code_Checkpoint_2026-09-02_Session39.md` - the session this was built in
 - `context/05_deluge_learnings.md` - general Deluge gotchas

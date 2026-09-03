@@ -82,7 +82,7 @@ its version wins on any conflict.
 
 | Field | Type | Status |
 |---|---|---|
-| `Patient_DOB1` | text | **LIVE.** The referral form writes DOB here. Read this one. |
+| `Patient_DOB1` | Single Line (1) | **LIVE.** Single line text field, confirmed by Neil 2026-09-02. The referral form writes DOB here. Read this one. |
 | `Patient_DOB` | Date (10) | **DEPRECATED but still present.** Carries historical values and is still referenced by dependent workflows. |
 
 `Patient_DOB` cannot be removed yet. Removal is tracked as an open, non-blocking

@@ -8,10 +8,6 @@ Reconstructed by ccode from the session facts. The project doc
 `claude/SOS_Code_Checkpoint_2026-09-02_Session39.md` was not reachable from this
 repo, so anything not listed here was not carried over.
 
-NOTE ON LOCATION: earlier checkpoints live in `context/logs/`
-(`SOS_Code_Checkpoint_<date>_Session<N>.md`). This one was filed at
-`context/checkpoints/` as instructed. Pick one home before Session 40.
-
 ---
 
 ## 1. Creator's own sendmail is unusable for this, and why
