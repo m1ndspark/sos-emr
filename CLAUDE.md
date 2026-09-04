@@ -134,6 +134,11 @@ REPO CONVENTIONS
   asking field questions.
 - Repo `.md` edits are Claude's job. Only ask Neil to change things inside
   Creator, and name the exact workflow or function.
+- Commit split: cchat (the Cowork session) commits from its VM mount at every
+  CHECKPOINT and .ds sync; ccode pulls, rebases and pushes. The VM cannot
+  delete files, so each cchat git run strands a zero-byte .git/*.lock; the
+  git-lock reaper hook (fixed 2026-09-03) clears them. Do not treat those
+  locks as a sign of an interrupted operation.
 
 --------------------------------------------------------------------------------
 SECRETS AND PHI (CRITICAL)
