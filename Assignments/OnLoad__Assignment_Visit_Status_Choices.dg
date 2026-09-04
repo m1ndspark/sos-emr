@@ -1,0 +1,36 @@
+v_Cur = input.Visit_Status;
+v_Type = "";
+if(input.Referral_Link != null)
+{
+	refRec = Referrals_Main[ID == input.Referral_Link];
+	if(refRec != null && refRec.Referral_Type != null)
+	{
+		v_Type = refRec.Referral_Type;
+	}
+}
+v_Choices = List();
+if(v_Type == "Patient Visit")
+{
+	v_Choices = {"Received","Contacted","Scheduled","Awaiting Equipment","Pending Results","Completed"};
+}
+else if(v_Type == "3008")
+{
+	v_Choices = {"Received","Pending Info","Completed"};
+}
+else if(v_Type == "Imaging Order (only)")
+{
+	v_Choices = {"Received","Ordered","Pending Results","Report Sent","Completed"};
+}
+else
+{
+	v_Choices = {"Received","Contacted","Scheduled","Awaiting Equipment","Pending Results","Ordered","Report Sent","Pending Info","Completed"};
+}
+input.Visit_Status:ui.add(v_Choices);
+if(v_Cur != null && v_Choices.contains(v_Cur))
+{
+	input.Visit_Status = v_Cur;
+}
+else
+{
+	input.Visit_Status = "Received";
+}

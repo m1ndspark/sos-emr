@@ -146,8 +146,26 @@ if(ifnull(v_ref.X_Ray_Needed,"") == "Yes")
 	v_block.add("Imaging Test(s)|" + v_vals.get("IMGTEST") + "|1");
 	v_block.add("Body Part / Affected Area|" + v_vals.get("IMGSITE") + "|0");
 	v_block.add("Reason for Imaging|" + v_vals.get("IMGREASON") + "|0");
-	v_block.add("Order Document|See the Zoho Forms entry for this referral|0");
 }
+v_fileNames = "";
+for each  v_rf in Referral_Files[Referrals_Main == v_ref.ID]
+{
+	v_rfName = ifnull(v_rf.File_Name,"").trim();
+	if(v_rfName != "")
+	{
+		if(v_fileNames != "")
+		{
+			v_fileNames = v_fileNames + "<br/>";
+		}
+		v_fileNames = v_fileNames + v_rfName;
+	}
+}
+if(v_fileNames == "")
+{
+	v_fileNames = "None";
+}
+v_block.add("#SEC|Attached Documents");
+v_block.add("Attached Files|" + v_fileNames + "|0");
 v_block.add("#SEC|Partner Info");
 v_block.add("Referral Partner|" + v_vals.get("PARTNER") + "|1");
 v_block.add("Billing Branch|" + v_vals.get("BRANCH") + "|0");
@@ -222,9 +240,6 @@ v_html = v_html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-
 v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_vals.get("PATNAME") + " &nbsp;&bull;&nbsp; " + v_vals.get("REFID") + "</div>";
 v_html = v_html + "</td></tr>";
 v_html = v_html + v_body;
-v_html = v_html + "<tr><td align=\"center\" style=\"padding:26px 24px 8px 24px;\"><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td align=\"center\" bgcolor=\"#0b0b5b\" style=\"border-radius:4px;\">";
-v_html = v_html + "<a href=\"https://creatorapp.zoho.com/sosmmc/sos-referrals-app/#Report:Referrals_Main_Report\" style=\"display:inline-block; padding:13px 34px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:4px;\">Open Referral</a>";
-v_html = v_html + "</td></tr></table></td></tr>";
 v_html = v_html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
 v_html = v_html + "</table></td></tr></table></body></html>";
 v_subject = "New Patient Visit Referral - " + v_vals.get("PATNAME") + " - " + v_vals.get("REFID");
@@ -245,6 +260,11 @@ v_payload.put("from",v_fromMap);
 v_payload.put("to",v_toList);
 v_payload.put("subject",v_subject);
 v_payload.put("htmlbody",v_html);
+v_attach = thisapp.build_zepto_attachments(v_ref.ID,v_token);
+if(v_attach.size() > 0)
+{
+	v_payload.put("attachments",v_attach);
+}
 v_hdr = Map();
 v_hdr.put("Accept","application/json");
 v_hdr.put("Content-Type","application/json");
@@ -261,4 +281,4 @@ if(v_resp.get("responseCode") == 201)
 {
 	return "SENT " + v_vals.get("REFID");
 }
-return "FAIL " + v_resp.toString();
+return "FAIL " + v_vals.get("REFID") + " " + v_resp.toString();

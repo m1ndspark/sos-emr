@@ -90,8 +90,30 @@ The function resolves whichever it is given. This means either can be run by
 hand from the Execute pane against a record without first looking up which
 identifier form is available.
 
+## 5.2 Attachments (Session 40, 2026-09-03)
+
+Files reach Creator through the WorkDrive staging route (see
+context/logs/SOS_Code_Checkpoint_2026-09-03_Session40.md section 4) and land
+as one Referral_Files row per file. Both notification functions attach them:
+
+| Function | Purpose |
+|---|---|
+| `build_zepto_attachments(int p_refId, string p_token)` | For each Referral_Files row linked to the referral, POSTs the file as a raw binary body to `https://api.zeptomail.com/v1.1/files?name=<urlEncoded name>` (header `Authorization: Zoho-enczapikey <key>`, `Content-Type: text/plain` per ZeptoMail's sample) and returns a list of `{file_cache_key, name}` maps. Any failure is logged with `info` and skipped. |
+
+Each notification function calls the helper after building the payload and,
+when the list is non-empty, sets `attachments` on the ZeptoMail payload. The
+email body lists the filenames (3008: "3008 Documents" section; Patient Visit:
+"Attached Documents" section), or "None".
+
+The "Open Referral" button was removed from both templates (Neil,
+2026-09-03). The FAIL return now carries the Referral_ID.
+
+Recipients remain hardcoded inside each function
+(`neil.heird@sosmmc.com`, `sosreferrals@sosmmc.com`), not in API_Config.
+
 ## 6. Related
 
 - `schema/API_Config.md` - the `Zepto_Send_Token` field and ZEPTOMAIL record
 - `context/logs/SOS_Code_Checkpoint_2026-09-02_Session39.md` - the session this was built in
+- `context/logs/SOS_Code_Checkpoint_2026-09-03_Session40.md` - attachments and file intake
 - `context/05_deluge_learnings.md` - general Deluge gotchas

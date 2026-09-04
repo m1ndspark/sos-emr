@@ -170,6 +170,80 @@ for each  v_Rec in Referrals_Main[ID == input.ID]
 		];
 	}
 }
+v_FileFields = Map();
+v_FileFields.put("3008",input.Files_3008_URLs);
+v_FileFields.put("General",input.General_Files_URLs);
+v_FileFields.put("Imaging Orders",input.Imaging_Orders_URLs);
+v_WdHdr = Map();
+v_WdHdr.put("Accept","application/vnd.api+json");
+v_WdHdr.put("Content-Type","application/vnd.api+json");
+v_TrashBody = Map();
+v_TrashAttr = Map();
+v_TrashAttr.put("status","51");
+v_TrashData = Map();
+v_TrashData.put("attributes",v_TrashAttr);
+v_TrashData.put("type","files");
+v_TrashBody.put("data",v_TrashData);
+for each  v_Cat in v_FileFields.keys()
+{
+	v_UrlRaw = v_FileFields.get(v_Cat);
+	if(v_UrlRaw != null && v_UrlRaw.toString().trim() != "")
+	{
+		v_UrlList = v_UrlRaw.toString().replaceAll("\r","").replaceAll("\n",",").toList(",");
+		for each  v_Url in v_UrlList
+		{
+			v_U = v_Url.trim();
+			if(v_U != "" && v_U.contains("/file/"))
+			{
+				v_ResId = v_U.subString(v_U.lastIndexOf("/") + 1);
+				if(v_ResId.contains("?"))
+				{
+					v_ResId = v_ResId.subString(0,v_ResId.indexOf("?"));
+				}
+				try 
+				{
+					v_File = invokeurl
+					[
+						url :"https://workdrive.zoho.com/api/v1/download/" + v_ResId
+						type :GET
+						connection:"sos_workdrive"
+					];
+					v_FileName = v_File.getFileName();
+					insert into Referral_Files
+					[
+						Referrals_Main=input.ID
+						Form_Token=input.Form_Token
+						File_Category=v_Cat
+						File_Name=v_FileName
+						File_Upload=v_File
+						Added_User=zoho.loginuser
+					];
+					v_Trash = invokeurl
+					[
+						url :"https://workdrive.zoho.com/api/v1/files/" + v_ResId
+						type :PATCH
+						body:v_TrashBody.toString()
+						headers:v_WdHdr
+						connection:"sos_workdrive"
+					];
+					v_Del = invokeurl
+					[
+						url :"https://workdrive.zoho.com/api/v1/files/" + v_ResId
+						type :DELETE
+						headers:v_WdHdr
+						connection:"sos_workdrive"
+					];
+				}
+				catch (e)
+				{
+					info "Referral file intake failed for " + v_Cat + " " + v_ResId + ": " + e;
+				}
+			}
+		}
+	}
+}
+thisapp.send_referral_notification(input.ID.toString());
+thisapp.send_3008_notification(input.ID.toString());
 v_Email = input.Partner_POC_Email;
 if(v_Email != null && v_Email.trim() != "")
 {

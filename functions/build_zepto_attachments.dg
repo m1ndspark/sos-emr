@@ -1,0 +1,52 @@
+v_out = List();
+for each  v_f in Referral_Files[Referrals_Main == p_refId]
+{
+	if(v_f.File_Upload != null)
+	{
+		try 
+		{
+			v_name = ifnull(v_f.File_Name,"").trim();
+			if(v_name == "")
+			{
+				v_name = "attachment";
+			}
+			v_hdr = Map();
+			v_hdr.put("Authorization","Zoho-enczapikey " + p_token);
+			v_hdr.put("Content-Type","text/plain");
+			v_resp = invokeurl
+			[
+				url :"https://api.zeptomail.com/v1.1/files?name=" + zoho.encryption.urlEncode(v_name)
+				type :POST
+				body:v_f.File_Upload
+				headers:v_hdr
+				detailed:true
+			];
+			v_code = v_resp.get("responseCode");
+			if(v_code == 200 || v_code == 201)
+			{
+				v_txt = v_resp.get("responseText").toString();
+				if(v_txt.contains("file_cache_key"))
+				{
+					v_json = v_txt.toMap();
+					v_cacheKey = ifnull(v_json.get("file_cache_key"),"").toString().trim();
+					if(v_cacheKey != "")
+					{
+						v_att = Map();
+						v_att.put("file_cache_key",v_cacheKey);
+						v_att.put("name",v_name);
+						v_out.add(v_att);
+					}
+				}
+			}
+			else
+			{
+				info "Zepto file cache upload failed for " + v_name + ": " + v_resp.toString();
+			}
+		}
+		catch (e)
+		{
+			info "Zepto file cache upload error for Referral_Files " + v_f.ID + ": " + e;
+		}
+	}
+}
+return v_out;
