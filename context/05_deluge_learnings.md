@@ -435,3 +435,46 @@ re-breaks on the next intake. Tracked in context/23_task_list.md.
 RELATED, ALREADY IN THIS FILE: "PHONENUMBER FIELDS REJECT AN EMPTY STRING" and
 the Referrals_Main text vs Encounter_PatientVisit phonenumber type mismatch. Same
 family of problem, different trigger.
+
+INSERT INTO DOES NOT FIRE THE TARGET FORM'S ON VALIDATE OR ON SUCCESS
+A Deluge `insert into <Form>` writes the row directly. The target form's On
+Validate and On Success workflows do NOT run. Anything those workflows would
+have done (ID stamping, derived fields, downstream calls) has to be done
+explicitly by the inserting code. Confirmed 2026-09-03 (Session 40) building the
+Referral_Files intake block.
+
+A WHOLE ADDRESS FIELD CAN BE ASSIGNED FROM ANOTHER ADDRESS FIELD IN INSERT INTO
+The composite Address type assigns as a unit inside `insert into`:
+Patient_Address = input.Patient_Address. No per-component (street/city/state/zip)
+copying is needed. Confirmed 2026-09-03 (Session 40).
+
+FIELD:UI.ADD(LIST) REPLACES A DROPDOWN'S CHOICES AT RUNTIME
+`<Field>:ui.add(<list>)` swaps a dropdown's available choices while the form is
+open. Available in On Load and On User Input workflows ONLY - not in On Validate,
+On Success, or a standalone function. Confirmed 2026-09-03 (Session 40) on
+Assignment Visit Status choices.
+
+CREATOR FUNCTION ARGUMENTS HAVE NO FILE TYPE
+There is no file/attachment argument type for a Creator function. The entry
+"Referral Files" in the argument type picker is the FORM object of that name, not
+a file. Consequence: file bytes cannot be handed into Deluge as a parameter, which
+is what killed the Zoho Forms webhook -> Custom API route. Fetch the file inside
+the function instead. Confirmed 2026-09-03 (Session 40).
+
+INVOKEURL BODY ACCEPTS A FILE OBJECT FOR RAW BINARY
+Assigning a FILE object to an invokeurl `body` sends it as a raw binary body.
+Default content type is application/octet-stream; override it with an explicit
+header when the endpoint demands something else. Confirmed 2026-09-03 (Session 40)
+POSTing to the ZeptoMail /v1.1/files cache endpoint.
+
+URL-ENCODE IS ZOHO.ENCRYPTION.URLENCODE(TEXT) - THERE IS NO .ENCODEURL()
+The string method `.encodeUrl()` does not exist in this build. Use
+zoho.encryption.urlEncode(<text>). Confirmed 2026-09-03 (Session 40) encoding
+attachment filenames into a query string.
+
+THE CREATOR FUNCTION EDITOR SHOWS THE SIGNATURE LINE
+Unlike the repo convention (standalone function .dg files are body-only - see
+"STANDALONE FUNCTION .DG FILES ARE BODY-ONLY" above), the Creator function editor
+displays and expects the declaration line. When replacing a function's contents,
+paste the FULL editor contents including `string fn(string p) { ... }`. Confirmed
+2026-09-03 (Session 40).
