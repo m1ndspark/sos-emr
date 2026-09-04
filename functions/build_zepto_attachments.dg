@@ -42,8 +42,7 @@ for each  v_f in Referral_Files[Referrals_Main == p_refId]
 			{
 				info "Zepto file cache upload failed for " + v_name + ": " + v_resp.toString();
 			}
-		}
-		catch (e)
+		}			catch (e)
 		{
 			info "Zepto file cache upload error for Referral_Files " + v_f.ID + ": " + e;
 		}

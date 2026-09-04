@@ -28,7 +28,7 @@ functions/backfill_referral_id_from_token.dg	backfill_referral_id_from_token		fu
 functions/backfill_referral_id_stamp.dg	backfill_referral_id_stamp		function					Referrals_Main		bec7bb7f
 functions/backfill_referral_ids.dg	backfill_referral_ids		function		mint_referral_id			Referrals_Main	AppFunc	afc9eb5f
 functions/build_pvs_fax_html.dg	build_pvs_fax_html		function					Encounter_PatientVisit;Referrals_Main		fcaae102
-functions/build_zepto_attachments.dg	build_zepto_attachments		function						HTTP	a6a4794d
+functions/build_zepto_attachments.dg	build_zepto_attachments		function						HTTP	9ed39aa0
 functions/create_3008_pvs_july.dg	create_3008_pvs_july		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		efb09763
 functions/create_books_customers.dg	create_books_customers		function					Partner_Billing_Contacts;Partner_Locations	HTTP	9fc3b29b
 functions/create_invoice_from_selection.dg	create_invoice_from_selection		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main	Books;HTTP	7387e2e5
@@ -74,9 +74,9 @@ functions/run_invoice_batch.dg	run_invoice_batch		function		create_invoice_from_
 functions/run_pvs_exclusion_monitor.dg	run_pvs_exclusion_monitor		function		send_via_sendgrid			Encounter_PatientVisit;Referrals_Main	AppFunc	f38e4155
 functions/run_schema_monitor.dg	run_schema_monitor		function		send_via_sendgrid				AppFunc;HTTP	f14c8c36
 functions/seed_schema_to_github.dg	seed_schema_to_github		function						Email;HTTP	aac9159a
-functions/send_3008_notification.dg	send_3008_notification		function					Referrals_Main	HTTP	98bdfe6a
+functions/send_3008_notification.dg	send_3008_notification		function		build_zepto_attachments			Referrals_Main	AppFunc;HTTP	bd9a8297
 functions/send_pvs_fax.dg	send_pvs_fax		function		build_pvs_fax_html;get_rc_token			Encounter_PatientVisit;Sequence_Tracker	AppFunc;HTTP	aed1f0e0
-functions/send_referral_notification.dg	send_referral_notification		function					Referrals_Main	HTTP	e378df32
+functions/send_referral_notification.dg	send_referral_notification		function		build_zepto_attachments			Referrals_Main	AppFunc;HTTP	ec4ee63b
 functions/send_via_sendgrid.dg	send_via_sendgrid		function						HTTP	a593170f
 functions/set_current_rate.dg	set_current_rate		function					Partner_Rates		584a618b
 functions/set_partner_poc_name_title.dg	set_partner_poc_name_title		function					Referrals_Main		c11204b4
@@ -154,7 +154,7 @@ Referrals_Main/OnLoad__Default_Hide_On_Load.dg	Default_Hide_On_Load1	Referrals_M
 Referrals_Main/OnSuccess__Branch_Sets_Partner_Link.dg	Branch_Sets_Partner_Link	Referrals_Main	OnSuccess			Partner_ID	Partner_Branch_Link	Partner_Locations;Partners		3c26fd85
 Referrals_Main/OnSuccess__Partner_POC_Name_Title_Generator.dg	Partner_POC_Name_Title_Ge	Referrals_Main	OnSuccess			Partner_POC_Name_Title	Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Title			d2dcfa73
 Referrals_Main/OnSuccess__Patient_Full_Name_Generator.dg	Patient_Full_Name_Generat	Referrals_Main	OnSuccess			Patient_Full_Name	Patient_First_Name;Patient_Last_Name;Patient_MI			8161cbd1
-Referrals_Main/OnSuccess__Referrals_Main_On_Create_Master.dg	Referrals_Main_On_Create_	Referrals_Main	OnSuccess		mint_assignment_id;mint_referral_id		AC_First_Name;AC_Last_Name;AC_Phone;Facility_Name;Facility_Phone;Facility_Room_Number;ID;Partner_Location_Label;Partner_POC_Email;Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Phone;Partner_POC_Team;Partner_POC_Title;Patient_Address;Patient_DOB1;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_MI;Patient_Phone;Patient_SSN	Assignments;Partner_Locations;Partner_Referral_Contacts;Referrals_Main	AppFunc	7d5ddc13
+Referrals_Main/OnSuccess__Referrals_Main_On_Create_Master.dg	Referrals_Main_On_Create_	Referrals_Main	OnSuccess		mint_assignment_id;mint_referral_id;send_3008_notification;send_referral_notification		AC_First_Name;AC_Last_Name;AC_Phone;Facility_Name;Facility_Phone;Facility_Room_Number;Files_3008_URLs;Form_Token;General_Files_URLs;ID;Imaging_Orders_URLs;Partner_Location_Label;Partner_POC_Email;Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Phone;Partner_POC_Team;Partner_POC_Title;Patient_Address;Patient_DOB1;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_MI;Patient_Phone;Patient_SSN	Assignments;Partner_Locations;Partner_Referral_Contacts;Referrals_Main	AppFunc;HTTP	a93dd07b
 Referrals_Main/OnUserInput__AC_Last_Name__DM_Full_Name_Generator.dg	DM_Full_Name_Generator	Referrals_Main	OnUserInput	AC_Last_Name		AC_Full_Name	AC_First_Name;AC_Last_Name			08005713
 Referrals_Main/OnUserInput__AC_Phone__Decision_Maker_Phone_Form1.dg	Decision_Maker_Phone_Form1	Referrals_Main	OnUserInput	AC_Phone		AC_Phone				56d69438
 Referrals_Main/OnUserInput__Facility_Phone__Format.dg	Facility_Phone_Format1	Referrals_Main	OnUserInput	Facility_Phone		Facility_Phone				753a0293

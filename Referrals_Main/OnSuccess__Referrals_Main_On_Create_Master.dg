@@ -217,7 +217,7 @@ for each  v_Cat in v_FileFields.keys()
 						File_Name=v_FileName
 						File_Upload=v_File
 						Added_User=zoho.loginuser
-					];
+					]
 					v_Trash = invokeurl
 					[
 						url :"https://workdrive.zoho.com/api/v1/files/" + v_ResId
@@ -233,8 +233,7 @@ for each  v_Cat in v_FileFields.keys()
 						headers:v_WdHdr
 						connection:"sos_workdrive"
 					];
-				}
-				catch (e)
+				}				catch (e)
 				{
 					info "Referral file intake failed for " + v_Cat + " " + v_ResId + ": " + e;
 				}
