@@ -269,6 +269,7 @@ Owner legend:
 | VITAS and Chapters have no year-to-date pages. No prior month has been restated on the current model for either partner. | cchat | OPEN | N | 2026-08-26 |
 | Gmail draft to Andrea Garr lost its signature phone links and logo when rewritten via the API. Neil to re-insert the signature in Gmail. | Neil | OPEN | N | 2026-08-26 |
 | USPTO trademark search on "Advanced Clinical Partners" in the healthcare classes before filing the DBA. Advanced Clinical (clinical research staffing, advancedclinical.com) sits close. Domain advancedclinicalpartners.com purchased 2026-08-28. | Neil | OPEN | N | 2026-08-28 |
+| 3008 PVS: "Was the 3008 Completed?" pre-selects Yes on entry. Not reproducible from .ds v41. Field has no `initial value`, no workflow on Encounter_PatientVisit assigns it, and the only `="Yes"` in the app is inside create_3008_pvs_july (July backfill). Open question: new Add-form entry vs. opening an existing July-imported record. PARKED. | cchat | OPEN | N | TBD |
 
 --------------------------------------------------------------------------------
 END
