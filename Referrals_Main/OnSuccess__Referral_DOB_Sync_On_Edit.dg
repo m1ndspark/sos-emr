@@ -1,82 +1,14 @@
-v_DobTxt = ifnull(input.Patient_DOB1,"").toString().trim();
-if(v_DobTxt != "")
+v_DobDate = thisapp.parse_patient_dob(ifnull(input.Patient_DOB1,"").toString());
+if(v_DobDate != null)
 {
-	v_DobRaw = v_DobTxt.replaceAll("[^0-9]","-");
-	v_DobParts = List();
-	for each  v_DobChunk in v_DobRaw.toList("-")
+	for each  v_Rec in Referrals_Main[ID == input.ID]
 	{
-		if(v_DobChunk.trim() != "")
+		if(v_Rec.Patient_DOB != v_DobDate)
 		{
-			v_DobParts.add(v_DobChunk.trim());
-		}
-	}
-	if(v_DobParts.size() == 3)
-	{
-		v_DA = v_DobParts.get(0);
-		v_DB = v_DobParts.get(1);
-		v_DC = v_DobParts.get(2);
-		v_DMo = v_DA;
-		v_DDy = v_DB;
-		v_DYr = v_DC;
-		if(v_DA.length() == 4)
-		{
-			v_DMo = v_DB;
-			v_DDy = v_DC;
-			v_DYr = v_DA;
-		}
-		if(v_DMo.length() <= 2 && v_DDy.length() <= 2 && v_DYr.length() == 4)
-		{
-			v_MoN = v_DMo.toNumber();
-			v_DyN = v_DDy.toNumber();
-			v_YrN = v_DYr.toNumber();
-			v_Valid = true;
-			if(v_MoN < 1 || v_MoN > 12)
-			{
-				v_Valid = false;
-			}
-			if(v_YrN < 1900 || v_YrN > zoho.currentdate.getYear())
-			{
-				v_Valid = false;
-			}
-			v_MaxDay = 31;
-			if(v_MoN == 4 || v_MoN == 6 || v_MoN == 9 || v_MoN == 11)
-			{
-				v_MaxDay = 30;
-			}
-			if(v_MoN == 2)
-			{
-				v_MaxDay = 28;
-				if(v_YrN % 4 == 0 && (v_YrN % 100 != 0 || v_YrN % 400 == 0))
-				{
-					v_MaxDay = 29;
-				}
-			}
-			if(v_DyN < 1 || v_DyN > v_MaxDay)
-			{
-				v_Valid = false;
-			}
-			if(v_Valid)
-			{
-				if(v_DMo.length() == 1)
-				{
-					v_DMo = "0" + v_DMo;
-				}
-				if(v_DDy.length() == 1)
-				{
-					v_DDy = "0" + v_DDy;
-				}
-				v_DobDate = (v_DMo + "-" + v_DDy + "-" + v_DYr).toDate();
-				for each  v_Rec in Referrals_Main[ID == input.ID]
-				{
-					if(v_Rec.Patient_DOB != v_DobDate)
-					{
-						update v_Rec
-						[
-							Patient_DOB=v_DobDate
-						];
-					}
-				}
-			}
+			update v_Rec
+			[
+				Patient_DOB=v_DobDate
+			];
 		}
 	}
 }

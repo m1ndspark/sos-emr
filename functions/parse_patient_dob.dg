@@ -1,0 +1,71 @@
+v_Txt = ifnull(p_text,"").toString().trim();
+if(v_Txt == "")
+{
+	return null;
+}
+v_Raw = v_Txt.replaceAll("[^0-9]","-");
+v_Parts = List();
+for each  v_Chunk in v_Raw.toList("-")
+{
+	if(v_Chunk.trim() != "")
+	{
+		v_Parts.add(v_Chunk.trim());
+	}
+}
+if(v_Parts.size() != 3)
+{
+	return null;
+}
+v_A = v_Parts.get(0);
+v_B = v_Parts.get(1);
+v_C = v_Parts.get(2);
+v_Mo = v_A;
+v_Dy = v_B;
+v_Yr = v_C;
+if(v_A.length() == 4)
+{
+	v_Mo = v_B;
+	v_Dy = v_C;
+	v_Yr = v_A;
+}
+if(v_Mo.length() > 2 || v_Dy.length() > 2 || v_Yr.length() != 4)
+{
+	return null;
+}
+v_MoN = v_Mo.toNumber();
+v_DyN = v_Dy.toNumber();
+v_YrN = v_Yr.toNumber();
+if(v_MoN < 1 || v_MoN > 12)
+{
+	return null;
+}
+if(v_YrN < 1900 || v_YrN > zoho.currentdate.getYear())
+{
+	return null;
+}
+v_MaxDay = 31;
+if(v_MoN == 4 || v_MoN == 6 || v_MoN == 9 || v_MoN == 11)
+{
+	v_MaxDay = 30;
+}
+if(v_MoN == 2)
+{
+	v_MaxDay = 28;
+	if(v_YrN % 4 == 0 && (v_YrN % 100 != 0 || v_YrN % 400 == 0))
+	{
+		v_MaxDay = 29;
+	}
+}
+if(v_DyN < 1 || v_DyN > v_MaxDay)
+{
+	return null;
+}
+if(v_Mo.length() == 1)
+{
+	v_Mo = "0" + v_Mo;
+}
+if(v_Dy.length() == 1)
+{
+	v_Dy = "0" + v_Dy;
+}
+return (v_Mo + "-" + v_Dy + "-" + v_Yr).toDate();

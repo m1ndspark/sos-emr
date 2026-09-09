@@ -36,72 +36,7 @@ if(input.Patient_SSN != null)
 		v_SSN = v_S;
 	}
 }
-v_DobDate = null;
-v_DobTxt = ifnull(input.Patient_DOB1,"").toString().trim();
-if(v_DobTxt != "")
-{
-	v_DobRaw = v_DobTxt.replaceAll("[^0-9]","-");
-	v_DobParts = List();
-	for each  v_DobChunk in v_DobRaw.toList("-")
-	{
-		if(v_DobChunk.trim() != "")
-		{
-			v_DobParts.add(v_DobChunk.trim());
-		}
-	}
-	if(v_DobParts.size() == 3)
-	{
-		v_DA = v_DobParts.get(0);
-		v_DB = v_DobParts.get(1);
-		v_DC = v_DobParts.get(2);
-		v_DMo = v_DA;
-		v_DDy = v_DB;
-		v_DYr = v_DC;
-		if(v_DA.length() == 4)
-		{
-			v_DMo = v_DB;
-			v_DDy = v_DC;
-			v_DYr = v_DA;
-		}
-		if(v_DMo.length() <= 2 && v_DDy.length() <= 2 && v_DYr.length() == 4)
-		{
-			v_DMoN = v_DMo.toLong();
-			v_DDyN = v_DDy.toLong();
-			v_DYrN = v_DYr.toLong();
-			if(v_DMoN >= 1 && v_DMoN <= 12 && v_DYrN >= 1900 && v_DYrN <= 2100 && v_DDyN >= 1)
-			{
-				v_DMax = 31;
-				if(v_DMoN == 4 || v_DMoN == 6 || v_DMoN == 9 || v_DMoN == 11)
-				{
-					v_DMax = 30;
-				}
-				if(v_DMoN == 2)
-				{
-					v_DMax = 28;
-					if(v_DYrN % 4 == 0)
-					{
-						if(v_DYrN % 100 != 0 || v_DYrN % 400 == 0)
-						{
-							v_DMax = 29;
-						}
-					}
-				}
-				if(v_DDyN <= v_DMax)
-				{
-					if(v_DMo.length() == 1)
-					{
-						v_DMo = "0" + v_DMo;
-					}
-					if(v_DDy.length() == 1)
-					{
-						v_DDy = "0" + v_DDy;
-					}
-					v_DobDate = (v_DMo + "-" + v_DDy + "-" + v_DYr).toDate();
-				}
-			}
-		}
-	}
-}
+v_DobDate = thisapp.parse_patient_dob(ifnull(input.Patient_DOB1,"").toString());
 v_Addr = "";
 if(input.Patient_Address.address_line_1 != null && Patient_Address.address_line_1.trim() != "")
 {

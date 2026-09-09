@@ -517,3 +517,18 @@ parser cannot disagree about what counts as a valid date. Recorded here because
 MANIFEST.tsv, which carries the calls column, is generated from a .ds export and
 none of the Session 41 functions appear in it yet. This entry retires once a
 fresh .ds is synced.
+
+PARSING LIVES IN ONE FUNCTION
+Any text-to-typed-value conversion used by more than one workflow goes in a
+shared function, never copy-pasted. The DOB parse was duplicated across Referrals
+Main On Create - Master and Referral DOB Sync On Edit and had already drifted on
+numeric conversion and the year cap before it was caught. Same failure mode as
+the data-quality rule set before compute_data_issues.
+Collapsed 2026-09-08 (Session 41) into parse_patient_dob(string) -> Date, which
+returns null for anything it cannot parse. Three callers: the two workflows above
+and compute_data_issues.
+Reconciled differences between the two former copies, for the record:
+  - master used .toLong(), edit sync used .toNumber() - kept .toNumber()
+  - master capped the year at 2100, edit sync at zoho.currentdate.getYear() -
+    kept the current year, since a DOB cannot be in the future
+  - the edit sync's v_Valid flag pattern is replaced by early returns
