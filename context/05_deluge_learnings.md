@@ -478,3 +478,23 @@ Unlike the repo convention (standalone function .dg files are body-only - see
 displays and expects the declaration line. When replacing a function's contents,
 paste the FULL editor contents including `string fn(string p) { ... }`. Confirmed
 2026-09-03 (Session 40).
+
+ADDRESS (30) COMPOSITE FIELDS ARE TESTED VIA .address_line_1, NEVER BY
+STRINGIFYING THE COMPOSITE
+An Address field is a composite of address_line_1, address_line_2, district_city,
+state_province, postal_Code, country, latitude, longitude. Stringifying the whole
+field and comparing to "" does not reliably detect an empty address, so an
+emptiness check written that way silently never fires. Test the subfield:
+  if(ifnull(v_Rec.Patient_Address.address_line_1,"").toString().trim() == "")
+Confirmed 2026-09-08 (Session 41). compute_data_issues was the only place in the
+repo that got this wrong; the master workflow already read .address_line_1.
+Consequence there: "Missing Patient Address" could never appear in Data_Issues.
+
+WHY NOT Patient_Full_Address: it is a Single Line field WRITTEN BY Referrals Main
+On Create - Master, on the same Created / On Success event that Referral Data
+Issues Check fires on. Reading it inside compute_data_issues would be an
+execution-order race - the same trap that put the Data_Issues upload checks on
+the URL textareas (Files_3008_URLs, Imaging_Orders_URLs) instead of the multi-file
+upload fields, which the master workflow populates later via REST.
+GENERAL RULE: a data-quality check must read a field the record ARRIVES with, not
+one another workflow derives on the same event.

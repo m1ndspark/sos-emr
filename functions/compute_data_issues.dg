@@ -22,7 +22,7 @@ if(ifnull(v_Rec.Patient_Phone,"").toString().trim() == "")
 {
 	v_Issues.add("Missing Patient Phone");
 }
-if(ifnull(v_Rec.Patient_Address,"").toString().trim() == "")
+if(ifnull(v_Rec.Patient_Address.address_line_1,"").toString().trim() == "")
 {
 	v_Issues.add("Missing Patient Address");
 }
