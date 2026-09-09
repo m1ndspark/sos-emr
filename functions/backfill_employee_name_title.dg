@@ -1,0 +1,65 @@
+v_mode = ifnull(pMode,"").toString().trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_scanned = 0;
+v_changed = 0;
+v_same = 0;
+v_nosource = 0;
+v_sample = "";
+for each  v_emp in Employees[ID != 0]
+{
+	v_scanned = v_scanned + 1;
+	v_first = ifnull(v_emp.Employee_First_Name,"").toString().trim();
+	v_last = ifnull(v_emp.Employee_Last_Name,"").toString().trim();
+	v_title = ifnull(v_emp.Employee_Title,"").toString().trim();
+	v_name = "";
+	if(v_first != "")
+	{
+		v_name = v_first;
+	}
+	if(v_last != "")
+	{
+		if(v_name != "")
+		{
+			v_name = v_name + " ";
+		}
+		v_name = v_name + v_last;
+	}
+	if(v_title != "")
+	{
+		if(v_name != "")
+		{
+			v_name = v_name + ", ";
+		}
+		v_name = v_name + v_title;
+	}
+	if(v_name == "")
+	{
+		v_nosource = v_nosource + 1;
+		continue;
+	}
+	v_cur = ifnull(v_emp.Employee_Name_Title,"").toString().trim();
+	if(v_cur == v_name)
+	{
+		v_same = v_same + 1;
+		continue;
+	}
+	v_changed = v_changed + 1;
+	if(v_sample.length() < 900)
+	{
+		v_sample = v_sample + ifnull(v_emp.Employee_ID,"NO-ID") + " : [" + v_cur + "] -> [" + v_name + "]\n";
+	}
+	if(v_mode == "COMMIT")
+	{
+		v_emp.Employee_Name_Title=v_name;
+	}
+}
+v_out = "MODE: " + v_mode + "\n";
+v_out = v_out + "Scanned: " + v_scanned + "\n";
+v_out = v_out + "Changed: " + v_changed + "\n";
+v_out = v_out + "Already correct: " + v_same + "\n";
+v_out = v_out + "No name source: " + v_nosource + "\n\n";
+v_out = v_out + "SAMPLE\n" + v_sample;
+return v_out;

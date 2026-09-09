@@ -532,3 +532,49 @@ Reconciled differences between the two former copies, for the record:
   - master capped the year at 2100, edit sync at zoho.currentdate.getYear() -
     kept the current year, since a DOB cannot be in the future
   - the edit sync's v_Valid flag pattern is replaced by early returns
+
+CREATOR APP AND PORTAL LESSONS - SESSION 42 (2026-09-09)
+Moved here from context/24 on 2026-09-09; context/24 is the Zoho Forms config
+doc and these are Creator app / portal behaviours.
+
+ZOHO.LOGINUSERID RESOLVES DIFFERENTLY BY SESSION TYPE
+zoho.loginuserid returns the PORTAL login email in a portal session, and the WORK
+email in a licensed session. Verified both ways in Session 42 with a temporary
+On Load diagnostic (Diag_Session_Identity, now inactive - there is deliberately
+no .dg for it).
+  Portal session:   zoho.loginuserid = portal email, portal email matched,
+                    username neilheird3
+  Licensed session: zoho.loginuserid = work email, both portal tasks empty
+Consequence: any identity resolution must match a user on BOTH addresses. This is
+why Provider_Identity_Stamp resolves Employees by Employee_Email OR
+Employee_Portal_Email, and why backfill_provider_login_email keys its map on both.
+Related portal calls, all EMPTY in a licensed session, none callable from a
+report or permission filter:
+  thisapp.portal.loginUserEmailid()   returns a LIST
+  thisapp.portal.loginUserName()      returns text
+  thisapp.portal.isUserInProfile()    returns boolean
+
+REPORT FILTERS ACCEPT STATIC VALUES ONLY
+A report filter cannot reference a runtime value. Field == zoho.loginuserid is not
+expressible as a report filter.
+
+PERMISSIONS OFFER NO CRITERIA OPTION
+Only "View" (records the user added) and "View all". There is no criteria-based
+permission, for app users or portal users. Record-level scoping has to come from
+somewhere else.
+
+PAGE VARIABLES REACH AN EMBEDDED REPORT'S FILTER
+A page variable (Variables tab, plus the page script) is referenced in an embedded
+report's filter as ${variable_name}. This is the supported route to a per-user
+filtered report, and is what the Provider Dashboard uses: page variable
+v_login_email (Text), page script v_login_email = zoho.loginuserid;, then a Report
+element filtered on Provider Login Email is ${v_login_email}.
+One page script per page, and it is read-only.
+
+SNIPPET SYNTAX
+  <%{ deluge %> html <% }%>
+with <%=var%> interpolation. There is NO return statement in a snippet.
+
+DESIGN CONSTRAINT CARRIED FORWARD
+The provider portal profile must expose only the PAGE, never PVS_Report as its own
+component - otherwise a provider can reach the report unfiltered.

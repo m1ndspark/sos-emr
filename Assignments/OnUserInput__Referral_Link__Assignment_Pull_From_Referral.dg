@@ -10,6 +10,29 @@ if(refRec != null)
 	input.Facility_Name = refRec.Facility_Name;
 	input.Facility_Phone = refRec.Facility_Phone;
 	input.Facility_Room_Number = refRec.Facility_Room_Number;
+	if(refRec.Referral_Date != null)
+	{
+		input.Referral_Date = refRec.Referral_Date.toString("MM/dd/yyyy");
+	}
+	else
+	{
+		input.Referral_Date = "";
+	}
+	v_partner = ifnull(refRec.Partner_Organization,"").toString().trim();
+	v_branch = ifnull(refRec.Partner_Branch,"").toString().trim();
+	if(v_branch != "")
+	{
+		if(v_partner != "")
+		{
+			v_partner = v_partner + " / " + v_branch;
+		}
+		else
+		{
+			v_partner = v_branch;
+		}
+	}
+	input.Referral_Partner = v_partner;
+	input.Referral_POC = ifnull(refRec.Partner_POC_Name_Title,"").toString().trim();
 }
 if(input.Patient_Location == "Facility")
 {

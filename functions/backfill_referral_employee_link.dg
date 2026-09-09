@@ -1,0 +1,71 @@
+v_mode = ifnull(pMode,"").toString().trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_name = Map();
+for each  v_emp in Employees[ID != 0]
+{
+	v_name.put(v_emp.ID.toString(),ifnull(v_emp.Employee_Name_Title,"NO-NAME"));
+}
+v_pick = Map();
+v_clash = "";
+v_clashes = 0;
+for each  v_a in Assignments[Referral_Link != null && Employee_Link != null]
+{
+	v_rid = v_a.Referral_Link.toString();
+	v_eid = v_a.Employee_Link.toString();
+	v_prev = v_pick.get(v_rid);
+	if(v_prev == null)
+	{
+		v_pick.put(v_rid,v_eid);
+	}
+	else if(v_prev.toString() != v_eid)
+	{
+		v_clashes = v_clashes + 1;
+		if(v_clash.length() < 600)
+		{
+			v_clash = v_clash + "Referral ID " + v_rid + " : " + v_name.get(v_prev.toString()) + " vs " + v_name.get(v_eid) + "\n";
+		}
+		v_pick.put(v_rid,v_eid);
+	}
+}
+v_scanned = 0;
+v_changed = 0;
+v_same = 0;
+v_noassign = 0;
+v_sample = "";
+for each  v_r in Referrals_Main[ID != 0]
+{
+	v_scanned = v_scanned + 1;
+	v_hit = v_pick.get(v_r.ID.toString());
+	if(v_hit == null)
+	{
+		v_noassign = v_noassign + 1;
+		continue;
+	}
+	v_eid = v_hit.toString();
+	if(v_r.Employee_Link != null && v_r.Employee_Link.toString() == v_eid)
+	{
+		v_same = v_same + 1;
+		continue;
+	}
+	v_changed = v_changed + 1;
+	if(v_sample.length() < 900)
+	{
+		v_sample = v_sample + ifnull(v_r.Referral_ID,"NO-ID") + " -> " + v_name.get(v_eid) + "\n";
+	}
+	if(v_mode == "COMMIT")
+	{
+		v_r.Employee_Link=v_eid.toLong();
+	}
+}
+v_out = "MODE: " + v_mode + "\n";
+v_out = v_out + "Referrals scanned: " + v_scanned + "\n";
+v_out = v_out + "Changed: " + v_changed + "\n";
+v_out = v_out + "Already linked: " + v_same + "\n";
+v_out = v_out + "No assignment: " + v_noassign + "\n";
+v_out = v_out + "Referrals with conflicting assignments: " + v_clashes + "\n\n";
+v_out = v_out + "CONFLICTS\n" + v_clash + "\n";
+v_out = v_out + "SAMPLE\n" + v_sample;
+return v_out;

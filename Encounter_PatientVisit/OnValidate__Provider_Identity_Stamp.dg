@@ -1,0 +1,27 @@
+v_email = ifnull(input.Employee_Email,"").toString().trim();
+if(v_email != "")
+{
+	v_login = "";
+	v_id = null;
+	for each  v_emp in Employees[Employee_Email == v_email || Employee_Portal_Email == v_email]
+	{
+		v_id = v_emp.ID;
+		v_portal = ifnull(v_emp.Employee_Portal_Email,"").toString().trim();
+		if(v_portal != "")
+		{
+			v_login = v_portal;
+		}
+		else
+		{
+			v_login = ifnull(v_emp.Employee_Email,"").toString().trim();
+		}
+	}
+	if(v_login != "")
+	{
+		input.Provider_Login_Email = v_login;
+	}
+	if(v_id != null)
+	{
+		input.Employee_Link = v_id;
+	}
+}

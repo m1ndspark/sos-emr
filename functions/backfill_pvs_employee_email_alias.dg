@@ -1,0 +1,36 @@
+v_mode = ifnull(pMode,"").toString().trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_old = ifnull(pOldEmail,"").toString().trim().toLowerCase();
+v_new = ifnull(pNewEmail,"").toString().trim();
+if(v_old == "" || v_new == "")
+{
+	return "Both pOldEmail and pNewEmail are required.";
+}
+v_match = 0;
+v_sample = "";
+for each  v_pvs in Encounter_PatientVisit[ID != 0]
+{
+	v_cur = ifnull(v_pvs.Employee_Email,"").toString().trim().toLowerCase();
+	if(v_cur != v_old)
+	{
+		continue;
+	}
+	v_match = v_match + 1;
+	if(v_sample.length() < 900)
+	{
+		v_sample = v_sample + ifnull(v_pvs.PVS_ID,"NO-ID") + " : " + ifnull(v_pvs.Employee_Initials,"NULL") + " : " + v_cur + " -> " + v_new + "\n";
+	}
+	if(v_mode == "COMMIT")
+	{
+		v_pvs.Employee_Email=v_new;
+	}
+}
+v_out = "MODE: " + v_mode + "\n";
+v_out = v_out + "Old: " + v_old + "\n";
+v_out = v_out + "New: " + v_new + "\n";
+v_out = v_out + "Matched: " + v_match + "\n\n";
+v_out = v_out + "SAMPLE\n" + v_sample;
+return v_out;

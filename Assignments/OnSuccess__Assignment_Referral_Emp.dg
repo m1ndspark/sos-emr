@@ -1,0 +1,14 @@
+if(input.Referral_Link != null)
+{
+	for each  v_ref in Referrals_Main[ID == input.Referral_Link]
+	{
+		if(input.Employee_Link != null)
+		{
+			v_ref.Employee_Link=input.Employee_Link;
+		}
+		else
+		{
+			v_ref.Employee_Link=null;
+		}
+	}
+}

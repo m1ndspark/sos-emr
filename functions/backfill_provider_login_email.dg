@@ -1,0 +1,70 @@
+v_mode = ifnull(pMode,"").toString().trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_map = Map();
+for each  v_emp in Employees[ID != 0]
+{
+	v_work = ifnull(v_emp.Employee_Email,"").toString().trim();
+	v_portal = ifnull(v_emp.Employee_Portal_Email,"").toString().trim();
+	v_login = v_work;
+	if(v_portal != "")
+	{
+		v_login = v_portal;
+	}
+	if(v_work != "")
+	{
+		v_map.put(v_work.toLowerCase(),v_login);
+	}
+	if(v_portal != "")
+	{
+		v_map.put(v_portal.toLowerCase(),v_login);
+	}
+}
+v_scanned = 0;
+v_changed = 0;
+v_same = 0;
+v_blank = 0;
+v_nomatch = 0;
+v_sample = "";
+for each  v_pvs in Encounter_PatientVisit[ID != 0]
+{
+	v_scanned = v_scanned + 1;
+	v_key = ifnull(v_pvs.Employee_Email,"").toString().trim().toLowerCase();
+	if(v_key == "")
+	{
+		v_blank = v_blank + 1;
+		continue;
+	}
+	v_hit = v_map.get(v_key);
+	if(v_hit == null)
+	{
+		v_nomatch = v_nomatch + 1;
+		continue;
+	}
+	v_new = v_hit.toString().trim();
+	v_cur = ifnull(v_pvs.Provider_Login_Email,"").toString().trim();
+	if(v_cur == v_new)
+	{
+		v_same = v_same + 1;
+		continue;
+	}
+	v_changed = v_changed + 1;
+	if(v_sample.length() < 900)
+	{
+		v_sample = v_sample + ifnull(v_pvs.PVS_ID,"NO-ID") + " : " + v_cur + " -> " + v_new + "\n";
+	}
+	if(v_mode == "COMMIT")
+	{
+		v_pvs.Provider_Login_Email=v_new;
+	}
+}
+v_out = "MODE: " + v_mode + "\n";
+v_out = v_out + "Scanned: " + v_scanned + "\n";
+v_out = v_out + "Changed: " + v_changed + "\n";
+v_out = v_out + "Already correct: " + v_same + "\n";
+v_out = v_out + "Blank Employee_Email: " + v_blank + "\n";
+v_out = v_out + "No Employees match: " + v_nomatch + "\n\n";
+v_out = v_out + "SAMPLE\n" + v_sample;
+return v_out;

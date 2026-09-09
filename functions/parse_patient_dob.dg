@@ -51,7 +51,7 @@ if(v_MoN == 4 || v_MoN == 6 || v_MoN == 9 || v_MoN == 11)
 if(v_MoN == 2)
 {
 	v_MaxDay = 28;
-	if(v_YrN % 4 == 0 && (v_YrN % 100 != 0 || v_YrN % 400 == 0))
+	if(v_YrN % 4 == 0 && v_YrN % 100 != 0 || v_YrN % 400 == 0)
 	{
 		v_MaxDay = 29;
 	}

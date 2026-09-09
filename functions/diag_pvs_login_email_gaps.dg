@@ -1,0 +1,43 @@
+v_map = Map();
+for each  v_emp in Employees[ID != 0]
+{
+	v_work = ifnull(v_emp.Employee_Email,"").toString().trim().toLowerCase();
+	if(v_work != "")
+	{
+		v_map.put(v_work,"1");
+	}
+}
+v_gaps = Map();
+for each  v_pvs in Encounter_PatientVisit[ID != 0]
+{
+	v_key = ifnull(v_pvs.Employee_Email,"").toString().trim().toLowerCase();
+	if(v_key == "")
+	{
+		continue;
+	}
+	if(v_map.get(v_key) != null)
+	{
+		continue;
+	}
+	v_seen = v_gaps.get(v_key);
+	if(v_seen == null)
+	{
+		v_gaps.put(v_key,1);
+	}
+	else
+	{
+		v_gaps.put(v_key,v_seen.toLong() + 1);
+	}
+}
+v_out = "UNMATCHED Employee_Email VALUES ON PVS\n";
+v_out = v_out + "Distinct values: " + v_gaps.size() + "\n\n";
+for each  v_k in v_gaps.keys()
+{
+	v_out = v_out + v_gaps.get(v_k) + "  |  " + v_k + "\n";
+}
+v_out = v_out + "\nACTIVE Employees Employee_Email LIST\n";
+for each  v_e in Employees[ID != 0]
+{
+	v_out = v_out + ifnull(v_e.Employee_Email,"NULL") + "  |  " + ifnull(v_e.Employee_Portal_Email,"NULL") + "  |  " + ifnull(v_e.Employee_Status,"NULL") + "\n";
+}
+return v_out;
