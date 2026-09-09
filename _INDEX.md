@@ -13,3 +13,9 @@ For a single item's history, read its .dg and run `git log -- <path>`. The old
 per-item content that used to live here remains in git history.
 
 Do not restore a listing here. Maintaining two indexes is what this change fixed.
+
+MANIFEST provenance: regenerated 2026-09-09 (Session 42) from
+SOS_Referrals_App_2026-09-09_v41.ds - 190 rows, up from 166. That export predates
+the Session 42 Creator work, so the Session 42 fields, workflows and functions are
+NOT in it. Regenerate again from the next .ds export.
+

@@ -3,13 +3,16 @@ functions/add_missing_rate_to_uniform_branches.dg	add_missing_rate_to_uniform_br
 functions/backfill_assignment_ids.dg	backfill_assignment_ids		function		mint_assignment_id			Assignments	AppFunc	1617e3ab
 functions/backfill_contact_name_title.dg	backfill_contact_name_title		function					Partner_Referral_Contacts		c3a7d185
 functions/backfill_current_rate.dg	backfill_current_rate		function		set_current_rate			Partner_Rates	AppFunc	3c123aeb
+functions/backfill_data_issues.dg	backfill_data_issues		function		compute_data_issues			Referrals_Main	AppFunc	d325074a
 functions/backfill_dm_full_names.dg	backfill_dm_full_names		function					Referrals_Main		4ba1575e
 functions/backfill_employee_ids.dg	backfill_employee_ids		function		mint_employee_id			Employees	AppFunc	ddc367a0
+functions/backfill_employee_initials.dg	backfill_employee_initials		function					Employees		89b15dbf
 functions/backfill_employee_phone_format.dg	backfill_employee_phone_format		function					Employees		3acc5496
 functions/backfill_location_ids.dg	backfill_location_ids		function		mint_location_id			Partner_Locations	AppFunc	1e73ebdd
-functions/backfill_location_labels.dg	backfill_location_labels		function					Partner_Locations		30201d68
+functions/backfill_location_labels.dg	backfill_location_labels		function					Partner_Locations;Partners		dda4e39d
 functions/backfill_partner_ids.dg	backfill_partner_ids		function		mint_partner_id			Partners	AppFunc	a9e05dea
 functions/backfill_partner_poc_name_title.dg	backfill_partner_poc_name_title		function		set_partner_poc_name_title			Referrals_Main	AppFunc	d7999d8d
+functions/backfill_patient_dob.dg	backfill_patient_dob		function					Referrals_Main		5d1e42d7
 functions/backfill_patient_full_addresses.dg	backfill_patient_full_addresses		function					Referrals_Main		35d96835
 functions/backfill_patient_full_names.dg	backfill_patient_full_names		function		set_patient_full_name			Referrals_Main	AppFunc	88b3340b
 functions/backfill_pvs_address_from_referral.dg	backfill_pvs_address_from_referral		function					Encounter_PatientVisit;Referrals_Main		a4af1d0b
@@ -24,16 +27,24 @@ functions/backfill_pvs_premium_fees.dg	backfill_pvs_premium_fees		function					E
 functions/backfill_referral_added_time.dg	backfill_referral_added_time		function					Referrals_Main		c1c4d85a
 functions/backfill_referral_branch.dg	backfill_referral_branch		function					Partner_Locations;Referrals_Main		d72f2ef9
 functions/backfill_referral_branch_from_contact.dg	backfill_referral_branch_from_contact		function					Partner_Referral_Contacts;Referrals_Main		7b81f9db
+functions/backfill_referral_date.dg	backfill_referral_date		function					Referrals_Main		16579b0f
 functions/backfill_referral_id_from_token.dg	backfill_referral_id_from_token		function					Referrals_Main		2b862da1
 functions/backfill_referral_id_stamp.dg	backfill_referral_id_stamp		function					Referrals_Main		bec7bb7f
 functions/backfill_referral_ids.dg	backfill_referral_ids		function		mint_referral_id			Referrals_Main	AppFunc	afc9eb5f
+functions/backfill_referral_partner_fields.dg	backfill_referral_partner_fields		function					Partner_Locations;Referrals_Main		da3df7dc
+functions/backfill_referral_uploads.dg	backfill_referral_uploads		function					Referrals_Main	HTTP	20926bfe
+functions/build_3008_email_html.dg	build_3008_email_html		function					Referrals_Main		cf69bc26
+functions/build_creator_attachments.dg	build_creator_attachments		function					Referrals_Main	HTTP	a982159e
 functions/build_pvs_fax_html.dg	build_pvs_fax_html		function					Encounter_PatientVisit;Referrals_Main		fcaae102
-functions/build_zepto_attachments.dg	build_zepto_attachments		function						HTTP	9ed39aa0
+functions/build_referral_email_html.dg	build_referral_email_html		function					Referrals_Main		d31a2cf4
+functions/build_zepto_attachments.dg	build_zepto_attachments		function					Referrals_Main	HTTP	ce2e8095
+functions/compute_data_issues.dg	compute_data_issues		function		parse_patient_dob			Referrals_Main	AppFunc	23602929
 functions/create_3008_pvs_july.dg	create_3008_pvs_july		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		efb09763
 functions/create_books_customers.dg	create_books_customers		function					Partner_Billing_Contacts;Partner_Locations	HTTP	9fc3b29b
 functions/create_invoice_from_selection.dg	create_invoice_from_selection		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main	Books;HTTP	7387e2e5
 functions/diag_accentcare_rates.dg	diag_accentcare_rates		function					Partner_Locations;Partner_Rates		83952d0a
 functions/diag_config_write.dg	diag_config_write		function							619ee9a3
+functions/diag_dob_coverage.dg	diag_dob_coverage		function					Referrals_Main		c59ffb0e
 functions/diag_duplicate_location_names.dg	diag_duplicate_location_names		function					Partner_Locations		8f094f3d
 functions/diag_duplicate_visits.dg	diag_duplicate_visits		function					Encounter_PatientVisit		aa6fc5a3
 functions/diag_empath_labels.dg	diag_empath_labels		function					Partner_Locations		d2fb838c
@@ -42,6 +53,7 @@ functions/diag_esi_references.dg	diag_esi_references		function					Encounter_Pat
 functions/diag_form_fields.dg	diag_form_fields		function						HTTP	0238237f
 functions/diag_innovage_rates.dg	diag_innovage_rates		function					Partner_Locations;Partner_Rates;Partners		0425511c
 functions/diag_invoice_batch.dg	diag_invoice_batch		function					Encounter_PatientVisit;Invoice_Batch		39312db2
+functions/diag_partner_location_labels.dg	diag_partner_location_labels		function					Partner_Locations		3ffe506e
 functions/diag_partner_rates.dg	diag_partner_rates		function					Partner_Locations;Partner_Rates		3307c87f
 functions/diag_patient_visits.dg	diag_patient_visits		function					Encounter_PatientVisit;Partner_Locations		b10ab2b3
 functions/diag_premium_visit_invoices.dg	diag_premium_visit_invoices		function					Encounter_PatientVisit		8d6eb9f0
@@ -49,9 +61,16 @@ functions/diag_pvs_field_values.dg	diag_pvs_field_values		function					Encounter
 functions/diag_pvs_ids.dg	diag_pvs_ids		function					Encounter_PatientVisit		11fe2f47
 functions/diag_pvs_premium_mismatches.dg	diag_pvs_premium_mismatches		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		a012e075
 functions/diag_referral_contact_match.dg	diag_referral_contact_match		function					Partner_Referral_Contacts;Referrals_Main		942f97a9
+functions/diag_referral_dates.dg	diag_referral_dates		function					Referrals_Main		d4cd5481
 functions/diag_referral_ids.dg	diag_referral_ids		function					Referrals_Main		ee5aefed
+functions/diag_referral_intake.dg	diag_referral_intake		function					Referrals_Main		ec1d7756
+functions/diag_upload_field_usage.dg	diag_upload_field_usage		function					Encounter_PatientVisit;Referrals_Main		3b75896e
+functions/diag_upload_field_values.dg	diag_upload_field_values		function					Referrals_Main		d5a9b5c5
+functions/diag_upload_probe.dg	diag_upload_probe		function					Referrals_Main	HTTP	f8fc861c
+functions/diag_workdrive_download.dg	diag_workdrive_download		function						HTTP	bcf08803
 functions/diag_zztest_referrals.dg	diag_zztest_referrals		function					Referrals_Main		1f6e58ca
 functions/fix_accentcare_current_rate.dg	fix_accentcare_current_rate		function					Partner_Locations;Partner_Rates;Partners		11dbf983
+functions/get_notification_recipients.dg	get_notification_recipients		function					Employees		669ee2c9
 functions/get_partner_referral_contact.dg	get_partner_referral_contact		function					Partner_Referral_Contacts		739bf295
 functions/get_rc_token.dg	get_rc_token		function						HTTP	267ca38b
 functions/link_pvs_to_referral.dg	link_pvs_to_referral		function					Encounter_PatientVisit;Referrals_Main		2cdc90b2
@@ -62,10 +81,12 @@ functions/mint_location_id.dg	mint_location_id		function					Partner_Locations;P
 functions/mint_partner_id.dg	mint_partner_id		function					Partners;Sequence_Tracker		56af41ff
 functions/mint_referral_id.dg	mint_referral_id		function					Referrals_Main;Sequence_Tracker		06f388e4
 functions/normalize_pvs_phones.dg	normalize_pvs_phones		function					Encounter_PatientVisit		c9f56edd
+functions/parse_patient_dob.dg	parse_patient_dob		function							f2fb1840
 functions/poll_fax_status.dg	poll_fax_status		function		get_rc_token			Encounter_PatientVisit	AppFunc;HTTP	a716c9be
 functions/replicate_uniform_rates.dg	replicate_uniform_rates		function					Partner_Locations;Partner_Rates;Partners		c6109783
 functions/report_partner_rate_coverage.dg	report_partner_rate_coverage		function					Partner_Locations;Partner_Rates;Partners		25544b04
 functions/reprice_draft_pvs.dg	reprice_draft_pvs		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		c3adf543
+functions/resend_referral_notifications.dg	resend_referral_notifications		function		build_3008_email_html;build_creator_attachments;build_referral_email_html			Referrals_Main	AppFunc;HTTP	f89ada73
 functions/reset_invoice.dg	reset_invoice		function					Encounter_PatientVisit	HTTP	e2617b20
 functions/resolve_referral_branch_from_text.dg	resolve_referral_branch_from_text		function					Partner_Locations;Referrals_Main		eb8395fb
 functions/resync_location_labels.dg	resync_location_labels		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main		5d2244f0
@@ -74,9 +95,9 @@ functions/run_invoice_batch.dg	run_invoice_batch		function		create_invoice_from_
 functions/run_pvs_exclusion_monitor.dg	run_pvs_exclusion_monitor		function		send_via_sendgrid			Encounter_PatientVisit;Referrals_Main	AppFunc	f38e4155
 functions/run_schema_monitor.dg	run_schema_monitor		function		send_via_sendgrid				AppFunc;HTTP	f14c8c36
 functions/seed_schema_to_github.dg	seed_schema_to_github		function						Email;HTTP	aac9159a
-functions/send_3008_notification.dg	send_3008_notification		function		build_zepto_attachments			Referrals_Main	AppFunc;HTTP	bd9a8297
+functions/send_3008_notification.dg	send_3008_notification		function		build_3008_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	82aa2b0f
 functions/send_pvs_fax.dg	send_pvs_fax		function		build_pvs_fax_html;get_rc_token			Encounter_PatientVisit;Sequence_Tracker	AppFunc;HTTP	aed1f0e0
-functions/send_referral_notification.dg	send_referral_notification		function		build_zepto_attachments			Referrals_Main	AppFunc;HTTP	ec4ee63b
+functions/send_referral_notification.dg	send_referral_notification		function		build_referral_email_html;build_zepto_attachments			Referrals_Main	AppFunc;HTTP	04eb9fe7
 functions/send_via_sendgrid.dg	send_via_sendgrid		function						HTTP	a593170f
 functions/set_current_rate.dg	set_current_rate		function					Partner_Rates		584a618b
 functions/set_partner_poc_name_title.dg	set_partner_poc_name_title		function					Referrals_Main		c11204b4
@@ -91,11 +112,11 @@ Assignments/OnLoad__Assignment_Visit_Status_Choices.dg	Assignment_Visit_Status_C
 Assignments/OnLoad__Show_Hide_Facility_Name_P.dg	Show_Hide_Facility_Name_P	Assignments	OnLoad			Facility_Name;Facility_Phone;Facility_Room_Number	Patient_Location			643f2c3e
 Assignments/OnSuccess__Assignment_ID_Generator.dg	Assignment_ID_Generator	Assignments	OnSuccess		mint_assignment_id		ID		AppFunc	3a37234f
 Assignments/OnUserInput__Patient_Location__Show_Hide_Facility_Name_P1.dg	Show_Hide_Facility_Name_P1	Assignments	OnUserInput	Patient_Location		Facility_Name;Facility_Phone;Facility_Room_Number	Patient_Location			643f2c3e
-Assignments/OnUserInput__Referral_Link__Assignment_Pull_From_Refe.dg	Assignment_Pull_From_Refe	Assignments	OnUserInput	Referral_Link		Facility_Name;Facility_Room_Number;Patient_Address;Patient_DOB;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_Phone	Referral_Link	Referrals_Main		e76a658a
-Assignments/OnUserInput__Referral_Link__Assignment_Pull_From_Refe.dg	Assignment_Pull_From_Refe1	Assignments	OnUserInput	Referral_Link		Facility_Name;Facility_Phone;Facility_Room_Number;Patient_Address;Patient_DOB;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_Phone	Referral_Link	Referrals_Main		b5723664
+Assignments/OnUserInput__Referral_Link__Assignment_Pull_From_Refe.dg	Assignment_Pull_From_Refe1	Assignments	OnUserInput	Referral_Link		Facility_Name;Facility_Phone;Facility_Room_Number;Patient_Address;Patient_DOB;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_Phone	Referral_Link	Referrals_Main		4c110973
 Assignments/OnValidate__Assignment_Change_Log.dg	Assignment_Change_Log	Assignments	OnValidate		log_change		Assignment_ID;Assignment_Notes;Employee_Link;Facility_Name;Facility_Phone;Facility_Room_Number;ID;Patient_Address;Patient_Location	Assignments;Employees	AppFunc	064faff0
 Assignments/OnValidate__Assignment_Required_Referral.dg	Assignment_Required_Refer	Assignments	OnValidate				Employee_Link;Referral_Link			73873ac0
 Employees/OnSuccess__Employee_ID_Generator.dg	Employee_ID_Generator	Employees	OnSuccess		mint_employee_id		ID		AppFunc	0c4b5ef2
+Employees/OnSuccess__Employee_Initials_Generator.dg	Employee_Initials_Generat	Employees	OnSuccess			Employee_Initials	Employee_First_Name;Employee_Last_Name			fd360383
 Employees/OnSuccess__Employee_Name_Title_Generator.dg	Employee_Name_Title_Gener1	Employees	OnSuccess			Employee_Name_Title	Employee_First_Name;Employee_Last_Name;Employee_Title			95e69cc6
 Employees/OnSuccess__Portal_Access_By_Status.dg	Portal_Access_By_Status	Employees	OnSuccess				Employee_Email;Employee_Status		AppFunc	37e3d6cd
 Employees/OnUserInput__Employee_Phone__Format.dg	Employee_Phone_Format	Employees	OnUserInput	Employee_Phone		Employee_Phone				7f3e194e
@@ -104,7 +125,7 @@ Employees/OnValidate__Validate_Employee_Phone_B.dg	Validate_Employee_Phone_B	Emp
 Encounter_PatientVisit/?__Validate_Complexity_On_Fi.dg	Validate_Complexity_On_Fi	Encounter_PatientVisit	OnValidate				Clinical_Note_Type;Complexity_Level;Type_of_Entry			3c02c217
 Encounter_PatientVisit/OnLoad__Default_Hide_On_Load.dg	Default_Hide_On_Load	Encounter_PatientVisit	OnLoad			Additional_Information;Advanced_Directives_Details;Billing_Branch;Cares_3008_Completion_Section;Charges_Section;Diversion_Tracking_Section;Edit_Needed;Employee_Email;Employee_First_Name;Employee_Full_Name;Employee_Initials;Employee_Last_Name;Employee_Name_Title;Employee_Title;Equipment_Charge_Amount;Equipment_Charge_Details;Facility_Name;Facility_Phone;Facility_Room_Number;Files_Upload_Section;Final_Clinical_Note_Section;Goals_of_Care;Imaging_Orders_Section;Invoice_Status;Lab_Orders_Section;List_Patient_Allergies;List_Patient_Anticoagulants;Other_Charges_Amount;Other_Charges_Details;PVS_ID;PVS_Referral_ID;Partner_ICD_Codes;Partner_ID;Partner_ID_Stamp;Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Title;Patient_Address;Patient_DOB;Patient_Email;Patient_First_Name;Patient_Full_Address;Patient_Full_Name_1;Patient_Gender;Patient_Hospice_ID;Patient_Last_Name;Patient_MI;Patient_Phone;Patient_SSN;Provider_ICD_Print;Reason_for_Referral;Referral_Details_Section;Referral_ID;Referral_ID_Stamp;Referral_Link;Referral_Partner_Section;System_Fields_Section;Type_of_Diversion;Type_of_Entry;Type_of_Procedure_Section;Visit_Cost_Drivers_Section	Additional_Charges;Diversion_Tracking;Has_Referral_ID;Patient_Location			2d002b45
 Encounter_PatientVisit/OnLoad__Invoice_Status_Lock.dg	Invoice_Status_Lock	Encounter_PatientVisit	OnLoad			Additional_Charges;Additional_Information;Advanced_Directives_Details;After_Hours_Fee;Cares_3008_Completion_Date;Clinical_Note_File_Upload;Complexity_Charge;Complexity_Level;Diversion_Tracking;Edit_Needed;Equipment_Charge_Amount;Equipment_Charge_Details;Facility_Name;Facility_Phone;Facility_Room_Number;Final_Clinical_Note;General_Files_Upload;Goals_of_Care;Has_Referral_ID;Imaging_Order_Indication;Imaging_Ordered_Date;Imaging_Orders;Lab_Files_Upload;Lab_Order_Date;Lab_Order_Indication;Lab_Type_Orders;List_Patient_Allergies;List_Patient_Anticoagulants;Notes_3008;Other_Charges_Amount;Other_Charges_Details;PVS_File_Upload;Partner_ICD_Codes;Patient_Address;Patient_DOB;Patient_Email;Patient_First_Name;Patient_Full_Name_1;Patient_Full_Name_2;Patient_Gender;Patient_Hospice_ID;Patient_Last_Name;Patient_Location;Patient_MI;Patient_Phone;Patient_SSN;Provider_ICD10_Codes_Link;Reason_for_Referral;Referral_Link;Super_Stat_Fee;Type_of_Diversion;Type_of_Entry;Type_of_Procedures;Upload_Imaging_Order_Files;Visit_Completion_Date;Was_3008_Completed	Clinical_Note_Type;Invoice_Status			cf17e3f9
-Encounter_PatientVisit/OnLoad__Pre_fills_provider_sectio.dg	Pre_fills_provider_sectio	Encounter_PatientVisit	OnLoad			Employee_Email;Employee_First_Name;Employee_Full_Name;Employee_Initials;Employee_Last_Name;Employee_Name_Title;Employee_Title		Employees		88286e97
+Encounter_PatientVisit/OnLoad__Pre_fills_provider_sectio.dg	Pre_fills_provider_sectio	Encounter_PatientVisit	OnLoad			Employee_Email;Employee_First_Name;Employee_Full_Name;Employee_Initials;Employee_Last_Name;Employee_Name_Title;Employee_Title		Employees		2f3916b8
 Encounter_PatientVisit/OnSuccess__PVS_Stamp_Generator.dg	PVS_ID_Stamp_Generator	Encounter_PatientVisit	OnSuccess			PVS_ID;PVS_Referral_ID	Employee_Initials;Has_Referral_ID;Referral_ID	Sequence_Tracker		a2fbaed6
 Encounter_PatientVisit/OnUserInput__Additional_Charges__Show_Hide.dg	Additional_Charges_Show_H1	Encounter_PatientVisit	OnUserInput	Additional_Charges		After_Hours_Fee;Equipment_Charge_Amount;Equipment_Charge_Details;Other_Charges_Amount;Other_Charges_Details;Super_Stat_Fee	Additional_Charges;Billing_Branch	Partner_Rates		bf9fb081
 Encounter_PatientVisit/OnUserInput__Billing_Branch__Branch_Sets_Charge.dg	Branch_Sets_Charge	Encounter_PatientVisit	OnUserInput	Billing_Branch		Complexity_Charge	Billing_Branch;Complexity_Level	Partner_Rates		0b0d37b4
@@ -123,7 +144,7 @@ Encounter_PatientVisit/OnValidate__Complexity_Charge_Required.dg	Complexity_Char
 Encounter_PatientVisit/OnValidate__PVS_Required_Fields.dg	PVS_Required_Fields	Encounter_PatientVisit	OnValidate				Clinical_Note_Type;Complexity_Charge;Complexity_Level;Diversion_Tracking;Employee_Email;Employee_Name_Title;Facility_Name;Facility_Phone;Facility_Room_Number;Final_Clinical_Note;PVS_ID;Patient_Address;Patient_DOB;Patient_First_Name;Patient_Gender;Patient_Last_Name;Patient_Location;Patient_Phone;Reason_for_Referral;Type_of_Entry;Type_of_Procedures;Visit_Completion_Date			b8facf57
 Imaging_Orders/OnLoad__Default_Hide_On_Load.dg	Default_Hide_On_Load2	Imaging_Orders	OnLoad			System_Fields_Section				976db731
 Imaging_Orders/OnLoad__Facility_Visibility.dg	Imaging_Facility_Visibili1	Imaging_Orders	OnLoad			Facility_Name;Facility_Phone;Facility_Room_Number				198a9256
-Imaging_Orders/OnLoad__Imaging_Order_Provider_Stamp.dg	Imaging_Order_Provider_St	Imaging_Orders	OnLoad			Employee_Phone;Provider_NPI;Provider_Signature_Link		Employees		364499ed
+Imaging_Orders/OnLoad__Imaging_Order_Provider_Stamp.dg	Imaging_Order_Provider_St	Imaging_Orders	OnLoad			Employee_Phone;Provider_NPI;Provider_Signature_Link		Employees		3bc463b9
 Imaging_Orders/OnUserInput__Patient_Location__Facility_Visibility.dg	Imaging_Facility_Visibili	Imaging_Orders	OnUserInput	Patient_Location		Facility_Name;Facility_Phone;Facility_Room_Number	Patient_Location			96109edd
 Imaging_Orders/OnUserInput__Referral_Link__Imaging_Referral_Link_Pre_Fill.dg	Imaging_Referral_Link_Pre	Imaging_Orders	OnUserInput	Referral_Link		DM_Full_Name;Facility_Name;Facility_Phone;Facility_Room_Number;Is_Self_Responsible;Patient_Address;Patient_DOB;Patient_Full_Name;Patient_Gender;Patient_Hospice_ID;Patient_Location;Patient_Phone	Referral_Link	Referrals_Main		1180bb3c
 Imaging_Orders/OnValidate__Imaging_Order_Provider_Gate.dg	Imaging_Order_Provider_Ga	Imaging_Orders	OnValidate					Employees		4289bcd9
@@ -137,7 +158,7 @@ Partner_Billing_Contacts/OnValidate__Partner_Billing_Contact_Branch_Match.dg	Par
 Partner_Contracts/OnSuccess__Partner_Contract_ID_Stamp_Generator.dg	Partner_Contract_ID_Stamp	Partner_Contracts	OnSuccess				ID			947d0d94
 Partner_Contracts/OnValidate__Partner_Contract_Branch_Match.dg	Partner_Contract_Branch_M	Partner_Contracts	OnValidate				Partner_Link;Partner_Location_Link	Partner_Locations		03708d75
 Partner_Locations/OnSuccess__LOC_ID_Generator.dg	LOC_ID_Generator	Partner_Locations	OnSuccess		mint_location_id		ID		AppFunc	b7d237f2
-Partner_Locations/OnSuccess__Location_Label_Generator.dg	Location_Label_Generator	Partner_Locations	OnSuccess			Partner_Location_Label	Partner_Location_Name			cdb73c7c
+Partner_Locations/OnSuccess__Location_Label_Generator.dg	Location_Label_Generator	Partner_Locations	OnSuccess			Partner_Location_Label	Partner_Link;Partner_Location_Name	Partners		551e1dc8
 Partner_Locations/OnSuccess__Primary_Office_Auto_Demote.dg	Primary_Office_Auto_Demot	Partner_Locations	OnSuccess				ID;Partner_Link;Primary_Office	Partner_Locations		dae7e672
 Partner_Locations/OnValidate__LOC_Required_Codes.dg	LOC_Required_Codes	Partner_Locations	OnValidate				Partner_Link;Partner_Location_Code	Partners		580a6203
 Partner_Locations/OnValidate__Partner_Link_Lock.dg	LOC_Partner_Lock	Partner_Locations	OnValidate				ID;Partner_Link	Partner_Locations		36b62fd2
@@ -154,7 +175,10 @@ Referrals_Main/OnLoad__Default_Hide_On_Load.dg	Default_Hide_On_Load1	Referrals_M
 Referrals_Main/OnSuccess__Branch_Sets_Partner_Link.dg	Branch_Sets_Partner_Link	Referrals_Main	OnSuccess			Partner_ID	Partner_Branch_Link	Partner_Locations;Partners		3c26fd85
 Referrals_Main/OnSuccess__Partner_POC_Name_Title_Generator.dg	Partner_POC_Name_Title_Ge	Referrals_Main	OnSuccess			Partner_POC_Name_Title	Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Title			d2dcfa73
 Referrals_Main/OnSuccess__Patient_Full_Name_Generator.dg	Patient_Full_Name_Generat	Referrals_Main	OnSuccess			Patient_Full_Name	Patient_First_Name;Patient_Last_Name;Patient_MI			8161cbd1
-Referrals_Main/OnSuccess__Referrals_Main_On_Create_Master.dg	Referrals_Main_On_Create_	Referrals_Main	OnSuccess		mint_assignment_id;mint_referral_id;send_3008_notification;send_referral_notification		AC_First_Name;AC_Last_Name;AC_Phone;Facility_Name;Facility_Phone;Facility_Room_Number;Files_3008_URLs;Form_Token;General_Files_URLs;ID;Imaging_Orders_URLs;Partner_Location_Label;Partner_POC_Email;Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Phone;Partner_POC_Team;Partner_POC_Title;Patient_Address;Patient_DOB1;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_MI;Patient_Phone;Patient_SSN	Assignments;Partner_Locations;Partner_Referral_Contacts;Referrals_Main	AppFunc;HTTP	a93dd07b
+Referrals_Main/OnSuccess__Referral_DOB_Sync_On_Edit.dg	Referral_DOB_Sync_On_Edit	Referrals_Main	OnSuccess				ID;Patient_DOB1	Referrals_Main		8282ef36
+Referrals_Main/OnSuccess__Referral_Data_Issues_Check.dg	Referral_Data_Issues_Chec	Referrals_Main	OnSuccess		compute_data_issues		ID;Partner_Organization;Patient_First_Name;Patient_Last_Name;Referral_ID;Referral_Type	Referrals_Main	AppFunc;Email	8eda014a
+Referrals_Main/OnSuccess__Referral_Data_Issues_Sync_On_Edit.dg	Referral_Data_Issues_Sync	Referrals_Main	OnSuccess		parse_patient_dob		ID;Patient_DOB1	Referrals_Main	AppFunc	c0bb67f3
+Referrals_Main/OnSuccess__Referrals_Main_On_Create_Master.dg	Referrals_Main_On_Create_	Referrals_Main	OnSuccess		mint_assignment_id;mint_referral_id;parse_patient_dob;send_3008_notification;send_referral_notification		AC_First_Name;AC_Last_Name;AC_Phone;Facility_Name;Facility_Phone;Facility_Room_Number;Files_3008_URLs;Form_Token;General_Files_URLs;ID;Imaging_Orders_URLs;Partner_Location_Label;Partner_POC_Email;Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Phone;Partner_POC_Team;Partner_POC_Title;Patient_Address;Patient_DOB1;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_MI;Patient_Phone;Patient_SSN	Assignments;Partner_Locations;Partner_Referral_Contacts;Referrals_Main	AppFunc;HTTP	907590d1
 Referrals_Main/OnUserInput__AC_Last_Name__DM_Full_Name_Generator.dg	DM_Full_Name_Generator	Referrals_Main	OnUserInput	AC_Last_Name		AC_Full_Name	AC_First_Name;AC_Last_Name			08005713
 Referrals_Main/OnUserInput__AC_Phone__Decision_Maker_Phone_Form1.dg	Decision_Maker_Phone_Form1	Referrals_Main	OnUserInput	AC_Phone		AC_Phone				56d69438
 Referrals_Main/OnUserInput__Facility_Phone__Format.dg	Facility_Phone_Format1	Referrals_Main	OnUserInput	Facility_Phone		Facility_Phone				753a0293

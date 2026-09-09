@@ -771,3 +771,66 @@ the Creator-side embed must be a bare iframe.
 | `Imaging_Body_Site` reaches Creator | CLOSED Session 38 EOD - mapped in the 40-row rebuild |
 | 38-row live map not captured in this repo | CLOSED Session 38 - filed in section 10, now SUPERSEDED by the 40-row map |
 | Session 29 count of 44 mapped; Session 38 rebuild target of 39 rows | BOTH RETIRED - the live count is 40 |
+
+--------------------------------------------------------------------------------
+## 14. Creator app lessons - Session 42 (2026-09-09)
+--------------------------------------------------------------------------------
+
+Filed here per Neil's instruction. NOTE: these are Creator app / portal lessons,
+not Zoho Forms configuration, so they sit outside this document's stated scope.
+Move to context/05 if that was the intent.
+
+### zoho.loginuserid resolves differently by session type
+
+`zoho.loginuserid` returns the PORTAL login email in a portal session, and the
+WORK email in a licensed session. Verified both ways in Session 42 with a
+temporary On Load diagnostic (`Diag_Session_Identity`, since deleted - there is
+deliberately no .dg for it).
+
+  Portal session:    zoho.loginuserid = portal email, portal email matched,
+                     username neilheird3
+  Licensed session:  zoho.loginuserid = work email, both portal tasks empty
+
+Consequence: any identity resolution must match a user on BOTH addresses. This is
+why `Provider_Identity_Stamp` resolves Employees by `Employee_Email` OR
+`Employee_Portal_Email`, and why `backfill_provider_login_email` keys its map on
+both.
+
+Related portal calls, all EMPTY in a licensed session, none callable from a
+report or permission filter:
+  thisapp.portal.loginUserEmailid()   returns a LIST
+  thisapp.portal.loginUserName()      returns text
+  thisapp.portal.isUserInProfile()    returns boolean
+
+### Report filters accept static values only
+
+A report filter cannot reference a runtime value. `Field == zoho.loginuserid` is
+not expressible as a report filter.
+
+### Permissions offer no criteria option
+
+Only "View" (records the user added) and "View all". There is no criteria-based
+permission, for app users or portal users. Record-level scoping has to come from
+somewhere else.
+
+### Page variables reach an embedded report's filter
+
+A page variable (Variables tab, plus the page script) is referenced in an
+embedded report's filter as `${variable_name}`. This is the supported route to a
+per-user filtered report, and is what the Provider Dashboard uses:
+page variable `v_login_email` (Text), page script `v_login_email = zoho.loginuserid;`,
+then a Report element filtered on Provider Login Email is `${v_login_email}`.
+
+One page script per page, and it is read-only.
+
+### Snippet syntax
+
+  <%{ deluge %> html <% }%>
+
+with `<%=var%>` interpolation. There is NO return statement in a snippet.
+
+### Design constraint carried forward
+
+The provider portal profile must expose only the PAGE, never PVS_Report as its
+own component - otherwise a provider can reach the report unfiltered.
+
