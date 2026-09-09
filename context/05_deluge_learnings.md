@@ -498,3 +498,22 @@ the URL textareas (Files_3008_URLs, Imaging_Orders_URLs) instead of the multi-fi
 upload fields, which the master workflow populates later via REST.
 GENERAL RULE: a data-quality check must read a field the record ARRIVES with, not
 one another workflow derives on the same event.
+
+DISTINGUISH ABSENT FROM INVALID
+A guard that only tests for empty will pass malformed data straight through.
+Where a value is parsed before use, the check must cover three states: absent,
+present but unparseable, and valid.
+Confirmed 2026-09-08 (Session 41). compute_data_issues originally flagged a DOB
+only when Patient_DOB1 and Patient_DOB were BOTH empty. An unparseable value in
+Patient_DOB1 leaves Patient_DOB null while Patient_DOB1 is non-empty, so the
+both-empty test never fired and two live referrals (REF-1133, REF-1137) sat
+unflagged. The check now emits "Missing Patient DOB" for absent and "Invalid
+Patient DOB" for present-but-unparseable.
+
+CALL GRAPH: compute_data_issues CALLS parse_patient_dob
+The validity test is NOT re-implemented inside compute_data_issues - it calls
+parse_patient_dob and treats a null return as invalid, so the guard and the
+parser cannot disagree about what counts as a valid date. Recorded here because
+MANIFEST.tsv, which carries the calls column, is generated from a .ds export and
+none of the Session 41 functions appear in it yet. This entry retires once a
+fresh .ds is synced.

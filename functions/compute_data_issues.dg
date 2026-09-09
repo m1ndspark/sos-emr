@@ -14,9 +14,17 @@ if(ifnull(v_Rec.Patient_Last_Name,"").toString().trim() == "")
 {
 	v_Issues.add("Missing Patient Last Name");
 }
-if(ifnull(v_Rec.Patient_DOB1,"").toString().trim() == "" && v_Rec.Patient_DOB == null)
+v_DobTxt = ifnull(v_Rec.Patient_DOB1,"").toString().trim();
+if(v_DobTxt == "" && v_Rec.Patient_DOB == null)
 {
 	v_Issues.add("Missing Patient DOB");
+}
+else if(v_Rec.Patient_DOB == null)
+{
+	if(thisapp.parse_patient_dob(v_DobTxt) == null)
+	{
+		v_Issues.add("Invalid Patient DOB");
+	}
 }
 if(ifnull(v_Rec.Patient_Phone,"").toString().trim() == "")
 {
