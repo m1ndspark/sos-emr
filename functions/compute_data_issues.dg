@@ -1,0 +1,141 @@
+v_Issues = List();
+v_Rec = Referrals_Main[ID == p_recId];
+if(v_Rec.count() == 0)
+{
+	return "";
+}
+v_Svc = ifnull(v_Rec.Referral_Type,"").toString().trim();
+v_Loc = ifnull(v_Rec.Patient_Location,"").toString().trim();
+if(ifnull(v_Rec.Patient_First_Name,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Patient First Name");
+}
+if(ifnull(v_Rec.Patient_Last_Name,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Patient Last Name");
+}
+if(ifnull(v_Rec.Patient_DOB1,"").toString().trim() == "" && v_Rec.Patient_DOB == null)
+{
+	v_Issues.add("Missing Patient DOB");
+}
+if(ifnull(v_Rec.Patient_Phone,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Patient Phone");
+}
+if(ifnull(v_Rec.Patient_Address,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Patient Address");
+}
+if(v_Loc == "")
+{
+	v_Issues.add("Missing Patient Location");
+}
+if(ifnull(v_Rec.Patient_Hospice_ID,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Hospice ID");
+}
+if(ifnull(v_Rec.Partner_Organization,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Partner Organization");
+}
+if(ifnull(v_Rec.Partner_Location_Label,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Partner Location");
+}
+if(ifnull(v_Rec.Partner_POC_First_Name,"").toString().trim() == "" || ifnull(v_Rec.Partner_POC_Last_Name,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Partner POC Name");
+}
+if(ifnull(v_Rec.Partner_POC_Email,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Partner POC Email");
+}
+if(ifnull(v_Rec.Referral_Reason,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Reason for Referral");
+}
+if(ifnull(v_Rec.Patient_Has_Advanced_Directives,"").toString().trim() == "")
+{
+	v_Issues.add("Missing Advanced Directives answer");
+}
+else if(v_Rec.Patient_Has_Advanced_Directives.toString().trim() == "Yes")
+{
+	if(ifnull(v_Rec.Advanced_Directives_Details,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Advanced Directives detail");
+	}
+}
+if(v_Loc == "Facility")
+{
+	if(ifnull(v_Rec.Facility_Name,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Facility Name");
+	}
+	if(ifnull(v_Rec.Facility_Room_Number,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Room / Unit");
+	}
+	if(ifnull(v_Rec.Facility_Phone,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Facility Phone");
+	}
+}
+if(ifnull(v_Rec.Has_Additional_Contact,"").toString().trim() == "Yes")
+{
+	if(ifnull(v_Rec.AC_First_Name,"").toString().trim() == "" || ifnull(v_Rec.AC_Last_Name,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Additional Contact Name");
+	}
+	if(ifnull(v_Rec.AC_Phone,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Additional Contact Phone");
+	}
+	if(ifnull(v_Rec.AC_Relationship_to_Patient,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Additional Contact Relationship");
+	}
+}
+if(v_Svc == "3008")
+{
+	if(ifnull(v_Rec.Patient_SSN,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Patient SSN");
+	}
+	if(ifnull(v_Rec.Files_3008_URLs,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing 3008 File Upload");
+	}
+}
+v_NeedImaging = false;
+if(v_Svc == "Imaging Order (only)")
+{
+	v_NeedImaging = true;
+}
+if(ifnull(v_Rec.X_Ray_Needed,"").toString().trim() == "Yes")
+{
+	v_NeedImaging = true;
+}
+if(v_NeedImaging)
+{
+	if(ifnull(v_Rec.Imaging_Type_Order,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Imaging Test(s)");
+	}
+	if(ifnull(v_Rec.Imaging_Body_Site,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Imaging Body Site");
+	}
+	if(ifnull(v_Rec.Imaging_Order_Indication,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Reason for Imaging");
+	}
+	if(ifnull(v_Rec.Imaging_Orders_URLs,"").toString().trim() == "")
+	{
+		v_Issues.add("Missing Imaging Order Upload");
+	}
+}
+if(v_Issues.size() == 0)
+{
+	return "";
+}
+return v_Issues.toString("; ");

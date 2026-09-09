@@ -1,0 +1,58 @@
+v_total = 0;
+v_blank = 0;
+v_match = 0;
+v_diff = 0;
+v_dateCounts = Map();
+v_rows = List();
+for each  v_Rec in Referrals_Main[ID != 0]
+{
+	v_total = v_total + 1;
+	v_ref = ifnull(v_Rec.Referral_ID,"").toString().trim();
+	v_add = "";
+	if(v_Rec.Added_Time != null)
+	{
+		v_add = v_Rec.Added_Time.toString("MM/dd/yyyy");
+	}
+	if(v_Rec.Referral_Date == null)
+	{
+		v_blank = v_blank + 1;
+		if(v_rows.size() < 15)
+		{
+			v_rows.add(v_ref + " | BLANK | " + v_add);
+		}
+	}
+	else
+	{
+		v_rd = v_Rec.Referral_Date.toString("MM/dd/yyyy");
+		v_cur = v_dateCounts.get(v_rd);
+		if(v_cur == null)
+		{
+			v_dateCounts.put(v_rd,1);
+		}
+		else
+		{
+			v_dateCounts.put(v_rd,v_cur.toLong() + 1);
+		}
+		if(v_rd == v_add)
+		{
+			v_match = v_match + 1;
+		}
+		else
+		{
+			v_diff = v_diff + 1;
+		}
+		if(v_rows.size() < 15)
+		{
+			v_rows.add(v_ref + " | " + v_rd + " | " + v_add);
+		}
+	}
+}
+v_dist = List();
+for each  v_Key in v_dateCounts.keys()
+{
+	v_dist.add(v_Key + "=" + v_dateCounts.get(v_Key));
+}
+v_out = "records=" + v_total + " | blank=" + v_blank + " | matches AddedTime=" + v_match + " | differs=" + v_diff;
+v_out = v_out + " || DISTINCT DATES: " + v_dist.toString(",");
+v_out = v_out + " || SAMPLE: " + v_rows.toString(" ;; ");
+return v_out;

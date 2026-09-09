@@ -1,0 +1,112 @@
+v_Mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Eligible = 0;
+v_Parsed = 0;
+v_Written = 0;
+v_Bad = 0;
+v_BadList = List();
+for each  v_Rec in Referrals_Main[Patient_DOB == null]
+{
+	v_DobTxt = ifnull(v_Rec.Patient_DOB1,"").trim();
+	if(v_DobTxt != "")
+	{
+		v_Eligible = v_Eligible + 1;
+		v_Ok = false;
+		v_Mo = "";
+		v_Dy = "";
+		v_Yr = "";
+		v_Raw = v_DobTxt.replaceAll("[^0-9]","-");
+		v_Parts = List();
+		for each  v_Chunk in v_Raw.toList("-")
+		{
+			if(v_Chunk.trim() != "")
+			{
+				v_Parts.add(v_Chunk.trim());
+			}
+		}
+		if(v_Parts.size() == 3)
+		{
+			v_A = v_Parts.get(0);
+			v_B = v_Parts.get(1);
+			v_C = v_Parts.get(2);
+			if(v_A.length() == 4)
+			{
+				v_Mo = v_B;
+				v_Dy = v_C;
+				v_Yr = v_A;
+			}
+			else
+			{
+				v_Mo = v_A;
+				v_Dy = v_B;
+				v_Yr = v_C;
+			}
+			if(v_Mo.length() <= 2 && v_Dy.length() <= 2 && v_Yr.length() == 4)
+			{
+				v_MoN = v_Mo.toLong();
+				v_DyN = v_Dy.toLong();
+				v_YrN = v_Yr.toLong();
+				if(v_MoN >= 1 && v_MoN <= 12 && v_YrN >= 1900 && v_YrN <= 2100 && v_DyN >= 1)
+				{
+					v_Max = 31;
+					if(v_MoN == 4 || v_MoN == 6 || v_MoN == 9 || v_MoN == 11)
+					{
+						v_Max = 30;
+					}
+					if(v_MoN == 2)
+					{
+						v_Max = 28;
+						if(v_YrN % 4 == 0)
+						{
+							if(v_YrN % 100 != 0 || v_YrN % 400 == 0)
+							{
+								v_Max = 29;
+							}
+						}
+					}
+					if(v_DyN <= v_Max)
+					{
+						v_Ok = true;
+						if(v_Mo.length() == 1)
+						{
+							v_Mo = "0" + v_Mo;
+						}
+						if(v_Dy.length() == 1)
+						{
+							v_Dy = "0" + v_Dy;
+						}
+					}
+				}
+			}
+		}
+		if(v_Ok)
+		{
+			v_Parsed = v_Parsed + 1;
+			if(v_Mode == "COMMIT")
+			{
+				update v_Rec
+				[
+					Patient_DOB=(v_Mo + "-" + v_Dy + "-" + v_Yr).toDate()
+				];
+				v_Written = v_Written + 1;
+			}
+		}
+		else
+		{
+			v_Bad = v_Bad + 1;
+			if(v_BadList.size() < 10)
+			{
+				v_BadList.add(ifnull(v_Rec.Referral_ID,"ID:" + v_Rec.ID) + " [" + v_DobTxt + "]");
+			}
+		}
+	}
+}
+v_Out = v_Mode + " | eligible=" + v_Eligible + " parsed=" + v_Parsed + " written=" + v_Written + " unparseable=" + v_Bad;
+if(v_BadList.size() > 0)
+{
+	v_Out = v_Out + " | unparseable sample: " + v_BadList.toString("; ");
+}
+return v_Out;

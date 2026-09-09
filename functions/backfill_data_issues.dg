@@ -1,0 +1,50 @@
+v_mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_mode != "COMMIT")
+{
+	v_mode = "PREVIEW";
+}
+v_total = 0;
+v_flagged = 0;
+v_cleared = 0;
+v_unchanged = 0;
+v_rows = List();
+for each  v_Rec in Referrals_Main[ID != 0]
+{
+	v_total = v_total + 1;
+	v_ref = ifnull(v_Rec.Referral_ID,"").toString().trim();
+	if(v_ref == "")
+	{
+		v_ref = v_Rec.ID.toString();
+	}
+	v_new = thisapp.compute_data_issues(v_Rec.ID);
+	v_old = ifnull(v_Rec.Data_Issues,"").toString().trim();
+	if(v_new == v_old)
+	{
+		v_unchanged = v_unchanged + 1;
+	}
+	else
+	{
+		if(v_new == "")
+		{
+			v_cleared = v_cleared + 1;
+		}
+		else
+		{
+			v_flagged = v_flagged + 1;
+			if(v_rows.size() < 25)
+			{
+				v_rows.add(v_ref + " -> " + v_new);
+			}
+		}
+		if(v_mode == "COMMIT")
+		{
+			update v_Rec
+			[
+				Data_Issues=v_new
+			];
+		}
+	}
+}
+v_out = v_mode + " | records=" + v_total + " | flagged=" + v_flagged + " | cleared=" + v_cleared + " | unchanged=" + v_unchanged;
+v_out = v_out + " || " + v_rows.toString(",");
+return v_out;

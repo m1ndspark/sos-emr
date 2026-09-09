@@ -36,6 +36,72 @@ if(input.Patient_SSN != null)
 		v_SSN = v_S;
 	}
 }
+v_DobDate = null;
+v_DobTxt = ifnull(input.Patient_DOB1,"").toString().trim();
+if(v_DobTxt != "")
+{
+	v_DobRaw = v_DobTxt.replaceAll("[^0-9]","-");
+	v_DobParts = List();
+	for each  v_DobChunk in v_DobRaw.toList("-")
+	{
+		if(v_DobChunk.trim() != "")
+		{
+			v_DobParts.add(v_DobChunk.trim());
+		}
+	}
+	if(v_DobParts.size() == 3)
+	{
+		v_DA = v_DobParts.get(0);
+		v_DB = v_DobParts.get(1);
+		v_DC = v_DobParts.get(2);
+		v_DMo = v_DA;
+		v_DDy = v_DB;
+		v_DYr = v_DC;
+		if(v_DA.length() == 4)
+		{
+			v_DMo = v_DB;
+			v_DDy = v_DC;
+			v_DYr = v_DA;
+		}
+		if(v_DMo.length() <= 2 && v_DDy.length() <= 2 && v_DYr.length() == 4)
+		{
+			v_DMoN = v_DMo.toLong();
+			v_DDyN = v_DDy.toLong();
+			v_DYrN = v_DYr.toLong();
+			if(v_DMoN >= 1 && v_DMoN <= 12 && v_DYrN >= 1900 && v_DYrN <= 2100 && v_DDyN >= 1)
+			{
+				v_DMax = 31;
+				if(v_DMoN == 4 || v_DMoN == 6 || v_DMoN == 9 || v_DMoN == 11)
+				{
+					v_DMax = 30;
+				}
+				if(v_DMoN == 2)
+				{
+					v_DMax = 28;
+					if(v_DYrN % 4 == 0)
+					{
+						if(v_DYrN % 100 != 0 || v_DYrN % 400 == 0)
+						{
+							v_DMax = 29;
+						}
+					}
+				}
+				if(v_DDyN <= v_DMax)
+				{
+					if(v_DMo.length() == 1)
+					{
+						v_DMo = "0" + v_DMo;
+					}
+					if(v_DDy.length() == 1)
+					{
+						v_DDy = "0" + v_DDy;
+					}
+					v_DobDate = (v_DMo + "-" + v_DDy + "-" + v_DYr).toDate();
+				}
+			}
+		}
+	}
+}
 v_Addr = "";
 if(input.Patient_Address.address_line_1 != null && Patient_Address.address_line_1.trim() != "")
 {
@@ -119,12 +185,26 @@ if(input.Partner_Location_Label != null && input.Partner_Location_Label.trim() !
 {
 	v_Sel = input.Partner_Location_Label.trim();
 	v_SelKey = v_Sel.toLowerCase();
-	v_Loc = Partner_Locations[Partner_Location_Name == v_Sel && Partner_Location_Status == "Active"];
+	v_Loc = Partner_Locations[Partner_Location_Label == v_Sel && Partner_Location_Status == "Active"];
+	if(v_Loc.ID == null)
+	{
+		v_Loc = Partner_Locations[Partner_Location_Name == v_Sel && Partner_Location_Status == "Active"];
+	}
 	if(v_Loc.ID == null)
 	{
 		for each  v_L2 in Partner_Locations[Partner_Location_Status == "Active"]
 		{
-			if(v_L2.Partner_Location_Name != null && v_L2.Partner_Location_Name.trim().toLowerCase() == v_SelKey)
+			v_LabKey = "";
+			if(v_L2.Partner_Location_Label != null)
+			{
+				v_LabKey = v_L2.Partner_Location_Label.trim().toLowerCase();
+			}
+			v_NamKey = "";
+			if(v_L2.Partner_Location_Name != null)
+			{
+				v_NamKey = v_L2.Partner_Location_Name.trim().toLowerCase();
+			}
+			if(v_LabKey == v_SelKey || v_NamKey == v_SelKey)
 			{
 				v_Loc = Partner_Locations[ID == v_L2.ID];
 				break;
@@ -156,6 +236,13 @@ for each  v_Rec in Referrals_Main[ID == input.ID]
 		Patient_Full_Name=v_Full
 		Partner_POC_Name_Title=v_NameTitle
 	];
+	if(v_DobDate != null)
+	{
+		update v_Rec
+		[
+			Patient_DOB=v_DobDate
+		];
+	}
 	if(v_LocId != null)
 	{
 		update v_Rec
@@ -170,26 +257,62 @@ for each  v_Rec in Referrals_Main[ID == input.ID]
 		];
 	}
 }
+v_RefIdNow = "";
+for each  v_RN in Referrals_Main[ID == input.ID]
+{
+	v_RefIdNow = ifnull(v_RN.Referral_ID,"").toString().trim();
+}
+if(v_RefIdNow == "")
+{
+	v_RefIdNow = input.ID.toString();
+}
+v_NameParts = List();
+v_NameParts.add(ifnull(input.Patient_First_Name,"").toString().trim());
+v_NameParts.add(ifnull(input.Patient_Last_Name,"").toString().trim());
+v_NameParts.add(v_RefIdNow);
+v_NameParts.add(v_Org);
+v_NameParts.add(v_LocName);
+v_BaseName = "";
+for each  v_NP in v_NameParts
+{
+	v_NC = v_NP.replaceAll("[^A-Za-z0-9-]+","_");
+	if(v_NC.startsWith("_"))
+	{
+		v_NC = v_NC.removeFirstOccurence("_");
+	}
+	if(v_NC.endsWith("_"))
+	{
+		v_NC = v_NC.removeLastOccurence("_");
+	}
+	if(v_NC != "")
+	{
+		if(v_BaseName != "")
+		{
+			v_BaseName = v_BaseName + "_";
+		}
+		v_BaseName = v_BaseName + v_NC;
+	}
+}
+if(v_BaseName == "")
+{
+	v_BaseName = "referral_" + input.ID.toString();
+}
 v_FileFields = Map();
 v_FileFields.put("3008",input.Files_3008_URLs);
 v_FileFields.put("General",input.General_Files_URLs);
 v_FileFields.put("Imaging Orders",input.Imaging_Orders_URLs);
-v_WdHdr = Map();
-v_WdHdr.put("Accept","application/vnd.api+json");
-v_WdHdr.put("Content-Type","application/vnd.api+json");
-v_TrashBody = Map();
-v_TrashAttr = Map();
-v_TrashAttr.put("status","51");
-v_TrashData = Map();
-v_TrashData.put("attributes",v_TrashAttr);
-v_TrashData.put("type","files");
-v_TrashBody.put("data",v_TrashData);
+v_TargetFields = Map();
+v_TargetFields.put("3008","File_Upload_3008");
+v_TargetFields.put("General","General_Files_Upload");
+v_TargetFields.put("Imaging Orders","Imaging_Orders_Upload");
 for each  v_Cat in v_FileFields.keys()
 {
 	v_UrlRaw = v_FileFields.get(v_Cat);
 	if(v_UrlRaw != null && v_UrlRaw.toString().trim() != "")
 	{
+		v_TargetField = v_TargetFields.get(v_Cat).toString();
 		v_UrlList = v_UrlRaw.toString().replaceAll("\r","").replaceAll("\n",",").toList(",");
+		v_FileIdx = 0;
 		for each  v_Url in v_UrlList
 		{
 			v_U = v_Url.trim();
@@ -200,7 +323,7 @@ for each  v_Cat in v_FileFields.keys()
 				{
 					v_ResId = v_ResId.subString(0,v_ResId.indexOf("?"));
 				}
-				try 
+				try
 				{
 					v_File = invokeurl
 					[
@@ -208,31 +331,49 @@ for each  v_Cat in v_FileFields.keys()
 						type :GET
 						connection:"sos_workdrive"
 					];
-					v_FileName = v_File.getFileName();
+					v_FileIdx = v_FileIdx + 1;
+					v_OrigName = ifnull(v_File.getFileName(),"").toString().trim();
+					v_Ext = "";
+					if(v_OrigName.contains("."))
+					{
+						v_Ext = "." + v_OrigName.subString(v_OrigName.lastIndexOf(".") + 1);
+					}
+					v_NewName = v_BaseName;
+					if(v_FileIdx > 1)
+					{
+						v_NewName = v_NewName + "_" + v_FileIdx;
+					}
+					v_NewName = v_NewName + v_Ext;
+					v_File.setFileName(v_NewName);
+					v_File.setParamName("file");
+					v_UpResp = invokeurl
+					[
+						url :"https://www.zohoapis.com/creator/v2.1/data" + zoho.appuri + "report/Referrals_Main_Report/" + input.ID.toString() + "/" + v_TargetField + "/upload"
+						type :POST
+						detailed:true
+						files:v_File
+						connection:"sos_file_upload"
+					];
+					v_UpCode = v_UpResp.get("responseCode");
+					if(v_UpCode != 200 && v_UpCode != 201)
+					{
+						info "Referral file attach failed for " + v_Cat + " " + v_ResId + ": " + v_UpResp.get("responseText").toString();
+					}
+					v_File2 = invokeurl
+					[
+						url :"https://workdrive.zoho.com/api/v1/download/" + v_ResId
+						type :GET
+						connection:"sos_workdrive"
+					];
 					insert into Referral_Files
 					[
 						Referrals_Main=input.ID
 						Form_Token=input.Form_Token
 						File_Category=v_Cat
-						File_Name=v_FileName
-						File_Upload=v_File
+						File_Name=v_NewName
+						File_Upload=v_File2
 						Added_User=zoho.loginuser
 					]
-					v_Trash = invokeurl
-					[
-						url :"https://workdrive.zoho.com/api/v1/files/" + v_ResId
-						type :PATCH
-						body:v_TrashBody.toString()
-						headers:v_WdHdr
-						connection:"sos_workdrive"
-					];
-					v_Del = invokeurl
-					[
-						url :"https://workdrive.zoho.com/api/v1/files/" + v_ResId
-						type :DELETE
-						headers:v_WdHdr
-						connection:"sos_workdrive"
-					];
 				}				catch (e)
 				{
 					info "Referral file intake failed for " + v_Cat + " " + v_ResId + ": " + e;
@@ -326,7 +467,7 @@ if(v_AsgExisting == 0)
 		Referral_Link=input.ID
 		Patient_First_Name=input.Patient_First_Name
 		Patient_Last_Name=input.Patient_Last_Name
-		Patient_DOB=input.Patient_DOB1
+		Patient_DOB=v_DobDate
 		Patient_Phone=v_Out.get(0)
 		Patient_Address=input.Patient_Address
 		Patient_Location=input.Patient_Location

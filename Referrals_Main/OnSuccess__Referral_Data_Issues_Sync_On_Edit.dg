@@ -1,0 +1,12 @@
+v_Flag = thisapp.compute_data_issues(input.ID);
+for each  v_Rec in Referrals_Main[ID == input.ID]
+{
+	v_Old = ifnull(v_Rec.Data_Issues,"").toString().trim();
+	if(v_Old != v_Flag)
+	{
+		update v_Rec
+		[
+			Data_Issues=v_Flag
+		];
+	}
+}

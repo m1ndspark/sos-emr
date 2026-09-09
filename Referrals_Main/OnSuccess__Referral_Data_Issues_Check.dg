@@ -1,0 +1,40 @@
+v_Flag = thisapp.compute_data_issues(input.ID);
+if(v_Flag != "")
+{
+	for each  v_Rec in Referrals_Main[ID == input.ID]
+	{
+		update v_Rec
+		[
+			Data_Issues=v_Flag
+		];
+	}
+	v_RefId = ifnull(input.Referral_ID,"").toString().trim();
+	if(v_RefId == "")
+	{
+		v_RefId = input.ID.toString();
+	}
+	v_Name = ifnull(input.Patient_First_Name,"").toString().trim() + " " + ifnull(input.Patient_Last_Name,"").toString().trim();
+	v_Name = v_Name.trim();
+	if(v_Name == "")
+	{
+		v_Name = "(no name)";
+	}
+	v_Org = ifnull(input.Partner_Organization,"").toString().trim();
+	if(v_Org == "")
+	{
+		v_Org = "(no partner)";
+	}
+	v_Msg = "A referral was created with missing required data.<br/><br/>";
+	v_Msg = v_Msg + "Referral ID: " + v_RefId + "<br/>";
+	v_Msg = v_Msg + "Patient: " + v_Name + "<br/>";
+	v_Msg = v_Msg + "Partner: " + v_Org + "<br/>";
+	v_Msg = v_Msg + "Service: " + ifnull(input.Referral_Type,"").toString() + "<br/><br/>";
+	v_Msg = v_Msg + "Issues: " + v_Flag;
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :"neil.heird@sosmmc.com"
+		subject :"REF Data Issue: " + v_Name + " - " + v_RefId
+		message :v_Msg
+	]
+}

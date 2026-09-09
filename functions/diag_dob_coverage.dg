@@ -1,0 +1,86 @@
+v_total = 0;
+v_both = 0;
+v_dobOnly = 0;
+v_dob1Only = 0;
+v_neither = 0;
+v_mismatch = 0;
+v_samples = List();
+for each  v_Rec in Referrals_Main[ID != 0]
+{
+	v_total = v_total + 1;
+	v_ref = ifnull(v_Rec.Referral_ID,"").toString().trim();
+	v_txt = ifnull(v_Rec.Patient_DOB1,"").toString().trim();
+	v_hasTxt = false;
+	if(v_txt != "")
+	{
+		v_hasTxt = true;
+	}
+	v_hasDate = false;
+	v_dateStr = "";
+	if(v_Rec.Patient_DOB != null)
+	{
+		v_hasDate = true;
+		v_dateStr = v_Rec.Patient_DOB.toString("MM/dd/yyyy");
+	}
+	if(v_hasTxt && v_hasDate)
+	{
+		v_both = v_both + 1;
+		v_norm = v_txt.replaceAll("[^0-9]","/");
+		v_parts = List();
+		for each  v_Chunk in v_norm.toList("/")
+		{
+			if(v_Chunk.trim() != "")
+			{
+				v_parts.add(v_Chunk.trim());
+			}
+		}
+		v_cmp = "";
+		if(v_parts.size() == 3)
+		{
+			v_A = v_parts.get(0);
+			v_B = v_parts.get(1);
+			v_C = v_parts.get(2);
+			v_Mo = v_A;
+			v_Dy = v_B;
+			v_Yr = v_C;
+			if(v_A.length() == 4)
+			{
+				v_Mo = v_B;
+				v_Dy = v_C;
+				v_Yr = v_A;
+			}
+			if(v_Mo.length() == 1)
+			{
+				v_Mo = "0" + v_Mo;
+			}
+			if(v_Dy.length() == 1)
+			{
+				v_Dy = "0" + v_Dy;
+			}
+			v_cmp = v_Mo + "/" + v_Dy + "/" + v_Yr;
+		}
+		if(v_cmp != v_dateStr)
+		{
+			v_mismatch = v_mismatch + 1;
+			if(v_samples.size() < 10)
+			{
+				v_samples.add(v_ref + " DOB=" + v_dateStr + " DOB1=" + v_txt);
+			}
+		}
+	}
+	else if(v_hasDate)
+	{
+		v_dobOnly = v_dobOnly + 1;
+	}
+	else if(v_hasTxt)
+	{
+		v_dob1Only = v_dob1Only + 1;
+	}
+	else
+	{
+		v_neither = v_neither + 1;
+	}
+}
+v_out = "records=" + v_total + " | both=" + v_both + " | DOB only=" + v_dobOnly + " | DOB1 only=" + v_dob1Only + " | neither=" + v_neither + " | mismatched=" + v_mismatch;
+v_out = v_out + " || SAMPLE: " + v_samples.toString(" ;; ");
+return v_out;
