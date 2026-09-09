@@ -1,0 +1,46 @@
+v_total = 0;
+v_3008 = 0;
+v_gen = 0;
+v_img = 0;
+v_samples = List();
+for each  v_ref in Referrals_Main[ID != null]
+{
+	v_total = v_total + 1;
+	v_has = "";
+	if(v_ref.File_Upload_3008 != null && v_ref.File_Upload_3008.toString().trim() != "")
+	{
+		v_3008 = v_3008 + 1;
+		v_has = v_has + "3008 ";
+	}
+	if(v_ref.General_Files_Upload != null && v_ref.General_Files_Upload.toString().trim() != "")
+	{
+		v_gen = v_gen + 1;
+		v_has = v_has + "GEN ";
+	}
+	if(v_ref.Imaging_Orders_Upload != null && v_ref.Imaging_Orders_Upload.toString().trim() != "")
+	{
+		v_img = v_img + 1;
+		v_has = v_has + "IMG ";
+	}
+	if(v_has != "" && v_samples.size() < 15)
+	{
+		v_samples.add(ifnull(v_ref.Referral_ID,"ID:" + v_ref.ID) + " (" + v_has.trim() + ")");
+	}
+}
+v_out = "Referrals_Main total=" + v_total + " | attached: 3008=" + v_3008 + " General=" + v_gen + " Imaging=" + v_img;
+if(v_samples.size() > 0)
+{
+	v_out = v_out + " | sample: " + v_samples.toString("; ");
+}
+v_pvsTotal = 0;
+v_pvsGen = 0;
+for each  v_pvs in Encounter_PatientVisit[ID != null]
+{
+	v_pvsTotal = v_pvsTotal + 1;
+	if(v_pvs.General_Files_Upload != null && v_pvs.General_Files_Upload.toString().trim() != "")
+	{
+		v_pvsGen = v_pvsGen + 1;
+	}
+}
+v_out = v_out + " || Encounter_PatientVisit total=" + v_pvsTotal + " General_Files_Upload attached=" + v_pvsGen;
+return v_out;

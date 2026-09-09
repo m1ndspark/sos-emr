@@ -1,0 +1,40 @@
+v_Total = 0;
+v_Blank = 0;
+v_Seen = List();
+v_Dupes = List();
+v_Sample = List();
+for each  v_L in Partner_Locations[Partner_Location_Status == "Active"]
+{
+	v_Total = v_Total + 1;
+	v_Org = "";
+	if(v_L.Partner_Link != null)
+	{
+		v_Org = ifnull(v_L.Partner_Link.Partner_Display_Name,"").toString().trim();
+	}
+	v_Name = ifnull(v_L.Partner_Location_Name,"").toString().trim();
+	v_Label = ifnull(v_L.Partner_Location_Label,"").toString().trim();
+	if(v_Label == "")
+	{
+		v_Blank = v_Blank + 1;
+	}
+	else
+	{
+		v_K = v_Label.toLowerCase();
+		if(v_Seen.contains(v_K))
+		{
+			if(v_Dupes.contains(v_Label) == false)
+			{
+				v_Dupes.add(v_Label);
+			}
+		}
+		else
+		{
+			v_Seen.add(v_K);
+		}
+	}
+	if(v_Sample.size() < 30)
+	{
+		v_Sample.add(v_Org + " | " + v_Name + " | " + v_Label);
+	}
+}
+return "active locations=" + v_Total + " | blank labels=" + v_Blank + " | duplicate labels=" + v_Dupes.size() + " " + v_Dupes.toString() + " || sample: " + v_Sample.toString();

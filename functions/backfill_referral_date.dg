@@ -1,0 +1,51 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Total = 0;
+v_Filled = 0;
+v_NoSource = 0;
+v_Msgs = List();
+v_Bad = List();
+for each  v_R in Referrals_Main[Referral_Date == null]
+{
+	v_Total = v_Total + 1;
+	v_RefId = ifnull(v_R.Referral_ID,"").toString().trim();
+	if(v_RefId == "")
+	{
+		v_RefId = v_R.ID.toString();
+	}
+	if(v_R.Referral_Added_Time == null)
+	{
+		v_NoSource = v_NoSource + 1;
+		if(v_Bad.size() < 40)
+		{
+			v_Bad.add(v_RefId);
+		}
+	}
+	else
+	{
+		v_Str = v_R.Referral_Added_Time.toString("MM/dd/yyyy");
+		v_New = v_Str.toDate();
+		v_Filled = v_Filled + 1;
+		if(v_Msgs.size() < 40)
+		{
+			v_Msgs.add(v_RefId + " -> " + v_Str);
+		}
+		if(v_Mode == "COMMIT")
+		{
+			update v_R
+			[
+				Referral_Date=v_New
+			];
+		}
+	}
+}
+v_Out = v_Mode + " | blank referral dates=" + v_Total + " | filled=" + v_Filled + " | no source=" + v_NoSource;
+v_Out = v_Out + " || " + v_Msgs.toString();
+if(v_Bad.size() > 0)
+{
+	v_Out = v_Out + " || NO SOURCE: " + v_Bad.toString();
+}
+return v_Out;

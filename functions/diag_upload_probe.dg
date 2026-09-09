@@ -1,0 +1,63 @@
+v_Key = ifnull(p_refKey,"").toString().trim();
+v_Recs = Referrals_Main[Referral_ID == v_Key];
+if(v_Recs.count() == 0)
+{
+	if(v_Key.matches("^[0-9]+$"))
+	{
+		v_Recs = Referrals_Main[ID == v_Key.toLong()];
+	}
+}
+if(v_Recs.count() == 0)
+{
+	return "No referral found for " + v_Key;
+}
+v_Out = "";
+for each  v_Rec in v_Recs
+{
+	v_Out = "REF=" + ifnull(v_Rec.Referral_ID,"-").toString() + " ID=" + v_Rec.ID.toString();
+	v_Raw = ifnull(v_Rec.Files_3008_URLs,"").toString().trim();
+	if(v_Raw == "")
+	{
+		return v_Out + " | no 3008 URL on this record";
+	}
+	v_U = v_Raw.replaceAll("\r","").replaceAll("\n",",").toList(",").get(0).trim();
+	v_Out = v_Out + "\nURL=[" + v_U + "]";
+	if(!v_U.contains("/file/"))
+	{
+		return v_Out + "\nURL does not contain /file/";
+	}
+	v_ResId = v_U.subString(v_U.lastIndexOf("/") + 1);
+	if(v_ResId.contains("?"))
+	{
+		v_ResId = v_ResId.subString(0,v_ResId.indexOf("?"));
+	}
+	v_Out = v_Out + "\nRESID=[" + v_ResId + "]";
+	try 
+	{
+		v_File = invokeurl
+		[
+			url :"https://workdrive.zoho.com/api/v1/download/" + v_ResId
+			type :GET
+			connection:"sos_workdrive"
+		];
+		v_DlName = ifnull(v_File.getFileName(),"").toString().trim();
+		v_Out = v_Out + "\nDOWNLOADED_NAME=[" + v_DlName + "]";
+		v_File.setFileName("probe_" + v_Key + ".pdf");
+		v_File.setParamName("file");
+		v_Resp = invokeurl
+		[
+			url :"https://www.zohoapis.com/creator/v2.1/data" + zoho.appuri + "report/Referrals_Main_Report/" + v_Rec.ID.toString() + "/File_Upload_3008/upload"
+			type :POST
+			detailed:true
+			files:v_File
+			connection:"sos_file_upload"
+		];
+		v_Out = v_Out + "\nHTTP=" + v_Resp.get("responseCode").toString();
+		v_Out = v_Out + "\nBODY=" + v_Resp.get("responseText").toString();
+	}		catch (e)
+	{
+		v_Out = v_Out + "\nEXCEPTION=" + e.toString();
+	}
+	break;
+}
+return v_Out;

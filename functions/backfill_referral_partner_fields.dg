@@ -1,0 +1,142 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Index = Map();
+for each  v_L in Partner_Locations[ID != null]
+{
+	v_LabK = ifnull(v_L.Partner_Location_Label,"").toString().trim().toLowerCase();
+	v_NamK = ifnull(v_L.Partner_Location_Name,"").toString().trim().toLowerCase();
+	if(v_LabK != "")
+	{
+		if(v_Index.get(v_LabK) == null)
+		{
+			v_Index.put(v_LabK,v_L.ID);
+		}
+	}
+	if(v_NamK != "")
+	{
+		if(v_Index.get(v_NamK) == null)
+		{
+			v_Index.put(v_NamK,v_L.ID);
+		}
+	}
+}
+v_Total = 0;
+v_Changed = 0;
+v_Same = 0;
+v_Unres = 0;
+v_Msgs = List();
+v_Bad = List();
+for each  v_R in Referrals_Main[ID != null]
+{
+	v_Total = v_Total + 1;
+	v_RefId = ifnull(v_R.Referral_ID,"").toString().trim();
+	if(v_RefId == "")
+	{
+		v_RefId = v_R.ID.toString();
+	}
+	v_LocId = null;
+	if(v_R.Partner_Branch_Link != null)
+	{
+		v_LocId = v_R.Partner_Branch_Link;
+	}
+	if(v_LocId == null)
+	{
+		v_Cands = List();
+		v_Cands.add(ifnull(v_R.Partner_Location_Label,"").toString().trim());
+		v_Cands.add(ifnull(v_R.Partner_Branch,"").toString().trim());
+		v_Cands.add(ifnull(v_R.Partner_Organization,"").toString().trim());
+		for each  v_C in v_Cands
+		{
+			if(v_LocId == null)
+			{
+				if(v_C != "")
+				{
+					v_Hit = v_Index.get(v_C.toLowerCase());
+					if(v_Hit != null)
+					{
+						v_LocId = v_Hit;
+					}
+				}
+			}
+		}
+	}
+	if(v_LocId == null)
+	{
+		v_Unres = v_Unres + 1;
+		if(v_Bad.size() < 40)
+		{
+			v_Bad.add(v_RefId + " [org=" + ifnull(v_R.Partner_Organization,"").toString() + " branch=" + ifnull(v_R.Partner_Branch,"").toString() + " label=" + ifnull(v_R.Partner_Location_Label,"").toString() + "]");
+		}
+	}
+	else
+	{
+		v_Loc = Partner_Locations[ID == v_LocId];
+		if(v_Loc.ID == null)
+		{
+			v_Unres = v_Unres + 1;
+			if(v_Bad.size() < 40)
+			{
+				v_Bad.add(v_RefId + " [branch link points to a missing location]");
+			}
+		}
+		else
+		{
+			v_NewOrg = ifnull(v_Loc.Partner_Link.Partner_Display_Name,"").toString().trim();
+			v_NewBranch = ifnull(v_Loc.Partner_Location_Name,"").toString().trim();
+			v_NewLabel = ifnull(v_Loc.Partner_Location_Label,"").toString().trim();
+			v_NewPid = ifnull(v_Loc.Partner_Link.Partner_ID,"").toString().trim();
+			v_CurOrg = ifnull(v_R.Partner_Organization,"").toString().trim();
+			v_CurBranch = ifnull(v_R.Partner_Branch,"").toString().trim();
+			v_CurLabel = ifnull(v_R.Partner_Location_Label,"").toString().trim();
+			v_CurPid = ifnull(v_R.Partner_ID,"").toString().trim();
+			v_Diff = false;
+			if(v_CurOrg != v_NewOrg || v_CurBranch != v_NewBranch)
+			{
+				v_Diff = true;
+			}
+			if(v_CurLabel != v_NewLabel || v_CurPid != v_NewPid)
+			{
+				v_Diff = true;
+			}
+			if(v_R.Partner_Branch_Link == null || v_R.Partner_Link == null)
+			{
+				v_Diff = true;
+			}
+			if(v_Diff)
+			{
+				v_Changed = v_Changed + 1;
+				if(v_Msgs.size() < 40)
+				{
+					v_Msgs.add(v_RefId + ": [" + v_CurOrg + " / " + v_CurBranch + "] -> [" + v_NewOrg + " / " + v_NewBranch + "]");
+				}
+				if(v_Mode == "COMMIT")
+				{
+					update v_R
+					[
+						Partner_Organization=v_NewOrg
+						Partner_Branch=v_NewBranch
+						Partner_Location_Label=v_NewLabel
+						Partner_Link=v_Loc.Partner_Link
+						Partner_Branch_Link=v_Loc.ID
+						Partner_ID=v_NewPid
+						Partner_ID_Stamp=v_Loc.Partner_Link.toString()
+					];
+				}
+			}
+			else
+			{
+				v_Same = v_Same + 1;
+			}
+		}
+	}
+}
+v_Out = v_Mode + " | referrals=" + v_Total + " | changed=" + v_Changed + " | unchanged=" + v_Same + " | unresolved=" + v_Unres;
+v_Out = v_Out + " || CHANGES: " + v_Msgs.toString();
+if(v_Bad.size() > 0)
+{
+	v_Out = v_Out + " || UNRESOLVED: " + v_Bad.toString();
+}
+return v_Out;

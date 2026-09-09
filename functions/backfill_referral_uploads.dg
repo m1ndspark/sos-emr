@@ -1,0 +1,217 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT" && v_Mode != "FORCE")
+{
+	v_Mode = "PREVIEW";
+}
+v_Write = false;
+if(v_Mode == "COMMIT" || v_Mode == "FORCE")
+{
+	v_Write = true;
+}
+v_Key = ifnull(p_refKey,"").toString().trim();
+v_All = false;
+v_Recs = Referrals_Main[ID == 0];
+if(v_Key == "" || v_Key.toUpperCase() == "ALL")
+{
+	v_All = true;
+	v_Recs = Referrals_Main[Files_3008_URLs != null || General_Files_URLs != null || Imaging_Orders_URLs != null];
+}
+else
+{
+	v_Recs = Referrals_Main[Referral_ID == v_Key];
+	if(v_Recs.count() == 0)
+	{
+		if(v_Key.matches("^[0-9]+$"))
+		{
+			v_Recs = Referrals_Main[ID == v_Key.toLong()];
+		}
+	}
+}
+v_Eligible = 0;
+v_UrlCount = 0;
+v_Attached = 0;
+v_Dead = 0;
+v_Failed = 0;
+v_SkipFields = 0;
+v_Msgs = List();
+v_Cats = List();
+v_Cats.add("3008");
+v_Cats.add("General");
+v_Cats.add("Imaging");
+for each  v_Rec in v_Recs
+{
+	v_Eligible = v_Eligible + 1;
+	v_RefId = ifnull(v_Rec.Referral_ID,"").toString().trim();
+	if(v_RefId == "")
+	{
+		v_RefId = v_Rec.ID.toString();
+	}
+	v_Parts = List();
+	v_Parts.add(ifnull(v_Rec.Patient_First_Name,"").toString().trim());
+	v_Parts.add(ifnull(v_Rec.Patient_Last_Name,"").toString().trim());
+	v_Parts.add(v_RefId);
+	v_Parts.add(ifnull(v_Rec.Partner_Organization,"").toString().trim());
+	v_Parts.add(ifnull(v_Rec.Partner_Branch,"").toString().trim());
+	v_Base = "";
+	for each  v_P in v_Parts
+	{
+		v_C = v_P.replaceAll("[^A-Za-z0-9-]+","_");
+		if(v_C.startsWith("_"))
+		{
+			v_C = v_C.removeFirstOccurence("_");
+		}
+		if(v_C.endsWith("_"))
+		{
+			v_C = v_C.removeLastOccurence("_");
+		}
+		if(v_C != "")
+		{
+			if(v_Base != "")
+			{
+				v_Base = v_Base + "_";
+			}
+			v_Base = v_Base + v_C;
+		}
+	}
+	if(v_Base == "")
+	{
+		v_Base = "referral_" + v_Rec.ID.toString();
+	}
+	v_UrlMap = Map();
+	v_UrlMap.put("3008",v_Rec.Files_3008_URLs);
+	v_UrlMap.put("General",v_Rec.General_Files_URLs);
+	v_UrlMap.put("Imaging",v_Rec.Imaging_Orders_URLs);
+	v_FieldMap = Map();
+	v_FieldMap.put("3008","File_Upload_3008");
+	v_FieldMap.put("General","General_Files_Upload");
+	v_FieldMap.put("Imaging","Imaging_Orders_Upload");
+	v_ExistMap = Map();
+	v_ExistMap.put("3008",v_Rec.File_Upload_3008);
+	v_ExistMap.put("General",v_Rec.General_Files_Upload);
+	v_ExistMap.put("Imaging",v_Rec.Imaging_Orders_Upload);
+	for each  v_Cat in v_Cats
+	{
+		v_Raw = ifnull(v_UrlMap.get(v_Cat),"").toString().trim();
+		if(v_Raw != "")
+		{
+			v_Have = ifnull(v_ExistMap.get(v_Cat),"").toString().trim();
+			if(v_Have == "[]" || v_Have == "null")
+			{
+				v_Have = "";
+			}
+			v_Guard = false;
+			if(v_Have != "" && v_All && v_Mode == "COMMIT")
+			{
+				v_Guard = true;
+			}
+			if(v_Guard)
+			{
+				v_SkipFields = v_SkipFields + 1;
+			}
+			else
+			{
+				v_Field = v_FieldMap.get(v_Cat).toString();
+				v_List = v_Raw.replaceAll("\r","").replaceAll("\n",",").toList(",");
+				v_Idx = 0;
+				for each  v_U0 in v_List
+				{
+					v_U = v_U0.trim();
+					if(v_U.contains("/file/"))
+					{
+						v_UrlCount = v_UrlCount + 1;
+						v_Idx = v_Idx + 1;
+						v_ResId = v_U.subString(v_U.lastIndexOf("/") + 1);
+						if(v_ResId.contains("?"))
+						{
+							v_ResId = v_ResId.subString(0,v_ResId.indexOf("?"));
+						}
+						if(!v_Write)
+						{
+							if(v_Msgs.size() < 40)
+							{
+								v_Suffix = "";
+								if(v_Idx > 1)
+								{
+									v_Suffix = "_" + v_Idx;
+								}
+								v_Msgs.add(v_RefId + " " + v_Cat + " -> " + v_Base + v_Suffix + ".<ext>");
+							}
+						}
+						else
+						{
+							try 
+							{
+								v_File = invokeurl
+								[
+									url :"https://workdrive.zoho.com/api/v1/download/" + v_ResId
+									type :GET
+									connection:"sos_workdrive"
+								];
+								v_Orig = ifnull(v_File.getFileName(),"").toString().trim();
+								if(v_Orig == "")
+								{
+									v_Dead = v_Dead + 1;
+									if(v_Msgs.size() < 40)
+									{
+										v_Msgs.add(v_RefId + " " + v_Cat + ": DEAD SOURCE " + v_ResId);
+									}
+								}
+								else
+								{
+									v_Ext = "";
+									if(v_Orig.contains("."))
+									{
+										v_Ext = "." + v_Orig.subString(v_Orig.lastIndexOf(".") + 1);
+									}
+									v_Name = v_Base;
+									if(v_Idx > 1)
+									{
+										v_Name = v_Name + "_" + v_Idx;
+									}
+									v_Name = v_Name + v_Ext;
+									v_File.setFileName(v_Name);
+									v_File.setParamName("file");
+									v_Resp = invokeurl
+									[
+										url :"https://www.zohoapis.com/creator/v2.1/data" + zoho.appuri + "report/Referrals_Main_Report/" + v_Rec.ID.toString() + "/" + v_Field + "/upload"
+										type :POST
+										detailed:true
+										files:v_File
+										connection:"sos_file_upload"
+									];
+									v_Body = ifnull(v_Resp.get("responseText"),"").toString();
+									v_ApiCode = 0;
+									if(v_Body.contains("code"))
+									{
+										v_Json = v_Body.toMap();
+										v_ApiCode = ifnull(v_Json.get("code"),0).toLong();
+									}
+									if(v_ApiCode == 3000)
+									{
+										v_Attached = v_Attached + 1;
+									}
+									else
+									{
+										v_Failed = v_Failed + 1;
+										if(v_Msgs.size() < 40)
+										{
+											v_Msgs.add(v_RefId + " " + v_Cat + ": " + v_Body);
+										}
+									}
+								}
+							}								catch (e)
+							{
+								v_Failed = v_Failed + 1;
+								if(v_Msgs.size() < 40)
+								{
+									v_Msgs.add(v_RefId + " " + v_Cat + ": " + e.toString());
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+return v_Mode + " | records=" + v_Eligible + " | urls=" + v_UrlCount + " | attached=" + v_Attached + " | dead source=" + v_Dead + " | failed=" + v_Failed + " | fields skipped=" + v_SkipFields + " || " + v_Msgs.toString();

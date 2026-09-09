@@ -1,0 +1,107 @@
+v_out = List();
+v_ref = Referrals_Main[ID == p_recId];
+if(v_ref.count() == 0)
+{
+	return v_out;
+}
+v_fields = List();
+v_fields.add("File_Upload_3008");
+v_fields.add("General_Files_Upload");
+v_fields.add("Imaging_Orders_Upload");
+v_raws = List();
+v_raws.add(v_ref.File_Upload_3008);
+v_raws.add(v_ref.General_Files_Upload);
+v_raws.add(v_ref.Imaging_Orders_Upload);
+v_best = Map();
+for each index v_fi in v_fields
+{
+	v_fld = v_fields.get(v_fi).toString();
+	v_raw = ifnull(v_raws.get(v_fi),"").toString().trim();
+	if(v_raw != "" && v_raw != "[]" && v_raw != "null")
+	{
+		for each  v_p0 in v_raw.toList(",")
+		{
+			v_path = v_p0.trim();
+			if(v_path != "")
+			{
+				v_disp = v_path;
+				v_seq = 0;
+				if(v_path.contains("_"))
+				{
+					v_pre = v_path.subString(0,v_path.indexOf("_"));
+					if(v_pre.matches("^[0-9]+$"))
+					{
+						v_seq = v_pre.toLong();
+						v_disp = v_path.subString(v_path.indexOf("_") + 1);
+					}
+				}
+				v_take = true;
+				v_prev = v_best.get(v_disp);
+				if(v_prev != null)
+				{
+					if(v_prev.get("seq") >= v_seq)
+					{
+						v_take = false;
+					}
+				}
+				if(v_take)
+				{
+					v_e = Map();
+					v_e.put("seq",v_seq);
+					v_e.put("path",v_path);
+					v_e.put("field",v_fld);
+					v_best.put(v_disp,v_e);
+				}
+			}
+		}
+	}
+}
+for each  v_name in v_best.keys()
+{
+	v_rec = v_best.get(v_name);
+	try 
+	{
+		v_file = invokeurl
+		[
+			url :"https://www.zohoapis.com/creator/v2.1/data" + zoho.appuri + "report/Referrals_Main_Report/" + p_recId.toString() + "/" + v_rec.get("field").toString() + "/download?filepath=" + zoho.encryption.urlEncode(v_rec.get("path").toString())
+			type :GET
+			connection:"sos_file_upload"
+		];
+		v_hdr = Map();
+		v_hdr.put("Authorization","Zoho-enczapikey " + p_token);
+		v_hdr.put("Content-Type","text/plain");
+		v_resp = invokeurl
+		[
+			url :"https://api.zeptomail.com/v1.1/files?name=" + zoho.encryption.urlEncode(v_name.toString())
+			type :POST
+			body:v_file
+			headers:v_hdr
+			detailed:true
+		];
+		v_code = v_resp.get("responseCode");
+		if(v_code == 200 || v_code == 201)
+		{
+			v_txt = v_resp.get("responseText").toString();
+			if(v_txt.contains("file_cache_key"))
+			{
+				v_json = v_txt.toMap();
+				v_ck = ifnull(v_json.get("file_cache_key"),"").toString().trim();
+				if(v_ck != "")
+				{
+					v_att = Map();
+					v_att.put("file_cache_key",v_ck);
+					v_att.put("name",v_name.toString());
+					v_out.add(v_att);
+				}
+			}
+		}
+		else
+		{
+			info "Creator attachment cache failed for " + v_name + ": " + v_resp.toString();
+		}
+	}		catch (e)
+	{
+		info "Creator attachment error for " + v_name + ": " + e.toString();
+	}
+}
+return v_out;

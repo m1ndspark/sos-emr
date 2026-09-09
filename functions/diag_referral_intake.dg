@@ -1,0 +1,29 @@
+v_Key = ifnull(p_refKey,"").toString().trim();
+v_Recs = Referrals_Main[Referral_ID == v_Key];
+if(v_Recs.count() == 0)
+{
+	if(v_Key.matches("^[0-9]+$"))
+	{
+		v_Recs = Referrals_Main[ID == v_Key.toLong()];
+	}
+}
+if(v_Recs.count() == 0)
+{
+	return "No referral found for " + v_Key;
+}
+v_Out = "";
+for each  v_R in v_Recs
+{
+	v_Out = "REF=" + ifnull(v_R.Referral_ID,"-").toString();
+	v_Out = v_Out + " | Label=" + ifnull(v_R.Partner_Location_Label,"-").toString();
+	v_Out = v_Out + " | Org=" + ifnull(v_R.Partner_Organization,"-").toString();
+	v_Out = v_Out + " | Branch=" + ifnull(v_R.Partner_Branch,"-").toString();
+	v_Out = v_Out + " | BranchLink=" + ifnull(v_R.Partner_Branch_Link,"-").toString();
+	v_Out = v_Out + " | PartnerLink=" + ifnull(v_R.Partner_Link,"-").toString();
+	v_Out = v_Out + " | PartnerID=" + ifnull(v_R.Partner_ID,"-").toString();
+	v_Out = v_Out + " || 3008 urlLen=" + ifnull(v_R.Files_3008_URLs,"").toString().trim().length() + " files=" + ifnull(v_R.File_Upload_3008,"").toString().trim();
+	v_Out = v_Out + " || General urlLen=" + ifnull(v_R.General_Files_URLs,"").toString().trim().length() + " files=" + ifnull(v_R.General_Files_Upload,"").toString().trim();
+	v_Out = v_Out + " || Imaging urlLen=" + ifnull(v_R.Imaging_Orders_URLs,"").toString().trim().length() + " files=" + ifnull(v_R.Imaging_Orders_Upload,"").toString().trim();
+	break;
+}
+return v_Out;

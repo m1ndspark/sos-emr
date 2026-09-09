@@ -1,0 +1,43 @@
+v_Key = ifnull(p_refKey,"").toString().trim();
+v_Recs = Referrals_Main[Referral_ID == v_Key];
+if(v_Recs.count() == 0)
+{
+	if(v_Key.matches("^[0-9]+$"))
+	{
+		v_Recs = Referrals_Main[ID == v_Key.toLong()];
+	}
+}
+if(v_Recs.count() == 0)
+{
+	return "No referral found for " + v_Key;
+}
+v_Out = "";
+for each  v_R in v_Recs
+{
+	v_Out = "REF=" + ifnull(v_R.Referral_ID,"-").toString() + " ID=" + v_R.ID.toString();
+	v_Names = List();
+	v_Names.add("File_Upload_3008");
+	v_Names.add("General_Files_Upload");
+	v_Names.add("Imaging_Orders_Upload");
+	v_Vals = List();
+	v_Vals.add(v_R.File_Upload_3008);
+	v_Vals.add(v_R.General_Files_Upload);
+	v_Vals.add(v_R.Imaging_Orders_Upload);
+	for each index v_i in v_Names
+	{
+		v_Fld = v_Names.get(v_i);
+		v_Raw = v_Vals.get(v_i);
+		v_Str = ifnull(v_Raw,"").toString();
+		v_Out = v_Out + "\n---- " + v_Fld + " ----";
+		v_Out = v_Out + "\nRAW=[" + v_Str + "]";
+		v_Out = v_Out + "\nLEN=" + v_Str.length();
+		v_L = v_Str.toList(",");
+		v_Out = v_Out + "\nSPLIT_COUNT=" + v_L.size();
+		for each  v_Item in v_L
+		{
+			v_Out = v_Out + "\n   ITEM=[" + v_Item.trim() + "]";
+		}
+	}
+	break;
+}
+return v_Out;

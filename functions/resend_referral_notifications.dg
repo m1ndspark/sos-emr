@@ -1,0 +1,151 @@
+v_rawTo = ifnull(p_toEmail,"").toString().trim();
+if(v_rawTo == "")
+{
+	return "STOP - no recipient email";
+}
+v_normTo = v_rawTo.replaceAll("\r","");
+v_normTo = v_normTo.replaceAll("\n",",");
+v_addrs = List();
+v_badAddrs = List();
+for each  v_a0 in v_normTo.toList(",")
+{
+	v_a = v_a0.trim();
+	if(v_a != "")
+	{
+		if(v_a.contains("@") && v_a.contains("."))
+		{
+			if(!v_addrs.contains(v_a))
+			{
+				v_addrs.add(v_a);
+			}
+		}
+		else
+		{
+			v_badAddrs.add(v_a);
+		}
+	}
+}
+if(v_addrs.size() == 0)
+{
+	return "STOP - no valid recipient email in: " + v_rawTo;
+}
+v_rawKeys = ifnull(p_refKeys,"").toString().trim();
+if(v_rawKeys == "")
+{
+	return "STOP - no referral IDs supplied";
+}
+v_normKeys = v_rawKeys.replaceAll("\r","");
+v_normKeys = v_normKeys.replaceAll("\n",",");
+v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+if(v_cfg.count() == 0)
+{
+	return "STOP - no ZEPTOMAIL config";
+}
+v_token = ifnull(v_cfg.Zepto_Send_Token,"").trim();
+if(v_token == "")
+{
+	return "STOP - no Zepto send token";
+}
+v_from = "notifications@sosreferrals.com";
+v_sent = 0;
+v_failed = 0;
+v_skipped = 0;
+v_log = List();
+for each  v_k0 in v_normKeys.toList(",")
+{
+	v_key = v_k0.trim();
+	if(v_key != "")
+	{
+		v_ref = Referrals_Main[Referral_ID == v_key];
+		if(v_ref.count() == 0)
+		{
+			if(v_key.matches("^[0-9]+$"))
+			{
+				v_ref = Referrals_Main[ID == v_key.toLong()];
+			}
+		}
+		if(v_ref.count() == 0)
+		{
+			v_skipped = v_skipped + 1;
+			v_log.add(v_key + ": NOT FOUND");
+		}
+		else
+		{
+			v_type = ifnull(v_ref.Referral_Type,"").trim();
+			v_tpl = Map();
+			if(v_type == "Patient Visit")
+			{
+				v_tpl = thisapp.build_referral_email_html(v_ref.ID);
+			}
+			else if(v_type == "3008")
+			{
+				v_tpl = thisapp.build_3008_email_html(v_ref.ID);
+			}
+			if(v_tpl.isEmpty())
+			{
+				v_skipped = v_skipped + 1;
+				v_log.add(v_key + ": NO TEMPLATE FOR TYPE " + v_type);
+			}
+			else
+			{
+				try 
+				{
+					v_fromMap = Map();
+					v_fromMap.put("address",v_from);
+					v_fromMap.put("name","SOS Mobile Medical Care");
+					v_toList = List();
+					for each  v_addr in v_addrs
+					{
+						v_addrMap = Map();
+						v_addrMap.put("address",v_addr);
+						v_entry = Map();
+						v_entry.put("email_address",v_addrMap);
+						v_toList.add(v_entry);
+					}
+					v_payload = Map();
+					v_payload.put("from",v_fromMap);
+					v_payload.put("to",v_toList);
+					v_payload.put("subject",v_tpl.get("subject").toString());
+					v_payload.put("htmlbody",v_tpl.get("html").toString());
+					v_attach = thisapp.build_creator_attachments(v_ref.ID,v_token);
+					if(v_attach.size() > 0)
+					{
+						v_payload.put("attachments",v_attach);
+					}
+					v_hdr = Map();
+					v_hdr.put("Accept","application/json");
+					v_hdr.put("Content-Type","application/json");
+					v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+					v_resp = invokeurl
+					[
+						url :"https://api.zeptomail.com/v1.1/email"
+						type :POST
+						body:v_payload.toString()
+						headers:v_hdr
+						detailed:true
+					];
+					if(v_resp.get("responseCode") == 201)
+					{
+						v_sent = v_sent + 1;
+						v_log.add(v_key + ": SENT (" + v_attach.size() + " file(s))");
+					}
+					else
+					{
+						v_failed = v_failed + 1;
+						v_log.add(v_key + ": FAIL " + v_resp.get("responseText").toString());
+					}
+				}					catch (e)
+				{
+					v_failed = v_failed + 1;
+					v_log.add(v_key + ": ERROR " + e.toString());
+				}
+			}
+		}
+	}
+}
+v_out = "TO=" + v_addrs.toString() + " | sent=" + v_sent + " | failed=" + v_failed + " | skipped=" + v_skipped;
+if(v_badAddrs.size() > 0)
+{
+	v_out = v_out + " | dropped invalid: " + v_badAddrs.toString();
+}
+return v_out + " || " + v_log.toString();

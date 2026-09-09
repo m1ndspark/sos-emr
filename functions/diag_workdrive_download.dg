@@ -1,0 +1,26 @@
+v_out = "";
+try 
+{
+	v_resp = invokeurl
+	[
+		url :"https://workdrive.zoho.com/api/v1/download/" + p_resId.trim()
+		type :GET
+		detailed:true
+		connection:"sos_workdrive"
+	];
+	v_out = "CODE " + v_resp.get("responseCode") + " | HEADERS " + v_resp.get("responseHeaders").toString();
+	v_body = v_resp.get("responseText");
+	if(v_body != null)
+	{
+		v_txt = v_body.toString();
+		if(v_txt.length() > 300)
+		{
+			v_txt = v_txt.subString(0,300);
+		}
+		v_out = v_out + " | BODY " + v_txt;
+	}
+}	catch (e)
+{
+	v_out = "ERROR " + e;
+}
+return v_out;
