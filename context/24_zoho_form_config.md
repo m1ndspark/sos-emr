@@ -87,6 +87,15 @@ Related behaviours:
 - Note elements are NOT targetable by field rules. Only fields that accept
   input appear in the action list. Any conditional message must therefore
   live in a real input field (a read-only Multi Line), not a Note.
+- NAMING A FIELD OR GRID AS THE TARGET OF A RULE'S SHOW ACTION IMPLICITLY
+  HIDES IT AT RUNTIME until that rule fires - regardless of what the Builder
+  shows for the field's own visibility (Show, mandatory) or the grid's
+  default visibility. Proven 2026-09-08 (Session 41): Patient DOB sat in a
+  grid targeted by the 3008 rule's Show action, so every Patient Visit and
+  Imaging Order referral from REF-1109 onward arrived with no DOB. SSN
+  rendered because it sits outside that grid. Fix was a second rule covering
+  Patient Visit and Imaging Order. Consequence: any field inside a
+  Show-targeted grid needs a rule for EVERY pathway that should see it.
 
 --------------------------------------------------------------------------------
 ## 4. Field rules

@@ -2,6 +2,11 @@
 
 Covers work since the Session 40 EOD log (2026-09-05). Session ran 09-06 -> 09-08.
 
+SUPERSEDED by SOS_Code_Session_Log_2026-09-08_Session41.txt, the EOD log for
+this session. This file is the mid-session snapshot and is kept for history
+only. Where the two disagree - notably the backfill_data_issues counts in
+section 3 - the EOD log is authoritative.
+
 --------------------------------------------------------------------------------
 ## 1. DOB standardization (DONE)
 --------------------------------------------------------------------------------

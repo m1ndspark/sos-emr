@@ -23,6 +23,11 @@ CODE DELIVERY
   This is the code counterpart of the pre-commit gate in context/08. The gate
   catches what reaches the repo; this rule catches what reaches Neil, which is
   earlier.
+- PRESENTATION HEADER (added 2026-09-08). Every workflow and function
+  presented to Neil carries a "Type:" line stating New or Update Existing,
+  alongside the form link name, record event, form event, and the workflow or
+  function name. Without it there is no way to tell a new object from a
+  rewrite of a live one before pasting.
 
 HANDLING UNCERTAINTY
 - Never guess. Stop and ask if anything is unclear.

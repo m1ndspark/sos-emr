@@ -1,0 +1,364 @@
+SOS CODE - SOS SESSION LOG - 2026-09-08 (Session 41)
+Ran 2026-09-06 through 2026-09-08. Continues from Session 40 EOD (2026-09-05).
+
+====================================================================
+PURPOSE OF THIS LOG
+A cold thread should be able to pick up from this file alone. It covers
+what was built, why, what was proven, and what is still open.
+
+This log SUPERSEDES SOS_Code_Checkpoint_2026-09-08_Session41.md, which
+was the mid-session snapshot. Where the two disagree (notably the
+backfill_data_issues counts), this file is authoritative.
+====================================================================
+
+
+1. THE CORE CONVENTION ESTABLISHED THIS SESSION
+
+Patient_DOB (date field) is canonical. Everything reads and writes it -
+reports, notifications, workflows, functions, pre-fills.
+
+Patient_DOB1 (text field) is the intake landing pad only. The Zoho Form
+writes into it, and Creator workflows parse it across into Patient_DOB.
+
+Patient_DOB was given the DISPLAY NAME "Patient DOB (system)". Its link
+name is unchanged. This was required because the Forms-to-Creator mapping
+picker showed two fields both labeled "Patient DOB" with no way to tell
+them apart.
+
+
+2. DOB STANDARDIZATION - ALL ITEMS COMPLETE
+
+Referrals Main On Create - Master (Referrals_Main, Created, On Success)
+  Added the Patient_DOB1 -> Patient_DOB parse with month, day, leap-year
+  and year-range validation. Also fixed Assignments.Patient_DOB, which
+  had been receiving text into a date field.
+
+backfill_patient_dob("COMMIT")
+  Ran. 4 eligible, 1 parsed and written (REF-1112), 3 unparseable:
+  REF-1096 and REF-1097 (test records, since deleted) and REF-1108
+  (partner submitted 44/44/4444).
+
+Assignments pre-fill workflows consolidated
+  Kept Assignment_Pull_From_Referral (Created or Edited) and repointed it
+  to Patient_DOB. Deleted Assignment Pull From Referral (Created).
+  Both had been firing on create and disagreeing on Facility_Phone, so
+  which value landed depended on execution order.
+
+build_referral_email_html and build_3008_email_html
+  Both now read Patient_DOB formatted M/d/yyyy. Subject lines carried
+  forward: "REF Visit: [Patient] - [REF-ID]" and
+  "REF 3008: [Patient] - [REF-ID]".
+
+Referrals_Main_Report
+  Patient_DOB1 column removed from the list view and the detail view,
+  replaced with the date field displayed as "Patient DOB".
+
+Referral DOB Sync On Edit  (NEW - Referrals_Main, Edited, On Success)
+  Parses Patient_DOB1 into Patient_DOB on edit. Guarded by
+  v_Rec.Patient_DOB != v_DobDate so the update does not re-trigger the
+  workflow. This gap was the reason REF-1098's notification kept showing a
+  blank DOB after a DOB was keyed in manually.
+
+Referral Link Pre-Fill (Encounter_PatientVisit)
+  The 46-line DOB1 parse fallback removed. Now reads
+  input.Patient_DOB = v_Rec.Patient_DOB.
+
+Provider portal profile
+  Patient_DOB1 hidden via Field Permissions. Patient DOB (system) left
+  visible. Path: Settings > Portal User Permissions > Provider >
+  Referrals Main > More > Set Permission > Field Permission.
+
+VERIFICATION
+  diag_dob_coverage() returned:
+  records=340 | both=45 | DOB only=284 | DOB1 only=0 | neither=11 |
+  mismatched=0
+  Zero DOB1-only and zero mismatches proves the date field holds
+  everything the text field does. A live zform Patient Visit submission
+  was then confirmed to populate both fields.
+
+
+3. ROOT CAUSE - DOB MISSING ON EVERY NON-3008 REFERRAL
+
+Every Patient Visit and Imaging Order referral from REF-1109 onward
+arrived with no DOB at all.
+
+Ruled out in order: the Creator mapping target (correct, pointed at
+Patient_DOB1), the Forms question (only one exists), the field's own
+visibility (Show, mandatory), and the grid's default visibility (not
+hidden in the Builder).
+
+Actual cause: Patient DOB sat inside a grid that was named as the target
+of the 3008 rule's SHOW action. Zoho Forms hides such a grid at runtime
+until the rule fires. SSN rendered because it sits outside that grid.
+
+Neil fixed it by adding a second Forms rule covering Patient Visit and
+Imaging Order. Verified working.
+
+LESSON TO CARRY FORWARD: in Zoho Forms, naming a field or grid as the
+target of a rule's Show action implicitly hides it at runtime by default,
+regardless of what the Builder shows for that field's own visibility.
+
+
+4. REFERRAL DATE - RESOLVED, NO CODE CHANGE
+
+The Referrals_Main_Report column labeled "Referral Date" was bound to
+Partner_Link.Added_Time - the PARTNER record's creation timestamp. That is
+why whole blocks of referrals shared 07-04-2026 or 06-30-2026. Confirmed
+by the field tooltip: Field name "Added Time", Related field "Partner
+Lookup", Related form "Partners".
+
+Referral_Date itself is correct. It is written in exactly one place - the
+master workflow's v_RefDate = zoho.currentdate on create. It is NOT
+sourced from Zoho Forms at all.
+
+diag_referral_dates() returned:
+  records=332 | blank=1 | matches AddedTime=47 | differs=284
+Historical dates match the date embedded in each Referral ID
+(REF-073126-1501 -> 07/31/2026), so the field is accurate.
+
+DECISION: Referral_Date stays a date field. It is never typed by a human.
+The typed-input-mask question applies only to dates a person keys in -
+Patient DOB and the Encounter_PatientVisit dates.
+
+
+5. DATA ISSUES GUARD - NEW
+
+New field on Referrals_Main:
+  Data_Issues - Multi Line - display name "Data Issues"
+
+ARCHITECTURE (after the refactor - see section 14)
+
+New function: compute_data_issues(int p_recId) -> String
+  The single source of truth for the rule set. Returns the joined issue
+  list, or an empty string when the referral is clean. Every caller uses
+  this and nothing else holds the rules.
+
+New workflow: Referral Data Issues Check
+  Referrals_Main, Created, On Success.
+  Calls compute_data_issues, writes Data_Issues, and emails
+  neil.heird@sosmmc.com. Subject "REF Data Issue: [Patient] - [REF-ID]".
+
+New workflow: Referral Data Issues Sync On Edit
+  Referrals_Main, Edited, On Success.
+  Calls compute_data_issues and writes Data_Issues only when the computed
+  value differs from what is stored. That comparison is the loop guard.
+  No email on edit - Neil is the one editing, so a notification would be
+  noise.
+
+Function: backfill_data_issues(string p_mode) -> String
+  PREVIEW / COMMIT. Calls compute_data_issues per record. Idempotent;
+  clears the flag when nothing is wrong.
+
+DESIGN DECISION: flag-and-notify, not On Validate block. A blocking
+validation would reject a partner's submission outright - the same
+failure mode as the referral that went missing on 09-05. A referral
+always lands; the gap gets flagged.
+
+RECIPIENT: Neil only, deliberately. Josh's inbox volume is already too
+high.
+
+REQUIRED-FIELD SET (20 checks, agreed with Neil)
+
+  All referrals:
+    Patient First Name, Patient Last Name
+    Patient DOB (both fields empty)
+    Patient Phone
+    Patient Address
+    Patient Location
+    Hospice ID
+    Partner Organization, Partner Location Label
+    Partner POC Name, Partner POC Email
+    Reason for Referral
+    Advanced Directives answer; plus detail when the answer is Yes
+
+  Facility only (Patient_Location == "Facility"):
+    Facility Name, Room / Unit, Facility Phone
+
+  Additional contact only (Has_Additional_Contact == "Yes"):
+    AC Name, AC Phone, AC Relationship to Patient
+
+  3008 only:
+    Patient SSN
+    3008 file upload
+
+  Imaging - when Referral_Type is "Imaging Order (only)" OR
+  X_Ray_Needed is "Yes" on a Patient Visit:
+    Imaging Test(s), Imaging Body Site, Reason for Imaging
+    Imaging order upload
+
+  Deliberately NOT checked: Patient MI, MBI, Gender, Email, Allergies,
+  Anticoagulants, Additional Information, General Files Upload.
+
+IMPLEMENTATION NOTE: the upload checks read the URL textareas
+(Files_3008_URLs, Imaging_Orders_URLs), NOT the multi-file upload fields.
+The URL fields arrive from the zform at create time; the multi-file fields
+are populated later by the master workflow's REST upload, so checking them
+would false-positive on execution order.
+
+FINAL RUN: COMMIT | records=344 | flagged=178 | cleared=0 | unchanged=166
+
+The 178 are dominated by Cognito-era imports (REF-MMDDYY-NNNN format)
+missing Hospice ID, SSN, and 3008 uploads - data that was never migrated
+rather than data a partner failed to send. Neil chose NOT to scope the
+backfill by source yet, because he still has to export once more from
+Cognito and bring August referral and PVS data into Creator manually.
+Revisit scoping after that import.
+
+Data_Issues was added as a column on Referrals_Main_Report so the flags
+are sortable and filterable.
+
+
+6. NOTIFICATION EMAIL FIXES
+
+Patient Address was being suppressed whenever Patient_Location was
+"Facility" - the builders swapped Address for the Facility / Room /
+Facility Phone block. Neil's rule: patient address is patient address,
+regardless of home or facility.
+
+Both build_referral_email_html and build_3008_email_html changed from:
+  if(Patient_Location == "Home") { Address } else { Facility block }
+to:
+  Address always
+  if(Patient_Location != "Home") { Facility block }
+
+Also: Room / Unit now prints "Not Provided" instead of an em dash when
+empty, in both builders.
+
+Swept the rest of the app - lines 8570 and 9001 in the v39 .ds were the
+only two places Address was suppressed. Every other Patient_Location
+branch is form show/hide logic, not output.
+
+KNOWN INCONSISTENCY, NOT FIXED: build_3008_email_html has no "NA"
+substitution for Allergies, Anticoagulants, or Advanced Directives -
+those print an em dash there while the Patient Visit email prints "NA".
+
+
+7. NEW DIAGNOSTICS BUILT
+
+  diag_referral_dates()  -> String, no args
+     Referral_Date vs Added_Time distribution and sample rows.
+
+  diag_dob_coverage()    -> String, no args
+     Counts records by DOB/DOB1 population and reports mismatches.
+
+
+8. NON-EMR WORK
+
+Removed asmith@sosmmc.com from 3008 notifications. Done on her Employee
+record via Email_Notification_Types - no code change.
+
+Confirmed how 3008 recipients resolve: get_notification_recipients
+("3008 Evals") returns every Active employee whose
+Email_Notification_Types contains "3008 Evals", plus a hardcoded
+sosreferrals@sosmmc.com that is always appended.
+
+Wrote the RingCentral AI receptionist master instruction for "Mia"
+(ext. 1001). Covers the company description, greeting, a 911-first
+protocol checked on every call, the routing table, telemarketer handling,
+voicemail capture, FAQ, and hard rules. Delivered as
+SOS_AI_Receptionist_Master_Instruction.md.
+
+  Routing agreed:
+    Josh - ext 101: clinical items, coordinating visits, coordinating
+      third parties (mobile x-ray, venous access), x-ray results, lab
+      results, patient transfers, field clinicians calling in, medical
+      records and ROI, pharmacy callbacks, facility staff on an active
+      visit, available services, service area.
+    Neil - ext 102: invoicing, A/P, MPU reports (not x-ray), legal,
+      media, business development, payer and insurance verification.
+    Either: referrals, staffing, complaints, customer service, job
+      applications, subpoenas, general info.
+    Voicemail: telemarketers, anything unmatched, anyone unavailable.
+    911: all callers describing a life-threatening situation.
+
+
+9. PROCESS CORRECTION NEIL RAISED
+
+When a field link name changes, the sweep of every reference must happen
+immediately and exhaustively - the .ds, workflows, functions, reports,
+portal permissions, and templates - rather than surfacing gaps one symptom
+at a time. That full sweep was run and is recorded in section 2.
+
+
+10. STILL OPEN - DATA
+
+  11 referrals have no DOB on file and need values keyed in.
+  REF-1108 has 44/44/4444 in Patient_DOB1 and needs a real DOB.
+  178 records carry Data_Issues flags; most are Cognito-era gaps.
+  Nine 3008 files remain permanently gone from WorkDrive; partners must
+    resend: REF-1083 Diane Richardson, REF-1084 Avery Heird (likely test),
+    REF-1085 Daniel Bradshaw, REF-1086 Alphonso Bradshaw, REF-1087
+    Bridget Davis, REF-1088 Cathleen Hollister, REF-1089 Georgina
+    Cruzado, REF-1090 Marie Louis, REF-1094 Richard Stephens Jr.
+  Corrupt originals still sit beside good replacements; REF-1108 is at
+    the 3-file cap.
+  Manual partner branch needed: REF-072826-1460, REF-072826-1461,
+    REF-072326-1413.
+  Orphan record 4904890000000480011.
+  August referral and PVS data still to be exported from Cognito and
+    brought into Creator manually.
+
+
+11. STILL OPEN - BUILD
+
+  3008 PVS "Reason for Referral" should auto-populate "Cares 3008
+    Evaluation" via Entry_Type_Section_Visibility (On User Input).
+  SSN required on 3008 in PVS_Required_Fields.
+  Imaging Order notification.
+  get_referral_details Custom API - blocked on reconciling Type_of_Entry
+    vs Referral_Type.
+  PVS zform build and mapping.
+  Provider Dashboard portal page buttons.
+  3008 Advanced Directives suppression conflict.
+  Reconcile the Forms Large List (26 entries) against 29 active partner
+    locations.
+  Switch live create-time notifications from build_zepto_attachments
+    (WorkDrive) to build_creator_attachments - offered, not approved.
+  build_3008_email_html "NA" substitution for Allergies, Anticoagulants,
+    Advanced Directives - to match the Patient Visit builder.
+
+
+12. HOUSEKEEPING
+
+No fresh .ds export has been provided since v39. The repo's schema files
+are stale relative to everything in sections 2, 5, and 6. Export a new
+.ds at the start of the next session.
+
+
+13. PRESENTATION RULE ADDED THIS SESSION
+
+Every workflow and function presented to Neil must carry a "Type:" line
+stating New or Update Existing, alongside the form link name, record
+event, form event, and workflow or function name.
+
+
+14. DATA ISSUES REFACTOR - DONE AT THE END OF THE SESSION
+
+Problem Neil identified: if a referral came in without a DOB and he later
+added one, Data_Issues stayed stale. Referral Data Issues Check fires on
+Created only, and Referral DOB Sync On Edit does not touch Data_Issues.
+
+The rule set was also duplicated in two places - the create workflow and
+backfill_data_issues - and would drift.
+
+Refactor, approved and completed in four parts:
+
+  1. compute_data_issues(int p_recId) -> String   NEW FUNCTION
+     Holds the entire 20-check rule set. Returns the joined flag or "".
+  2. Referral Data Issues Check (Created, On Success)   REWRITTEN
+     Now just calls compute_data_issues, writes, and emails.
+  3. Referral Data Issues Sync On Edit (Edited, On Success)   NEW
+     Recomputes on every edit; writes only when the value changes.
+  4. backfill_data_issues   REWRITTEN
+     Calls compute_data_issues per record.
+
+REGRESSION CHECK: PREVIEW after the refactor returned
+  records=347 | flagged=1 | cleared=3 | unchanged=343
+Every previously flagged record came back unchanged, proving the function
+produces identical output to the inline version. The 3 cleared were
+records fixed since the earlier COMMIT; REF-1136 was a new arrival.
+COMMIT was then run.
+
+RULE GOING FORWARD: the rule set lives in compute_data_issues and nowhere
+else. To add or change a check, edit that function only - all three
+callers pick it up.
