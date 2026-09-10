@@ -1,0 +1,345 @@
+=====================================================
+SOS EMR APP - SESSION LOG
+Date: 2026-09-09
+Session: 42
+Version: SOS-LOG-090926-42
+=====================================================
+
+PART 1 - WHAT THIS SESSION COVERED
+=====================================================
+Three threads:
+  A. Provider record visibility. Let providers sign in, portal or
+     licensed, and see only their own PVS entries.
+  B. MPU reporting in Creator. Scoped replacing the intermediate
+     normalized spreadsheet with native Creator reports.
+  C. August 2026 Cognito import. Referrals and PVS.
+
+Plus one parked question and two items queued for tomorrow.
+
+
+PART 2 - PARKED, UNRESOLVED
+=====================================================
+3008 PVS: "Was the 3008 Completed?" pre-selects Yes on entry.
+Not reproducible from the .ds. The field is radiobuttons with
+values {"No","Yes"} and no initial value, no workflow assigns it,
+and the only ="Yes" in the app is inside create_3008_pvs_july
+(the July backfill). Open question: brand-new Add form entry
+versus opening an existing July-imported record.
+
+
+PART 3 - RESEARCH FINDINGS (Creator v6 limits, all verified)
+=====================================================
+- zoho.loginuserid returns the PORTAL login email in a portal
+  session and the WORK email in a licensed session. Verified both
+  ways with a temporary diagnostic workflow. No portal detection
+  is needed anywhere.
+- thisapp.portal.loginUserEmailid() returns a list,
+  thisapp.portal.loginUserName() returns text,
+  thisapp.portal.isUserInProfile() returns boolean. All empty in a
+  licensed session. None are callable from a report or permission
+  filter.
+- Report filters accept STATIC values only. Field == zoho.loginuserid
+  is not possible as a report filter.
+- Permissions offer only "View" (records the user added) and
+  "View all". No criteria option, for app users or portal users.
+- Creator's Users field can list Customers (portal users) and be
+  designated record owner. Noted as an alternative, not built.
+- Page variables (Variables tab plus the single page script) can be
+  referenced in an embedded report filter as ${variable_name}.
+  One script per page, read only.
+- Snippet syntax is <%{ deluge %> html <% }%> with <%=var%>
+  interpolation. There is no return statement in a snippet.
+- Google Sheets custom number format uses 0 for a required digit,
+  not #. Phone mask is (000) 000-0000.
+
+
+PART 4 - SCHEMA CHANGES
+=====================================================
+Encounter_PatientVisit
+  Provider_Login_Email   Single Line   System Fields Section
+  Employee_Link          Lookup to Employees, display Employee_Name_Title
+Referrals_Main
+  Employee_Link          Lookup to Employees, System Fields Group
+
+Note: Provider_Login_Email was specced as Email but created as
+Single Line. Harmless for matching. Convert only if wanted.
+
+
+PART 5 - WORKFLOW CHANGES
+=====================================================
+Encounter_PatientVisit / Provider_Identity_Stamp
+  NEW. On Validate, Created or Edited. Renamed from
+  Provider_Login_Email_Stamp. Resolves Employees by Employee_Email
+  OR Employee_Portal_Email, stamps Provider_Login_Email and
+  Employee_Link. Sources from the record's provider, not the
+  creating session. Falls back to the stored record when
+  input.Employee_Email is blank.
+
+Assignments / Assignment_Referral_Emp
+  NEW. On Success, Created or Edited. Stamps
+  Referrals_Main.Employee_Link from the assignment. Clears it when
+  the assignment employee is cleared. Does NOT touch the PVS.
+
+Assignments / Assignment_Pull_From_Refe1
+  UPDATED. Now also pulls Referral_Date (MM/dd/yyyy),
+  Referral_Partner (Partner / Branch), Referral_POC
+  (Partner_POC_Name_Title).
+
+Referrals_Main / Referral_DOB_Sync_On_Edit and
+Referrals_Main / Referral_Data_Issues_Sync
+  FIXED. The Session 41 refactor had landed in the wrong workflow:
+  DOB_Sync held the old 82-line inline parse and Data_Issues_Sync
+  held the DOB sync body. Data_Issues had not been recomputing on
+  edit since Session 41. Both bodies restored.
+
+Encounter_PatientVisit / Diag_Session_Identity
+  Created, used, then set inactive. Spent diagnostic, no .dg file.
+
+
+PART 6 - FUNCTIONS ADDED
+=====================================================
+  backfill_provider_login_email(string pMode)
+  backfill_pvs_employee_link(string pMode)
+  backfill_pvs_employee_email_alias(pMode, pOldEmail, pNewEmail)
+  backfill_referral_employee_link(string pMode)
+  backfill_employee_name_title(string pMode)
+  diag_pvs_login_email_gaps()
+  diag_pvs_stamp_gap()
+
+
+PART 7 - DATA CORRECTIONS COMMITTED
+=====================================================
+  Ann Smith: 102 PVS records carried ardentcarellc1@gmail.com,
+    her original address. Updated to asmith@sosmmc.com.
+  Joshua Kolanko: duplicate Employees record resolved by Neil. The
+    surviving row was missing Employee_Portal_Email, then set to
+    joshua.kolanko@sosreferrals.com.
+  One blank Employees row removed. Count 12 to 11.
+  Provider_Login_Email: 288 of 288 PVS stamped, 0 unmatched.
+  Employee_Link: 288 of 288 PVS stamped, 0 unmatched.
+  Employee_Name_Title: 11 of 11 already correct, no backfill run.
+
+
+PART 8 - IN PROGRESS
+=====================================================
+Provider Dashboard filtered PVS report:
+  Page variable v_login_email (Text) created.
+  Page script set to v_login_email = zoho.loginuserid;
+  NEXT: add a Report element for PVS_Report filtered on
+  Provider Login Email is ${v_login_email}, delete the snippet
+  element, view in live mode.
+
+Design constraint carried forward: the provider portal profile must
+expose only the page, never PVS_Report as its own component, or a
+provider can reach it unfiltered.
+
+Also open: two new PVS records created by a portal user were not
+stamped by Provider_Identity_Stamp. Both were cleared by backfill.
+Go-forward behavior is unverified. Run diag_pvs_stamp_gap after the
+next real provider PVS and it either stays at zero or names the row.
+
+
+PART 9 - MPU REPORTING SCOPE
+=====================================================
+Written to context/32_mpu_reporting_creator_scope.md and to the
+project. Goal is replacing the intermediate normalized workbook, not
+the Word/PDF partner report.
+
+Every canonical column except Date Of Referral already lives on
+Encounter_PatientVisit, so the Master tab is a single-form report
+with no join.
+
+Five fields to add:
+  Procedures_Performed  Multi Select, same 15 choices as
+    Type_of_Procedures. The subset actually performed. Anything in
+    Type_of_Procedures and not in this field is an eval. Feeds the
+    savings model directly.
+  Row_Status            Dropdown: Counted, Duplicate, Cancelled,
+    Folded, Needs Review. Initial value Counted. QC only.
+  Duplicate_Of_PVS_ID   Single Line, QC only.
+  Row_Status_Note       Multi Line, QC only.
+  Referral_Date         Date, stamped from the referral pre-fill.
+
+Decision made: Neil sets Row_Status in a monthly QC pass; the
+provider sets procedure outcome at entry.
+
+Four reports to build: MPU_Master, MPU_By_Branch, MPU_QC_Review,
+MPU_Missing_PVS. Month selection via a page variable.
+
+Gaps carried forward: branch by ZIP (territory resolver still
+deferred), diversion (the provider Yes/No is unreliable, the note
+governs), service type list alignment (15 Creator choices against
+the spec's locked 17), historical months before the import range.
+
+
+PART 10 - AUGUST 2026 COGNITO IMPORT
+=====================================================
+REFERRALS: 306 rows, 2026-07-28 12:22 through 2026-08-31 20:32.
+Delivered as SOS_Referrals_Cognito_Aug2026_Filled.xlsx (Import, QC,
+Crosswalk) plus a CSV of the Import tab. 43 columns.
+
+PVS: 200 rows in, 192 after dedupe, completion dates 2026-07-28
+through 2026-08-31. Delivered as SOS_PVS_Cognito_Aug2026_Filled.xlsx
+(Import, QC, Removed) plus a CSV. 32 columns.
+
+IMPORT PROCEDURE DEFECTS FOUND (all written to context/09 as a new
+section 5B):
+  a. Section 0-A is WRONG. Partner_Location_Label still carries the
+     partner prefix: "Empath - Tidewell", "InnoVage - Tampa".
+     resolve_referral_branch_from_text matches it exactly, so the
+     import's Partner_Branch column must carry the prefixed form.
+     Following 0-A would have failed every branch resolution.
+  b. Country sub-field dropped from the address by Neil. No
+     Patient_Address_Country column.
+  c. Twelve fields in the section 1 target list no longer exist on
+     Referrals_Main. The Decision Maker block was replaced by
+     Additional Contact.
+  d. Patient_MBI and Referral_Source are now importable.
+     Facility_Room_Number replaces Patient_Room_Number.
+  e. Restricted dropdowns imported blank, backfilled later:
+     Partner_POC_Title (9 allowed vs 52 Cognito values),
+     AC_Relationship_to_Patient (3 vs 50).
+  f. Diagnosis text goes to Additional_Information.
+  g. Branch resolution is ZIP based, county maps recorded.
+  h. Chapters Okeechobee, Marathon, Alachua and all five Cornerstone
+     locations are not active but still read Active in Creator.
+
+BRANCH RESOLUTION: 295 of 306 resolved. ZIP beat the source label in
+exactly one case (REF-083026-1754, labeled Tidewell, Pinellas ZIP,
+resolved to Empath - Suncoast - PIN).
+
+Distribution: Tidewell 54, InnoVage Orlando 53, Suncoast PIN 51,
+InnoVage Tampa 46, Suncoast HIL 21, Marion 17, Trustbridge 10,
+AccentCare Pinellas 10, AccentCare Hillsborough 10, Polk 7,
+AccentCare Pasco 7, AccentCare Hernando 5, AccentCare Broward 1,
+AccentCare Miami 1, VITAS Sumter 1, VITAS Lee/Glades 1,
+Chapters LifePath 1.
+
+PARKED, PARTNER UNRESOLVED: REF-082026-1667 (Orange),
+REF-080526-1547 (Palm Beach), REF-080126-1505 "Westwood Reserve"
+(Hillsborough, POC email is a personal gmail).
+
+Six blank-org rows are self-generated and correctly carry no partner.
+
+AUDIT RESULTS (full pass, both files):
+  Clean: row and join integrity, CSV matches xlsx exactly, every
+  choice value valid against the .ds, no length overflows, all dates
+  well formed, PVS notes byte-identical to source, all procedure
+  detail values preserved.
+
+  Fixed: generational suffixes were becoming the surname
+  ("Larry P Delong Jr." to last name "Jr."); surname particles now
+  absorb ("Mary De La Cruz"); quoted nicknames keep their capital
+  ("Steven \"Carol\""); 7 rows had county as the city, resolved from
+  ZIP. Access Instructions had been mapped into the 8-character
+  Facility_Room_Number and truncated on 18 rows, moved to
+  Additional_Information.
+
+  Open: 17 patients have two-part Hispanic or Haitian surnames that
+  Cognito's single Name field cannot distinguish from a middle name.
+  Current split puts the paternal surname in the first-name field.
+  Undecided.
+
+  Hospice ID: 115 of 306 unusable. 89 are a literal 0 (InnoVage
+  PACE, which carry no hospice ID), 8 say PLEASE SEE ATTACHED, 8
+  have a partner name in the ID field, rest are NA / N/A / - / 1 /
+  UNKNOWN. MBI: 143 unusable. 26 rows hold the identical value in
+  both fields. Undecided whether to blank on import.
+
+  DOB: 11 referral and 12 PVS rows carry a DOB after 2010, five
+  equal to the referral date itself. Cognito's own Age column agrees
+  (0, 4, 7, 10, 13).
+
+  5 PVS rows completed before the referral date.
+
+  4 PVS rows reference referrals absent from the referral export,
+  referred 7/23 to 7/27.
+
+PVS DEDUPE: 200 to 192. Eight removed to a Removed tab with the
+reason on each row. Canonical picked by the MPU rule, highest acuity
+then most complete note. Three referrals keep both rows as genuine
+repeat visits: REF-080426-1531, REF-082026-1672, REF-080326-1521.
+
+Referral file needed no dedupe. Zero identical rows. Only pair worth
+review is Linda Franco, two same-day referrals, REF-083026-1755 and
+REF-083026-1751.
+
+IMPORT ERRORS HIT AND RESOLVED:
+  1. All 192 PVS rows failed with zc_captcha_txt "Please enter
+     verification code". Cause: the New PVS form has CAPTCHA enabled.
+     Fix: form builder, Properties icon, Form Properties, Restrict
+     Form Entries, uncheck Enable Captcha.
+  2. After that, On Validate gates fired:
+     Complexity_Charge_Required, PVS_Required_Fields, and
+     Billing_Branch_Required. Fix: uncheck "Execute form workflows"
+     in the wizard, then run the backfills.
+  3. One row rejected Patient_Phone "+18352709156" as an invalid
+     country code.
+
+FINAL RESULT: 191 of 192 PVS records imported. One failed. Neil is
+tracking down the bad row from the Creator error log.
+
+BLOCKING GAP RAISED, UNDECIDED: link_pvs_to_referral() matches
+Encounter_PatientVisit.Referral_ID against
+Referrals_Main.Referral_ID. The PVS file carries Cognito IDs
+(REF-083126-1764) but Referral_ID was left out of the referral
+import file, so backfill_referral_ids() will mint fresh REF-####
+values and the join will find nothing. Existing Creator referrals use
+the short minted format. Decision needed: import the Cognito IDs, or
+let Creator mint and re-map the PVS file.
+
+BACKFILLS THAT ALREADY EXIST, no new code needed:
+  backfill_pvs_ids, link_pvs_to_referral, backfill_pvs_from_referral,
+  backfill_pvs_complexity_charge, backfill_pvs_premium_fees,
+  backfill_pvs_billing_branch, backfill_pvs_employee_initials,
+  backfill_pvs_employee_email, backfill_referral_ids,
+  backfill_patient_full_names, resolve_referral_branch_from_text.
+
+
+PART 11 - REPO AND CCODE
+=====================================================
+Commits this session:
+  a623779  .ds v41 added, SOS_Referrals_App.ds refreshed
+  3d15bc3  task list, park 3008 auto-Yes
+  6aefcf0  Session 42 checkpoint
+  1ffc81a  .ds v42 added, refreshed
+  9f2750a  MPU reporting Creator scope draft
+  ad6a17a  Cognito import section 5B
+  07f034a  task list, 1 of 192 failed
+  619722f  task list, addendum PVS and RingCentral fax
+
+ccode landed the Session 42 sync in a56ebb2 and the function sweep
+in e9c8a97. NEW is now zero, every live workflow and function has a
+repo file. Nine DRIFT rows remain where live is newer than the repo,
+awaiting Neil's ruling.
+
+ccode also flagged, correctly, that the v41 export predated the
+session's work and that schema/*.md must come from run_schema_monitor
+rather than hand edits.
+
+
+PART 12 - QUEUED FOR TOMORROW
+=====================================================
+1. Addendum PVS. Define the scenario and the process. Neil suspects
+   the current design is over-thought. Existing pieces:
+   Clinical_Note_Type = Addendum, PVS_Addendum_Report.
+2. RingCentral fax API integration. May need a custom fax UI.
+   Existing pieces: Fax_Status, Fax_Log, PVS_Fax_Review,
+   build_pvs_fax_html, RC_Access_Token and RC_Token_Expiry in
+   API_Config.
+
+
+PART 13 - DECISIONS AWAITING NEIL
+=====================================================
+1. Referral_ID format for the August import. Cognito IDs or minted.
+   BLOCKING for link_pvs_to_referral.
+2. Hospice ID and MBI junk. Blank on import or clean in Creator.
+3. Two-part Hispanic and Haitian surnames, 17 patients.
+4. Type_of_Procedures 15 choices against the MPU spec's locked 17.
+5. Whether the August import needs a Cognito_Referral_ID column so
+   re-imports can key on it.
+6. Whether MPU_Master excludes Clinical_Note_Type = Preliminary.
+7. Provider_Login_Email field type, Single Line versus Email.
+8. Chapters and Cornerstone location statuses still reading Active.
+
+END
