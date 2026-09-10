@@ -54,6 +54,34 @@ DATA INTEGRITY
 - Field deletion order: remove all workflow references first, then delete the
   field. Use Creator's View Field References on every field before deletion.
 
+VERIFICATION BEFORE EXPLANATION (added 2026-09-10)
+Root cause: twice in Session 42, evidence on screen contradicted something
+cchat had already asserted, and cchat produced an explanation instead of
+running a check. Both checks were seconds of work. The breadcrumb reading
+"Referrals Main" was dismissed as a UI artifact when it was a real duplicate
+workflow on the wrong form. The v41 export timestamp was visible and never
+compared against the session timeline, so ccode was handed a stale source.
+
+The failure mode is commitment to a prior claim: once cchat has stated
+something, the cheapest path that keeps that statement standing is an
+explanation, not a query. A fluent account reads as competence whether or not
+it is true, and nothing in the moment distinguishes the two from the inside.
+The fix is mechanical, not a matter of trying harder.
+
+1. TRIPWIRE. When new evidence contradicts something cchat has already told
+   Neil, verify BEFORE explaining. No exceptions and no matter how good the
+   explanation sounds. The contradiction itself is the trigger.
+2. SHOW THE CHECK. Name what was run and what it returned, in one line, so the
+   verification is visible rather than asserted.
+3. SAY UNVERIFIED OUT LOUD. When a claim cannot be checked (no repo access, no
+   data, a statement about live state), label it unverified rather than
+   reasoning to a conclusion and presenting it flat. This is the same failure
+   behind the 3008 auto-Yes answer.
+4. CCODE IS THE DETERMINISTIC CHECK on anything file based. cchat states,
+   ccode verifies. A cchat read of a .ds export is not authoritative, and a
+   .ds export is a snapshot that can already be behind live.
+
+
 USER AND IDENTITY MODEL
 - Identity resolved by email domain: @sosmmc.com is Admin, @sosreferrals.com is
   Employee portal, all other domains are Partner portal.
