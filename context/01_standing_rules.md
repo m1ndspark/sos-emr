@@ -98,6 +98,30 @@ accidental.
   empty or obsolete. Empty today is not evidence it was always empty.
 
 
+BACKFILL SIGNATURE (added 2026-09-10)
+Every NEW backfill function takes two arguments:
+
+    string backfill_<thing>(string pMode, string pScope)
+
+- pMode: PREVIEW or COMMIT. Anything else falls back to PREVIEW rather than
+  erroring, so a typo cannot write. PREVIEW reports counts and a sample and
+  writes nothing.
+- pScope: ALL, or a comma separated list of custom IDs (Referral_ID, PVS_ID,
+  Partner_ID), or blank which means ALL. Accept a numeric record ID as a
+  fallback when the custom ID finds nothing.
+
+The reference implementation is backfill_referral_uploads(p_mode, p_refKey) in
+the live app. Match its shape.
+
+Existing backfills are NOT retrofitted. Neil ruled on 2026-09-10 that this
+applies to new functions only. Do not refactor working backfills to add scope
+unless he asks.
+
+Every backfill returns a string report: mode, scope, scanned, changed,
+unchanged, skipped with reasons, and a truncated sample of what changed. Neil
+reads PREVIEW before COMMIT is ever run.
+
+
 USER AND IDENTITY MODEL
 - Identity resolved by email domain: @sosmmc.com is Admin, @sosreferrals.com is
   Employee portal, all other domains are Partner portal.
