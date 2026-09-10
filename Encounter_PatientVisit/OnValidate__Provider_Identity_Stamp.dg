@@ -1,4 +1,14 @@
 v_email = ifnull(input.Employee_Email,"").toString().trim();
+if(v_email == "")
+{
+	if(input.ID != null)
+	{
+		for each  v_old in Encounter_PatientVisit[ID == input.ID]
+		{
+			v_email = ifnull(v_old.Employee_Email,"").toString().trim();
+		}
+	}
+}
 if(v_email != "")
 {
 	v_login = "";

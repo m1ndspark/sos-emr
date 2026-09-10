@@ -1,0 +1,20 @@
+v_out = "PVS RECORDS WITH NO Provider_Login_Email\n\n";
+v_count = 0;
+for each  v_pvs in Encounter_PatientVisit[ID != 0]
+{
+	v_cur = ifnull(v_pvs.Provider_Login_Email,"").toString().trim();
+	if(v_cur != "")
+	{
+		continue;
+	}
+	v_count = v_count + 1;
+	v_out = v_out + ifnull(v_pvs.PVS_ID,"NO-ID");
+	v_out = v_out + "  | added " + ifnull(v_pvs.Added_Time,"NULL");
+	v_out = v_out + "  | by " + ifnull(v_pvs.Added_User,"NULL");
+	v_out = v_out + "  | modified " + ifnull(v_pvs.Modified_Time,"NULL");
+	v_out = v_out + "  | entry " + ifnull(v_pvs.Type_of_Entry,"NULL");
+	v_out = v_out + "  | note " + ifnull(v_pvs.Clinical_Note_Type,"NULL");
+	v_out = v_out + "  | email " + ifnull(v_pvs.Employee_Email,"NULL") + "\n";
+}
+v_out = v_out + "\nTotal blank: " + v_count;
+return v_out;
