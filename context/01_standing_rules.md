@@ -82,6 +82,22 @@ The fix is mechanical, not a matter of trying harder.
    .ds export is a snapshot that can already be behind live.
 
 
+NOTHING IS DELETED UNTIL A COMMITTED ARTIFACT CONTAINS IT (added 2026-09-10)
+Trigger: functions/backfill_referral_upload_fields.dg was deleted while
+untracked, so git never held it and there is no history to recover it from if
+the ruling is reversed. The deletion was correct; the irreversibility was
+accidental.
+
+- Repo file that is UNTRACKED: commit it once, then delete it in a second
+  commit. History keeps it and `git log --diff-filter=D` finds it. Cost is one
+  commit.
+- Creator workflow, function or field: confirm a COMMITTED .ds export contains
+  it before deleting it live. A .ds is the only record of live Deluge; if the
+  newest committed export predates the thing being deleted, export first.
+- This applies to anything leaving the system, including workflows that look
+  empty or obsolete. Empty today is not evidence it was always empty.
+
+
 USER AND IDENTITY MODEL
 - Identity resolved by email domain: @sosmmc.com is Admin, @sosreferrals.com is
   Employee portal, all other domains are Partner portal.
