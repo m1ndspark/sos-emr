@@ -136,9 +136,16 @@ REPO CONVENTIONS
   Creator, and name the exact workflow or function.
 - Commit split: cchat (the Cowork session) commits from its VM mount at every
   CHECKPOINT and .ds sync; ccode pulls, rebases and pushes. The VM cannot
-  delete files, so each cchat git run strands a zero-byte .git/*.lock; the
-  git-lock reaper hook (fixed 2026-09-03) clears them. Do not treat those
-  locks as a sign of an interrupted operation.
+  delete files, so each cchat git run strands a zero-byte .git/*.lock. cchat
+  renames these in place to .git/*.lock.stale.<n> rather than moving them out
+  of .git, so the working tree stays clean. Do not treat those locks as a sign
+  of an interrupted operation. (Superseded 2026-09-10: an earlier _to_delete/
+  directory at the repo root served the same purpose and has been removed.)
+- Handoff channel: cchat writes one task at a time to context/handoff/NEXT.md
+  and commits. Neil runs /handoff in ccode. ccode reports back by appending to
+  context/handoff/LOG.md and resetting NEXT.md. cchat reads LOG.md off the
+  mount. Neither side relays text through Neil. See
+  context/handoff/README.md.
 
 --------------------------------------------------------------------------------
 SECRETS AND PHI (CRITICAL)
