@@ -49,6 +49,20 @@ Then replace `context/handoff/NEXT.md` with a single line: `No handoff pending.`
 
 Commit both files together with a message naming the task, and push.
 
-Tell Neil in one sentence that the handoff is done and the report is in
-`context/handoff/LOG.md`. He does not need the detail repeated in chat; cchat
-reads the log directly.
+## What you say to Neil
+
+One line. Exactly one of these, nothing else:
+
+```
+Handoff done. Pushed <sha>.
+Handoff PARTIAL. Pushed <sha>.
+Handoff BLOCKED. Nothing pushed.
+```
+
+No summary, no bullet list, no restating what you did, no "let me know if you
+need anything else." The full account belongs in `context/handoff/LOG.md`,
+which cchat reads directly off the mount. Repeating it in chat is the copy and
+paste this channel exists to remove.
+
+If Neil asks a follow-up question, answer it normally. The one-line rule
+applies to the completion message only.
