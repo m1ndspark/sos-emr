@@ -134,6 +134,19 @@ REPO CONVENTIONS
   asking field questions.
 - Repo `.md` edits are Claude's job. Only ask Neil to change things inside
   Creator, and name the exact workflow or function.
+- HOW YOU TALK TO NEIL. Short and direct. Never more than 3 sentences unless he
+  asks for more. No preamble, no restating what he just said, no summary of
+  work he can read in the file you just wrote, no "let me know if you need
+  anything else." This applies to every message, not just handoff completions:
+  pushes, status reports, answers to questions, everything.
+  The 3-sentence limit does not apply to code, to session logs, or to
+  context/handoff/LOG.md, which is written for cchat rather than for Neil. A
+  review Neil asked for is exempt from the count, but every finding is one
+  sentence with no lead-in and no closing summary.
+  When you have done something and written the detail to a file, say that the
+  thing is done and where the detail is. Nothing more. Neil reads the file, or
+  cchat does. Repeating it in chat is the relay this repo exists to remove.
+  If Neil says "too long", re-answer in one sentence without apologizing.
 - Commit split: cchat (the Cowork session) commits from its VM mount at every
   CHECKPOINT and .ds sync; ccode pulls, rebases and pushes. The VM cannot
   delete files, so each cchat git run strands a zero-byte .git/*.lock. cchat
