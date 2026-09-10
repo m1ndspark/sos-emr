@@ -236,6 +236,72 @@ LESSONS FROM THE FIRST IMPORT (2026-07-03):
   mapped to Forms "Patient Last Name" is resolved; now maps to "Decision Maker Last Name".)
 
 --------------------------------------------------------------------------------
+5B. AUGUST 2026 IMPORT NOTES (Session 42, 2026-09-09)
+--------------------------------------------------------------------------------
+a. PARTNER_LOCATION_LABEL STILL CARRIES THE PARTNER PREFIX. Section 0-A above says
+   the "Partner - CODE" format was retired and the label is now the plain location
+   name. LIVE IS NOT THAT. diag_partner_location_labels() returns labels of the form
+   "Empath - Tidewell", "InnoVage - Tampa", "Empath - Suncoast - HIL".
+   resolve_referral_branch_from_text matches Partner_Location_Label EXACTLY, so the
+   import's Partner_Branch column must carry the PREFIXED label. Section 0-A is
+   wrong and following it would silently fail every branch resolution.
+
+b. COUNTRY SUB-FIELD DROPPED. Neil removed Country from the Patient_Address
+   composite on Referrals_Main. Do not include a Patient_Address_Country column in
+   the import file, and do not map one.
+
+c. TARGET COLUMN LIST IN SECTION 1 IS STALE. Twelve fields listed there no longer
+   exist on Referrals_Main: Requested_Priority, SOS_Prior_Service, Patient_Email,
+   Patient_Responsibility, DM_First_Name, DM_Last_Name, Decision_Maker_Phone,
+   Decision_Maker_Email, Decision_Maker_Relationship_to_Patient,
+   Patient_Room_Number, Goals_of_Care, and the three X-Ray/Lab request fields.
+   The Decision Maker block was replaced by Additional Contact:
+   Has_Additional_Contact, AC_First_Name, AC_Last_Name, AC_Phone,
+   AC_Relationship_to_Patient.
+
+d. NEW FIELDS NOW IMPORTABLE. Patient_MBI exists (was PARKED in July).
+   Referral_Source exists and maps from Cognito "Who is making this referral?":
+   "Healthcare provider requesting care for a patient" = Contracted Partner,
+   "Individual requesting care for myself or someone else" = SOS Internal.
+   Facility_Room_Number replaces Patient_Room_Number as the Access Instructions
+   target.
+
+e. RESTRICTED DROPDOWNS: IMPORT BLANK, BACKFILL LATER. Partner_POC_Title allows 9
+   values against 52 distinct Cognito values; AC_Relationship_to_Patient allows 3
+   against 50. Both are imported blank and backfilled afterward rather than forced
+   into the wrong bucket.
+
+f. DIAGNOSIS TEXT GOES TO Additional_Information. Cognito "Primary
+   Diagnosis/Comorbidities" is populated on every row and was previously dropped.
+   It now imports as Additional_Information prefixed
+   "Primary Diagnosis/Comorbidities: ". Where the Cognito "Diagnosis Codes" field
+   holds prose rather than codes (7 rows in August), the raw string is appended to
+   Additional_Information and only valid-looking codes stay in Partner_ICD_Codes.
+   Creator types a column as Long Text if any cell carries a line break, which
+   triggers a data-type warning against the Single Line Partner_ICD_Codes field, so
+   strip line breaks from every column except Additional_Information.
+
+g. BRANCH RESOLUTION IS ZIP BASED. Patient ZIP resolves to county (python zipcodes
+   package), county maps to a Partner_Location_Label. ZIP beats the source label
+   when they disagree. County maps used for August:
+     Empath: Sarasota/Manatee/Charlotte/DeSoto = Tidewell | Pinellas = Suncoast -
+       PIN | Hillsborough = Suncoast - HIL | Marion = Marion | Palm Beach/Broward =
+       Trustbridge | Polk = Polk
+     AccentCare: Hillsborough, Pinellas, Pasco, Hernando, Broward, Miami-Dade map
+       to the same-named AccentCare location
+     InnoVage: Orange/Osceola/Lake/Seminole/Sumter/Volusia = Orlando |
+       Hillsborough/Pinellas/Pasco/Hernando/Polk = Tampa. InnoVage is only ever
+       Tampa or Orlando.
+     VITAS: Sumter = Sumter | Citrus = Citrus | Lee or Glades = Lee/Glades.
+       VITAS - Villages has no county rule, assign manually.
+     Chapters: entity-name based, no county rule, assign manually.
+
+h. INACTIVE LOCATIONS STILL FLAGGED ACTIVE. Chapters Okeechobee, Marathon and
+   Alachua and all five Cornerstone locations are not active per Neil, but still
+   read Partner_Location_Status = Active in Creator. No August referral came from
+   any of them. Correct the status or the resolver keeps offering them.
+
+--------------------------------------------------------------------------------
 5A. CREATOR IMPORT FINDINGS (2026-07-31 go-live rehearsal)
 --------------------------------------------------------------------------------
 a. CREATOR'S AUTO-MAP SILENTLY MIS-ASSIGNS COLUMNS. This is the headline. Observed
