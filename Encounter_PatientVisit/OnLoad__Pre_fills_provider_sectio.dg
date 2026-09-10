@@ -1,4 +1,4 @@
-v_EmpRecord = Employees[Employee_Email == zoho.loginuserid];
+v_EmpRecord = Employees[Employee_Email == zoho.loginuserid || Employee_Portal_Email == zoho.loginuserid];
 for each  v_Emp in v_EmpRecord
 {
 	input.Employee_First_Name = v_Emp.Employee_First_Name;

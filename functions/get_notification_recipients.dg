@@ -1,0 +1,17 @@
+v_out = List();
+for each  v_Emp in Employees[Employee_Status == "Active"]
+{
+	if(v_Emp.Email_Notification_Types != null && v_Emp.Email_Notification_Types.contains(p_type))
+	{
+		v_addr = ifnull(v_Emp.Employee_Email,"").toString().trim().toLowerCase();
+		if(v_addr != "" && !v_out.contains(v_addr))
+		{
+			v_out.add(v_addr);
+		}
+	}
+}
+if(!v_out.contains("sosreferrals@sosmmc.com"))
+{
+	v_out.add("sosreferrals@sosmmc.com");
+}
+return v_out;

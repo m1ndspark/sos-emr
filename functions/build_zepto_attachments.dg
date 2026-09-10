@@ -1,50 +1,79 @@
 v_out = List();
-for each  v_f in Referral_Files[Referrals_Main == p_refId]
+v_ref = Referrals_Main[ID == p_refId];
+if(v_ref.count() == 0)
 {
-	if(v_f.File_Upload != null)
+	return v_out;
+}
+v_Map = Map();
+v_Map.put("3008",v_ref.Files_3008_URLs);
+v_Map.put("General",v_ref.General_Files_URLs);
+v_Map.put("Imaging Orders",v_ref.Imaging_Orders_URLs);
+for each  v_Cat in v_Map.keys()
+{
+	v_Raw = v_Map.get(v_Cat);
+	if(v_Raw != null && v_Raw.toString().trim() != "")
 	{
-		try 
+		v_UrlList = v_Raw.toString().replaceAll("\r","").replaceAll("\n",",").toList(",");
+		for each  v_Url in v_UrlList
 		{
-			v_name = ifnull(v_f.File_Name,"").trim();
-			if(v_name == "")
+			v_U = v_Url.trim();
+			if(v_U != "" && v_U.contains("/file/"))
 			{
-				v_name = "attachment";
-			}
-			v_hdr = Map();
-			v_hdr.put("Authorization","Zoho-enczapikey " + p_token);
-			v_hdr.put("Content-Type","text/plain");
-			v_resp = invokeurl
-			[
-				url :"https://api.zeptomail.com/v1.1/files?name=" + zoho.encryption.urlEncode(v_name)
-				type :POST
-				body:v_f.File_Upload
-				headers:v_hdr
-				detailed:true
-			];
-			v_code = v_resp.get("responseCode");
-			if(v_code == 200 || v_code == 201)
-			{
-				v_txt = v_resp.get("responseText").toString();
-				if(v_txt.contains("file_cache_key"))
+				v_ResId = v_U.subString(v_U.lastIndexOf("/") + 1);
+				if(v_ResId.contains("?"))
 				{
-					v_json = v_txt.toMap();
-					v_cacheKey = ifnull(v_json.get("file_cache_key"),"").toString().trim();
-					if(v_cacheKey != "")
+					v_ResId = v_ResId.subString(0,v_ResId.indexOf("?"));
+				}
+				try 
+				{
+					v_File = invokeurl
+					[
+						url :"https://workdrive.zoho.com/api/v1/download/" + v_ResId
+						type :GET
+						connection:"sos_workdrive"
+					];
+					v_name = ifnull(v_File.getFileName(),"").trim();
+					if(v_name == "")
 					{
-						v_att = Map();
-						v_att.put("file_cache_key",v_cacheKey);
-						v_att.put("name",v_name);
-						v_out.add(v_att);
+						v_name = "attachment";
 					}
+					v_hdr = Map();
+					v_hdr.put("Authorization","Zoho-enczapikey " + p_token);
+					v_hdr.put("Content-Type","text/plain");
+					v_resp = invokeurl
+					[
+						url :"https://api.zeptomail.com/v1.1/files?name=" + zoho.encryption.urlEncode(v_name)
+						type :POST
+						body:v_File
+						headers:v_hdr
+						detailed:true
+					];
+					v_code = v_resp.get("responseCode");
+					if(v_code == 200 || v_code == 201)
+					{
+						v_txt = v_resp.get("responseText").toString();
+						if(v_txt.contains("file_cache_key"))
+						{
+							v_json = v_txt.toMap();
+							v_cacheKey = ifnull(v_json.get("file_cache_key"),"").toString().trim();
+							if(v_cacheKey != "")
+							{
+								v_att = Map();
+								v_att.put("file_cache_key",v_cacheKey);
+								v_att.put("name",v_name);
+								v_out.add(v_att);
+							}
+						}
+					}
+					else
+					{
+						info "Zepto file cache upload failed for " + v_name + ": " + v_resp.toString();
+					}
+				}					catch (e)
+				{
+					info "Zepto attachment error for " + v_Cat + " " + v_ResId + ": " + e;
 				}
 			}
-			else
-			{
-				info "Zepto file cache upload failed for " + v_name + ": " + v_resp.toString();
-			}
-		}			catch (e)
-		{
-			info "Zepto file cache upload error for Referral_Files " + v_f.ID + ": " + e;
 		}
 	}
 }

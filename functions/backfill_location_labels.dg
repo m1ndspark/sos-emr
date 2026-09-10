@@ -1,10 +1,52 @@
-v_n = 0;
-for each  loc in Partner_Locations[ID != null]
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
 {
-	update loc
-	[
-		Partner_Location_Label=loc.Partner_Location_Name
-	];
-	v_n = v_n + 1;
+	v_Mode = "PREVIEW";
 }
-return "Location labels rebuilt: " + v_n + ".";
+v_Total = 0;
+v_Changed = 0;
+v_Same = 0;
+v_Sample = List();
+for each  v_L in Partner_Locations[ID != null]
+{
+	v_Total = v_Total + 1;
+	v_Org = "";
+	if(v_L.Partner_Link != null)
+	{
+		for each  v_P in Partners[ID == v_L.Partner_Link]
+		{
+			v_Org = ifnull(v_P.Partner_Display_Name,"").toString().trim();
+		}
+	}
+	v_Name = ifnull(v_L.Partner_Location_Name,"").toString().trim();
+	v_New = v_Name;
+	if(v_Org != "" && v_Name != "")
+	{
+		v_New = v_Org + " - " + v_Name;
+	}
+	else if(v_Org != "")
+	{
+		v_New = v_Org;
+	}
+	v_Cur = ifnull(v_L.Partner_Location_Label,"").toString().trim();
+	if(v_New == v_Cur)
+	{
+		v_Same = v_Same + 1;
+	}
+	else
+	{
+		if(v_Sample.size() < 40)
+		{
+			v_Sample.add(v_Cur + " -> " + v_New);
+		}
+		if(v_Mode == "COMMIT")
+		{
+			update v_L
+			[
+				Partner_Location_Label=v_New
+			];
+		}
+		v_Changed = v_Changed + 1;
+	}
+}
+return v_Mode + " | locations=" + v_Total + " | changed=" + v_Changed + " | unchanged=" + v_Same + " || " + v_Sample.toString();

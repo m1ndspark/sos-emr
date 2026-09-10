@@ -1,0 +1,10 @@
+v_initials = "";
+if(input.Employee_First_Name != null && input.Employee_First_Name.trim() != "")
+{
+	v_initials = input.Employee_First_Name.trim().subString(0,1).toUpperCase();
+}
+if(input.Employee_Last_Name != null && input.Employee_Last_Name.trim() != "")
+{
+	v_initials = v_initials + input.Employee_Last_Name.trim().subString(0,1).toUpperCase();
+}
+input.Employee_Initials = v_initials;

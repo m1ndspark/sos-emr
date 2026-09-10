@@ -14,7 +14,6 @@ per-item content that used to live here remains in git history.
 
 Do not restore a listing here. Maintaining two indexes is what this change fixed.
 
-MANIFEST provenance: regenerated 2026-09-09 (Session 42) from
-SOS_Referrals_App_2026-09-09_v42.ds, the export taken after the Session 42 build
-landed. 199 rows, up from 190. Regenerate after each new .ds export with
+MANIFEST provenance: regenerated 2026-09-10 (Session 43) from
+SOS_Referrals_App_2026-09-10_v43.ds. Regenerate after each new .ds export with
 `python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest`.

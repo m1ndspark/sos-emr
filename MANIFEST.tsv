@@ -66,6 +66,7 @@ functions/diag_pvs_field_values.dg	diag_pvs_field_values		function					Encounter
 functions/diag_pvs_ids.dg	diag_pvs_ids		function					Encounter_PatientVisit		11fe2f47
 functions/diag_pvs_login_email_gaps.dg	diag_pvs_login_email_gaps		function					Employees;Encounter_PatientVisit		2909ae31
 functions/diag_pvs_premium_mismatches.dg	diag_pvs_premium_mismatches		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		a012e075
+functions/diag_pvs_stamp_gap.dg	diag_pvs_stamp_gap		function					Encounter_PatientVisit		523a0486
 functions/diag_referral_contact_match.dg	diag_referral_contact_match		function					Partner_Referral_Contacts;Referrals_Main		942f97a9
 functions/diag_referral_dates.dg	diag_referral_dates		function					Referrals_Main		d4cd5481
 functions/diag_referral_ids.dg	diag_referral_ids		function					Referrals_Main		ee5aefed
@@ -150,7 +151,7 @@ Encounter_PatientVisit/OnUserInput__Type_of_Entry__Section_Visibility.dg	Entry_T
 Encounter_PatientVisit/OnValidate__Billing_Branch_Required.dg	Billing_Branch_Required	Encounter_PatientVisit	OnValidate				Billing_Branch;Has_Referral_ID			cef4d0fb
 Encounter_PatientVisit/OnValidate__Complexity_Charge_Required.dg	Complexity_Charge_Require	Encounter_PatientVisit	OnValidate				Billing_Branch;Complexity_Charge;Complexity_Level	Partner_Locations		6f15ef26
 Encounter_PatientVisit/OnValidate__PVS_Required_Fields.dg	PVS_Required_Fields	Encounter_PatientVisit	OnValidate				Clinical_Note_Type;Complexity_Charge;Complexity_Level;Diversion_Tracking;Employee_Email;Employee_Name_Title;Facility_Name;Facility_Phone;Facility_Room_Number;Final_Clinical_Note;PVS_ID;Patient_Address;Patient_DOB;Patient_First_Name;Patient_Gender;Patient_Last_Name;Patient_Location;Patient_Phone;Reason_for_Referral;Type_of_Entry;Type_of_Procedures;Visit_Completion_Date			b8facf57
-Encounter_PatientVisit/OnValidate__Provider_Identity_Stamp.dg	Provider_Identity_Stamp	Encounter_PatientVisit	OnValidate			Employee_Link;Provider_Login_Email	Employee_Email	Employees		79737a8e
+Encounter_PatientVisit/OnValidate__Provider_Identity_Stamp.dg	Provider_Identity_Stamp	Encounter_PatientVisit	OnValidate			Employee_Link;Provider_Login_Email	Employee_Email;ID	Employees;Encounter_PatientVisit		cbbca45a
 Imaging_Orders/OnLoad__Default_Hide_On_Load.dg	Default_Hide_On_Load2	Imaging_Orders	OnLoad			System_Fields_Section				976db731
 Imaging_Orders/OnLoad__Facility_Visibility.dg	Imaging_Facility_Visibili1	Imaging_Orders	OnLoad			Facility_Name;Facility_Phone;Facility_Room_Number				198a9256
 Imaging_Orders/OnLoad__Imaging_Order_Provider_Stamp.dg	Imaging_Order_Provider_St	Imaging_Orders	OnLoad			Employee_Phone;Provider_NPI;Provider_Signature_Link		Employees		3bc463b9
@@ -198,3 +199,4 @@ Referrals_Main/OnUserInput__Partner_POC_Phone__Format.dg	Referral_Partner_POC_Ph
 Referrals_Main/OnUserInput__Patient_Address__Build_Full_Address.dg	Build_Patient_Full_Addres1	Referrals_Main	OnUserInput	Patient_Address		Patient_Full_Address	Patient_Address			61bbd166
 Referrals_Main/OnUserInput__Patient_Phone__Format.dg	Patient_Phone_Format1	Referrals_Main	OnUserInput	Patient_Phone		Patient_Phone				79124e82
 Referrals_Main/OnUserInput__Patient_SSN__Format.dg	SSN_Format1	Referrals_Main	OnUserInput	Patient_SSN		Patient_SSN				518381ab
+Referrals_Main/OnValidate__Provider_Identity_Stamp1.dg	Provider_Identity_Stamp1	Referrals_Main	OnValidate							da39a3ee

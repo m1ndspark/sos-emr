@@ -22,6 +22,6 @@ Field count: 18
 | Facility_Room_Number | Facility Room Number | Single Line (1) | no | no | max 8 |
 | Employee_Link | Employee Link | Dropdown/Lookup (12) | no | no |  |
 | Assignment_Notes | Assignment Notes | Multi Line (2) | no | no | max 65535 |
-| Visit_Status | Status | Dropdown/Lookup (12) | no | no | choices: Received, Contacted, Scheduled, Awaiting Equipment, Pending Results |
+| Visit_Status | Status | Dropdown/Lookup (12) | no | no | choices: Received, Contacted, Scheduled, Awaiting Equipment, Pending Results, Ordered, Report Sent, Pending Info, Completed |
 | Assignment_ID | Assignment ID | Single Line (1) | no | no | max 255 |
 | Assignment_ID_Stamp | Assignment ID Stamp | Single Line (1) | no | no | max 255 |

@@ -10,7 +10,7 @@ v_Bad = 0;
 v_BadList = List();
 for each  v_Rec in Referrals_Main[Patient_DOB == null]
 {
-	v_DobTxt = ifnull(v_Rec.Patient_DOB1,"").trim();
+	v_DobTxt = ifnull(v_Rec.Patient_DOB1,"").toString().trim();
 	if(v_DobTxt != "")
 	{
 		v_Eligible = v_Eligible + 1;

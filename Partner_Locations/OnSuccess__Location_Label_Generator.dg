@@ -1,1 +1,19 @@
-input.Partner_Location_Label = input.Partner_Location_Name;
+v_Org = "";
+if(input.Partner_Link != null)
+{
+	for each  v_P in Partners[ID == input.Partner_Link]
+	{
+		v_Org = ifnull(v_P.Partner_Display_Name,"").toString().trim();
+	}
+}
+v_Name = ifnull(input.Partner_Location_Name,"").toString().trim();
+v_Label = v_Name;
+if(v_Org != "" && v_Name != "")
+{
+	v_Label = v_Org + " - " + v_Name;
+}
+else if(v_Org != "")
+{
+	v_Label = v_Org;
+}
+input.Partner_Location_Label = v_Label;

@@ -1,0 +1,19 @@
+v_count = 0;
+for each  v_Emp in Employees[Employee_Initials == null || Employee_Initials == ""]
+{
+	v_initials = "";
+	if(v_Emp.Employee_First_Name != null && v_Emp.Employee_First_Name.trim() != "")
+	{
+		v_initials = v_Emp.Employee_First_Name.trim().subString(0,1).toUpperCase();
+	}
+	if(v_Emp.Employee_Last_Name != null && v_Emp.Employee_Last_Name.trim() != "")
+	{
+		v_initials = v_initials + v_Emp.Employee_Last_Name.trim().subString(0,1).toUpperCase();
+	}
+	if(v_initials != "")
+	{
+		v_Emp.Employee_Initials=v_initials;
+		v_count = v_count + 1;
+	}
+}
+return "Updated " + v_count + " employee(s)";
