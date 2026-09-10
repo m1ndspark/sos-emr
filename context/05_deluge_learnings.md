@@ -578,3 +578,29 @@ with <%=var%> interpolation. There is NO return statement in a snippet.
 DESIGN CONSTRAINT CARRIED FORWARD
 The provider portal profile must expose only the PAGE, never PVS_Report as its own
 component - otherwise a provider can reach the report unfiltered.
+
+IMPORT BLOCKERS FOUND IN THE AUGUST 2026 PVS IMPORT (Session 42, 2026-09-09)
+Three separate failures, each of which rejected rows outright. Check all three
+BEFORE starting any import.
+
+CAPTCHA ON THE TARGET FORM FAILS EVERY IMPORTED ROW
+The New PVS form had CAPTCHA enabled. All 192 rows failed with zc_captcha_txt
+"Please enter verification code". The import wizard has no way to satisfy it.
+FIX, before the import: form builder, Properties icon, Form Properties, Restrict
+Form Entries, uncheck Enable Captcha.
+
+"EXECUTE FORM WORKFLOWS" LETS ON VALIDATE GATES REJECT IMPORTED ROWS
+Extends "IMPORTS DO NOT FIRE ON USER INPUT" above, which records that the
+checkbox covers On Add, On Success and On Validate. The practical consequence:
+every On Validate gate runs against every imported row and blocks the ones it
+does not like. Complexity_Charge_Required, PVS_Required_Fields and
+Billing_Branch_Required each blocked the August PVS import.
+FIX: uncheck "Execute form workflows" in the wizard, import, then run the
+backfills that would have done the same work. Result was 191 of 192 rows in.
+
+PHONE-TYPE FIELDS REJECT A +1 COUNTRY CODE PREFIX
+One row was rejected for Patient_Phone "+18352709156" as an invalid country code.
+Strip the +1 before import. See also the phonenumber notes above: Referrals_Main
+phone fields are plain text while Encounter_PatientVisit phone fields are
+phonenumber, so the same value is not legal on both sides.
+

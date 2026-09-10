@@ -11,6 +11,14 @@ First established: 2026-07-03 (Session 7), importing the July Cognito export
 --------------------------------------------------------------------------------
 0-A. PARTNER LOCATION LABEL CONVENTION CHANGED (2026-08-03) - READ FIRST
 --------------------------------------------------------------------------------
+
+!! THIS SECTION IS WRONG AS OF 2026-09-09. SEE SECTION 5B(a) BEFORE ACTING ON IT.
+Live Partner_Location_Label STILL carries the partner prefix ("Empath - Tidewell",
+"InnoVage - Tampa"). Confirmed by diag_partner_location_labels() during the August
+2026 import. resolve_referral_branch_from_text matches the label EXACTLY, so an
+import file built to the convention described below fails every branch resolution.
+The rest of 0-A is kept for the history of the intended change.
+
 Partner_Location_Label is now simply Partner_Location_Name: "Marion",
 "Suncoast - PIN", "LifePath", "Tampa". It NO LONGER carries the partner prefix or
 the location code (the old "Empath - MAR" / "Partner - CODE" format is retired).
