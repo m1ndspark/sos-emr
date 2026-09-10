@@ -365,3 +365,53 @@ Run in order from the Functions console, then spot-check:
 [ ] Import into Referrals_Main (map columns; dates yyyy-MM-dd).
 [ ] Run backfills 1-3; spot-check.
 [ ] Re-enable notifications only when going live (kept muted during build).
+
+--------------------------------------------------------------------------------
+## 5C. August 2026 referral import failure and recovery (2026-09-10, Session 43)
+--------------------------------------------------------------------------------
+This section is the case study behind context/33_data_intake_verification.md.
+Read 33 first. This is what went wrong.
+
+WHAT BROKE
+The referral import file was built with no Referral_ID column. Creator's
+mint_referral_id assigned its own numbers, REF-1138 through REF-1443. The PVS
+import file carried the REF IDs pre-assigned in the build crosswalk. Those two
+sets of IDs had nothing to do with each other, so link_pvs_to_referral matched
+zero of 191 PVS rows.
+
+Referral_Date also failed to map. All 306 rows landed with the import date,
+2026-09-09.
+
+Partner_Branch was mapped into the lookup Partner_Branch_Link instead of the
+text field. That left Partner_Branch blank on all 306, made
+resolve_referral_branch_from_text a no-op, and left Partner_Link and Partner_ID
+unresolved.
+
+HOW IT WAS RECOVERED
+The minted IDs formed a contiguous block with no gaps, assigned in import file
+row order. Import file row N became REF-(1138 + N). This was verified against
+245 independently matched pairs on patient name plus DOB with zero order
+violations, then applied to all 306.
+
+A Cognito_Referral_ID field was added to Referrals_Main and populated from the
+crosswalk by an update import keyed on Creator's Referral_ID. That import also
+carried the true Referral_Date.
+
+backfill_pvs_link_by_cognito matched the PVS rows' stale Referral_ID against
+Cognito_Referral_ID and linked 187 of 193. The 6 misses were out of scope, one
+native PVS and five pointing at June and July referrals never imported.
+
+backfill_pvs_referral_id_from_link then overwrote the stale Referral_ID and
+rebuilt PVS_Referral_ID from the linked referral.
+
+RULES THIS PRODUCED
+- Referral_ID is a mandatory column in every referral import file. Never rely on
+  minting.
+- Cognito_Referral_ID on Referrals_Main preserves the source system ID and is the
+  key for any re-import.
+- Import branch as TEXT into Partner_Branch. Never map into Partner_Branch_Link.
+- backfill_pvs_from_referral is fill-if-blank and never overwrites Referral_ID.
+- Any backfill whose input was empty when it ran did nothing and still reported
+  success. Re-run it after its input is populated. This applies to
+  resync_location_labels and backfill_pvs_from_referral in particular.
+- Run the round trip diff, Gate 8 in context/33, before declaring an import done.

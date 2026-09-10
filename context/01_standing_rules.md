@@ -145,3 +145,22 @@ SAFETY AND PRIVACY
 - No PHI in SMS bodies. Keep PHI out of QuickBooks entirely. PHI lives in the EMR
   and Zoho Books, both BAA-covered.
 - HIPAA compliance confirmation required before go-live of any AI feature.
+
+DATA INTAKE VERIFICATION (added 2026-09-10)
+Every external file entering any SOS system follows
+context/33_data_intake_verification.md. Eleven gates, no skipping, no reordering.
+
+The rule: data is not "imported," data is PROVEN. A file is not done when it
+loads without an error. It is done when a round trip diff against the source
+shows zero loss and Neil has cleared every inference by name.
+
+No report, invoice, metric or partner deliverable is ever built from a data set
+that has not passed every gate. Assembling correct data comes first. Reporting
+comes last.
+
+Gate 0 names every join key before the file is built. Gate 2 proves each key
+exists as an explicit column on both sides. Gate 8 is the round trip diff and is
+never skipped. Gate 10 is an explicit release statement naming the gates run.
+
+When reporting progress, cite the gate number and the counts. Never report a
+gate complete that was not actually executed.
