@@ -1,0 +1,128 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Write = false;
+if(v_Mode == "COMMIT")
+{
+	v_Write = true;
+}
+v_Key = ifnull(p_scope,"").toString().trim();
+v_Scope = "ALL";
+v_Targets = List();
+if(v_Key == "" || v_Key.toUpperCase() == "ALL")
+{
+	for each  v_A in Encounter_PatientVisit[Referral_Link == null && Referral_ID != ""]
+	{
+		v_Targets.add(v_A.ID);
+	}
+}
+else
+{
+	v_Scope = v_Key;
+	for each  v_Part in v_Key.toList(",")
+	{
+		v_One = v_Part.trim();
+		if(v_One != "")
+		{
+			v_Hit = false;
+			for each  v_B in Encounter_PatientVisit[PVS_ID == v_One]
+			{
+				v_Targets.add(v_B.ID);
+				v_Hit = true;
+			}
+			if(!v_Hit)
+			{
+				if(v_One.matches("^[0-9]+$"))
+				{
+					for each  v_C in Encounter_PatientVisit[ID == v_One.toLong()]
+					{
+						v_Targets.add(v_C.ID);
+					}
+				}
+			}
+		}
+	}
+}
+v_Scanned = 0;
+v_Linked = 0;
+v_NoMatch = 0;
+v_Ambiguous = 0;
+v_Missing = 0;
+v_Sample = List();
+v_NoMatchList = List();
+v_AmbList = List();
+for each  v_Id in v_Targets
+{
+	v_Scanned = v_Scanned + 1;
+	v_Found = false;
+	for each  v_Pvs in Encounter_PatientVisit[ID == v_Id]
+	{
+		v_Found = true;
+		v_Label = ifnull(v_Pvs.PVS_ID,"").toString().trim();
+		if(v_Label == "")
+		{
+			v_Label = v_Pvs.ID.toString();
+		}
+		v_Stale = ifnull(v_Pvs.Referral_ID,"").toString().trim();
+		v_Hits = Referrals_Main[Cognito_Referral_ID == v_Stale];
+		v_Count = v_Hits.count();
+		if(v_Count == 0)
+		{
+			v_NoMatch = v_NoMatch + 1;
+			if(v_NoMatchList.size() < 40)
+			{
+				v_NoMatchList.add(v_Label + " [" + v_Stale + "]");
+			}
+		}
+		else if(v_Count > 1)
+		{
+			v_Ambiguous = v_Ambiguous + 1;
+			if(v_AmbList.size() < 40)
+			{
+				v_AmbList.add(v_Label + " [" + v_Stale + "] x" + v_Count);
+			}
+		}
+		else
+		{
+			v_RefRec = null;
+			for each  v_R in v_Hits
+			{
+				v_RefRec = v_R;
+				break;
+			}
+			v_Linked = v_Linked + 1;
+			if(v_Sample.size() < 40)
+			{
+				v_Sample.add(v_Label + " [" + v_Stale + "] -> " + ifnull(v_RefRec.Referral_ID,""));
+			}
+			if(v_Write)
+			{
+				update v_Pvs
+				[
+					Referral_Link=v_RefRec.ID
+				];
+			}
+		}
+		break;
+	}
+	if(!v_Found)
+	{
+		v_Missing = v_Missing + 1;
+	}
+}
+v_Out = v_Mode + " | scope=" + v_Scope + " | scanned=" + v_Scanned + " | linked=" + v_Linked + " | no match=" + v_NoMatch + " | ambiguous=" + v_Ambiguous + " | not found=" + v_Missing;
+if(v_Sample.size() > 0)
+{
+	v_Out = v_Out + " || SAMPLE: " + v_Sample.toString(", ");
+}
+if(v_NoMatchList.size() > 0)
+{
+	v_Out = v_Out + " || NO MATCH: " + v_NoMatchList.toString(", ");
+}
+if(v_AmbList.size() > 0)
+{
+	v_Out = v_Out + " || AMBIGUOUS: " + v_AmbList.toString(", ");
+}
+return v_Out;

@@ -1,0 +1,133 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Write = false;
+if(v_Mode == "COMMIT")
+{
+	v_Write = true;
+}
+v_Key = ifnull(p_pvsKey,"").toString().trim();
+v_Scope = "ALL";
+v_Targets = List();
+if(v_Key == "" || v_Key.toUpperCase() == "ALL")
+{
+	for each  v_A in Encounter_PatientVisit[Referral_Date == null]
+	{
+		v_Targets.add(v_A.ID);
+	}
+}
+else
+{
+	v_Scope = v_Key;
+	for each  v_Part in v_Key.toList(",")
+	{
+		v_One = v_Part.trim();
+		if(v_One != "")
+		{
+			v_Hit = false;
+			for each  v_B in Encounter_PatientVisit[PVS_ID == v_One]
+			{
+				v_Targets.add(v_B.ID);
+				v_Hit = true;
+			}
+			if(!v_Hit)
+			{
+				if(v_One.matches("^[0-9]+$"))
+				{
+					for each  v_C in Encounter_PatientVisit[ID == v_One.toLong()]
+					{
+						v_Targets.add(v_C.ID);
+					}
+				}
+			}
+		}
+	}
+}
+v_Scanned = 0;
+v_Changed = 0;
+v_Unchanged = 0;
+v_NoLink = 0;
+v_NoSource = 0;
+v_Missing = 0;
+v_Sample = List();
+v_NoLinkList = List();
+v_NoSourceList = List();
+for each  v_Id in v_Targets
+{
+	v_Scanned = v_Scanned + 1;
+	v_Found = false;
+	for each  v_Pvs in Encounter_PatientVisit[ID == v_Id]
+	{
+		v_Found = true;
+		v_Label = ifnull(v_Pvs.PVS_ID,"").toString().trim();
+		if(v_Label == "")
+		{
+			v_Label = v_Pvs.ID.toString();
+		}
+		if(v_Pvs.Referral_Date != null)
+		{
+			v_Unchanged = v_Unchanged + 1;
+		}
+		else if(v_Pvs.Referral_Link == null)
+		{
+			v_NoLink = v_NoLink + 1;
+			if(v_NoLinkList.size() < 40)
+			{
+				v_NoLinkList.add(v_Label);
+			}
+		}
+		else
+		{
+			v_Src = null;
+			for each  v_Ref in Referrals_Main[ID == v_Pvs.Referral_Link]
+			{
+				v_Src = v_Ref.Referral_Date;
+				break;
+			}
+			if(v_Src == null)
+			{
+				v_NoSource = v_NoSource + 1;
+				if(v_NoSourceList.size() < 40)
+				{
+					v_NoSourceList.add(v_Label);
+				}
+			}
+			else
+			{
+				v_Changed = v_Changed + 1;
+				if(v_Sample.size() < 40)
+				{
+					v_Sample.add(v_Label + " -> " + v_Src.toString("MM/dd/yyyy"));
+				}
+				if(v_Write)
+				{
+					update v_Pvs
+					[
+						Referral_Date=v_Src
+					];
+				}
+			}
+		}
+		break;
+	}
+	if(!v_Found)
+	{
+		v_Missing = v_Missing + 1;
+	}
+}
+v_Out = v_Mode + " | scope=" + v_Scope + " | scanned=" + v_Scanned + " | changed=" + v_Changed + " | unchanged=" + v_Unchanged + " | no link=" + v_NoLink + " | no source=" + v_NoSource + " | not found=" + v_Missing;
+if(v_Sample.size() > 0)
+{
+	v_Out = v_Out + " || SAMPLE: " + v_Sample.toString(", ");
+}
+if(v_NoLinkList.size() > 0)
+{
+	v_Out = v_Out + " || NO LINK: " + v_NoLinkList.toString(", ");
+}
+if(v_NoSourceList.size() > 0)
+{
+	v_Out = v_Out + " || NO SOURCE: " + v_NoSourceList.toString(", ");
+}
+return v_Out;

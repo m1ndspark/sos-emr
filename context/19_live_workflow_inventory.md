@@ -274,5 +274,60 @@ NEW standalone function (functions/):
   launch.
 
 --------------------------------------------------------------------------------
+## The .ds status flag is NOT reliable (added 2026-09-10, Session 43)
+--------------------------------------------------------------------------------
+The `status = inactive` line in a .ds workflow block does not reliably reflect
+whether a workflow is on. Only the Creator UI can be trusted for enable state.
+
+Evidence: v44 records `status = inactive` on the Encounter_PatientVisit copy of
+**Build Patient Full Address**. Neil confirmed in the Creator UI that the same
+workflow shows **Enabled**. The export and the UI disagree, and the UI is right.
+
+Rule: never conclude a workflow is off from the .ds alone. If enable state
+matters to a decision, it must be read off the Workflow tab and recorded in this
+file. That is what this file is for, and why it wins on any live-state conflict.
+
+The absence of a status line means nothing either. Most live blocks carry no
+status line at all, so "no flag" is not evidence of Enabled any more than
+`inactive` is evidence of Disabled.
+
+This retroactively weakens the existing note in this file on
+`Referrals_Main / OnSuccess / Branch_Sets_Partner_Link`, which reads INACTIVE
+with "status = inactive. Do not treat as live." That call was sourced from the
+export. It has not been confirmed against the UI and should be re-checked before
+anyone relies on it.
+
+Trap: display names are not unique across forms. v44 carries two workflows both
+named "Build Patient Full Address" - one on Encounter_PatientVisit (the one
+carrying the false `inactive` flag) and one on Referrals_Main. Always resolve a
+workflow by form plus trigger, never by display name alone.
+
+--------------------------------------------------------------------------------
+## Known drift: v44 is behind live by one line (added 2026-09-10, Session 43)
+--------------------------------------------------------------------------------
+Workflow: **Referral Link Pre-Fill**, Encounter_PatientVisit, on user input of
+Referral_Link.
+
+Live contains two lines that v44 does NOT have. Neil verified them live.
+
+After the `input.Referral_ID_Stamp = v_Rec.Referral_ID_Stamp;` assignment:
+
+    input.Referral_Date = v_Rec.Referral_Date;
+
+And in the clear branch:
+
+    input.Referral_Date = null;
+
+Confirmed absent from v44: the Referral_ID_Stamp assignment is present in the
+export with no Referral_Date assignment following it, and the only two
+`input.Referral_Date` occurrences anywhere in v44 belong to
+`Assignment_Pull_From_Referral` on the **Assignments** form, which is a different
+workflow using `refRec` and assigning `""` rather than `null`.
+
+This is expected drift, not a defect. It will appear in v45. Do NOT "fix" the
+repo copy by hand and do NOT let a sync tool write it - `ds_sync.py` compares
+against the export, so until v45 lands the export is the stale side.
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------

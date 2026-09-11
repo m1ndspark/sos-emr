@@ -47,16 +47,19 @@ and conversion is referrals with no linked PVS.
 --------------------------------------------------------------------------------
 ## 3. Field additions (Encounter_PatientVisit)
 --------------------------------------------------------------------------------
-Provider-facing, placed with `Type_of_Procedures`:
+Provider-facing: none. `Procedures_Performed` was specified here and was DROPPED
+before v44. It does not exist in the app and must not be built.
 
-| Link Name | Display Name | Type | Choices |
-|---|---|---|---|
-| Procedures_Performed | Procedure(s) Performed | Multi Select | same 15 choices as Type_of_Procedures |
+Reason: `Type_of_Procedures` is already the performed list. Its own tooltip reads
+"Select all procedures performed." The second field would have asked the provider
+to enter the same list twice.
 
-`Type_of_Procedures` remains what was addressed. `Procedures_Performed` is the
-subset actually done. Anything in the first list and not the second is an eval.
-This derives Performed vs Eval without a second data-entry step and feeds the
-savings model by counting Procedures_Performed entries by type.
+This removes the Performed vs Eval derivation as originally specified. There is
+no second list to diff against, so an eval cannot be inferred from the field
+pair. Counting for the savings model runs off `Type_of_Procedures` entries by
+type. If Performed vs Eval is still required as a distinct metric, it needs a new
+design decision, not this field. `Complexity_Level` already carries
+"Consultation / Evaluation" and is the nearest existing signal.
 
 QC-only, placed in System_Fields_Section beside `QC_Reviewed`:
 
@@ -105,7 +108,7 @@ report's filter, rather than editing the report each month.
 3. Set Row_Status to Duplicate, Cancelled or Folded as the spec directs, filling
    Duplicate_Of_PVS_ID and Row_Status_Note.
 4. Set Row_Status to Needs Review on anything that hits a QC gate.
-5. Confirm Procedures_Performed matches the note on every paracentesis and
+5. Confirm Type_of_Procedures matches the note on every paracentesis and
    thoracentesis row.
 6. Export MPU_By_Branch and MPU_Master.
 
@@ -120,8 +123,9 @@ report's filter, rather than editing the report each month.
   read for now.
 - Service type list alignment. Type_of_Procedures carries 15 choices against the
   spec's locked 17. The two lists need reconciling before the service-type mix
-  metric is trustworthy. Procedures_Performed inherits the same list, so
-  reconciling once fixes both.
+  metric is trustworthy. One list to reconcile, not two.
+- Performed vs Eval. Dropped with Procedures_Performed, see section 3. No field
+  pair derives it. Reopen as a design question if the metric is still wanted.
 - Historical months. Creator holds data from the imports forward. Any month
   before the imported range still comes from Cognito.
 

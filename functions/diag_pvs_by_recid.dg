@@ -1,0 +1,42 @@
+v_Raw = ifnull(p_ids,"").toString().trim();
+if(v_Raw == "")
+{
+	return "No IDs supplied.";
+}
+v_Out = "";
+for each  v_Part in v_Raw.toList(",")
+{
+	v_One = v_Part.trim();
+	if(v_One != "")
+	{
+		if(!v_One.matches("^[0-9]+$"))
+		{
+			v_Out = v_Out + "\n" + v_One + " : not a numeric record ID";
+		}
+		else
+		{
+			v_Found = false;
+			for each  p in Encounter_PatientVisit[ID == v_One.toLong()]
+			{
+				v_Found = true;
+				v_Link = "NULL";
+				if(p.Referral_Link != null)
+				{
+					v_Link = p.Referral_Link.toString();
+				}
+				v_Dos = "NULL";
+				if(p.Visit_Completion_Date != null)
+				{
+					v_Dos = p.Visit_Completion_Date.toString("MM/dd/yyyy");
+				}
+				v_Out = v_Out + "\nID " + p.ID + " | PVS_ID [" + ifnull(p.PVS_ID,"") + "] | Referral_ID [" + ifnull(p.Referral_ID,"") + "] | PVS_Referral_ID [" + ifnull(p.PVS_Referral_ID,"") + "] | Has_Referral_ID [" + ifnull(p.Has_Referral_ID,"") + "] | Stamp [" + ifnull(p.Referral_ID_Stamp,"") + "] | Referral_Link " + v_Link + " | Patient [" + ifnull(p.Patient_First_Name,"") + " " + ifnull(p.Patient_Last_Name,"") + "] | DOS " + v_Dos;
+				break;
+			}
+			if(!v_Found)
+			{
+				v_Out = v_Out + "\n" + v_One + " : no PVS record found";
+			}
+		}
+	}
+}
+return v_Out;
