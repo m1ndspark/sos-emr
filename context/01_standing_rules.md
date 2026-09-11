@@ -107,8 +107,14 @@ Every NEW backfill function takes two arguments:
   erroring, so a typo cannot write. PREVIEW reports counts and a sample and
   writes nothing.
 - p_scope: ALL, or a comma separated list of custom IDs (Referral_ID, PVS_ID,
-  Partner_ID), or blank which means ALL. Accept a numeric record ID as a
-  fallback when the custom ID finds nothing.
+  Partner_ID). Blank is NOT a value and returns SKIP-NOSCOPE. Accept a numeric
+  record ID as a fallback when the custom ID finds nothing.
+
+  REVERSED 2026-09-11 (Session 45). This rule previously read "or blank which
+  means ALL". That is now forbidden. A blank scope is almost always a forgotten
+  argument, and the old default turned that mistake into a silent full-table
+  write. Refusing is the only safe reading of an absent value. A caller who
+  means everything has to type ALL and own it.
 
 Parameter names are snake_case. Corrected 2026-09-10 (Session 43): this rule
 was first written with camelCase pMode/pScope, which contradicted the reference
@@ -129,6 +135,20 @@ unless he asks.
 Every backfill returns a string report: mode, scope, scanned, changed,
 unchanged, skipped with reasons, and a truncated sample of what changed. Neil
 reads PREVIEW before COMMIT is ever run.
+
+AUTOMATED REPAIR ON AN Encounter_PatientVisit (added 2026-09-11)
+A bulk repair may touch a PVS row only when all three hold:
+
+    Invoice_Link == null  AND  Invoice_Status != "Final"  AND
+    Hold_From_Invoicing != "Yes"
+
+Test Invoice_Status != "Final", never == "Draft". Invoice_Status carries exactly
+two choices, Draft and Final, so an imported row that was never touched by the
+invoice flow holds neither: its status is blank. == "Draft" silently excludes
+every imported row, which is the largest population in the table and the one
+most likely to need repair. != "Final" admits blank and Draft and excludes only
+what is actually billed. Verified against v45: Invoice_Status values are
+{"Draft","Final"} and Hold_From_Invoicing values are {"No","Yes"}.
 
 
 USER AND IDENTITY MODEL
@@ -154,6 +174,31 @@ SAFETY AND PRIVACY
 - No PHI in SMS bodies. Keep PHI out of QuickBooks entirely. PHI lives in the EMR
   and Zoho Books, both BAA-covered.
 - HIPAA compliance confirmation required before go-live of any AI feature.
+
+DATA PROVENANCE (added 2026-09-11)
+Every data point in any output, whether an email, report, page, Word file, PDF
+or module, is read directly from Creator at the moment of output. Never from an
+in-memory value, a computed value, or a value remembered from earlier in the
+script or an earlier session. If it is going in front of a human or a partner,
+it is re-read first.
+
+- Referral IDs come only from Creator. When no ID exists, the output says so and
+  the send is REFUSED. It never supplies one, never mints one to fill the gap,
+  and never falls back to a record ID dressed up as a referral ID.
+- Referral_Date is never defaulted. It is derived from Creator's system
+  Added_Time, and only for form origin records, identified by a non blank
+  Form_Token. When no trusted arrival date exists, nothing is stamped and
+  nothing is sent. An absent date is reported as absent.
+- A value found in free text, such as a DOB appearing in a clinical note, is
+  surfaced for Neil's approval and never written automatically. Free text is a
+  lead, not a source.
+
+The through line: a refusal is always cheaper than a confident wrong value. An
+output that says "no referral ID on this record" is recoverable. An output that
+invents one, or quietly reuses a stale one, corrupts the record it is reporting
+on and every downstream artifact that trusts it. This is a medical and billing
+system. Refuse and report.
+
 
 DATA INTAKE VERIFICATION (added 2026-09-10)
 Every external file entering any SOS system follows

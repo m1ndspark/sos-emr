@@ -604,3 +604,72 @@ Strip the +1 before import. See also the phonenumber notes above: Referrals_Main
 phone fields are plain text while Encounter_PatientVisit phone fields are
 phonenumber, so the same value is not legal on both sides.
 
+
+================================================================================
+SESSION 45 LEARNINGS  (2026-09-11)
+================================================================================
+
+FORM WORKFLOWS RUN IN A TRANSACTION; AN EXTERNAL CALL DOES NOT ROLL BACK
+A form workflow runs in a transaction. Any later error rolls back every record
+write made in that script. An external call already made does NOT roll back: a
+ZeptoMail send is gone the moment it leaves. This produces the worst failure
+shape available, an email delivered describing a record that no longer exists in
+that state.
+RULE: never send before the record is committed. Stamp the already-handled
+marker AFTER the send, not before. Marking first and sending second means a
+rollback erases the marker while the mail still went, and the next run sends
+again.
+This is the root cause of the Session 45 On Create notification regression. See
+the maxchar entry directly below for what threw the error.
+
+WRITING PAST A FIELD'S maxchar TERMINATES THE INSERT AND ROLLS BACK THE SCRIPT
+Writing a value longer than the destination field's maxchar does not truncate
+and does not warn. It terminates the insert and rolls back the whole script.
+Check destination field TYPE and LENGTH before writing, especially when writing
+a date into a text field.
+Assignments.Patient_DOB is text with maxchar 11 and takes MM/dd/yyyy (10 chars).
+Verified in v45. A full date-time or an ISO string with a time component
+overflows it and takes the entire transaction down with it.
+Note the same trap on Referrals_Main: Patient_DOB1 is text maxchar 11 while
+Patient_DOB is a real date field. They are easy to swap and only one of them
+will accept a string.
+
+MAP KEY TEST IS containKey, WITH NO S
+containsKey does not exist in Creator Deluge. The correct call is containKey.
+
+getHour() ON A DATE-TIME RETURNS 24 HOUR FORMAT IN THE APP TIMEZONE
+No AM/PM handling is needed, and the value is app timezone, not UTC.
+
+toDate() ACCEPTS A DATE-TIME VALUE DIRECTLY
+No string round trip is required to drop the time component.
+
+CREATOR v2.1 META APIs DO NOT COVER WORKFLOWS, FUNCTIONS OR DELUGE
+The v2.1 meta APIs cover applications, sections, forms, reports, pages and
+fields only. There is no endpoint for workflows, functions or Deluge source.
+Consequence: code cannot be pulled programmatically. The .ds export from
+Settings > Application IDE > Export remains the only machine-readable source of
+Deluge, which is why this repo is driven off dated .ds files rather than an API
+sync.
+
+Referral_Added_Time IS NOT A SYSTEM FIELD
+Referral_Added_Time is an ordinary datetime field on Referrals_Main, populated
+by backfill_referral_added_time using a non persisting bare assignment. It is
+not Creator's system timestamp and must not be trusted as one.
+RULE: read Creator's Added_Time directly. See the DATA PROVENANCE section in
+context/01, which derives Referral_Date from Added_Time and only for form origin
+records carrying a non blank Form_Token.
+
+Referral_ID HAS TWO FORMATS IN THE DATA
+Legacy rows are REF-MMDDYY-NNNN (for example REF-073126-1499). Current rows are
+REF-NNNN (for example REF-1463). Both are live in the table simultaneously.
+RULE: any numeric parse must use a strict pattern such as ^REF-[0-9]{4}$.
+A loose parse reads the legacy form as its date segment and returns a number in
+the hundreds of thousands, silently corrupting any max, sort or sequence
+calculation that consumes it.
+
+Sequence_Tracker.Object_Sequence IS THE NEXT NUMBER TO ISSUE, NOT THE LAST USED
+Increment it BEFORE stamping the record, so a failure after the increment cannot
+reissue the same number. Stamping first and incrementing second means any error
+between the two hands the next caller a duplicate ID.
+The cost of the safe order is a gap in the sequence when a run fails. Gaps are
+harmless. Duplicate referral IDs are not.

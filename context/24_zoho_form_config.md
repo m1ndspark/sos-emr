@@ -398,7 +398,15 @@ means removing the integration and adding it back, re-selecting every field by
 hand. That is why this section carries the map verbatim, and why a mis-selection
 is a rebuild rather than a correction.
 
-### The live map, 40 rows
+### SUPERSEDED by the 41-row rebuild of 2026-09-11 (Session 45)
+The 40-row map below is HISTORY. The integration was removed and rebuilt on
+2026-09-11 and the live count is now 41. See "The live map, 41 rows" at the end
+of this section. Row 5 of the table below is actively wrong and is the reason
+the rebuild happened: it maps the Creator field `Patient_DOB`, which is a real
+date field, rather than `Patient_DOB1`, which is the text field the masked form
+question has to land in.
+
+### The live map, 40 rows (HISTORY)
 State at Session 38 EOD, 2026-09-01. The map was **deleted and rebuilt twice**
 this session; this is the result of the second rebuild and it supersedes the
 38-row table filed earlier the same session (kept below as history). The two
@@ -643,6 +651,71 @@ Decision_Maker_Relationship_to_Patient, Imaging_Files_Upload,
 Lab_Type_Orders, Lab_Order_Indication, Requested_Lab_Vendor,
 Lab_Files_Upload.
 
+### The live map, 41 rows (LIVE as of 2026-09-11, Session 45)
+
+The integration was REMOVED AND REBUILT on 2026-09-11. A field map cannot be
+edited, so correcting any row means re-selecting every row by hand. The
+resulting live count is 41.
+
+READ THE MAPPING SCREEN IN THIS DIRECTION. The LEFT column is the CREATOR field.
+The RIGHT column is the ZOHO FORMS question. This is the opposite of the reading
+that feels natural when you are thinking "what does the form send", and getting
+it backwards is how row 5 was wrong for three sessions. Every table in this file
+is written left to right as Creator first, Zoho Forms second, to match the
+screen.
+
+CORRECTED TARGETS, the point of the rebuild:
+
+| Creator field (left) | Creator link name | Zoho Forms question (right) |
+|---|---|---|
+| Patient DOB | `Patient_DOB1` | the masked DOB question |
+| Patient DOB (system) | `Patient_DOB` | UNMAPPED, leave it |
+| 3008 File URLs | `Files_3008_URLs` | the 3008 upload question |
+| General Files URLs | `General_Files_URLs` | the general upload question |
+| Imaging Orders URLs | `Imaging_Orders_URLs` | the imaging upload question |
+| 3008 File Upload | `File_Upload_3008` | UNMAPPED |
+| Imaging Orders Upload | `Imaging_Orders_Upload` | UNMAPPED |
+| General Files Upload | `General_Files_Upload` | UNMAPPED |
+| Partner Organization | `Partner_Organization` | UNMAPPED, form question DELETED |
+| Partner Branch / Location | `Partner_Branch` | UNMAPPED, form question DELETED |
+
+Why each of these is the way it is:
+
+- DOB. Verified against v45: `Patient_DOB1` is text maxchar 11 with the display
+  name "Patient DOB", and `Patient_DOB` is a date field with the display name
+  "Patient DOB (system)". The display names are nearly identical and the link
+  names are one character apart, which is exactly why this was mis-selected. The
+  masked form question sends a string, so it must land in the text field. See
+  the maxchar entry in context/05: overflowing an 11-char field terminates the
+  insert and rolls back the whole script.
+- Uploads. The three Multi Line URL fields take the three form upload questions.
+  The three Creator upload-file fields stay unmapped. This is the documented
+  workaround for section 11 of this file, not a preference.
+- Partner Organization and Partner Branch. Unmapped, and their form questions
+  were deleted outright rather than left unmapped, so no future rebuild can
+  re-select them by accident.
+
+REMOVING A ROW. A Creator field that should not be mapped is removed with the
+RED MINUS. The builder will not save a row left on -Select-, so leaving it
+blank is not an option and will block the save with no useful error.
+
+### Partner Locations converted from a group list to a flat Dropdown
+
+The Partner Locations question was a GROUP LIST and is now a flat Dropdown of
+the 22 active `Partner_Location_Label` values.
+
+Root cause: in a group list the group HEADER is itself selectable. A partner
+picking the Empath header rather than a location under it produced the value
+"Empath - Main", which matches no active Partner_Location record. The value was
+well-formed and passed every downstream check, so it failed silently and only
+surfaced as referrals that could not resolve a branch.
+
+A flat Dropdown has no headers and therefore no unselectable-looking selectable
+value. Every option in the list is a real location.
+
+Carried forward: `REF-1129` and `REF-1455` still hold the dead "Empath - Main"
+label and need relabelling. Tracked in context/23.
+
 --------------------------------------------------------------------------------
 ## 11. File uploads do not reach Creator - BLOCKED on a platform limit
 --------------------------------------------------------------------------------
@@ -753,7 +826,7 @@ the Creator-side embed must be a bare iframe.
 | **File uploads cannot be mapped at all** - the three upload fields are not in the integration's Creator field dropdown, because they are multi-upload (Type 46) and the integration only accepts single-attachment fields. Section 11. | OPEN - BLOCKING the SendGrid imaging-order email |
 | Next test on the uploads: set one field to Single Upload, or add a new field created as Single, then recheck the dropdown. Section 11. | OPEN |
 | `Patient_MBI` link name unconfirmed - the field postdates the 2026-08-31 schema capture. `diag_form_fields("Referrals_Main")` settles it on demand; the next scheduled schema monitor run also picks it up. | OPEN |
-| Integration rebuild to correct both bugs above. A field map cannot be edited, so this is another full delete and re-add, 40 rows re-selected by hand. | OPEN |
+| Integration rebuild to correct both bugs above. A field map cannot be edited, so this is another full delete and re-add. | DONE 2026-09-11 (Session 45) - rebuilt at 41 rows, see section 10 |
 | Lookup messages do not appear reliably on the live form. API response and mapping both verified correct. Suspect the field's Read Only / Hidden setting blocks the prefill write. | OPEN |
 | Next diagnostic: log every call inside `get_partner_referral_contact` so a missing message with no log row (Search never fired) can be told apart from a log row with no message (write failed). Needs the Change_Log field link names. | OPEN |
 | Additional Information textarea mapped to the Yes/No radio. Row 28, survived both rebuilds. Verify against a live record. | OPEN - not blocking |

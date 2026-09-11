@@ -159,3 +159,58 @@ lines in Referral_Link_Pre_Fill.
 
 Awaiting Neil: the Performed vs Eval ruling, now fully scoped both ways.
 Awaiting you: nothing.
+
+================================================================================
+Session 45 (2026-09-11) - ccode
+================================================================================
+Docs updated: context/01 (DATA PROVENANCE, scope reversal, PVS repair guard),
+context/05 (9 Session 45 learnings), context/23 (8 DONE, 15 OPEN), context/24
+(41-row rebuild, Partner Locations Dropdown). No Deluge touched, context/08 gate
+does not apply.
+
+TWO ITEMS COULD NOT BE DONE. Neither file exists anywhere in the repo, tracked
+or untracked, and nothing was pasted:
+  - SOS_Code_Checkpoint_2026-09-11_Session45.md  (item 1)
+  - SOS_ZohoForm_Creator_Mapping_2026-09-11.md   (item 6)
+I did not invent either one. context/logs/ is unchanged and still ends at
+Session 42. Both are waiting on Neil to drop the files.
+
+ONE CONTRADICTION, RESOLVED IN FAVOUR OF THE NEW RULE. context/01 previously
+said p_scope blank "means ALL". The new rule says blank returns SKIP-NOSCOPE.
+These are exact opposites. I applied the new rule and recorded the reversal in
+place rather than leaving the doc arguing with itself, because a blank scope is
+almost always a forgotten argument and the old default turned that into a silent
+full-table write. If the old behaviour was deliberate, say so and I will revert.
+
+V45 IS UNSYNCED AND I DID NOT SYNC IT. ds_sync against v45 reports DRIFT=4,
+NEW=2:
+  DRIFT  Encounter_PatientVisit/OnLoad__Default_Hide_On_Load.dg
+  DRIFT  Encounter_PatientVisit/OnUserInput__Edit_Needed__Unlock.dg
+  DRIFT  Encounter_PatientVisit/OnUserInput__Referral_Link__PreFill.dg
+  DRIFT  Encounter_PatientVisit/OnValidate__PVS_Required_Fields.dg
+  NEW    functions/backfill_mint_missing_referral_ids.dg
+  NEW    functions/diag_unnotified_referrals.dg
+Referral_Link_Pre_Fill is the Session 43 known drift finally landing, and
+backfill_mint_missing_referral_ids is DRIFT A from the same entry. Both are now
+extractable. I left them alone because this writes Deluge and therefore trips
+the context/08 gate, and the commit message Neil specified covers docs only.
+Say the word and it is one gated commit.
+
+THE REPO HAS NO ARTIFACT FOR ANY OF TODAY'S CODE. process_new_referral,
+sos_referral_health, sweep_unnotified_referrals, the imaging notifications and
+the mint_referral_id rewrite are all absent from v45 AND from the repo. Verified:
+functions/mint_referral_id.dg still holds the old bare-assignment body, and the
+On Create master is still 415 lines with no call to process_new_referral. I
+marked the tasks DONE as instructed but wrote the missing-artifact note into
+each row, because "DONE" with nothing committed is exactly what the standing
+rule in context/01 exists to prevent. A fresh .ds is filed as BLOCKING Y.
+
+Everything else verified against v45 before writing: Assignments.Patient_DOB is
+text maxchar 11; Referrals_Main.Patient_DOB is date "Patient DOB (system)" and
+Patient_DOB1 is text maxchar 11 "Patient DOB"; Invoice_Status is {Draft,Final}
+and Hold_From_Invoicing is {No,Yes}; the three URL fields are textarea and the
+three upload fields are upload file; all four other mint_* functions carry the
+same bare-assignment pattern as mint_referral_id. containsKey appears in zero
+repo files.
+
+Awaiting Neil: the two dropped files, and a call on the v45 sync.
