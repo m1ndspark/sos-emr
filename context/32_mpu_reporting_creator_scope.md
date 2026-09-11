@@ -151,6 +151,27 @@ report's filter, rather than editing the report each month.
   On Validate rule that makes the correlation real.
 
   Neil's ruling pending. Do not build a second procedure list before he rules.
+  Both outcomes are already scoped, so no design work is owed when the ruling
+  lands:
+
+  IF PERFORMED VS EVAL IS REQUIRED (load-bearing for billing or partner
+  reporting): the fix is an On Validate rule on Encounter_PatientVisit that makes
+  the Complexity_Level correlation real, NOT a second procedure list. The rule
+  enforces what August already shows, so it converts an observed correlation into
+  a constraint the form guarantees. It also works with the existing field, adds
+  no data-entry step, and leaves every historical row derivable.
+
+  Watch two things when that rule is written. It fires on rows that predate it,
+  so anything already in the system that violates the correlation will block on
+  edit until it is corrected or the rule is scoped to new records only. And
+  Complexity_Level carries ten choices, not two, so the rule has to state which
+  ones count as performed rather than assuming High is the only one.
+
+  IF IT IS DESCRIPTIVE ONLY: leave it derived from Complexity_Level and close
+  this open design question. No field, no rule, no build.
+
+  Either way the second procedure list is off the table. It was the original
+  spec's answer and it is the wrong one.
 - Historical months. Creator holds data from the imports forward. Any month
   before the imported range still comes from Cognito.
 

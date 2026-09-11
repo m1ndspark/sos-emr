@@ -106,3 +106,56 @@ in v43. context/23_task_list.md still untouched by me.
 
 Awaiting Neil: the Performed vs Eval ruling. Awaiting you: whether to swap
 5A and 5B.
+
+================================================================================
+Session 43 follow-up 2 (2026-09-10) - ccode
+================================================================================
+5A/5B SWAP DONE. context/09 now reads 5, 5A, 5B, 5C, 6, 7 in order:
+
+    5 @212   5A @247   5B @275   5C @341   6 @391   7 @401
+
+Same verification as the 5C move: sorted content byte-identical before and
+after, 417 lines both ways, diffstat 28/28 which matches the 5A block length
+exactly. Pure move, nothing reworded.
+
+Checked cross-references, none broke. All three are by section name rather than
+by direction: line 15 points to 5B(a), the checklist points to 5A-a and 5A-c.
+The only "above" inside the moved blocks is "Section 0-A above", and 0-A is
+still above. The other two directional-looking words ("earlier conclusion",
+"previously dropped") are chronological, not positional.
+
+PROPOSED SHAPE RECORDED. context/32 now carries both branches of Neil's ruling
+under the Performed vs Eval gap, so nothing is owed when it lands:
+
+  REQUIRED   -> On Validate rule on Encounter_PatientVisit making the
+                Complexity_Level correlation real. Not a second procedure list.
+  DESCRIPTIVE-> leave it derived, close the question, no build.
+
+I added two implementation warnings to the REQUIRED branch, because "write an On
+Validate rule" hides both of them:
+
+1. It fires on rows that predate it. Anything already in the system that
+   violates the correlation will block on edit until corrected, or the rule has
+   to be scoped to new records only. August had zero exceptions, but August is
+   not the whole table.
+2. Complexity_Level carries TEN choices, not two. Verified against v44: High,
+   Moderate, Low, Hospital at Home, Telemedicine, Care Coordination, General
+   Consultation, No Charge, Cares 3008 Assessment, Visit Cancelled. The rule has
+   to state which ones count as performed. Assuming High is the only one is
+   wrong on its face, since a performed procedure on a Telemedicine or Care
+   Coordination row is not excluded by anything in the data.
+
+Also stated plainly in the doc that the second procedure list is off the table
+either way: it was the original spec's answer and it is the wrong one.
+
+Your reframing of answer 3 is on record in the doc as written, not as
+"Complexity_Level already carries it".
+
+Repo state: no Deluge touched, context/08 gate does not apply. ds_sync against
+v44 unchanged at MATCH=199, DRIFT=0, NEW=0. context/23_task_list.md still
+untouched by me. Both DO NOTs still stand: no extraction of
+backfill_mint_missing_referral_ids until v45, no hand-written Referral_Date
+lines in Referral_Link_Pre_Fill.
+
+Awaiting Neil: the Performed vs Eval ruling, now fully scoped both ways.
+Awaiting you: nothing.

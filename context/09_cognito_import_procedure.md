@@ -244,6 +244,34 @@ LESSONS FROM THE FIRST IMPORT (2026-07-03):
   mapped to Forms "Patient Last Name" is resolved; now maps to "Decision Maker Last Name".)
 
 --------------------------------------------------------------------------------
+5A. CREATOR IMPORT FINDINGS (2026-07-31 go-live rehearsal)
+--------------------------------------------------------------------------------
+a. CREATOR'S AUTO-MAP SILENTLY MIS-ASSIGNS COLUMNS. This is the headline. Observed
+   live: Referral_Type -> DM First Name, Requested_Priority -> DM Last Name,
+   Referral_Reason -> DM Phone, Partner_Branch -> Facility Room Number,
+   Referral_Date -> Imaging Ordered Date. Every "field won't import" problem chased
+   during the rehearsal traced back to this. EVERY column mapping MUST be verified
+   by hand before running the import. This is a hard step, not a note (see the
+   checklist in Section 7).
+b. The wizard's "Execute form workflows" checkbox: CHECKED fires On Success
+   workflows (PVS_ID / PVS_Referral_ID mint themselves); On User Input workflows
+   never fire either way (so Complexity_Charge still needs a backfill). See the
+   corrected bullet in Section 5.
+c. Lookup fields DO NOT come through the import. Import the value as PLAIN TEXT and
+   resolve it to the lookup in Deluge (same pattern as Zoho Forms). For referrals:
+   put the branch label in Partner_Branch (display name "Partner Branch/Location"),
+   then run resolve_referral_branch_from_text.
+d. "On import error: Skip corresponding row" silently drops the WHOLE row. A run
+   can report success and create nothing. Watch the created-count.
+e. Referrals_Main.Referral_ID imports correctly; the unique flag can stay ON. An
+   earlier conclusion that the unique flag blocked it was WRONG - the file had been
+   imported into the PVS form by mistake. No Form_Token workaround is needed:
+   Form_Token is NOT a free field (six live records carry real 10-digit tokens from
+   the public form).
+f. Date Format in the wizard defaults to MDY. Set it to year-month-day when the
+   file uses yyyy-MM-dd.
+
+--------------------------------------------------------------------------------
 5B. AUGUST 2026 IMPORT NOTES (Session 42, 2026-09-09)
 --------------------------------------------------------------------------------
 a. PARTNER_LOCATION_LABEL STILL CARRIES THE PARTNER PREFIX. Section 0-A above says
@@ -308,34 +336,6 @@ h. INACTIVE LOCATIONS STILL FLAGGED ACTIVE. Chapters Okeechobee, Marathon and
    Alachua and all five Cornerstone locations are not active per Neil, but still
    read Partner_Location_Status = Active in Creator. No August referral came from
    any of them. Correct the status or the resolver keeps offering them.
-
---------------------------------------------------------------------------------
-5A. CREATOR IMPORT FINDINGS (2026-07-31 go-live rehearsal)
---------------------------------------------------------------------------------
-a. CREATOR'S AUTO-MAP SILENTLY MIS-ASSIGNS COLUMNS. This is the headline. Observed
-   live: Referral_Type -> DM First Name, Requested_Priority -> DM Last Name,
-   Referral_Reason -> DM Phone, Partner_Branch -> Facility Room Number,
-   Referral_Date -> Imaging Ordered Date. Every "field won't import" problem chased
-   during the rehearsal traced back to this. EVERY column mapping MUST be verified
-   by hand before running the import. This is a hard step, not a note (see the
-   checklist in Section 7).
-b. The wizard's "Execute form workflows" checkbox: CHECKED fires On Success
-   workflows (PVS_ID / PVS_Referral_ID mint themselves); On User Input workflows
-   never fire either way (so Complexity_Charge still needs a backfill). See the
-   corrected bullet in Section 5.
-c. Lookup fields DO NOT come through the import. Import the value as PLAIN TEXT and
-   resolve it to the lookup in Deluge (same pattern as Zoho Forms). For referrals:
-   put the branch label in Partner_Branch (display name "Partner Branch/Location"),
-   then run resolve_referral_branch_from_text.
-d. "On import error: Skip corresponding row" silently drops the WHOLE row. A run
-   can report success and create nothing. Watch the created-count.
-e. Referrals_Main.Referral_ID imports correctly; the unique flag can stay ON. An
-   earlier conclusion that the unique flag blocked it was WRONG - the file had been
-   imported into the PVS form by mistake. No Form_Token workaround is needed:
-   Form_Token is NOT a free field (six live records carry real 10-digit tokens from
-   the public form).
-f. Date Format in the wizard defaults to MDY. Set it to year-month-day when the
-   file uses yyyy-MM-dd.
 
 --------------------------------------------------------------------------------
 ## 5C. August 2026 referral import failure and recovery (2026-09-10, Session 43)
