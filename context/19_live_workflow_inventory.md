@@ -192,8 +192,11 @@ New workflows:
 - Referrals_Main / OnUserInput Partner_Branch_Link / Branch_Sets_Partner
 - Referrals_Main / OnUserInput Partner_POC_Email / Sender_Sets_Branch
 - Referrals_Main / OnUserInput Partner_POC_Email / Partner_Contact_Lookup
-- Referrals_Main / OnSuccess / Branch_Sets_Partner_Link  [INACTIVE in Creator;
-    committed for the record, status = inactive. Do not treat as live.]
+- Referrals_Main / OnSuccess / Branch_Sets_Partner_Link  [DISABLED in Creator;
+    UI confirmed by Neil 2026-09-10. Committed for the record. Do not treat as
+    live. Evidence corrected: this was originally called from the .ds status
+    flag, which is not reliable - see the status-flag section below. The verdict
+    survived the re-check; the reasoning did not.]
 - Invoice_Batch / OnLoad / Invoice_Batch_On_Load_Disable
 - Invoice_Batch / OnSuccess / Invoice_Batch_On_Create
 - Assignments / OnLoad / Show_Hide_Facility_Name_P
@@ -291,11 +294,23 @@ The absence of a status line means nothing either. Most live blocks carry no
 status line at all, so "no flag" is not evidence of Enabled any more than
 `inactive` is evidence of Disabled.
 
-This retroactively weakens the existing note in this file on
-`Referrals_Main / OnSuccess / Branch_Sets_Partner_Link`, which reads INACTIVE
-with "status = inactive. Do not treat as live." That call was sourced from the
-export. It has not been confirmed against the UI and should be re-checked before
-anyone relies on it.
+This forced a re-check of the existing note in this file on
+`Referrals_Main / OnSuccess / Branch_Sets_Partner_Link`, which read INACTIVE on
+the strength of "status = inactive" in the export - the same unsound evidence.
+RESOLVED 2026-09-10: Neil checked the Creator UI and confirmed the workflow is
+toggled off. The verdict stands; its evidence has been replaced with the UI
+confirmation. Right answer, wrong reason, now corrected.
+
+Corroborating symptom, independent of either source: form-submitted referrals
+land with Partner_Link and Partner_ID empty, because nothing is setting them on
+success. REF-1458 read back as PartnerLink=- and PartnerID= until
+`backfill_referral_partner_fields` was run against it. A disabled
+Branch_Sets_Partner_Link predicts exactly that failure, which is stronger
+evidence than any flag in the export.
+
+The lesson generalizes: when the export and the UI disagree, do not assume the
+export's verdict is wrong - assume its evidence is worthless and go re-derive
+the answer. Here the conclusion happened to hold. Next time it may not.
 
 Trap: display names are not unique across forms. v44 carries two workflows both
 named "Build Patient Full Address" - one on Encounter_PatientVisit (the one
@@ -303,10 +318,28 @@ carrying the false `inactive` flag) and one on Referrals_Main. Always resolve a
 workflow by form plus trigger, never by display name alone.
 
 --------------------------------------------------------------------------------
-## Known drift: v44 is behind live by one line (added 2026-09-10, Session 43)
+## Known drift: v44 is behind live (added 2026-09-10, Session 43)
 --------------------------------------------------------------------------------
-Workflow: **Referral Link Pre-Fill**, Encounter_PatientVisit, on user input of
-Referral_Link.
+Two items are live and absent from v44. Both land in v45. Neither is a defect,
+and neither may be hand-written into the repo or synced before v45 exists.
+
+DRIFT A: standalone function `backfill_mint_missing_referral_ids`.
+Built and run live on 2026-09-10, after v44 was exported, so it appears nowhere
+in the export and has no `.dg` file yet. Run history:
+
+    PREVIEW | scope=ALL | scanned=20 | to mint=20 | already had an ID=0
+            | REF sequence starts at 1444
+    COMMIT  | minted REF-1444 through REF-1463
+
+Confirmed live afterward: `diag_referral_intake("4904890000000561003")` returned
+REF=REF-1463. Extract it into `functions/` on the v45 sync, not before. Until
+then `ds_sync` cannot see it and its absence from MANIFEST.tsv is expected.
+
+This also settles the Session 43 count dispute: v44 contains FOUR new functions,
+not five. The fifth exists, but it postdates the export.
+
+DRIFT B: workflow **Referral Link Pre-Fill**, Encounter_PatientVisit, on user
+input of Referral_Link.
 
 Live contains two lines that v44 does NOT have. Neil verified them live.
 
@@ -326,7 +359,8 @@ workflow using `refRec` and assigning `""` rather than `null`.
 
 This is expected drift, not a defect. It will appear in v45. Do NOT "fix" the
 repo copy by hand and do NOT let a sync tool write it - `ds_sync.py` compares
-against the export, so until v45 lands the export is the stale side.
+against the export, so until v45 lands the export is the stale side and a sync
+would look correct while being wrong.
 
 --------------------------------------------------------------------------------
 END

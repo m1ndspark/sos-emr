@@ -125,7 +125,32 @@ report's filter, rather than editing the report each month.
   spec's locked 17. The two lists need reconciling before the service-type mix
   metric is trustworthy. One list to reconcile, not two.
 - Performed vs Eval. Dropped with Procedures_Performed, see section 3. No field
-  pair derives it. Reopen as a design question if the metric is still wanted.
+  pair derives it. Open design question, with strong evidence that no new field
+  is needed:
+
+  In the August 2026 data set, adjudicated by reading all 164 clinical notes,
+  Complexity_Level already separates the two cleanly, with zero exceptions in
+  either direction:
+
+  | Outcome | Rows | Complexity_Level |
+  |---|---|---|
+  | Performed (27 paracentesis, 3 thoracentesis) | 30 | High Complexity, all 30 |
+  | Evaluated, not performed | 13 | Moderate or Low, all 13 |
+
+  A note-level adjudication is the strongest evidence available here, and it
+  says the distinction is already encoded. Deriving Performed vs Eval from
+  Complexity_Level costs nothing, adds no data-entry step, and works
+  retroactively on every row already in the system, which a new field never
+  would.
+
+  Caveat before this is treated as a rule: 164 notes is one month, the split was
+  adjudicated by hand rather than enforced by the form, and nothing stops a
+  provider from coding a performed procedure as Moderate. It is a reliable
+  observed correlation, not a constraint. If the metric becomes load-bearing for
+  billing or partner reporting, it needs either a second month that holds, or an
+  On Validate rule that makes the correlation real.
+
+  Neil's ruling pending. Do not build a second procedure list before he rules.
 - Historical months. Creator holds data from the imports forward. Any month
   before the imported range still comes from Cognito.
 

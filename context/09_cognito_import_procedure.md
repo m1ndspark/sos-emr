@@ -338,35 +338,6 @@ f. Date Format in the wizard defaults to MDY. Set it to year-month-day when the
    file uses yyyy-MM-dd.
 
 --------------------------------------------------------------------------------
-6. POST-IMPORT BACKFILL SEQUENCE
---------------------------------------------------------------------------------
-Run in order from the Functions console, then spot-check:
-  1. backfill_referral_ids()          -> mints REF-#### where blank
-  2. backfill_patient_full_names()    -> First [MI] Last (missing-only, require-last-name)
-  3. partner-match backfill           -> resolves Partner lookup / Partner_ID / Stamp
-                                         from Partner_Organization (+ Partner_Branch)
-  4. Spot-check 3-5 records vs Cognito: names/MI, dates, Yes/No picklists, partner+branch link.
-
---------------------------------------------------------------------------------
-7. PER-IMPORT CHECKLIST
---------------------------------------------------------------------------------
-[ ] Export referrals from Cognito (xlsx/csv).
-[ ] Confirm/disambiguate duplicate Cognito columns against real data.
-[ ] Map -> template; apply transforms + normalization.
-[ ] Parse partner/branch; CONFIRM the crosswalk + that partners exist in Creator.
-[ ] Verify Referral_Type defaults, Priority default, Hospice ID target.
-[ ] VERIFY EVERY COLUMN MAPPING BY HAND. Creator auto-map silently mis-assigns
-    columns (Section 5A-a). Do not trust the wizard defaults; confirm each target
-    field one by one before running.
-[ ] Set Date Format to year-month-day when the file uses yyyy-MM-dd (wizard
-    defaults to MDY).
-[ ] Import lookups as PLAIN TEXT (e.g. branch label into Partner_Branch), then
-    resolve to the lookup in Deluge (Section 5A-c). Never map into a lookup.
-[ ] Import into Referrals_Main (map columns; dates yyyy-MM-dd).
-[ ] Run backfills 1-3; spot-check.
-[ ] Re-enable notifications only when going live (kept muted during build).
-
---------------------------------------------------------------------------------
 ## 5C. August 2026 referral import failure and recovery (2026-09-10, Session 43)
 --------------------------------------------------------------------------------
 This section is the case study behind context/33_data_intake_verification.md.
@@ -415,3 +386,32 @@ RULES THIS PRODUCED
   success. Re-run it after its input is populated. This applies to
   resync_location_labels and backfill_pvs_from_referral in particular.
 - Run the round trip diff, Gate 8 in context/33, before declaring an import done.
+
+--------------------------------------------------------------------------------
+6. POST-IMPORT BACKFILL SEQUENCE
+--------------------------------------------------------------------------------
+Run in order from the Functions console, then spot-check:
+  1. backfill_referral_ids()          -> mints REF-#### where blank
+  2. backfill_patient_full_names()    -> First [MI] Last (missing-only, require-last-name)
+  3. partner-match backfill           -> resolves Partner lookup / Partner_ID / Stamp
+                                         from Partner_Organization (+ Partner_Branch)
+  4. Spot-check 3-5 records vs Cognito: names/MI, dates, Yes/No picklists, partner+branch link.
+
+--------------------------------------------------------------------------------
+7. PER-IMPORT CHECKLIST
+--------------------------------------------------------------------------------
+[ ] Export referrals from Cognito (xlsx/csv).
+[ ] Confirm/disambiguate duplicate Cognito columns against real data.
+[ ] Map -> template; apply transforms + normalization.
+[ ] Parse partner/branch; CONFIRM the crosswalk + that partners exist in Creator.
+[ ] Verify Referral_Type defaults, Priority default, Hospice ID target.
+[ ] VERIFY EVERY COLUMN MAPPING BY HAND. Creator auto-map silently mis-assigns
+    columns (Section 5A-a). Do not trust the wizard defaults; confirm each target
+    field one by one before running.
+[ ] Set Date Format to year-month-day when the file uses yyyy-MM-dd (wizard
+    defaults to MDY).
+[ ] Import lookups as PLAIN TEXT (e.g. branch label into Partner_Branch), then
+    resolve to the lookup in Deluge (Section 5A-c). Never map into a lookup.
+[ ] Import into Referrals_Main (map columns; dates yyyy-MM-dd).
+[ ] Run backfills 1-3; spot-check.
+[ ] Re-enable notifications only when going live (kept muted during build).

@@ -101,14 +101,23 @@ accidental.
 BACKFILL SIGNATURE (added 2026-09-10)
 Every NEW backfill function takes two arguments:
 
-    string backfill_<thing>(string pMode, string pScope)
+    string backfill_<thing>(string p_mode, string p_scope)
 
-- pMode: PREVIEW or COMMIT. Anything else falls back to PREVIEW rather than
+- p_mode: PREVIEW or COMMIT. Anything else falls back to PREVIEW rather than
   erroring, so a typo cannot write. PREVIEW reports counts and a sample and
   writes nothing.
-- pScope: ALL, or a comma separated list of custom IDs (Referral_ID, PVS_ID,
+- p_scope: ALL, or a comma separated list of custom IDs (Referral_ID, PVS_ID,
   Partner_ID), or blank which means ALL. Accept a numeric record ID as a
   fallback when the custom ID finds nothing.
+
+Parameter names are snake_case. Corrected 2026-09-10 (Session 43): this rule
+was first written with camelCase pMode/pScope, which contradicted the reference
+implementation it names and every backfill in the app. The code was never wrong;
+the doc was. Do not "fix" a function to match the old spelling.
+
+A more specific second parameter name is fine when the scope really is one key
+type - backfill_pvs_referral_date(p_mode, p_pvsKey) - as long as it stays
+snake_case and keeps the mode-then-scope shape.
 
 The reference implementation is backfill_referral_uploads(p_mode, p_refKey) in
 the live app. Match its shape.
