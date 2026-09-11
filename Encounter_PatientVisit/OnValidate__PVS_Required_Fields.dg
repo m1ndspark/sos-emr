@@ -20,6 +20,18 @@ if(input.Patient_Last_Name == null || input.Patient_Last_Name.trim() == "")
 }
 if(input.Patient_DOB == null)
 {
+	v_DobTxt = ifnull(input.Patient_DOB1,"").toString().trim();
+	if(v_DobTxt != "")
+	{
+		v_DobFix = thisapp.parse_patient_dob(v_DobTxt);
+		if(v_DobFix != null)
+		{
+			input.Patient_DOB = v_DobFix;
+		}
+	}
+}
+if(input.Patient_DOB == null)
+{
 	v_Missing.add("Patient DOB");
 }
 if(input.Patient_Gender == null || input.Patient_Gender == "")
@@ -72,10 +84,51 @@ if(input.Patient_Location == "Facility")
 	{
 		v_Missing.add("Facility Phone");
 	}
-	if(input.Facility_Room_Number == null || input.Facility_Room_Number.trim() == "")
+}
+if(input.Type_of_Entry == "Patient Visit")
+{
+	if(input.Clinical_Note_Type == null || input.Clinical_Note_Type == "")
 	{
-		v_Missing.add("Facility Room Number");
+		v_Missing.add("Clinical Note Type");
 	}
+	if(input.Final_Clinical_Note == null || input.Final_Clinical_Note.trim() == "")
+	{
+		v_Missing.add("Clinical Note");
+	}
+	if(v_IsNew)
+	{
+		if(input.Type_of_Procedures == null || input.Type_of_Procedures.isEmpty())
+		{
+			v_Missing.add("Type of Procedure(s)");
+		}
+	}
+	if(input.Complexity_Level == null || input.Complexity_Level == "")
+	{
+		v_Missing.add("Complexity Level");
+	}
+	if(input.Visit_Completion_Date == null)
+	{
+		v_Missing.add("Visit Completion Date");
+	}
+	if(v_Billing && v_IsNew)
+	{
+		if(input.Complexity_Charge == null)
+		{
+			v_Missing.add("Complexity Charge");
+		}
+	}
+}
+if(input.Type_of_Entry != "3008")
+{
+	if(input.Diversion_Tracking == null || input.Diversion_Tracking == "")
+	{
+		v_Missing.add("Diversion Tracking");
+	}
+}
+if(v_Missing.size() > 0)
+{
+	alert "Please complete the following required fields: " + v_Missing.toString(", ");
+	cancel submit;
 }
 if(input.Type_of_Entry == "Patient Visit")
 {

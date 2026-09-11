@@ -1,0 +1,79 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Write = false;
+if(v_Mode == "COMMIT")
+{
+	v_Write = true;
+}
+v_Key = ifnull(p_scope,"").toString().trim();
+v_Scope = "ALL";
+v_Targets = List();
+if(v_Key == "" || v_Key.toUpperCase() == "ALL")
+{
+	for each  v_A in Referrals_Main[Referral_ID == null || Referral_ID == ""]
+	{
+		v_Targets.add(v_A.ID);
+	}
+}
+else
+{
+	v_Scope = v_Key;
+	for each  v_Part in v_Key.toList(",")
+	{
+		v_One = v_Part.trim();
+		if(v_One != "")
+		{
+			if(v_One.matches("^[0-9]+$"))
+			{
+				for each  v_B in Referrals_Main[ID == v_One.toLong()]
+				{
+					v_Targets.add(v_B.ID);
+				}
+			}
+		}
+	}
+}
+v_Seq = 0;
+for each  v_T in Sequence_Tracker[Object_Prefix == "REF"]
+{
+	v_Seq = v_T.Object_Sequence;
+}
+v_Scanned = 0;
+v_Minted = 0;
+v_Skipped = 0;
+v_Sample = List();
+for each  v_Id in v_Targets
+{
+	v_Scanned = v_Scanned + 1;
+	for each  v_Rec in Referrals_Main[ID == v_Id]
+	{
+		v_Cur = ifnull(v_Rec.Referral_ID,"").toString().trim();
+		if(v_Cur != "")
+		{
+			v_Skipped = v_Skipped + 1;
+		}
+		else
+		{
+			v_Last = ifnull(v_Rec.Patient_Last_Name,"").toString().trim();
+			v_Minted = v_Minted + 1;
+			if(v_Sample.size() < 40)
+			{
+				v_Sample.add(v_Rec.ID.toString() + " [" + v_Last + "]");
+			}
+			if(v_Write)
+			{
+				thisapp.mint_referral_id(v_Rec.ID);
+			}
+		}
+		break;
+	}
+}
+v_Out = v_Mode + " | scope=" + v_Scope + " | scanned=" + v_Scanned + " | to mint=" + v_Minted + " | already had an ID=" + v_Skipped + " | REF sequence starts at " + v_Seq;
+if(v_Sample.size() > 0)
+{
+	v_Out = v_Out + " || TARGETS: " + v_Sample.toString(", ");
+}
+return v_Out;

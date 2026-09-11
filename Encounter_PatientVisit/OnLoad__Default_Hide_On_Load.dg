@@ -52,9 +52,7 @@ if(input.Has_Referral_ID == "Yes")
 	disable Patient_First_Name;
 	disable Patient_MI;
 	disable Patient_Last_Name;
-	disable Patient_DOB;
 	disable Patient_Gender;
-	disable Patient_Address;
 	disable Partner_ICD_Codes;
 	disable Reason_for_Referral;
 	disable Goals_of_Care;

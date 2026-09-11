@@ -1,0 +1,24 @@
+v_Count = 0;
+v_Out = "";
+for each  r in Referrals_Main[Referral_Date == null]
+{
+	v_Count = v_Count + 1;
+	v_Label = ifnull(r.Referral_ID,"").toString().trim();
+	if(v_Label == "")
+	{
+		v_Label = r.ID.toString();
+	}
+	v_Reason = ifnull(r.Referral_Reason,"").toString().trim();
+	if(v_Reason.length() > 70)
+	{
+		v_Reason = v_Reason.subString(0,70) + "...";
+	}
+	v_Asg = "NO ASSIGNMENT";
+	for each  a in Assignments[Referral_Link == r.ID]
+	{
+		v_Asg = "assigned";
+		break;
+	}
+	v_Out = v_Out + "\n" + v_Label + " | " + ifnull(r.Patient_First_Name,"") + " " + ifnull(r.Patient_Last_Name,"") + " | " + ifnull(r.Partner_Organization,"") + " / " + ifnull(r.Partner_Branch,"") + " | " + ifnull(r.Referral_Type,"") + " | " + v_Reason + " | " + ifnull(r.Partner_POC_Email,"") + " | " + v_Asg;
+}
+return "Referrals where the On Create workflow never ran, so no notification and no assignment: " + v_Count + v_Out;

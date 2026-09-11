@@ -318,8 +318,22 @@ carrying the false `inactive` flag) and one on Referrals_Main. Always resolve a
 workflow by form plus trigger, never by display name alone.
 
 --------------------------------------------------------------------------------
-## Known drift: v44 is behind live (added 2026-09-10, Session 43)
+## Known drift: v44 was behind live - RESOLVED 2026-09-11 in v45
 --------------------------------------------------------------------------------
+CLOSED. v45 was exported 2026-09-11 and both items below landed in it exactly as
+predicted. Both are now synced into the repo. No hand-writing was ever done and
+none was needed.
+
+DRIFT A arrived as functions/backfill_mint_missing_referral_ids.dg.
+DRIFT B arrived as the two input.Referral_Date lines in
+Encounter_PatientVisit/OnUserInput__Referral_Link__PreFill.dg, in the exact
+positions recorded below: after the Referral_ID_Stamp assignment, and in the
+clear branch. The Session 43 prediction was correct line for line.
+
+The record below is kept as written, because a prediction that held is worth
+more as evidence than a tidied-up summary.
+
+ORIGINAL ENTRY, 2026-09-10:
 Two items are live and absent from v44. Both land in v45. Neither is a defect,
 and neither may be hand-written into the repo or synced before v45 exists.
 

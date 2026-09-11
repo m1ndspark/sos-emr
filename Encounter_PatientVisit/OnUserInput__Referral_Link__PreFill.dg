@@ -21,6 +21,7 @@ if(input.Referral_Link != null)
 		input.Facility_Room_Number = v_Rec.Facility_Room_Number;
 		input.Referral_ID = v_Rec.Referral_ID;
 		input.Referral_ID_Stamp = v_Rec.Referral_ID_Stamp;
+		input.Referral_Date = v_Rec.Referral_Date;
 		input.Partner_ID = v_Rec.Partner_ID;
 		input.Partner_ID_Stamp = v_Rec.Partner_ID_Stamp;
 		input.Partner_Organization = v_Rec.Partner_Organization;
@@ -52,10 +53,7 @@ if(input.Referral_Link != null)
 		hide Patient_MI;
 		hide Patient_Last_Name;
 		disable Patient_Full_Name_1;
-		disable Patient_DOB;
 		disable Patient_Gender;
-		disable Patient_Address;
-		disable Patient_Phone;
 		disable Patient_Email;
 		disable Patient_Hospice_ID;
 		disable Patient_SSN;
@@ -110,6 +108,7 @@ else
 	input.Facility_Room_Number = null;
 	input.Referral_ID = null;
 	input.Referral_ID_Stamp = null;
+	input.Referral_Date = null;
 	input.Partner_ID = null;
 	input.Partner_ID_Stamp = null;
 	input.Partner_Organization = null;

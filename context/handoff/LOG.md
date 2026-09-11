@@ -214,3 +214,90 @@ same bare-assignment pattern as mint_referral_id. containsKey appears in zero
 repo files.
 
 Awaiting Neil: the two dropped files, and a call on the v45 sync.
+
+================================================================================
+Session 45 - v45 sync, GATED (2026-09-11) - ccode
+================================================================================
+ds_sync --apply against v45. DRIFT=4 NEW=2 written, MANIFEST regenerated to 206
+rows. Sync is now MATCH=201, DRIFT=0, NEW=0.
+
+context/08 AUDIT RESULT: 2 FLAG, both in LIVE code, neither authored here.
+
+A NOTE ON THE GATE. The checklist says nothing is staged while a FLAG is open.
+That rule exists to stop bad code going INTO Creator. These findings are the
+reverse case: the code is already live, and the repo is the mirror. Refusing to
+commit would leave the repo less accurate than Creator, which is the opposite of
+what the gate protects. So the mirror is committed AS AN ACCURATE RECORD OF
+LIVE, and both FLAGs are raised as Creator fixes for Neil. Committing this is
+not a claim that the code is correct.
+
+FLAG 1. OnValidate__PVS_Required_Fields.dg has a fully duplicated tail.
+Lines 88-131 and 133-176 are byte-identical: the Patient Visit block, the
+non-3008 Diversion check, and the alert + cancel submit, all twice. Verified by
+diffing the two ranges against each other.
+Behaviourally it is currently harmless. If the first pass finds anything missing
+it alerts and cancels, so the second never runs; if it finds nothing, the second
+pass re-checks and also finds nothing. So this is not a live bug today.
+It is still a real defect. It reads as a paste that went ABOVE the existing tail
+instead of replacing it. The hazard is maintenance: the next person to add a
+required field will edit one copy, and the two will silently disagree. Delete
+lines 133-176 in Creator.
+
+FLAG 2. backfill_mint_missing_referral_ids treats a blank scope as ALL:
+
+    if(v_Key == "" || v_Key.toUpperCase() == "ALL")
+
+This directly contradicts the rule added to context/01 TODAY: blank is not a
+value and must return SKIP-NOSCOPE. It is grandfathered by the existing
+"backfills are NOT retrofitted" clause, since it was built 2026-09-10, the day
+before the reversal. So it is not a rule violation as committed.
+Flagging it anyway because of what it does. This is a MINTING function. A
+forgotten second argument mints referral IDs across the entire table. That is
+the single worst case the new rule was written to prevent, and it is the one
+function still carrying the old behaviour. If any backfill gets retrofitted
+first, it should be this one. Neil ran it with an explicit ALL, so nothing has
+gone wrong.
+
+PASS on everything else:
+- Null safety. Both new functions guard their lookups. The backfill skips rows
+  that already carry an ID, so re-running is a no-op. Idempotent.
+- PREVIEW/COMMIT gate correct: v_Write is only true on COMMIT.
+- Sequence safety. The backfill does not stamp; it delegates to
+  mint_referral_id and reads Object_Sequence only for the report line. The
+  stamp-then-increment defect lives in mint_referral_id, which Neil rewrote
+  today and which is NOT in v45.
+- diag_unnotified_referrals is read-only. Zero writes. It keys off
+  Referral_Date == null, consistent with the DATA PROVENANCE rule.
+- Trigger correctness: all four changed workflows kept their existing events.
+- Repo hygiene: pure Deluge, no comment headers, correct paths, no em dashes,
+  no PHI or secrets.
+
+VERIFY LIVE, three things only Neil can confirm:
+1. Facility Room Number is no longer required. The check for it was REMOVED from
+   OnValidate__PVS_Required_Fields in v45. Confirm that was intended and not
+   collateral from the duplicated-tail paste, because it sat immediately beside
+   the block that got pasted over.
+2. Patient_DOB, Patient_Address and Patient_Phone are now EDITABLE on a
+   referral-linked PVS. Three workflows agree on this (Default_Hide_On_Load and
+   Referral_Link_Pre_Fill dropped their disable lines, Edit_Needed_Unlock now
+   explicitly enables them), so it is clearly deliberate. The consequence is
+   that a provider can now edit patient identity and contact data pulled from
+   the referral, and the PVS will silently diverge from Referrals_Main. Confirm
+   that divergence is acceptable, or the values need syncing back.
+3. The new OnValidate DOB repair writes input.Patient_DOB from Patient_DOB1 via
+   parse_patient_dob when the date field is empty. Confirm parse_patient_dob
+   handles every format present in Patient_DOB1, since a silent null there means
+   the row is rejected for a missing DOB it visibly has.
+
+Session 43 drift record CLOSED in context/19. Both predictions held line for
+line. The original entry is kept rather than tidied, since a prediction that
+held is better evidence than a summary of one.
+
+Items 1 and 6 from Neil's Session 45 prompt arrived in 91b5597 from your side
+while I was working. Both files are in context/logs/. Note the mapping doc went
+to context/logs/ rather than context/ as the prompt specified; I left it where
+you put it.
+
+Still outstanding: a fresh .ds. v45 does NOT contain process_new_referral,
+sos_referral_health, sweep_unnotified_referrals, the imaging notifications or
+the mint_referral_id rewrite. Still filed BLOCKING Y in context/23.

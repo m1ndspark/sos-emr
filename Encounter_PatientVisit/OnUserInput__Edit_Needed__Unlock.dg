@@ -33,10 +33,10 @@ if(input.Has_Referral_ID == "Yes")
 		hide Patient_MI;
 		hide Patient_Last_Name;
 		disable Patient_Full_Name_1;
-		disable Patient_DOB;
+		enable Patient_DOB;
+		enable Patient_Address;
+		enable Patient_Phone;
 		disable Patient_Gender;
-		disable Patient_Address;
-		disable Patient_Phone;
 		disable Patient_Email;
 		disable Patient_Hospice_ID;
 		disable Patient_SSN;
