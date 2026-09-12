@@ -1,0 +1,101 @@
+v_Max = Map();
+v_Cnt = Map();
+v_Legacy = Map();
+for each  v_P0 in {"REF","ASG","EMP","PAR"}
+{
+	v_Max.put(v_P0,0);
+	v_Cnt.put(v_P0,0);
+	v_Legacy.put(v_P0,0);
+}
+for each  r in Referrals_Main[ID != null]
+{
+	v_V = ifnull(r.Referral_ID,"").toString().trim();
+	if(v_V.matches("^REF-[0-9]{4}$"))
+	{
+		v_N = v_V.subString(4).toLong();
+		v_Cnt.put("REF",v_Cnt.get("REF").toLong() + 1);
+		if(v_N > v_Max.get("REF").toLong())
+		{
+			v_Max.put("REF",v_N);
+		}
+	}
+	else if(v_V != "")
+	{
+		v_Legacy.put("REF",v_Legacy.get("REF").toLong() + 1);
+	}
+}
+for each  a in Assignments[ID != null]
+{
+	v_V = ifnull(a.Assignment_ID,"").toString().trim();
+	if(v_V.matches("^ASG-[0-9]{4}$"))
+	{
+		v_N = v_V.subString(4).toLong();
+		v_Cnt.put("ASG",v_Cnt.get("ASG").toLong() + 1);
+		if(v_N > v_Max.get("ASG").toLong())
+		{
+			v_Max.put("ASG",v_N);
+		}
+	}
+	else if(v_V != "")
+	{
+		v_Legacy.put("ASG",v_Legacy.get("ASG").toLong() + 1);
+	}
+}
+for each  e in Employees[ID != null]
+{
+	v_V = ifnull(e.Employee_ID,"").toString().trim();
+	if(v_V.matches("^EMP-[0-9]{4}$"))
+	{
+		v_N = v_V.subString(4).toLong();
+		v_Cnt.put("EMP",v_Cnt.get("EMP").toLong() + 1);
+		if(v_N > v_Max.get("EMP").toLong())
+		{
+			v_Max.put("EMP",v_N);
+		}
+	}
+	else if(v_V != "")
+	{
+		v_Legacy.put("EMP",v_Legacy.get("EMP").toLong() + 1);
+	}
+}
+for each  p in Partners[ID != null]
+{
+	v_V = ifnull(p.Partner_ID,"").toString().trim();
+	if(v_V.matches("^PAR-[0-9]{4}$"))
+	{
+		v_N = v_V.subString(4).toLong();
+		v_Cnt.put("PAR",v_Cnt.get("PAR").toLong() + 1);
+		if(v_N > v_Max.get("PAR").toLong())
+		{
+			v_Max.put("PAR",v_N);
+		}
+	}
+	else if(v_V != "")
+	{
+		v_Legacy.put("PAR",v_Legacy.get("PAR").toLong() + 1);
+	}
+}
+v_Out = "SEQUENCE TRACKER AUDIT";
+v_Rows = 0;
+for each  t in Sequence_Tracker[ID != null] sort by Object_Prefix asc
+{
+	v_Rows = v_Rows + 1;
+	v_P = ifnull(t.Object_Prefix,"").toString().trim();
+	v_S = ifnull(t.Object_Sequence,0).toLong();
+	if(v_Max.containKey(v_P))
+	{
+		v_M = v_Max.get(v_P).toLong();
+		v_Verdict = "SAFE";
+		if(v_S <= v_M)
+		{
+			v_Verdict = "COLLISION, next mint would reissue " + v_P + "-" + v_S + ". Set Object_Sequence to " + (v_M + 1) + ".";
+		}
+		v_Out = v_Out + "\n" + v_P + " | tracker next=" + v_S + " | highest 4-digit in use=" + v_M + " | standard IDs=" + v_Cnt.get(v_P) + " | legacy or odd format=" + v_Legacy.get(v_P) + " | " + v_Verdict;
+	}
+	else
+	{
+		v_Out = v_Out + "\n" + v_P + " | tracker next=" + v_S + " | NOT SCANNED, verify by hand";
+	}
+}
+v_Out = v_Out + "\nTracker rows: " + v_Rows;
+return v_Out;

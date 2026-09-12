@@ -1,0 +1,96 @@
+if(input.Referral_Link != null)
+{
+	v_RefId = null;
+	v_RefDob = null;
+	v_RefPhone = "";
+	v_RefA1 = "";
+	v_RefA2 = "";
+	v_RefCity = "";
+	v_RefState = "";
+	v_RefZip = "";
+	for each  v_Ref in Referrals_Main[ID == input.Referral_Link]
+	{
+		v_RefId = v_Ref.ID;
+		v_RefDob = v_Ref.Patient_DOB;
+		v_RefPhone = ifnull(v_Ref.Patient_Phone,"").toString().trim();
+		v_RefA1 = ifnull(v_Ref.Patient_Address.address_line_1,"").toString().trim();
+		v_RefA2 = ifnull(v_Ref.Patient_Address.address_line_2,"").toString().trim();
+		v_RefCity = ifnull(v_Ref.Patient_Address.district_city,"").toString().trim();
+		v_RefState = ifnull(v_Ref.Patient_Address.state_province,"").toString().trim();
+		v_RefZip = ifnull(v_Ref.Patient_Address.postal_Code,"").toString().trim();
+		break;
+	}
+	if(v_RefId != null)
+	{
+		v_PvsDob = input.Patient_DOB;
+		v_PvsPhone = ifnull(input.Patient_Phone,"").toString().trim();
+		v_PvsA1 = ifnull(input.Patient_Address.address_line_1,"").toString().trim();
+		v_PvsA2 = ifnull(input.Patient_Address.address_line_2,"").toString().trim();
+		v_PvsCity = ifnull(input.Patient_Address.district_city,"").toString().trim();
+		v_PvsState = ifnull(input.Patient_Address.state_province,"").toString().trim();
+		v_PvsZip = ifnull(input.Patient_Address.postal_Code,"").toString().trim();
+		v_DobChanged = false;
+		if(v_PvsDob != null && v_PvsDob != v_RefDob)
+		{
+			v_DobChanged = true;
+		}
+		v_PhoneChanged = false;
+		if(v_PvsPhone != "" && v_PvsPhone != v_RefPhone)
+		{
+			v_PhoneChanged = true;
+		}
+		v_AddrChanged = false;
+		if(v_PvsA1 != "" && v_PvsA1 != v_RefA1)
+		{
+			v_AddrChanged = true;
+		}
+		if(v_PvsA2 != v_RefA2)
+		{
+			v_AddrChanged = true;
+		}
+		if(v_PvsCity != "" && v_PvsCity != v_RefCity)
+		{
+			v_AddrChanged = true;
+		}
+		if(v_PvsState != "" && v_PvsState != v_RefState)
+		{
+			v_AddrChanged = true;
+		}
+		if(v_PvsZip != "" && v_PvsZip != v_RefZip)
+		{
+			v_AddrChanged = true;
+		}
+		if(v_DobChanged || v_PhoneChanged || v_AddrChanged)
+		{
+			for each  v_Upd in Referrals_Main[ID == v_RefId]
+			{
+				if(v_DobChanged)
+				{
+					update v_Upd
+					[
+						Patient_DOB=v_PvsDob
+						Patient_DOB1=v_PvsDob.toString("MM/dd/yyyy")
+					];
+				}
+				if(v_PhoneChanged)
+				{
+					update v_Upd
+					[
+						Patient_Phone=v_PvsPhone
+					];
+				}
+				if(v_AddrChanged)
+				{
+					update v_Upd
+					[
+						Patient_Address.address_line_1=v_PvsA1
+						Patient_Address.address_line_2=v_PvsA2
+						Patient_Address.district_city=v_PvsCity
+						Patient_Address.state_province=v_PvsState
+						Patient_Address.postal_Code=v_PvsZip
+					];
+				}
+			}
+		}
+	}
+}

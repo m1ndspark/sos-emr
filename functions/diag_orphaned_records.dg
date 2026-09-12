@@ -1,0 +1,82 @@
+v_Valid = Map();
+v_RefCount = 0;
+for each  r in Referrals_Main[ID != null]
+{
+	v_RefCount = v_RefCount + 1;
+	v_Valid.put(r.ID.toString(),1);
+}
+v_AsgBad = List();
+v_AsgTotal = 0;
+for each  a in Assignments[ID != null]
+{
+	v_AsgTotal = v_AsgTotal + 1;
+	if(a.Referral_Link != null)
+	{
+		if(!v_Valid.containKey(a.Referral_Link.toString()))
+		{
+			v_AsgBad.add(ifnull(a.Assignment_ID,"rec " + a.ID.toString()) + " | " + ifnull(a.Patient_First_Name,"") + " " + ifnull(a.Patient_Last_Name,"") + " | dead parent " + a.Referral_Link.toString());
+		}
+	}
+}
+v_FileBad = List();
+v_FileTotal = 0;
+for each  f in Referral_Files[ID != null]
+{
+	v_FileTotal = v_FileTotal + 1;
+	if(f.Referrals_Main != null)
+	{
+		if(!v_Valid.containKey(f.Referrals_Main.toString()))
+		{
+			v_FileBad.add(ifnull(f.File_Name,"rec " + f.ID.toString()) + " | " + ifnull(f.File_Category,"") + " | dead parent " + f.Referrals_Main.toString());
+		}
+	}
+}
+v_PvsBad = List();
+v_PvsTotal = 0;
+v_PvsWalkIn = 0;
+for each  p in Encounter_PatientVisit[ID != null]
+{
+	v_PvsTotal = v_PvsTotal + 1;
+	if(p.Referral_Link == null)
+	{
+		v_PvsWalkIn = v_PvsWalkIn + 1;
+	}
+	else if(!v_Valid.containKey(p.Referral_Link.toString()))
+	{
+		v_PvsBad.add(ifnull(p.PVS_ID,"rec " + p.ID.toString()) + " | " + ifnull(p.Patient_Full_Name_1,"") + " | dead parent " + p.Referral_Link.toString());
+	}
+}
+v_Out = "ORPHANED CHILD RECORDS";
+v_Out = v_Out + "\nReferrals on file: " + v_RefCount;
+v_Out = v_Out + "\nAssignments: " + v_AsgTotal + " scanned, " + v_AsgBad.size() + " orphaned";
+v_Out = v_Out + "\nReferral Files: " + v_FileTotal + " scanned, " + v_FileBad.size() + " orphaned";
+v_Out = v_Out + "\nPVS: " + v_PvsTotal + " scanned, " + v_PvsWalkIn + " walk-in with no referral link, " + v_PvsBad.size() + " orphaned";
+if(v_AsgBad.size() > 0)
+{
+	v_Out = v_Out + "\n\nORPHANED ASSIGNMENTS";
+	for each  v_A in v_AsgBad
+	{
+		v_Out = v_Out + "\n" + v_A;
+	}
+}
+if(v_FileBad.size() > 0)
+{
+	v_Out = v_Out + "\n\nORPHANED REFERRAL FILES";
+	for each  v_F in v_FileBad
+	{
+		v_Out = v_Out + "\n" + v_F;
+	}
+}
+if(v_PvsBad.size() > 0)
+{
+	v_Out = v_Out + "\n\nORPHANED PVS";
+	for each  v_P in v_PvsBad
+	{
+		v_Out = v_Out + "\n" + v_P;
+	}
+}
+if(v_AsgBad.size() == 0 && v_FileBad.size() == 0 && v_PvsBad.size() == 0)
+{
+	v_Out = v_Out + "\n\nNo orphans found.";
+}
+return v_Out;

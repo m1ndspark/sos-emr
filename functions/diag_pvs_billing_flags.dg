@@ -1,0 +1,47 @@
+v_Counts = Map();
+v_Samples = Map();
+v_Total = 0;
+v_Writable = 0;
+for each  r in Encounter_PatientVisit[ID != null]
+{
+	v_Total = v_Total + 1;
+	v_Link = "null";
+	if(r.Invoice_Link != null)
+	{
+		v_Link = "set";
+	}
+	v_Stat = ifnull(r.Invoice_Status,"").toString().trim();
+	if(v_Stat == "")
+	{
+		v_Stat = "blank";
+	}
+	v_Hold = ifnull(r.Hold_From_Invoicing,"").toString().trim();
+	if(v_Hold == "")
+	{
+		v_Hold = "blank";
+	}
+	v_Key = "Invoice_Link=" + v_Link + " | Invoice_Status=" + v_Stat + " | Hold=" + v_Hold;
+	if(v_Counts.containKey(v_Key))
+	{
+		v_Counts.put(v_Key,v_Counts.get(v_Key).toLong() + 1);
+	}
+	else
+	{
+		v_Counts.put(v_Key,1);
+		v_Samples.put(v_Key,ifnull(r.PVS_ID,"").toString().trim() + " (rec " + r.ID.toString() + ")");
+	}
+	if(r.Invoice_Link == null && v_Stat != "Final" && v_Hold != "Yes")
+	{
+		v_Writable = v_Writable + 1;
+	}
+}
+v_Out = "PVS BILLING FLAG COMBINATIONS";
+v_Out = v_Out + "\nTotal PVS records: " + v_Total;
+v_Out = v_Out + "\nWritable under gate (Invoice_Link == null && Invoice_Status != \"Final\" && Hold_From_Invoicing != \"Yes\"): " + v_Writable;
+v_Out = v_Out + "\nLocked: " + (v_Total - v_Writable);
+v_Out = v_Out + "\n";
+for each  v_K in v_Counts.keys()
+{
+	v_Out = v_Out + "\n" + v_Counts.get(v_K) + "  ||  " + v_K + "  ||  sample: " + v_Samples.get(v_K);
+}
+return v_Out;

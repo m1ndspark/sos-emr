@@ -1,0 +1,50 @@
+v_Counts = Map();
+v_NullDate = Map();
+v_Samples = Map();
+v_Total = 0;
+for each  r in Referrals_Main[ID != null]
+{
+	v_Total = v_Total + 1;
+	v_Tok = "FormToken=blank";
+	if(ifnull(r.Form_Token,"").toString().trim() != "")
+	{
+		v_Tok = "FormToken=present";
+	}
+	v_Cog = "CognitoID=blank";
+	if(ifnull(r.Cognito_Referral_ID,"").toString().trim() != "")
+	{
+		v_Cog = "CognitoID=present";
+	}
+	v_Rid = ifnull(r.Referral_ID,"").toString().trim();
+	v_Fmt = "ID=blank";
+	if(v_Rid.matches("^REF-[0-9]{4}$"))
+	{
+		v_Fmt = "ID=current";
+	}
+	else if(v_Rid != "")
+	{
+		v_Fmt = "ID=legacy";
+	}
+	v_Key = v_Tok + " | " + v_Cog + " | " + v_Fmt;
+	if(v_Counts.containKey(v_Key))
+	{
+		v_Counts.put(v_Key,v_Counts.get(v_Key).toLong() + 1);
+	}
+	else
+	{
+		v_Counts.put(v_Key,1);
+		v_NullDate.put(v_Key,0);
+		v_Samples.put(v_Key,v_Rid + " (rec " + r.ID.toString() + ")");
+	}
+	if(r.Referral_Date == null)
+	{
+		v_NullDate.put(v_Key,v_NullDate.get(v_Key).toLong() + 1);
+	}
+}
+v_Out = "REFERRAL ORIGIN MARKERS";
+v_Out = v_Out + "\nTotal referrals: " + v_Total;
+for each  v_K in v_Counts.keys()
+{
+	v_Out = v_Out + "\n" + v_Counts.get(v_K) + "  ||  " + v_K + "  ||  null Referral_Date: " + v_NullDate.get(v_K) + "  ||  sample: " + v_Samples.get(v_K);
+}
+return v_Out;

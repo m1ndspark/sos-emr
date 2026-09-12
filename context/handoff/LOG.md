@@ -313,7 +313,7 @@ no, in two ways.
 
 First, d904910 scrubbed the CHECKPOINT but left identifiers in the EOD LOG it
 added in the same commit. Section 12, the health board, carried four patient
-names and four DOB values, including a full 07/30/1964. Two more names sat in
+names and four DOB values, including a complete date of birth. Two more names sat in
 sections 12 and 14.
 
 Second, context/23 still carried four patient names and a partner contact's
@@ -381,3 +381,120 @@ since it is phonenumber on the PVS and text on Referrals_Main.
 
 Awaiting Neil: the fresh .ds, and PVS-1227-JK held or cancelled before the next
 invoice batch.
+
+================================================================================
+v47 sync, GATED (2026-09-12) - ccode
+================================================================================
+Export pushed first. 876b9ba re-hashed to 06727db on rebase over two schema
+monitor commits; content unchanged, md5 ebd0ae92d066659a63d76e73f1513a89 on both
+.ds files verified before pushing. Note there is no v46 in the repo; v45 went
+straight to v47.
+
+ds_sync against v47: DRIFT=5, NEW=15 written. Sync now MATCH=217, DRIFT=0, NEW=0.
+MANIFEST regenerated to 222 rows.
+
+ALL FIVE CLAIMS VERIFIED, ONE NEEDED MANUAL EXTRACTION.
+1. process_new_referral (547), sos_referral_health (247),
+   sweep_unnotified_referrals (231), build_imaging_email_html (227),
+   send_imaging_notification (90). All present.
+2. mint_referral_id replaced. update blocks instead of bare assignment; tracker
+   increment at lines 22-28 precedes the record stamp at 29-35; early return
+   when an ID already exists.
+3. On Create master is ONE line:
+       thisapp.process_new_referral(input.ID.toString(),"YES");
+   The 415-line body is gone.
+4. OnValidate PVS_Required_Fields: 132 lines, 1 cancel submit, 1 Patient Visit
+   block, 0 Facility_Room_Number.
+5. PVS Patient Data Push Back did NOT land automatically. ds_sync reported it
+   AMBIGUOUS, colliding onto OnSuccess__PVS_Stamp_Generator.dg. Root cause is a
+   shortcut in resolve_wf_path: a folder holding one file per trigger type
+   returns that file for ANY workflow of that type, unscored. The collision guard
+   refused to write, which is the only reason the push back body did not
+   overwrite the PVS ID stamp generator. Extracted with ds_sync's own
+   parse_workflows into OnSuccess__PVS_Patient_Data_Push_Back.dg. Re-run reports
+   both files MATCH independently, proving the extraction is exact and the stamp
+   generator untouched. Link name and display name confirmed in the export. This
+   will recur on the next form that gains a second workflow of an existing
+   trigger type. It fails safe. The tool fix is small; not done, not asked.
+
+Also landed, not in the brief: 10 new diag_* functions (all read-only, zero
+writes, zero external calls), plus DRIFT on build_referral_email_html and
+send_referral_notification.
+
+context/08 AUDIT. Mirror committed as an accurate record of live, same basis as
+the v45 sync.
+
+FLAG. PVS Patient Data Push Back can erase address data on Referrals_Main.
+Change detection skips blank PVS subfields, but the address update writes all
+five subfields unconditionally. A PVS where address_line_1 changed and
+district_city is blank writes a blank city over the real one, on the source of
+truth the workflow exists to protect. Filed in context/23 as an OPEN row.
+
+DOC CONTRADICTION, NOT EDITED, needs your call. context/05 says "stamp the
+already handled marker AFTER the send, not before." process_new_referral stamps
+Notified_Time BEFORE the three sends and reverts it only if all three fail. The
+code is right and the learning is too absolute:
+  - every record write that could throw, including the Assignments insert that
+    caused the Session 45 regression, now runs BEFORE any send. So a rollback
+    after mail has gone cannot happen.
+  - the only writes after the send are a revert to null.
+  - stamping first claims the row against sweep_unnotified_referrals, which
+    selects rows with Notified_Time null. Stamping after the send would let a
+    sweep running mid-flight send the same referral twice.
+The real invariant is "no throwable record write may follow an external send."
+Left context/05 alone because it records your learning. If it stays as written,
+someone will "fix" working code into a double-send bug.
+
+PASS:
+- Session 45 root cause closed. Assignments.Patient_DOB is always
+  toString("MM/dd/yyyy"), exactly 10 chars against maxchar 11, and the insert
+  precedes every send.
+- DATA PROVENANCE enforced in code. process_new_referral refuses with "NO
+  TRUSTED ARRIVAL DATE, nothing sent and nothing stamped". send_referral_
+  notification re-reads Referral_ID live from Creator and returns SKIP-NOID when
+  blank, replacing the old read from the template map.
+- sweep_unnotified_referrals returns SKIP-NOSCOPE on blank scope, snake_case
+  signature, and writes its digest marker AFTER sendmail.
+- Push back phone uses toString(), resolving the EOD concern. DOB write is
+  null-safe and keeps Patient_DOB and Patient_DOB1 in step. Subfield names match.
+- Email subject carries the patient name, but did before this change. No new
+  exposure.
+- Phone list always yields four entries, so get(0) and get(3) are safe.
+- Hygiene: no em dashes, no comment headers, no secrets, no literal DOB or SSN.
+
+VERIFY LIVE:
+1. mint_referral_id has no lock between reading Object_Sequence and incrementing
+   it. Increment-first narrows the window but a form submit and a sweep minting
+   in the same instant could read the same number. Confirm whether that overlap
+   is possible in practice.
+2. A referral type that matches none of the three notifiers reverts and requeues
+   on every sweep indefinitely. NONOTIFIER was 0 at EOD; recheck when any new
+   Referral_Type is added.
+
+IDENTIFIER SCAN. The scanner that found 19 reports ZERO. That result would have
+been FALSE. It has two blind spots, both of which produced real hits this run:
+  - it matches two-word names only on lines carrying a referral ID, so a
+    surname on its own is invisible. Found: two patient surnames in the Session
+    37 checkpoint that the Session 45 scrub also missed.
+  - its DOB pattern matches slash dates only. Found: five real DOB values in
+    ISO format across two context/23 rows, stored beside patient initials.
+It also caught one leak of mine: my Session 45 EOD entry in this file quoted a
+full DOB value while describing the scrub. Removed.
+All scrubbed, findings preserved. Final state, every pass zero: slash DOBs,
+names on referral lines, the full list of names ever found, ISO birth-era dates,
+initials beside DOB. Excluded: context/test-fixtures, which is synthetic
+(ZZ-prefixed names, example.com, 555 numbers).
+
+OUT OF SCOPE, NOT TOUCHED: the standing rule covers all repo documentation but
+this scan was scoped to context/. A read-only pass finds DOB-shaped values in
+three files under docs/: docs/billing/SOS_3008_July_2026_Billing.md,
+docs/mpu/SOS_Code_Session_Log_2026-08-15_Session32_EOD.txt and
+docs/sessions/SOS_Code_Session_Log_2026-08-19_Session34_EOD.md. Unverified which
+are real DOBs. Worth its own pass.
+
+context/19: both EOD drift entries closed, with the resolver collision recorded.
+context/23: fresh .ds moved to CLOSED; PVS-1227-JK left OPEN BLOCKING; all seven
+missing-artifact notes removed after confirming each artifact is present; one new
+OPEN row for the push back address FLAG. Also noticed, not edited: two older
+BLOCKING rows look closed by Session 45 work, the 40-row integration rebuild
+(now 41 rows) and the 20 blank Referral_ID records (minted REF-1444 to 1463).

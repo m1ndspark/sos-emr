@@ -1,0 +1,28 @@
+v_Q = ifnull(p_text,"").trim();
+v_QKey = v_Q.toLowerCase();
+v_Exact = Referrals_Main[Referral_ID == v_Q].count();
+v_Hits = List();
+v_Blank = 0;
+v_Total = 0;
+for each  r in Referrals_Main[ID != null]
+{
+	v_Total = v_Total + 1;
+	v_Id = ifnull(r.Referral_ID,"").toString();
+	if(v_Id.trim() == "")
+	{
+		v_Blank = v_Blank + 1;
+	}
+	else if(v_Id.trim().toLowerCase() == v_QKey || v_Id.toLowerCase().contains(v_QKey))
+	{
+		v_Hits.add("[" + v_Id + "] len=" + v_Id.length() + " rec=" + r.ID.toString() + " date=" + ifnull(r.Referral_Date,"null").toString() + " patient=" + ifnull(r.Patient_First_Name,"") + " " + ifnull(r.Patient_Last_Name,""));
+	}
+}
+v_Out = "QUERY: [" + v_Q + "] len=" + v_Q.length();
+v_Out = v_Out + "\nExact match count: " + v_Exact;
+v_Out = v_Out + "\nTotal referrals: " + v_Total + " | blank Referral_ID: " + v_Blank;
+v_Out = v_Out + "\nLoose matches: " + v_Hits.size();
+for each  v_H in v_Hits
+{
+	v_Out = v_Out + "\n" + v_H;
+}
+return v_Out;

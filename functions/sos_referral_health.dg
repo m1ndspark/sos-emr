@@ -1,0 +1,247 @@
+v_Mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_Mode != "FIX" && v_Mode != "FIX_NOTIFY")
+{
+	v_Mode = "REPORT";
+}
+v_Scope = ifnull(p_scope,"").trim();
+if(v_Scope == "")
+{
+	return "SKIP-NOSCOPE";
+}
+v_ScopeUp = v_Scope.toUpperCase();
+v_Limit = 5;
+if(p_limit != null && p_limit > 0)
+{
+	v_Limit = p_limit;
+}
+v_Codes = {"NOID","NOSTAMP","NOPARTNER","NOASSIGN","UNNOTIFIED","NONOTIFIER","NODOB","BADDOB","NOPOCEMAIL","TESTREC"};
+v_KnownTypes = {"Patient Visit","3008","Imaging Order (only)"};
+v_TestEmails = {"neilheird@gmail.com"};
+v_AsgSet = List();
+for each  a in Assignments[ID != null]
+{
+	if(a.Referral_Link != null)
+	{
+		if(!v_AsgSet.contains(a.Referral_Link))
+		{
+			v_AsgSet.add(a.Referral_Link);
+		}
+	}
+}
+v_BilledSet = List();
+for each  p in Encounter_PatientVisit[Invoice_Link != null]
+{
+	if(p.Referral_Link != null)
+	{
+		if(!v_BilledSet.contains(p.Referral_Link))
+		{
+			v_BilledSet.add(p.Referral_Link);
+		}
+	}
+}
+v_Counts = Map();
+for each  v_C in v_Codes
+{
+	v_Counts.put(v_C,0);
+}
+v_Keys = List();
+v_Lines = List();
+v_KeyCodes = Map();
+v_Total = 0;
+v_BilledSkipped = 0;
+for each  r in Referrals_Main[ID != null] sort by ID asc
+{
+	v_Total = v_Total + 1;
+	if(v_BilledSet.contains(r.ID))
+	{
+		v_BilledSkipped = v_BilledSkipped + 1;
+	}
+	else
+	{
+		v_Issues = List();
+		v_Rid = ifnull(r.Referral_ID,"").toString().trim();
+		if(v_Rid == "")
+		{
+			v_Issues.add("NOID");
+		}
+		if(ifnull(r.Referral_ID_Stamp,"").toString().trim() == "")
+		{
+			v_Issues.add("NOSTAMP");
+		}
+		if(r.Partner_Branch_Link == null)
+		{
+			v_Issues.add("NOPARTNER");
+		}
+		if(!v_AsgSet.contains(r.ID))
+		{
+			v_Issues.add("NOASSIGN");
+		}
+		if(r.Referral_Date == null)
+		{
+			v_Issues.add("UNNOTIFIED");
+		}
+		v_Type = ifnull(r.Referral_Type,"").toString().trim();
+		if(!v_KnownTypes.contains(v_Type))
+		{
+			v_Issues.add("NONOTIFIER");
+		}
+		if(r.Patient_DOB == null)
+		{
+			v_Issues.add("NODOB");
+		}
+		v_DobTxt = ifnull(r.Patient_DOB1,"").toString().trim();
+		if(v_DobTxt != "")
+		{
+			v_DobParsed = thisapp.parse_patient_dob(v_DobTxt);
+			if(v_DobParsed == null)
+			{
+				v_Issues.add("BADDOB");
+			}
+			else if(r.Patient_DOB != null)
+			{
+				if(r.Patient_DOB != v_DobParsed)
+				{
+					v_Issues.add("BADDOB");
+				}
+			}
+		}
+		v_Poc = ifnull(r.Partner_POC_Email,"").toString().trim();
+		if(v_Poc == "")
+		{
+			v_Issues.add("NOPOCEMAIL");
+		}
+		v_IsTest = false;
+		v_NameKey = (ifnull(r.Patient_First_Name,"").toString() + " " + ifnull(r.Patient_Last_Name,"").toString()).trim().toLowerCase();
+		if(v_NameKey.contains("test"))
+		{
+			v_IsTest = true;
+		}
+		if(v_TestEmails.contains(v_Poc.toLowerCase()))
+		{
+			v_IsTest = true;
+		}
+		if(v_IsTest)
+		{
+			v_Issues.add("TESTREC");
+		}
+		if(v_Issues.size() > 0)
+		{
+			v_Key = v_Rid;
+			if(v_Key == "")
+			{
+				v_Key = r.ID.toString();
+			}
+			v_Take = false;
+			if(v_ScopeUp == "ALL")
+			{
+				v_Take = true;
+			}
+			else if(v_Codes.contains(v_ScopeUp))
+			{
+				if(v_Issues.contains(v_ScopeUp))
+				{
+					v_Take = true;
+				}
+			}
+			else
+			{
+				for each  v_S in v_Scope.toList(",")
+				{
+					if(v_S.trim() == v_Key)
+					{
+						v_Take = true;
+					}
+				}
+			}
+			if(v_Take)
+			{
+				for each  v_I in v_Issues
+				{
+					v_Counts.put(v_I,v_Counts.get(v_I).toLong() + 1);
+				}
+				v_Keys.add(v_Key);
+				v_KeyCodes.put(v_Key,v_Issues.toString(","));
+				v_DobShow = v_DobTxt;
+				if(v_DobShow == "")
+				{
+					v_DobShow = "no text";
+				}
+				v_Lines.add(v_Key + " | " + ifnull(r.Patient_First_Name,"") + " " + ifnull(r.Patient_Last_Name,"") + " | " + ifnull(r.Partner_Organization,"") + " / " + ifnull(r.Partner_Branch,"") + " | " + v_Type + " | " + ifnull(r.Partner_POC_Email,"") + " | DOB [" + v_DobShow + "] | " + v_Issues.toString(","));
+			}
+		}
+	}
+}
+v_Head = "SOS REFERRAL HEALTH | mode=" + v_Mode + " | scope=" + v_Scope + " | limit=" + v_Limit;
+v_Head = v_Head + "\nReferrals scanned: " + v_Total + " | skipped as billed: " + v_BilledSkipped + " | flagged in scope: " + v_Keys.size();
+v_Head = v_Head + "\nNOID " + v_Counts.get("NOID") + " | NOSTAMP " + v_Counts.get("NOSTAMP") + " | NOPARTNER " + v_Counts.get("NOPARTNER") + " | NOASSIGN " + v_Counts.get("NOASSIGN") + " | UNNOTIFIED " + v_Counts.get("UNNOTIFIED") + " | NONOTIFIER " + v_Counts.get("NONOTIFIER");
+v_Head = v_Head + "\nNODOB " + v_Counts.get("NODOB") + " | BADDOB " + v_Counts.get("BADDOB") + " | NOPOCEMAIL " + v_Counts.get("NOPOCEMAIL") + " | TESTREC " + v_Counts.get("TESTREC");
+if(v_Mode == "REPORT")
+{
+	v_Out = v_Head;
+	v_Shown = 0;
+	for each  v_L in v_Lines
+	{
+		if(v_Shown < 100)
+		{
+			v_Out = v_Out + "\n" + v_L;
+			v_Shown = v_Shown + 1;
+		}
+	}
+	if(v_Lines.size() > 100)
+	{
+		v_Out = v_Out + "\n... " + (v_Lines.size() - 100) + " more not listed";
+	}
+	v_Out = v_Out + "\nNothing was written.";
+	return v_Out;
+}
+v_NotifyFlag = "NO";
+if(v_Mode == "FIX_NOTIFY")
+{
+	v_NotifyFlag = "YES";
+}
+v_Repaired = List();
+v_Failed = List();
+v_SkippedTest = 0;
+v_Deferred = 0;
+v_Done = 0;
+for each  v_K in v_Keys
+{
+	if(v_KeyCodes.get(v_K).toString().contains("TESTREC"))
+	{
+		v_SkippedTest = v_SkippedTest + 1;
+	}
+	else if(v_Done < v_Limit)
+	{
+		v_Done = v_Done + 1;
+		try 
+		{
+			v_Res = thisapp.process_new_referral(v_K,v_NotifyFlag);
+			if(v_Res.startsWith("SKIP"))
+			{
+				v_Failed.add(v_K + " [" + v_KeyCodes.get(v_K) + "] -> " + v_Res);
+			}
+			else
+			{
+				v_Repaired.add(v_K + " -> " + v_Res);
+			}
+		}			catch (e)
+		{
+			v_Failed.add(v_K + " [" + v_KeyCodes.get(v_K) + "] -> EXCEPTION: " + e);
+		}
+	}
+	else
+	{
+		v_Deferred = v_Deferred + 1;
+	}
+}
+v_Out = v_Head;
+v_Out = v_Out + "\nRepaired: " + v_Repaired.size() + " | failed: " + v_Failed.size() + " | test records skipped: " + v_SkippedTest + " | deferred to next run: " + v_Deferred;
+for each  v_R2 in v_Repaired
+{
+	v_Out = v_Out + "\n" + v_R2;
+}
+for each  v_F2 in v_Failed
+{
+	v_Out = v_Out + "\nFAILED " + v_F2;
+}
+return v_Out;

@@ -197,7 +197,7 @@ completion, and should not be treated as authoritative on its own.
 
 All seven are now classified. Final July disposition of the 83 referrals:
 
-- 2 duplicates, removed from the denominator: Adejola 1401, Lahee 1419
+- 2 duplicates, removed from the denominator: REF-072126-1401, REF-072326-1419
 - 77 evals completed within July, including Patterson on 07/31
 - 2 completed 08/03, carried into the August period: Rivera, Buckley
 - 2 still open at 08/26, both awaiting information from InnoVage: Richards, Aviles

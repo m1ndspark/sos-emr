@@ -26,7 +26,7 @@ if(v_refid == "")
 	return "SKIP-NOID";
 }
 v_type = ifnull(v_ref.Referral_Type,"").trim();
-if(v_type != "Patient Visit")
+if(v_type != "Imaging Order (only)")
 {
 	return "SKIP-TYPE";
 }
@@ -40,20 +40,20 @@ if(v_token == "")
 {
 	return "SKIP-NOTOKEN";
 }
-v_tpl = thisapp.build_referral_email_html(v_recId);
+v_tpl = thisapp.build_imaging_email_html(v_recId);
 if(v_tpl.isEmpty())
 {
 	return "SKIP-NOHTML";
 }
 v_html = v_tpl.get("html").toString();
 v_patname = v_tpl.get("patname").toString();
-v_subject = "REF Visit: " + v_patname + " - " + v_refid;
+v_subject = "REF Imaging: " + v_patname + " - " + v_refid;
 v_from = "notifications@sosreferrals.com";
 v_fromMap = Map();
 v_fromMap.put("address",v_from);
 v_fromMap.put("name","SOS Mobile Medical Care");
 v_toList = List();
-for each  v_addr in {"neil.heird@sosmmc.com","sosreferrals@sosmmc.com"}
+for each  v_addr in thisapp.get_notification_recipients("Imaging Orders")
 {
 	v_addrMap = Map();
 	v_addrMap.put("address",v_addr);

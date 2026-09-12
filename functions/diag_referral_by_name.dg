@@ -1,0 +1,75 @@
+v_Q = ifnull(p_text,"").trim();
+if(v_Q == "")
+{
+	return "SKIP-NOTEXT";
+}
+v_Frags = List();
+for each  v_Raw in v_Q.toList(",")
+{
+	v_F = v_Raw.trim().toLowerCase();
+	if(v_F != "")
+	{
+		v_Frags.add(v_F);
+	}
+}
+v_Lines = List();
+v_IdCount = Map();
+for each  r in Referrals_Main[ID != null] sort by ID asc
+{
+	v_First = ifnull(r.Patient_First_Name,"").toString().trim().toLowerCase();
+	v_Last = ifnull(r.Patient_Last_Name,"").toString().trim().toLowerCase();
+	v_FullN = ifnull(r.Patient_Full_Name,"").toString().trim().toLowerCase();
+	v_Hit = false;
+	for each  v_F2 in v_Frags
+	{
+		if(v_First.contains(v_F2) || v_Last.contains(v_F2) || v_FullN.contains(v_F2))
+		{
+			v_Hit = true;
+		}
+	}
+	if(v_Hit)
+	{
+		v_Id = ifnull(r.Referral_ID,"").toString().trim();
+		if(v_Id == "")
+		{
+			v_Id = "BLANK";
+		}
+		else
+		{
+			if(v_IdCount.containKey(v_Id))
+			{
+				v_IdCount.put(v_Id,v_IdCount.get(v_Id).toLong() + 1);
+			}
+			else
+			{
+				v_IdCount.put(v_Id,1);
+			}
+		}
+		v_Stamp = ifnull(r.Referral_ID_Stamp,"").toString().trim();
+		if(v_Stamp == "")
+		{
+			v_Stamp = "BLANK";
+		}
+		v_Lines.add(v_Id + " | stamp=" + v_Stamp + " | rec=" + r.ID.toString() + " | date=" + ifnull(r.Referral_Date,"null").toString() + " | " + ifnull(r.Patient_First_Name,"") + " " + ifnull(r.Patient_Last_Name,"") + " | " + ifnull(r.Referral_Type,"") + " | " + ifnull(r.Partner_Organization,"") + " / " + ifnull(r.Partner_Branch,""));
+	}
+}
+v_Out = "REFERRAL LOOKUP BY NAME: " + v_Q;
+v_Out = v_Out + "\nMatches: " + v_Lines.size();
+for each  v_L in v_Lines
+{
+	v_Out = v_Out + "\n" + v_L;
+}
+v_Dup = "";
+for each  v_K in v_IdCount.keys()
+{
+	if(v_IdCount.get(v_K).toLong() > 1)
+	{
+		v_Dup = v_Dup + "\n" + v_K + " is held by " + v_IdCount.get(v_K) + " of these records";
+	}
+}
+if(v_Dup == "")
+{
+	v_Dup = "\nNo Referral ID is shared by more than one matched record.";
+}
+v_Out = v_Out + v_Dup;
+return v_Out;

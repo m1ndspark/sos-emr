@@ -377,8 +377,38 @@ against the export, so until v45 lands the export is the stale side and a sync
 would look correct while being wrong.
 
 --------------------------------------------------------------------------------
-## Known drift: v45 is behind live (added 2026-09-11, Session 45 EOD)
+## Known drift: v45 was behind live - RESOLVED 2026-09-12 in v47
 --------------------------------------------------------------------------------
+CLOSED. v47 was exported 2026-09-12 and both items below landed in it. Both are
+now in the repo and verified against the export.
+
+DRIFT A landed. Encounter_PatientVisit/OnValidate__PVS_Required_Fields.dg is
+132 lines with exactly one cancel submit, one Patient Visit block, no duplicated
+tail, and no Facility_Room_Number check. Matches the live body recorded below.
+
+DRIFT B landed, but NOT automatically, and the reason matters for every future
+sync. ds_sync reported PVS_Patient_Data_Push_Bac as AMBIGUOUS, colliding onto
+OnSuccess__PVS_Stamp_Generator.dg. Root cause is in tools/ds_sync.py
+resolve_wf_path: when a form folder holds exactly ONE file for a trigger type,
+the resolver returns it for ANY workflow of that type without scoring the name.
+PVS Patient Data Push Back is the second On Success workflow on
+Encounter_PatientVisit, so it and PVS_ID_Stamp_Generator both resolved to the
+single existing file, and the collision guard refused to write either.
+The guard worked. Had it not, the push back body would have overwritten the PVS
+ID stamp generator.
+Resolved by extracting the body with ds_sync's own parse_workflows into
+Encounter_PatientVisit/OnSuccess__PVS_Patient_Data_Push_Back.dg, not by hand.
+With a second On Success file present the resolver falls through to name
+scoring, and a re-run reports BOTH files as MATCH independently, which proves the
+extracted file is byte-equivalent to the export and that the stamp generator was
+never touched.
+EXPECT THIS AGAIN on the next form that gains a second workflow of an existing
+trigger type. It fails safe (AMBIGUOUS, nothing written), so the cost is a
+manual extraction, not a clobbered file.
+
+The record below is kept as written.
+
+ORIGINAL ENTRY, 2026-09-11:
 Two Creator artifacts changed on 2026-09-11 AFTER v45 was exported. Neither is
 in any export and neither is in this repo. DO NOT HAND WRITE EITHER ONE. They
 arrive on the next .ds and are extracted by ds_sync then, not before.

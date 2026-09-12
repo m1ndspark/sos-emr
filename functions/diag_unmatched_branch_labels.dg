@@ -1,0 +1,71 @@
+v_Valid = List();
+v_ValidKeys = List();
+for each  L in Partner_Locations[Partner_Location_Status == "Active"] sort by Partner_Location_Label asc
+{
+	v_Lab = ifnull(L.Partner_Location_Label,"").toString().trim();
+	v_Nam = ifnull(L.Partner_Location_Name,"").toString().trim();
+	if(v_Lab != "")
+	{
+		if(!v_Valid.contains(v_Lab))
+		{
+			v_Valid.add(v_Lab);
+		}
+		if(!v_ValidKeys.contains(v_Lab.toLowerCase()))
+		{
+			v_ValidKeys.add(v_Lab.toLowerCase());
+		}
+	}
+	if(v_Nam != "")
+	{
+		if(!v_ValidKeys.contains(v_Nam.toLowerCase()))
+		{
+			v_ValidKeys.add(v_Nam.toLowerCase());
+		}
+	}
+}
+v_Bad = Map();
+v_BadSample = Map();
+v_Blank = 0;
+v_Total = 0;
+for each  r in Referrals_Main[ID != null]
+{
+	v_Total = v_Total + 1;
+	v_Sub = ifnull(r.Partner_Branch_Submitted,"").toString().trim();
+	if(v_Sub == "")
+	{
+		v_Sub = ifnull(r.Partner_Location_Label,"").toString().trim();
+	}
+	if(v_Sub == "")
+	{
+		v_Blank = v_Blank + 1;
+	}
+	else if(!v_ValidKeys.contains(v_Sub.toLowerCase()))
+	{
+		if(v_Bad.containKey(v_Sub))
+		{
+			v_Bad.put(v_Sub,v_Bad.get(v_Sub).toLong() + 1);
+		}
+		else
+		{
+			v_Bad.put(v_Sub,1);
+			v_Rid = ifnull(r.Referral_ID,"").toString().trim();
+			if(v_Rid == "")
+			{
+				v_Rid = r.ID.toString();
+			}
+			v_BadSample.put(v_Sub,v_Rid);
+		}
+	}
+}
+v_Out = "UNMATCHED BRANCH LABELS";
+v_Out = v_Out + "\nReferrals scanned: " + v_Total + " | blank branch: " + v_Blank + " | distinct unmatched values: " + v_Bad.size();
+for each  v_K in v_Bad.keys()
+{
+	v_Out = v_Out + "\nUNMATCHED [" + v_K + "] x" + v_Bad.get(v_K) + " | sample: " + v_BadSample.get(v_K);
+}
+v_Out = v_Out + "\n\nVALID ACTIVE LABELS (" + v_Valid.size() + "):";
+for each  v_V in v_Valid
+{
+	v_Out = v_Out + "\n" + v_V;
+}
+return v_Out;

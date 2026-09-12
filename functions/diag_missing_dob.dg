@@ -1,0 +1,40 @@
+v_BilledSet = List();
+for each  p in Encounter_PatientVisit[Invoice_Link != null]
+{
+	if(p.Referral_Link != null)
+	{
+		if(!v_BilledSet.contains(p.Referral_Link))
+		{
+			v_BilledSet.add(p.Referral_Link);
+		}
+	}
+}
+v_Lines = List();
+v_Total = 0;
+for each  r in Referrals_Main[Patient_DOB == null] sort by ID asc
+{
+	v_Total = v_Total + 1;
+	v_Key = ifnull(r.Referral_ID,"").toString().trim();
+	if(v_Key == "")
+	{
+		v_Key = r.ID.toString();
+	}
+	v_Txt = ifnull(r.Patient_DOB1,"").toString().trim();
+	if(v_Txt == "")
+	{
+		v_Txt = "no text";
+	}
+	v_Billed = "unbilled";
+	if(v_BilledSet.contains(r.ID))
+	{
+		v_Billed = "BILLED";
+	}
+	v_Lines.add(v_Key + " | " + ifnull(r.Patient_First_Name,"") + " " + ifnull(r.Patient_Last_Name,"") + " | " + ifnull(r.Partner_Organization,"") + " / " + ifnull(r.Partner_Branch,"") + " | " + ifnull(r.Referral_Type,"") + " | " + ifnull(r.Partner_POC_Email,"") + " | DOB text [" + v_Txt + "] | " + v_Billed + " | added " + ifnull(r.Added_Time,"").toString());
+}
+v_Out = "REFERRALS WITH NO PATIENT DOB";
+v_Out = v_Out + "\nTotal: " + v_Total;
+for each  v_L in v_Lines
+{
+	v_Out = v_Out + "\n" + v_L;
+}
+return v_Out;

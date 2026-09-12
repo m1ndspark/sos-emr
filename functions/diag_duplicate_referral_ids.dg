@@ -1,0 +1,42 @@
+v_Seen = Map();
+v_Dupes = Map();
+v_Total = 0;
+v_Blank = 0;
+for each  r in Referrals_Main[ID != null] sort by ID asc
+{
+	v_Total = v_Total + 1;
+	v_Id = ifnull(r.Referral_ID,"").toString().trim();
+	if(v_Id == "")
+	{
+		v_Blank = v_Blank + 1;
+	}
+	else
+	{
+		v_Line = r.ID.toString() + " (" + ifnull(r.Patient_First_Name,"") + " " + ifnull(r.Patient_Last_Name,"") + ", date=" + ifnull(r.Referral_Date,"null").toString() + ")";
+		if(v_Seen.containKey(v_Id))
+		{
+			if(v_Dupes.containKey(v_Id))
+			{
+				v_Dupes.put(v_Id,v_Dupes.get(v_Id).toString() + " ++ " + v_Line);
+			}
+			else
+			{
+				v_Dupes.put(v_Id,v_Seen.get(v_Id).toString() + " ++ " + v_Line);
+			}
+		}
+		else
+		{
+			v_Seen.put(v_Id,v_Line);
+		}
+	}
+}
+v_Out = "DUPLICATE REFERRAL ID CHECK";
+v_Out = v_Out + "\nTotal referrals: " + v_Total;
+v_Out = v_Out + "\nBlank Referral_ID: " + v_Blank;
+v_Out = v_Out + "\nDistinct Referral_IDs: " + v_Seen.size();
+v_Out = v_Out + "\nIDs held by more than one record: " + v_Dupes.size();
+for each  v_K in v_Dupes.keys()
+{
+	v_Out = v_Out + "\n" + v_K + " -> " + v_Dupes.get(v_K);
+}
+return v_Out;

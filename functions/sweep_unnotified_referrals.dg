@@ -1,0 +1,231 @@
+v_Mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_Mode != "REPAIR" && v_Mode != "REPAIR_NOTIFY")
+{
+	v_Mode = "PREVIEW";
+}
+v_Scope = ifnull(p_scope,"").trim();
+if(v_Scope == "")
+{
+	return "SKIP-NOSCOPE";
+}
+v_Limit = 10;
+if(p_limit != null && p_limit > 0)
+{
+	v_Limit = p_limit;
+}
+v_Keys = List();
+v_NotFound = List();
+v_Deferred = 0;
+if(v_Scope.toUpperCase() == "ALL")
+{
+	for each  r in Referrals_Main[Referral_Date == null] sort by ID asc
+	{
+		v_K = ifnull(r.Referral_ID,"").toString().trim();
+		if(v_K == "")
+		{
+			v_K = r.ID.toString();
+		}
+		if(v_Keys.size() < v_Limit)
+		{
+			v_Keys.add(v_K);
+		}
+		else
+		{
+			v_Deferred = v_Deferred + 1;
+		}
+	}
+}
+else
+{
+	for each  v_Raw in v_Scope.toList(",")
+	{
+		v_K = v_Raw.trim();
+		if(v_K != "")
+		{
+			v_Hit = Referrals_Main[Referral_ID == v_K];
+			if(v_Hit.count() == 0 && v_K.matches("^[0-9]+$"))
+			{
+				v_Hit = Referrals_Main[ID == v_K.toLong()];
+			}
+			if(v_Hit.count() == 0)
+			{
+				v_NotFound.add(v_K);
+			}
+			else if(v_Keys.size() < v_Limit)
+			{
+				v_Keys.add(v_K);
+			}
+			else
+			{
+				v_Deferred = v_Deferred + 1;
+			}
+		}
+	}
+}
+v_Found = v_Keys.size();
+if(v_Mode == "PREVIEW")
+{
+	v_Prev = "PREVIEW | mode=" + v_Mode + " | scope=" + v_Scope + " | limit=" + v_Limit;
+	v_Prev = v_Prev + "\nCandidates: " + v_Found + " | deferred to next run: " + v_Deferred + " | unresolved keys: " + v_NotFound.size();
+	for each  v_K2 in v_Keys
+	{
+		v_Prev = v_Prev + "\n" + v_K2;
+	}
+	if(v_NotFound.size() > 0)
+	{
+		v_Prev = v_Prev + "\nNOT FOUND: " + v_NotFound.toString(", ");
+	}
+	v_Prev = v_Prev + "\nNothing was written and no email was sent.";
+	return v_Prev;
+}
+v_NotifyFlag = "NO";
+if(v_Mode == "REPAIR_NOTIFY")
+{
+	v_NotifyFlag = "YES";
+}
+v_RepairedList = List();
+v_FailedList = List();
+v_DetailList = List();
+for each  v_K3 in v_Keys
+{
+	try 
+	{
+		v_Res = thisapp.process_new_referral(v_K3,v_NotifyFlag);
+		v_DetailList.add(v_Res);
+		if(v_Res.startsWith("SKIP"))
+		{
+			v_FailedList.add(v_K3 + " -> " + v_Res);
+		}
+		else
+		{
+			v_RepairedList.add(v_K3);
+		}
+	}		catch (e)
+	{
+		v_FailedList.add(v_K3 + " -> EXCEPTION: " + e);
+		v_DetailList.add(v_K3 + " -> EXCEPTION: " + e);
+	}
+}
+for each  v_NF in v_NotFound
+{
+	v_FailedList.add(v_NF + " -> SKIP-NOTFOUND");
+	v_DetailList.add(v_NF + " -> SKIP-NOTFOUND");
+}
+v_Status = "Repaired";
+if(v_FailedList.size() > 0)
+{
+	v_Status = "Errors";
+}
+else if(v_RepairedList.size() == 0)
+{
+	v_Status = "Clean";
+}
+v_Now = zoho.currenttime;
+v_Header = "mode=" + v_Mode + " | scope=" + v_Scope + " | limit=" + v_Limit + " | deferred=" + v_Deferred;
+v_DetailText = v_Header;
+if(v_DetailList.size() > 0)
+{
+	v_DetailText = v_DetailText + "\n" + v_DetailList.toString("\n");
+}
+v_RepText = "";
+if(v_RepairedList.size() > 0)
+{
+	v_RepText = v_RepairedList.toString(", ");
+}
+v_FailText = "";
+if(v_FailedList.size() > 0)
+{
+	v_FailText = v_FailedList.toString("\n");
+}
+v_LogId = insert into Referral_Sweep_Log
+[
+	Run_Time=v_Now
+	Run_Status=v_Status
+	Found_Count=v_Found
+	Repaired_Count=v_RepairedList.size()
+	Failed_Count=v_FailedList.size()
+	Repaired_List=v_RepText
+	Failure_Detail=v_FailText
+	FRun_Detail=v_DetailText
+	Emailed="No"
+	Added_User=zoho.loginuser
+];
+v_Hour = v_Now.getHour();
+v_InWindow = false;
+if(v_Hour >= 6 && v_Hour <= 19)
+{
+	v_InWindow = true;
+}
+v_AlreadySent = false;
+for each  v_Sent in Referral_Sweep_Log[Emailed == "Yes"] sort by Run_Time desc
+{
+	if(v_Sent.Run_Time != null)
+	{
+		if(v_Sent.Run_Time.toString("yyyy-MM-dd HH") == v_Now.toString("yyyy-MM-dd HH"))
+		{
+			v_AlreadySent = true;
+		}
+	}
+	break;
+}
+v_Emailed = "no";
+if(v_InWindow && !v_AlreadySent)
+{
+	v_PendingIds = List();
+	v_Runs = 0;
+	v_SumFound = 0;
+	v_SumRepaired = 0;
+	v_SumFailed = 0;
+	v_Body = "";
+	for each  v_P in Referral_Sweep_Log[Emailed == "No"] sort by Run_Time asc
+	{
+		v_PendingIds.add(v_P.ID);
+		v_Runs = v_Runs + 1;
+		v_SumFound = v_SumFound + ifnull(v_P.Found_Count,0).toLong();
+		v_SumRepaired = v_SumRepaired + ifnull(v_P.Repaired_Count,0).toLong();
+		v_SumFailed = v_SumFailed + ifnull(v_P.Failed_Count,0).toLong();
+		v_Body = v_Body + "<p><b>" + ifnull(v_P.Run_Time,"").toString() + " - " + ifnull(v_P.Run_Status,"") + "</b><br/>";
+		v_Body = v_Body + "found " + ifnull(v_P.Found_Count,0) + ", repaired " + ifnull(v_P.Repaired_Count,0) + ", failed " + ifnull(v_P.Failed_Count,0) + "<br/>";
+		if(ifnull(v_P.Repaired_List,"").toString().trim() != "")
+		{
+			v_Body = v_Body + "Repaired: " + v_P.Repaired_List.toString().replaceAll("\n","<br/>") + "<br/>";
+		}
+		if(ifnull(v_P.Failure_Detail,"").toString().trim() != "")
+		{
+			v_Body = v_Body + "<span style=\"color:#b00020\">Failures:<br/>" + v_P.Failure_Detail.toString().replaceAll("\n","<br/>") + "</span><br/>";
+		}
+		v_Body = v_Body + "</p>";
+	}
+	if(v_Runs > 0)
+	{
+		v_Subj = "SOS referral sweep: " + v_SumRepaired + " repaired, " + v_SumFailed + " failed";
+		if(v_SumRepaired == 0 && v_SumFailed == 0)
+		{
+			v_Subj = "SOS referral sweep: nothing found";
+		}
+		v_Html = "<div style=\"font-family:Arial,Helvetica,sans-serif;font-size:14px\">";
+		v_Html = v_Html + "<p>Sweep digest covering " + v_Runs + " run(s) since the last email.</p>";
+		v_Html = v_Html + "<p>Referrals found: " + v_SumFound + "<br/>Repaired: " + v_SumRepaired + "<br/>Failed: " + v_SumFailed + "</p>";
+		v_Html = v_Html + "<hr/>" + v_Body;
+		v_Html = v_Html + "<p style=\"color:#666\">Sent from sweep_unnotified_referrals. Full history is in the Referral Sweep Log report.</p></div>";
+		sendmail
+		[
+			from :zoho.adminuserid
+			to :"neil.heird@sosmmc.com","joshua.kolanko@sosmmc.com"
+			subject :v_Subj
+			message :v_Html
+		]
+		for each  v_Pid in v_PendingIds
+		{
+			for each  v_Upd in Referral_Sweep_Log[ID == v_Pid]
+			{
+				update v_Upd
+				[
+					Emailed="Yes"
+				];
+			}
+		}
+		v_Emailed = "yes, " + v_Runs + " run(s) digested";
+	}
+}
+return v_Mode + " | found " + v_Found + " | repaired " + v_RepairedList.size() + " | failed " + v_FailedList.size() + " | deferred " + v_Deferred + " | log " + v_LogId + " | emailed: " + v_Emailed;

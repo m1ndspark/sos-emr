@@ -1,0 +1,27 @@
+v_Hits = List();
+v_Checked = 0;
+for each  r in Referrals_Main[Referral_Date != null] sort by ID desc
+{
+	v_Checked = v_Checked + 1;
+	if(v_Hits.size() < 5)
+	{
+		v_Rid = ifnull(r.Referral_ID,"").toString().trim();
+		if(v_Rid != "")
+		{
+			v_Files = Referral_Files[Referrals_Main == r.ID].count();
+			v_Asg = Assignments[Referral_Link == r.ID].count();
+			if(v_Files > 0 && v_Asg > 0 && r.Partner_Branch_Link != null)
+			{
+				v_Hits.add(v_Rid + " | " + ifnull(r.Patient_First_Name,"") + " " + ifnull(r.Patient_Last_Name,"") + " | " + ifnull(r.Partner_Organization,"") + " / " + ifnull(r.Partner_Branch,"") + " | files=" + v_Files + " | assignments=" + v_Asg + " | referral date=" + r.Referral_Date.toString("yyyy-MM-dd") + " | type=" + ifnull(r.Referral_Type,""));
+			}
+		}
+	}
+}
+v_Out = "SAFE TEST CANDIDATES (notified, has files, has assignment, partner resolved)";
+v_Out = v_Out + "\nReferrals with a Referral Date scanned: " + v_Checked;
+v_Out = v_Out + "\nCandidates found: " + v_Hits.size();
+for each  v_H in v_Hits
+{
+	v_Out = v_Out + "\n" + v_H;
+}
+return v_Out;

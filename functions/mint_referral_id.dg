@@ -1,23 +1,36 @@
-rec = Referrals_Main[ID == recId];
-if(rec != null)
+v_Existing = "";
+for each  v_Rec in Referrals_Main[ID == recId]
 {
-	existing = rec.Referral_ID;
-	if(existing == null)
-	{
-		existing = "";
-	}
-	if(existing.trim() == "")
-	{
-		v_seq = 0;
-		for each  trk in Sequence_Tracker[Object_Prefix == "REF"]
-		{
-			v_seq = trk.Object_Sequence;
-		}
-		rec.Referral_ID="REF-" + v_seq;
-		rec.Referral_ID_Stamp=recId.toString();
-		for each  trk in Sequence_Tracker[Object_Prefix == "REF"]
-		{
-			trk.Object_Sequence=v_seq + 1;
-		}
-	}
+	v_Existing = ifnull(v_Rec.Referral_ID,"").toString().trim();
+}
+if(v_Existing != "")
+{
+	return;
+}
+v_Seq = 0;
+v_TrkId = null;
+for each  v_Trk in Sequence_Tracker[Object_Prefix == "REF"]
+{
+	v_Seq = v_Trk.Object_Sequence;
+	v_TrkId = v_Trk.ID;
+	break;
+}
+if(v_TrkId == null)
+{
+	return;
+}
+for each  v_TrkUpd in Sequence_Tracker[ID == v_TrkId]
+{
+	update v_TrkUpd
+	[
+		Object_Sequence=v_Seq + 1
+	];
+}
+for each  v_Rec2 in Referrals_Main[ID == recId]
+{
+	update v_Rec2
+	[
+		Referral_ID="REF-" + v_Seq
+		Referral_ID_Stamp=recId.toString()
+	];
 }
