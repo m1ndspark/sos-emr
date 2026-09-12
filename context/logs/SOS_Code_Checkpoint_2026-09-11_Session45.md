@@ -12,8 +12,8 @@ notification email went out, and the Creator record had a blank Referral_ID,
 blank Referral_ID_Stamp, blank Referral_Date, no partner resolution and no
 assignment. Separately, notification subjects showed Referral IDs that existed
 nowhere in the data, with the same ID reused across different patients
-(REF-1464 on Barry Hall, Linda Haines and Barbara Basista; REF-1444 on Ramon
-Anglada Alvarez and Linda Brown).
+(REF-1464 appeared on three different patients and REF-1444 on two more;
+identifiers omitted, pull the rows from Creator by referral ID).
 
 Cause, confirmed: Assignments.Patient_DOB is a TEXT field with maxchar 11. The
 On Create master wrote a date object into it. That insert is the LAST statement
@@ -357,12 +357,12 @@ Deferred:
 13. WorkDrive cleanup after file intake, carried from Session 40.
 
 Data issues to adjudicate:
-14. Duplicate referral pairs: John Simoneschi REF-1449 and REF-1458; Phyllis
-    McCoy REF-1457 and REF-1462; Anneice Halloway REF-073126-1499 and REF-1404;
-    Marian Hall REF-072926-1480 and REF-1423.
-15. REF-1463 POC email is SpindoraDoyon@accentcare.co, missing the m. A
+14. Duplicate referral pairs, same patient in each pair: REF-1449 and
+    REF-1458; REF-1457 and REF-1462; REF-073126-1499 and REF-1404;
+    REF-072926-1480 and REF-1423.
+15. REF-1463 POC email domain is accentcare.co, missing the m. A
     Partner_Referral_Contacts record was created under that address.
-16. Ramon Anglada Alvarez matches no referral record despite two notifications
+16. One patient matches no referral record despite two notifications
     sent 2026-09-11 at 11:38 and 11:40.
 17. REF-1129 and REF-1455 still carry the dead "Empath - Main" label.
 

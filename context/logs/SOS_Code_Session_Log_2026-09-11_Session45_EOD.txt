@@ -1,0 +1,335 @@
+================================================================================
+SOS CODE - SOS SESSION LOG - 2026-09-11 (Session 45) - EOD
+================================================================================
+
+PLATFORM: Zoho Creator v6, Deluge. Medical context application.
+REPO: sos-emr at ~/Claude/GitHub/sos-emr
+EXPORT IN PLAY: SOS_Referrals_App_2026-09-11_v45.ds (stale as of EOD, see OPEN)
+
+================================================================================
+1. WHY THIS SESSION HAPPENED
+================================================================================
+
+Referral acknowledgement emails were going out carrying Referral IDs that
+existed nowhere in Creator, and a batch of referrals from the prior Friday and
+weekend arrived with no DOB and were left off notifications entirely. Neil had
+been cleaning these up one function at a time all week.
+
+================================================================================
+2. ROOT CAUSE, FOUND AND FIXED
+================================================================================
+
+The On Create workflow on Referrals_Main ran a 15,012 character body that
+inserted an Assignments record partway through. Assignments.Patient_DOB is
+type text with maxchar 11. The insert wrote a longer value, overflowed, and
+terminated the script.
+
+Creator runs a form workflow inside a transaction. The overflow rolled back
+every record write in that transaction, including the Referral_ID stamp. It
+could not roll back the ZeptoMail send, which had already fired. The email
+therefore quoted a Referral ID that no longer existed after the rollback.
+
+Two defects, both fixed:
+  a. The Assignments insert now writes MM/dd/yyyy text, which fits in 11.
+  b. The notification is no longer sent before the record is committed.
+
+Correction on record: I first misdiagnosed this as a bare assignment syntax
+problem. That was wrong. The transaction rollback is the cause.
+
+================================================================================
+3. process_new_referral - THE SINGLE CREATE PATH
+================================================================================
+
+The entire On Create body was extracted into one function so the create path
+and any repair path can never drift.
+
+  Function: process_new_referral
+  Language: Deluge, namespace default
+  Return:   string
+  Args:     string p_refKey, string p_notify
+
+Takes a custom ID such as REF-1080, never a numeric record ID.
+
+Behavior:
+  - Resolves the key to a record, returns SKIP-NOTFOUND if there is none.
+  - Captures Partner_Branch_Submitted before resolution overwrites the label,
+    so the submitted value and the resolved value are both retained.
+  - Mints Referral_ID only when blank.
+  - Derives Referral_Date from Added_Time, and ONLY for form origin records.
+    There is no fallback. If there is no trusted arrival date, nothing is sent
+    and nothing is stamped.
+  - Commits Referral_Date and Notified_Time FIRST, then sends, then reverts
+    both to null if every notifier failed.
+
+The On Create workflow body is now one line:
+    thisapp.process_new_referral(input.ID.toString(),"YES");
+
+  Form: Referrals_Main | Record event: On Add | Form event: On Success
+
+================================================================================
+4. sos_referral_health - ONE FUNCTION THAT AUDITS EVERY ROW
+================================================================================
+
+Replaces the one function per defect approach that was burning Neil's time.
+
+  Function: sos_referral_health
+  Args:     string p_mode, string p_scope, int p_limit
+  Modes:    REPORT, FIX, FIX_NOTIFY
+  Scope:    ALL, a single issue code, or a comma separated list
+
+Issue codes:
+  NOID, NOSTAMP, NOPARTNER, NOASSIGN, UNNOTIFIED, NONOTIFIER, NODOB, BADDOB,
+  NOPOCEMAIL, TESTREC
+
+Write gate: a referral is skipped only if it has been billed, tested as
+Encounter_PatientVisit[Invoice_Link != null]. Unbilled and unbatched rows are
+all repairable. TESTREC rows are counted but never repaired.
+
+Blank p_scope returns SKIP-NOSCOPE. This REVERSED the old documented behavior
+where blank meant ALL. A blank scope is almost always a forgotten argument,
+and the old default turned that into a silent full table write.
+
+Known limit: FIX rescans the whole table on every invocation, so limit 2 is
+stable and limit 5 times out with a database operation error. REPORT ALL runs
+fine at any limit.
+
+================================================================================
+5. IMAGING ORDER NOTIFICATIONS
+================================================================================
+
+Imaging Order referrals previously had no notifier at all. Built
+build_imaging_email_html and send_imaging_notification, and wired them into
+process_new_referral alongside the referral and 3008 notifiers.
+
+Employees.Email_Notification_Types values are Patient Visits, 3008 Evals,
+Imaging Orders, None.
+
+================================================================================
+6. STANDING RULE ADDED - DATA PROVENANCE
+================================================================================
+
+Every data point in any output, email, report, page, Word file, PDF, module,
+anything, must be read directly from Creator at the moment of output. Never
+from a remembered, computed, or inferred value. Referral IDs in particular
+come only from Creator. If no ID exists, the output says so rather than
+supplying one.
+
+Related rule, also added: never infer anything about what exists in the .ds or
+the local repo. Every statement about a field, form, workflow, or function
+comes from re-reading the current .ds in that moment, reading the full
+artifact end to end, not a partial excerpt. This came from a miss where I read
+the first 2,200 characters of build_3008_email_html and inferred the rest,
+then flagged a phone formatting loop as new when it had been in place for days.
+
+================================================================================
+7. ZOHO FORM TO CREATOR INTEGRATION REBUILD
+================================================================================
+
+The Partner Locations field on the Zoho Form was a group list with Empath and
+AccentCare appearing as selectable line items. It was deleted and rebuilt as a
+flat Dropdown with 22 approved location labels, question label Branch/Location.
+
+Seven locations were dropped: Chapters Marathon, Chapters Okeechobee,
+Cornerstone Casa Bella House, Cornerstone Descipio Hospice House, Cornerstone
+LPHH, Cornerstone Mariposa House, Cornerstone MCHH. Cornerstone Main was added
+as a single entry covering all Cornerstone locations.
+
+The integration was screenshotted, removed, and rebuilt to 42 rows.
+
+CRITICAL READING NOTE: the mapping screen reads Creator field on the LEFT and
+Zoho Forms question on the RIGHT. I had this backwards for part of the session
+and it invalidated several instructions before Neil corrected it.
+
+Load bearing rows:
+  3008 File URLs        -> 3008 Files Upload
+  General Files URLs    -> General Files Upload
+  Imaging Orders URLs   -> Upload Imaging Orders
+  Partner Location Label-> Branch/Location
+  Form Token            -> Form Token
+  Patient DOB           -> Patient DOB   (targets Patient_DOB1, the text field)
+
+The three URL rows must point at the Creator textarea fields Files_3008_URLs,
+General_Files_URLs and Imaging_Orders_URLs. Creator file upload fields in
+Multiple Upload mode are not offered for mapping at all. Zoho Forms > Manage
+Form Attachments > WorkDrive is what makes the upload questions yield URLs.
+
+Left unmapped deliberately: Patient DOB (system), Data Issues, Referral ID,
+Referral Date, Referral Date (Don't Use), Partner Organization, Partner
+Branch/Location.
+
+RESULT: one test referral submitted through the live form came back clean.
+REF-1468, TEST TEST, AccentCare / Miami. Partner and branch resolved from
+Partner_Location_Label, POC email captured, DOB captured, assignment created,
+Referral_ID minted in REF-NNNN format. Only health flag returned was TESTREC,
+which is expected.
+
+================================================================================
+8. THE TWO DOB FIELDS - SETTLED
+================================================================================
+
+Referrals_Main carries two DOB fields and neither can be deleted.
+
+  Patient_DOB   type date, display name "Patient DOB (system)", private,
+                personal data. THIS IS THE ONE TRUE SOURCE.
+  Patient_DOB1  type text, maxchar 11, display name "Patient DOB". Its ONLY
+                purpose is to receive the text date from the Zoho Form.
+
+Neil's ruling, verbatim in effect: every Creator report pulls Patient_DOB from
+Referrals_Main. Period. Patient_DOB1 exists only to catch the form text, and
+Creator parses it into Patient_DOB. If any report shows a DOB it comes from
+Patient_DOB.
+
+parse_patient_dob handles MM/DD/YYYY, M/D/YYYY and YYYY-MM-DD, validates month,
+day, leap years, and a year range of 1900 to the current year. It rejects two
+digit years, text month names, and compact 8 digit strings. None of those
+appear in the current data.
+
+================================================================================
+9. REFERRAL DATE - NEVER DEFAULTED
+================================================================================
+
+Two wrong attempts before landing this. zoho.currentdate stamped today's date
+onto old records. Referral_Added_Time is the import date, not the referral
+date. Final rule: Referral_Date derives from Added_Time and only for form
+origin records. No fallback. If there is no trusted arrival date, the record
+stays queued and unnotified rather than carrying a fabricated date.
+
+================================================================================
+10. OTHER WORK COMPLETED
+================================================================================
+
+- Un-notified queue cleared from 22 to 0.
+- INV-000028 voided via reset_invoice. PVS-1227-JK released back to Draft.
+- PVS employee link backfill: 480 of 483 already linked, 3 have blank
+  Employee_Email.
+- Sequence tracker audit: all SAFE. REF tracker at 1464 against a highest in
+  use of 1463.
+- mint_referral_id rewritten. The tracker is now incremented BEFORE the record
+  is stamped, closing a duplicate ID window.
+- Four test referrals deleted manually by Neil. diag_orphaned_records returned
+  zero orphans afterward, so the concern I raised did not materialize.
+- Duplicated tail removed from OnValidate PVS_Required_Fields. Lines 133 to
+  177 were a byte identical copy of 88 to 132. Body is now 132 lines.
+- Facility Room Number is intentionally no longer required on the PVS.
+- New workflow: PVS Patient Data Push Back. On a referral linked PVS, DOB,
+  phone and address remain editable by the provider, and On Success the edited
+  values are written back to Referrals_Main so the one true source stays true.
+
+================================================================================
+11. CREATOR V6 AND DELUGE FACTS LEARNED THIS SESSION
+================================================================================
+
+- containsKey does not exist. The Map key test is containKey, no s.
+- A form workflow runs in a transaction. Any later error rolls back every
+  record write in it. An external call already made, such as a ZeptoMail send,
+  cannot be rolled back.
+- A maxchar overflow terminates the insert and rolls back the whole script.
+- getHour() returns 24 hour format in the app timezone. toDate() accepts a
+  date time directly.
+- Creator v2.1 meta APIs expose applications, sections, forms, reports, pages
+  and fields only. No workflows, functions or Deluge.
+- Encounter_PatientVisit.Patient_Phone is type phonenumber. The matching
+  Referrals_Main.Patient_Phone is plain text. Cross writes need toString().
+- Both Patient_Address fields use the same subfield names: address_line_1,
+  address_line_2, district_city, state_province, postal_Code.
+- Invoice_Status values are Draft and Final only, so != "Final" admits blank
+  imported rows and == "Draft" would not.
+- Two Referral_ID formats coexist: legacy REF-MMDDYY-NNNN and current
+  REF-NNNN.
+
+================================================================================
+12. HEALTH BOARD AT EOD
+================================================================================
+
+REPORT ALL, 2026-09-11 final run:
+  Scanned 674 | skipped as billed 237 | flagged 77
+
+  NOID 0 | NOSTAMP 0 | NOPARTNER 14 | NOASSIGN 56 | UNNOTIFIED 0
+  NONOTIFIER 0 | NODOB 6 | BADDOB 1 | NOPOCEMAIL 10 | TESTREC 1
+
+All 77 are legacy unbilled rows plus the REF-1468 test record. Nothing in the
+flagged set is blocking.
+
+Data points worth remembering:
+  - REF-1111 Diane Hathaway holds 1/26/1036 in text against a correct
+    01/26/1936 date.
+  - REF-1241 Zenia Krase carries a DOB of 2026-08-19, a date in the wrong field.
+  - Four childhood DOBs sit in a hospice and PACE population: Oliver Wittig
+    2021, Liam Wittig 2018, Triniti Lott 2019, Tyler Lott 2012.
+  - Triniti Lott and Tyler Lott each appear twice, August import duplicates.
+  - Ethel McConnell appears as REF-1129 with DOB 07/30/1964 and REF-1115 with
+    none.
+  - NOPOCEMAIL is the same population as NOPARTNER.
+  - Ramon Anglada Alvarez received two notifications on 2026-09-11 but has no
+    referral record.
+  - REF-1463 carries a POC email typo, accentcare.co rather than .com.
+
+================================================================================
+13. REPO AND CCODE STATE
+================================================================================
+
+Commits from this session:
+  4692284  Export v45
+  8ae0996  Session 45 docs
+  91b5597  Session 45 checkpoint and Zoho Forms mapping, both written by cchat
+           into context/logs/ after ccode reported them missing
+  7c0214b  Gated v45 sync, MATCH=201 DRIFT=0 NEW=0
+
+ccode raised two flags against live code, both now resolved:
+  1. OnValidate PVS_Required_Fields carried a byte identical duplicated tail.
+     Fixed in Creator.
+  2. backfill_mint_missing_referral_ids treats blank scope as ALL, which
+     contradicts the SKIP-NOSCOPE rule added today. It predates the reversal
+     by a day so it is grandfathered, but it MINTS IDs, so a forgotten
+     argument would mint across the whole table. It should be the first
+     retrofit.
+
+Session 43's predicted drift closed in context/19. Both predictions held line
+for line.
+
+================================================================================
+14. OPEN ITEMS CARRIED FORWARD
+================================================================================
+
+BLOCKING
+  1. Fresh .ds export. v45 predates today's Creator work. process_new_referral,
+     sos_referral_health, sweep_unnotified_referrals, the imaging notifiers,
+     the mint_referral_id rewrite, the corrected OnValidate body and the new
+     PVS Patient Data Push Back workflow are all absent from v45 and from the
+     repo. functions/mint_referral_id.dg still holds the old body and the On
+     Create master is still 415 lines with no call to process_new_referral.
+  2. PVS-1227-JK is Draft and unheld since the INV-000028 void. It will be
+     re-invoiced unless held or cancelled.
+
+NOT BLOCKING
+  3. Retrofit backfill_mint_missing_referral_ids to SKIP-NOSCOPE. First in
+     line because it mints.
+  4. mint_assignment_id, mint_employee_id, mint_partner_id and
+     mint_location_id all still carry the bare assignment defect that
+     mint_referral_id had.
+  5. Switch Referrals_Main_Report, PVS_Report and one page layout from
+     Patient_DOB1 to Patient_DOB.
+  6. Zoho Flow trigger for sweep_unnotified_referrals every 30 minutes, plus
+     REST endpoint exposure.
+  7. The autonomous QA worker. Neil's call: he exports the .ds at session start
+     and EOD, and the worker refuses workflow judgements when the export is
+     stale.
+  8. 56 NOASSIGN and 14 NOPARTNER legacy unbilled referrals. Parked. FIX
+     rescans the whole table each run so clearing them at limit 2 is 28 runs.
+     A dedicated backfill that queries only rows missing an assignment would
+     do it in two or three runs.
+  9. 12 referrals with no branch text. 3 PVS with blank Employee_Email.
+ 10. Chase DOBs for REF-1092, 1110, 1113, 1114, 1115, 1117. Neil deferred.
+ 11. Adjudicate the duplicate pairs and the REF-1463 POC email typo.
+ 12. Ramon Anglada Alvarez, notified twice with no referral record.
+
+================================================================================
+15. HOW TO PICK THIS UP COLD
+================================================================================
+
+Read context/01_standing_rules.md, context/05 for Deluge learnings, and
+context/23_task_list.md. Do not trust v45 for anything written on 2026-09-11.
+Get a fresh export first. Run sos_referral_health with REPORT, ALL, 5 to see
+the current board before touching anything.
+
+END
