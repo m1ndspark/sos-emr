@@ -219,15 +219,15 @@ CARRIED FROM SESSION 31, STILL OPEN
 
 DATA QUALITY, NOT BLOCKING
 - 22 of 83 July InnoVage referrals store DOB with a 20xx century. Chapters
-  has two more (initials G.S. DOB 2044-10-09, W.W. DOB 2045-07-06). Reports
+  has two more, both with DOBs stored in the 2040s. Reports
   correct by subtracting 100 years from any DOB with year >= 2000; the
   Creator records still need fixing.
 - PVS-1112-JK carries a clinical note byte-identical to PVS-1108-JK for a
   DIFFERENT patient. Template copy-paste. Medical-record integrity issue,
   worth resolving on its own.
-- N. duplicate (Creator vs 3008 log, same DOB, different first name), C.D.
-  DOB conflict, a surname particle ("De ") dropped on import, V.A.
-  duplicate, J.D.M. duplicate, two completions dated before their referral.
+- One duplicate (Creator vs 3008 log, same DOB, different first name), one
+  DOB conflict, a surname particle ("De ") dropped on import, two further
+  duplicates, two completions dated before their referral.
 - Clinical-side missing PVS: 12 referrals, 4 of which resolve to a visit
   under a twin referral. Reclassifying moves conversion 94.0% -> 96.0%.
   Neil has not ruled.

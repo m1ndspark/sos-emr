@@ -438,5 +438,33 @@ text on Referrals_Main, so the push back has to convert. See context/05.
 Both are filed in context/23 under the fresh .ds export, which is BLOCKING.
 
 --------------------------------------------------------------------------------
+## Known drift: v47 is behind live (added 2026-09-12)
+--------------------------------------------------------------------------------
+One Creator artifact changed on 2026-09-12 AFTER v47 was exported. It is not in
+any export. DO NOT HAND WRITE IT. It arrives on the next .ds and is extracted
+then.
+
+DRIFT: Encounter_PatientVisit / On Success / PVS Patient Data Push Back
+(link name PVS_Patient_Data_Push_Bac), corrected for address erasure.
+
+The v47 body writes all five Patient_Address subfields to Referrals_Main
+unconditionally whenever any one of them changed, while its change detection
+ignores blank PVS subfields. A PVS with a new address_line_1 and a blank
+district_city therefore wrote a blank city over the real one. Flagged in the v47
+sync audit.
+
+Live fix: a blank PVS subfield now preserves the Referrals_Main value instead of
+overwriting it.
+
+Until the next export, Encounter_PatientVisit/OnSuccess__PVS_Patient_Data_Push_Back.dg
+in the repo is KNOWN to be the pre-fix body. That is recorded, not a new defect.
+
+Watch on the next sync: this file needed manual extraction in v47 because
+ds_sync's resolver collided it with OnSuccess__PVS_Stamp_Generator.dg. Both
+files now exist, so the resolver should score the names and report a plain
+DRIFT this time. If it reports AMBIGUOUS again, extract with parse_workflows as
+before rather than by hand.
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------
