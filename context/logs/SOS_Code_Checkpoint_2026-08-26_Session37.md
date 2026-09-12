@@ -40,7 +40,7 @@ All 76 completions closed within one business day, 58 same day.
 
 Three defects found against the prior July docx:
 
-1. Its pending list showed REF-072926-1467 (Veronica Adejola) as pending. That one
+1. Its pending list showed REF-072926-1467 as pending. That one
    completed 07/29. The actually-open referral is her earlier REF-072126-1401,
    which the docx omitted.
 2. It counted completions by the completion log's site (48/28) against referrals by
@@ -176,13 +176,13 @@ Dispositions supplied so far:
 
 | Referral | Patient | Disposition |
 |---|---|---|
-| REF-072126-1401 (07/21) | Veronica Adejola | DUPLICATE. She has two July referrals; REF-072926-1467 (07/29) completed and was counted. Remove 1401. |
-| REF-072326-1419 (07/23) | Michael Lahee | DUPLICATE. Billed on the original June referral. |
-| REF-072926-1483 (07/29) | Eliette Patterson | COMPLETED 07/31 and billed in July. She was never open. |
-| REF-072326-1422 (07/23) | Mattie Richards | OPEN. Awaiting additional information from InnoVage. Request date not yet supplied. |
-| REF-072926-1484 (07/29) | Aurea Aviles | OPEN. Same partner-side delay; information not provided until after 07/31. Request date not yet supplied. |
-| REF-073126-1497 (07/31) | Myrtelina Rivera | COMPLETED 08/03. Referred 07/31, evaluated in the next reporting period. |
-| REF-073126-1498 (07/31) | Donna Buckley | COMPLETED 08/03. Referred 07/31, evaluated in the next reporting period. |
+| REF-072126-1401 (07/21) | (identifier omitted) | DUPLICATE. Same patient has two July referrals; REF-072926-1467 (07/29) completed and was counted. Remove 1401. |
+| REF-072326-1419 (07/23) | (identifier omitted) | DUPLICATE. Billed on the original June referral. |
+| REF-072926-1483 (07/29) | (identifier omitted) | COMPLETED 07/31 and billed in July. Never open. |
+| REF-072326-1422 (07/23) | (identifier omitted) | OPEN. Awaiting additional information from InnoVage. Request date not yet supplied. |
+| REF-072926-1484 (07/29) | (identifier omitted) | OPEN. Same partner-side delay; information not provided until after 07/31. Request date not yet supplied. |
+| REF-073126-1497 (07/31) | (identifier omitted) | COMPLETED 08/03. Referred 07/31, evaluated in the next reporting period. |
+| REF-073126-1498 (07/31) | (identifier omitted) | COMPLETED 08/03. Referred 07/31, evaluated in the next reporting period. |
 
 Restated July totals once applied:
 
@@ -191,7 +191,7 @@ Restated July totals once applied:
 - Open at cutoff 4, down from 7
 - Completion rate 95.1%, up from 91.6%
 
-FLAG: Eliette Patterson completed 07/31 and was billed in July but does NOT appear
+FLAG: REF-072926-1483 completed 07/31 and was billed in July but does NOT appear
 in 3008_july_map.csv. The completion log is therefore missing at least one July
 completion, and should not be treated as authoritative on its own.
 

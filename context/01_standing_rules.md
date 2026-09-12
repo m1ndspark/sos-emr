@@ -175,6 +175,37 @@ SAFETY AND PRIVACY
   and Zoho Books, both BAA-covered.
 - HIPAA compliance confirmation required before go-live of any AI feature.
 
+NO PATIENT IDENTIFIERS IN REPO DOCUMENTATION (added 2026-09-11)
+Repo documentation carries NO patient names and NO DOB values. Findings are
+keyed by referral ID only.
+
+This applies to session logs and checkpoints exactly as it applies to schema
+files. There is no "it is just a working note" exemption. A checkpoint committed
+to git is as public as anything else in the repo, lives as long, and is read by
+more tools.
+
+How to write a finding without an identifier:
+- "REF-1129 and REF-1115 are the same patient" rather than naming them.
+- "REF-1111 holds a text DOB whose year is mistyped by 900 years" rather than
+  quoting either date.
+- "One patient notified twice with no referral record" plus a pointer to the
+  notification log, rather than the name.
+The referral ID is the join key. Anyone who needs the identity pulls the row
+from Creator, which is access-controlled. The repo is not.
+
+Provider, partner and staff names are NOT covered by this rule and stay. They
+are operational facts, and removing them destroys meaning (which provider's
+entry to count, which partner contact is wrong). The rule is about PATIENTS.
+
+Partner contact email local parts are scrubbed to the domain when the finding is
+about the domain, since the local part names an individual.
+
+Scrubbing is retroactive. When this rule was written on 2026-09-11 it was
+applied backwards across every file under context/, including four historical
+session logs and checkpoints. A rule that only governs new writing leaves the
+exposure in place.
+
+
 DATA PROVENANCE (added 2026-09-11)
 Every data point in any output, whether an email, report, page, Word file, PDF
 or module, is read directly from Creator at the moment of output. Never from an

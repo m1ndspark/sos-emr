@@ -251,16 +251,20 @@ All 77 are legacy unbilled rows plus the REF-1468 test record. Nothing in the
 flagged set is blocking.
 
 Data points worth remembering:
-  - REF-1111 Diane Hathaway holds 1/26/1036 in text against a correct
-    01/26/1936 date.
-  - REF-1241 Zenia Krase carries a DOB of 2026-08-19, a date in the wrong field.
-  - Four childhood DOBs sit in a hospice and PACE population: Oliver Wittig
-    2021, Liam Wittig 2018, Triniti Lott 2019, Tyler Lott 2012.
-  - Triniti Lott and Tyler Lott each appear twice, August import duplicates.
-  - Ethel McConnell appears as REF-1129 with DOB 07/30/1964 and REF-1115 with
-    none.
+  - REF-1111 holds a text DOB whose year is mistyped by 900 years against a
+    correct date value. Classic BADDOB shape: the text and date fields
+    disagree.
+  - REF-1241 carries a 2026 date in the DOB field, which is an arrival date in
+    the wrong field rather than a birth date.
+  - Four DOBs in the set are childhood birth years, sitting in a hospice and
+    PACE population where that is implausible. Two of those four rows are
+    August import duplicates of each other.
+  - REF-1129 and REF-1115 are the same patient; REF-1129 carries a DOB and
+    REF-1115 carries none.
+  (Identifiers omitted per the repo documentation rule in context/01. Pull the
+  rows from Creator by referral ID.)
   - NOPOCEMAIL is the same population as NOPARTNER.
-  - Ramon Anglada Alvarez received two notifications on 2026-09-11 but has no
+  - One patient received two notifications on 2026-09-11 but has no
     referral record.
   - REF-1463 carries a POC email typo, accentcare.co rather than .com.
 
@@ -321,7 +325,8 @@ NOT BLOCKING
   9. 12 referrals with no branch text. 3 PVS with blank Employee_Email.
  10. Chase DOBs for REF-1092, 1110, 1113, 1114, 1115, 1117. Neil deferred.
  11. Adjudicate the duplicate pairs and the REF-1463 POC email typo.
- 12. Ramon Anglada Alvarez, notified twice with no referral record.
+ 12. One patient notified twice with no referral record; identifier omitted,
+     pull from the notification log.
 
 ================================================================================
 15. HOW TO PICK THIS UP COLD

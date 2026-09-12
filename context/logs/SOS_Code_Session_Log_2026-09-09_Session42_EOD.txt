@@ -261,7 +261,7 @@ then most complete note. Three referrals keep both rows as genuine
 repeat visits: REF-080426-1531, REF-082026-1672, REF-080326-1521.
 
 Referral file needed no dedupe. Zero identical rows. Only pair worth
-review is Linda Franco, two same-day referrals, REF-083026-1755 and
+review is one patient with two same-day referrals, REF-083026-1755 and
 REF-083026-1751.
 
 IMPORT ERRORS HIT AND RESOLVED:

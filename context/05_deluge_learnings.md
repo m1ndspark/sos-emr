@@ -673,3 +673,36 @@ reissue the same number. Stamping first and incrementing second means any error
 between the two hands the next caller a duplicate ID.
 The cost of the safe order is a gap in the sequence when a run fails. Gaps are
 harmless. Duplicate referral IDs are not.
+
+================================================================================
+SESSION 45 EOD ADDENDUM  (2026-09-11)
+================================================================================
+
+THE TWO Patient_Phone FIELDS ARE DIFFERENT TYPES; CROSS WRITES NEED toString()
+Encounter_PatientVisit.Patient_Phone is type phonenumber.
+Referrals_Main.Patient_Phone is plain text.
+Verified in v45. Writing one into the other without .toString() is a type
+mismatch, and the PVS side additionally rejects a +1 country code prefix (see
+the import note earlier in this file). Any push back or pull through that moves
+a phone between these two forms converts explicitly.
+
+BOTH Patient_Address FIELDS SHARE THE SAME SUBFIELD NAMES
+Both Referrals_Main.Patient_Address and Encounter_PatientVisit.Patient_Address
+are type address, and both expose the same five subfields:
+
+    address_line_1
+    address_line_2
+    district_city
+    state_province
+    postal_Code
+
+Note the capital C in postal_Code. It is the only one of the five that is not
+all lowercase, and it is the one that gets mistyped. Verified in v45.
+Because the subfield names match on both sides, an address copies across form to
+form subfield by subfield with no renaming.
+
+FACILITY ROOM NUMBER IS INTENTIONALLY NOT REQUIRED ON THE PVS
+The required-field check for Facility_Room_Number was removed from
+OnValidate PVS_Required_Fields on 2026-09-11. This is deliberate, not an
+oversight and not collateral from the duplicated-tail cleanup that happened in
+the same file on the same day. Do not "restore" it.

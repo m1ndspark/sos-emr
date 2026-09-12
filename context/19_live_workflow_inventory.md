@@ -377,5 +377,36 @@ against the export, so until v45 lands the export is the stale side and a sync
 would look correct while being wrong.
 
 --------------------------------------------------------------------------------
+## Known drift: v45 is behind live (added 2026-09-11, Session 45 EOD)
+--------------------------------------------------------------------------------
+Two Creator artifacts changed on 2026-09-11 AFTER v45 was exported. Neither is
+in any export and neither is in this repo. DO NOT HAND WRITE EITHER ONE. They
+arrive on the next .ds and are extracted by ds_sync then, not before.
+
+DRIFT A: Encounter_PatientVisit / OnValidate / PVS_Required_Fields, corrected.
+The live body is now 132 lines. The repo copy is 177 lines and still carries the
+byte-identical duplicated tail that was flagged in the v45 sync audit: live
+lines 133 to 177 were a copy of 88 to 132 and have been deleted in Creator.
+Until the next export, the repo copy is KNOWN WRONG in a specific, recorded way.
+It is not a new defect and must not be "fixed" by editing the .dg.
+
+DRIFT B: Encounter_PatientVisit / On Success / PVS Patient Data Push Back. NEW
+workflow, no repo file yet.
+On a referral-linked PVS, DOB, phone and address stay editable by the provider,
+and on success the edited values are written back to Referrals_Main so the one
+true source stays true.
+This closes the loop opened by the v45 prefill unlock. The v45 sync audit raised
+exactly this as a VERIFY LIVE item: three workflows had dropped their disable
+lines on Patient_DOB, Patient_Address and Patient_Phone, which let a PVS diverge
+silently from Referrals_Main. The push back is the answer to that divergence.
+The audit question is therefore resolved, and the resolution is a workflow the
+repo cannot see yet.
+
+Watch on the next sync: Patient_Phone is type phonenumber on the PVS and plain
+text on Referrals_Main, so the push back has to convert. See context/05.
+
+Both are filed in context/23 under the fresh .ds export, which is BLOCKING.
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------

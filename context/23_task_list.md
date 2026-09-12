@@ -63,6 +63,12 @@ Owner legend:
 | All 22 un-notified referrals cleared. | Neil | DONE | was Y | 2026-09-11 |
 | INV-000028 voided via reset_invoice. | Neil | DONE | was N | 2026-09-11 |
 | PVS employee link backfill committed, 480 of 483 linked. The 3 remainder are the blank Employee_Email rows tracked as open below. | Neil / ccode | DONE | was N | 2026-09-11 |
+| Sequence tracker audit: all prefixes SAFE. REF tracker at 1464 against a highest in use of 1463. | Neil / cchat | DONE | was N | 2026-09-11 |
+| mint_referral_id rewritten: the tracker is now incremented BEFORE the record is stamped, closing the duplicate-ID window. NOTE: not in v45, so functions/mint_referral_id.dg still holds the old body. | Neil / cchat | DONE | was Y | 2026-09-11 |
+| Four test referrals deleted manually. diag_orphaned_records returned zero orphans afterward, so the orphan risk raised beforehand did not materialize. | Neil | DONE | was N | 2026-09-11 |
+| Duplicated tail removed from OnValidate PVS_Required_Fields. Live lines 133-177 were a byte-identical copy of 88-132; live body is now 132 lines. This closes FLAG 1 from the v45 sync audit. NOTE: not in any export, so the repo copy is still the 177-line version. See context/19. | Neil | DONE | was N | 2026-09-11 |
+| Facility Room Number made intentionally not required on the PVS. Recorded in context/05 so it is not restored by mistake. | Neil | DONE | was N | 2026-09-11 |
+| New workflow PVS Patient Data Push Back (Encounter_PatientVisit, On Success). Provider edits to DOB, phone and address on a referral-linked PVS are written back to Referrals_Main, so the prefill unlock cannot silently diverge from the source. Resolves the VERIFY LIVE item raised in the v45 sync audit. NOTE: not in any export. See context/19. | Neil | DONE | was N | 2026-09-11 |
 
 --------------------------------------------------------------------------------
 ## OPEN, BLOCKING (launch 2026-08-03; now overdue as of 2026-08-05)
@@ -72,8 +78,8 @@ Owner legend:
 |---|---|---|---|---|
 | Chapters rates: 3 branches (HIL / HPH / LIF). DONE 2026-08-11: rates hand-entered and the 3 July Chapters visits billed. | Neil | DONE | N | 2026-08-11 |
 | VITAS rates: 4 branches (CIT / LEE / SUM / VIL). | Neil / Josh | OPEN | Y | 2026-08-03 (overdue) |
-| PVS-1227-JK is Draft and UNHELD after the INV-000028 void. It will be re-invoiced on the next batch unless it is held or cancelled. | Neil | OPEN | Y | 2026-09-11 |
-| A fresh .ds export is needed. v45 is stale: process_new_referral, sos_referral_health, the imaging notifications, the mint_referral_id rewrite and sweep_unnotified_referrals were all built after it was exported, so the repo holds no artifact for any of them. | Neil | OPEN | Y | 2026-09-11 |
+| PVS-1227-JK is Draft and unheld since the INV-000028 void. It will be re-invoiced unless it is held or cancelled. | Neil | OPEN | Y | 2026-09-11 |
+| Fresh .ds export. v45 predates the 2026-09-11 Creator work. process_new_referral, sos_referral_health, sweep_unnotified_referrals, the imaging notifiers, the mint_referral_id rewrite, the corrected 132-line OnValidate body and the new PVS Patient Data Push Back workflow are all absent from v45 and from the repo. functions/mint_referral_id.dg still holds the old body and the On Create master is still 415 lines with no call to process_new_referral. See context/19. | Neil | OPEN | Y | 2026-09-11 |
 | Books customer IDs missing: Cornerstone (5) only. Chapters and VITAS proven working 2026-08-11 - both billed through the batch successfully. | Neil / Josh | OPEN | N | 2026-08-03 (overdue) |
 | Turn OFF "hide zero value items" in Books. DONE 2026-08-11. | Neil | DONE | N | 2026-08-11 |
 | Empath/Polk referrals 1444, 1423, 1297. DONE 2026-08-11: backfilled and invoiced. | Neil | DONE | N | 2026-08-11 |
@@ -108,7 +114,7 @@ Owner legend:
 | 3008 visits are excluded from the August MPU data set by Neil's direction, 2026-09-10. 99 InnoVage 3008 referrals exist for August with zero corresponding PVS rows in the Cognito export. | Neil | OPEN | N | none |
 | v44 is behind live by one change: the Referral_Link_Pre_Fill update that adds input.Referral_Date. Verified live by Neil on a new PVS; next export captures it. | Neil | OPEN | N | none |
 | ccode must pull and push commits 2adcd70 (data intake verification protocol) and e48c6dd (v44 export). Committed locally by cchat 2026-09-10; the VM cannot reach the remote. | ccode | OPEN | N | none |
-| Patricia Eckhardt REF-082626-1725 needs clarification: two records existed, Kolanko 8/26 and Smith 8/27. Neil ruled 2026-09-10 to count the Smith entry, drop Kolanko, and scope the visit Low Complexity. Applied to the August data set. The Cognito export records the provider only as "Smith"; Neil gave the name as Maddison Smith, which is not a provider seen elsewhere in the data. | Neil | OPEN | N | none |
+| REF-082626-1725 needs clarification: two records existed, Kolanko 8/26 and Smith 8/27. Neil ruled 2026-09-10 to count the Smith entry, drop Kolanko, and scope the visit Low Complexity. Applied to the August data set. The Cognito export records the provider only as "Smith"; Neil gave the name as Maddison Smith, which is not a provider seen elsewhere in the data. | Neil | OPEN | N | none |
 
 --------------------------------------------------------------------------------
 ## OPEN, NOT BLOCKING
@@ -116,19 +122,16 @@ Owner legend:
 
 | Task | Owner | Status | Blocking | Deadline |
 |---|---|---|---|---|
-| mint_assignment_id, mint_employee_id, mint_partner_id and mint_location_id all carry the same bare-assignment defect that was just fixed in mint_referral_id. Verified in v45: all four use the same pattern. They will fail the same way. | Neil / cchat | OPEN | N | 2026-09-11 |
-| Referrals_Main_Report, PVS_Report and one page layout still display Patient_DOB1. Every Creator report must pull Patient_DOB. Patient_DOB1 is the text field the form writes into; Patient_DOB is the real date field. | Neil | OPEN | N | 2026-09-11 |
-| backfill_patient_dob not yet run. Run diag_dob_coverage FIRST to see what it would touch. | Neil | OPEN | N | 2026-09-11 |
-| Zoho Flow 30 minute trigger for sweep_unnotified_referrals, plus the REST endpoint it calls. | Neil | OPEN | N | 2026-09-11 |
-| Autonomous QA worker. | Neil | OPEN | N | 2026-09-11 |
-| 14 NOPARTNER and 58 NOASSIGN legacy unbilled referrals. | Neil | OPEN | N | 2026-09-11 |
-| 12 referrals carrying no branch text. | Neil | OPEN | N | 2026-09-11 |
-| 3 PVS with blank Employee_Email (the 3 of 483 the employee-link backfill could not resolve). | Neil | OPEN | N | 2026-09-11 |
-| DOB candidate scan that REPORTS and never writes. Per the DATA PROVENANCE rule in context/01, a DOB found in free text is surfaced for approval, never written automatically. | Neil | OPEN | N | 2026-09-11 |
-| Duplicate referral pairs to adjudicate: John Simoneschi REF-1449 / REF-1458; Phyllis McCoy REF-1457 / REF-1462; Anneice Halloway REF-073126-1499 / REF-1404; Marian Hall REF-072926-1480 / REF-1423. Two of the four pair a legacy REF-MMDDYY-NNNN against a current REF-NNNN, so any dedupe logic must handle both formats (see context/05). | Neil | OPEN | N | 2026-09-11 |
-| REF-1463 POC email SpindoraDoyon@accentcare.co is missing the trailing m, and a Partner_Referral_Contacts record was created under the bad address. Fix both the referral and the contact record. | Neil | OPEN | N | 2026-09-11 |
-| Ramon Anglada Alvarez matches no referral record despite two notifications sent on 2026-09-11. | Neil | OPEN | N | 2026-09-11 |
-| REF-1129 and REF-1455 still carry the dead "Empath - Main" label, produced by the group-list header being selectable before the 2026-09-11 Dropdown conversion. See context/24. | Neil | OPEN | N | 2026-09-11 |
+| RETROFIT FIRST: backfill_mint_missing_referral_ids still treats blank scope as ALL, against the SKIP-NOSCOPE rule in context/01. It MINTS IDs, so a forgotten second argument would mint across the whole table. Code deliberately left alone; this is the first backfill to retrofit. | Neil / cchat | OPEN | N | 2026-09-11 |
+| mint_assignment_id, mint_employee_id, mint_partner_id and mint_location_id all still carry the bare assignment defect that mint_referral_id had. | Neil / cchat | OPEN | N | 2026-09-11 |
+| Switch Referrals_Main_Report, PVS_Report and one page layout from Patient_DOB1 to Patient_DOB. | Neil | OPEN | N | 2026-09-11 |
+| Zoho Flow trigger for sweep_unnotified_referrals every 30 minutes, plus REST endpoint exposure. | Neil | OPEN | N | 2026-09-11 |
+| The autonomous QA worker. Neil's call: he exports the .ds at session start and EOD, and the worker refuses workflow judgements when the export is stale. | Neil | OPEN | N | 2026-09-11 |
+| 56 NOASSIGN and 14 NOPARTNER legacy unbilled referrals. Parked. FIX rescans the whole table each run, so clearing them at limit 2 is 28 runs; a dedicated backfill querying only rows missing an assignment would do it in two or three. | Neil | OPEN | N | 2026-09-11 |
+| 12 referrals with no branch text. 3 PVS with blank Employee_Email (the 3 of 483 the employee-link backfill could not resolve). | Neil | OPEN | N | 2026-09-11 |
+| Chase DOBs for REF-1092, REF-1110, REF-1113, REF-1114, REF-1115 and REF-1117. Neil deferred. Also folded in here: backfill_patient_dob has not been run (run diag_dob_coverage first to see what it would touch), and the DOB candidate scan must REPORT and never write, per the DATA PROVENANCE rule in context/01. | Neil | OPEN | N | 2026-09-11 |
+| Adjudicate the duplicate referral pairs and the REF-1463 POC email typo. Pairs, same patient in each: REF-1449 / REF-1458; REF-1457 / REF-1462; REF-073126-1499 / REF-1404; REF-072926-1480 / REF-1423. Two of the four pair a legacy REF-MMDDYY-NNNN against a current REF-NNNN, so dedupe logic must handle both formats (context/05). REF-1463 POC email domain is accentcare.co, missing the trailing m, and a Partner_Referral_Contacts record was created under the bad address. Also folded in here: REF-1129 and REF-1455 still carry the dead "Empath - Main" label from the group-list header (context/24). | Neil | OPEN | N | 2026-09-11 |
+| One patient matches no referral record despite two notifications sent on 2026-09-11; identifier omitted, pull from the notification log. | Neil | OPEN | N | 2026-09-11 |
 | Delete run_reset_test AND all diag_* functions from Creator after launch (diag_pvs_ids, diag_referral_ids, diag_zztest_referrals, diag_accentcare_rates, diag_referral_import_gaps, diag_pvs_import_gaps, diag_empath_labels, diag_esi_references, diag_innovage_rates, diag_pvs_premium_mismatches, diag_premium_visit_invoices, diag_duplicate_location_names, diag_duplicate_visits, diag_patient_visits, and any added since). run_reset_test also clears the intentional repo DRIFT on functions/run_reset_test.dg. | Neil | OPEN | N | post-launch |
 | Books line-item description is capped at 2000 characters and create_invoice_from_selection does not truncate. Per-visit blocks embed Reason_for_Referral, which is unbounded. NOTE 2026-08-11: Max Invoice Total (~5-8 visits at 2999) mitigates for capped partners (Empath), but uncapped batches (VITAS, AccentCare - Hillsborough ran 21 visits) and long partner-written reasons still expose it; July reasons were short. Fix when it bites: cap REASON length and/or split a tier line into a second line item past 2000. | cchat / ccode | OPEN | N | post-launch |
 | create_invoice_from_selection has no guard if invokeurl returns a non-map on a transport failure. | cchat / ccode | OPEN | N | post-launch |

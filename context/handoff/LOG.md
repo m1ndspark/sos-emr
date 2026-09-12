@@ -301,3 +301,83 @@ you put it.
 Still outstanding: a fresh .ds. v45 does NOT contain process_new_referral,
 sos_referral_health, sweep_unnotified_referrals, the imaging notifications or
 the mint_referral_id rewrite. Still filed BLOCKING Y in context/23.
+
+================================================================================
+Session 45 EOD (2026-09-11) - ccode
+================================================================================
+Docs only. No .dg touched, no MANIFEST regenerated, no ds_sync run. There is no
+fresh .ds.
+
+THE SCRUB DID NOT HOLD. Verifying it was the first thing asked and the answer is
+no, in two ways.
+
+First, d904910 scrubbed the CHECKPOINT but left identifiers in the EOD LOG it
+added in the same commit. Section 12, the health board, carried four patient
+names and four DOB values, including a full 07/30/1964. Two more names sat in
+sections 12 and 14.
+
+Second, context/23 still carried four patient names and a partner contact's
+email local part. Those were mine, written yesterday from Neil's prompt before
+the rule existed.
+
+Third, and this is the part worth reading: the rule as stated is "anywhere under
+context/", and the exposure was NOT limited to Session 45. A sweep across every
+file under context/ found patient names in four more documents:
+  context/logs/SOS_Code_Checkpoint_2026-08-26_Session37.md   (8 occurrences)
+  context/logs/SOS_Code_Session_Log_2026-09-08_Session41.txt (9 occurrences)
+  context/logs/SOS_Code_Session_Log_2026-09-09_Session42_EOD.txt (1)
+  context/23_task_list.md (1 historical, separate from mine)
+All are scrubbed. Every one was already keyed by referral ID, so nothing was
+lost by removing the name.
+
+I also want to be straight about process: my FIRST identifier scan under-reported
+and returned a single harmless hit. I caught it on a second pass only because I
+went looking for something else and tripped over a DOB. If I had reported after
+one pass I would have told you the scrub held when it did not. The finding is
+reliable now, the first pass was not.
+
+BOUNDARY I APPLIED, tell me if it is wrong:
+- PATIENT names and DOBs removed, everywhere.
+- PROVIDER, partner and staff names KEPT. "Maddison Smith" as the provider on
+  REF-082626-1725 stays, because removing it destroys the actual finding, which
+  is which provider's entry to count. Same for staff emails in operational rows.
+- Partner CONTACT email local parts scrubbed to the domain, following the
+  precedent you set with accentcare.co.
+- Facility names kept.
+The rule in context/01 states this boundary explicitly so the next pass does not
+have to re-derive it.
+
+context/23 now matches section 14 exactly: 2 BLOCKING, 10 NOT BLOCKING.
+backfill_mint_missing_referral_ids is first in the NOT BLOCKING list, marked
+RETROFIT FIRST with the one line note that it mints. Code untouched.
+Six more DONE rows added from section 10: sequence tracker audit, the
+mint_referral_id rewrite, the four test referral deletions, the duplicated tail
+removal, Facility Room Number, and PVS Patient Data Push Back.
+
+THREE ROWS FOLDED RATHER THAN DROPPED. Section 14 has ten NOT BLOCKING items
+and I had thirteen. Rather than delete the three that section 14 does not carry,
+I folded them into the nearest row so the count matches without losing work:
+  backfill_patient_dob not yet run + the report-only DOB candidate scan
+    -> folded into the "chase DOBs" row.
+  REF-1129 / REF-1455 dead "Empath - Main" label
+    -> folded into the adjudication row.
+Say the word if you would rather they were dropped outright.
+
+ONE NUMBER CORRECTED. I wrote 58 NOASSIGN yesterday. Section 12 and section 14
+both say 56. The log wins; context/23 now reads 56.
+
+context/05: the two Patient_Phone types, the five shared address subfields
+(note the capital C in postal_Code, verified in v45, it is the one that gets
+mistyped), and Facility Room Number recorded as intentional so nobody restores
+it.
+
+context/19: both live artifacts filed as expected drift for the next export,
+with an explicit do-not-hand-write. Worth noting the connection: PVS Patient
+Data Push Back is the ANSWER to the VERIFY LIVE item the v45 sync audit raised
+about the prefill unlock letting a PVS diverge from Referrals_Main. That
+question is resolved, and the resolution is a workflow the repo cannot see yet.
+Flagged for the next sync that the push back has to convert Patient_Phone,
+since it is phonenumber on the PVS and text on Referrals_Main.
+
+Awaiting Neil: the fresh .ds, and PVS-1227-JK held or cancelled before the next
+invoice batch.

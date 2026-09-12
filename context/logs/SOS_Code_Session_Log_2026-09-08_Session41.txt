@@ -286,10 +286,9 @@ at a time. That full sweep was run and is recorded in section 2.
   REF-1108 has 44/44/4444 in Patient_DOB1 and needs a real DOB.
   178 records carry Data_Issues flags; most are Cognito-era gaps.
   Nine 3008 files remain permanently gone from WorkDrive; partners must
-    resend: REF-1083 Diane Richardson, REF-1084 Avery Heird (likely test),
-    REF-1085 Daniel Bradshaw, REF-1086 Alphonso Bradshaw, REF-1087
-    Bridget Davis, REF-1088 Cathleen Hollister, REF-1089 Georgina
-    Cruzado, REF-1090 Marie Louis, REF-1094 Richard Stephens Jr.
+    resend: REF-1083, REF-1084 (likely a test record), REF-1085,
+    REF-1086, REF-1087, REF-1088, REF-1089, REF-1090, REF-1094.
+    Identifiers omitted; pull the rows from Creator by referral ID.
   Corrupt originals still sit beside good replacements; REF-1108 is at
     the 3-file cap.
   Manual partner branch needed: REF-072826-1460, REF-072826-1461,
