@@ -615,10 +615,24 @@ write made in that script. An external call already made does NOT roll back: a
 ZeptoMail send is gone the moment it leaves. This produces the worst failure
 shape available, an email delivered describing a record that no longer exists in
 that state.
-RULE: never send before the record is committed. Stamp the already-handled
-marker AFTER the send, not before. Marking first and sending second means a
-rollback erases the marker while the mail still went, and the next run sends
-again.
+RULE: no record write that can throw may follow an external send. Order the
+script so every throwable write happens first, the send happens last, and the
+only thing after the send is a revert.
+This supersedes an earlier version of this entry that said to stamp the
+already-handled marker AFTER the send. That wording was too absolute and would,
+if followed, turn working code into a double-send bug. Ruled 2026-09-12.
+process_new_referral stamps Referral_Date and Notified_Time BEFORE its three
+sends and reverts both only if all three fail. That is correct and deliberate:
+  - every write that could throw, including the Assignments insert that caused
+    the Session 45 regression, now runs before any send, so a rollback after
+    mail has gone cannot happen
+  - the only write after the send is a revert to null, which cannot throw
+  - stamping first claims the row against sweep_unnotified_referrals, which
+    selects on Notified_Time == null. Stamping after the send would let a sweep
+    running mid-flight send the same referral a second time
+All three notifiers go to SOS staff only, never to partners, so the cost of a
+duplicate is an internal email while the cost of an unclaimed row is a real
+double send.
 This is the root cause of the Session 45 On Create notification regression. See
 the maxchar entry directly below for what threw the error.
 
