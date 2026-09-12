@@ -41,7 +41,7 @@ The 22 break down as follows.
 | Century DOB bug | 18 | DOBs stored with a 20xx century. Patient R.S. is stored `2043-04-16`. |
 | Name particle bug | 3 | A "De " surname particle was dropped on import: "De Jesus" became MI `D` and last name `Jesus`. Same failure for "De La Rosa". |
 | First name mismatch | 1 | Creator and the log carry different first names for the same surname and DOB (patients N-1 / N-2). Genuine data conflict, not a matcher bug. |
-| DOB conflict | 1 | Patient C.D.L.R.: Creator says `1956-10-30`, the log says `1958-06-06`. One of the two is wrong. |
+| DOB conflict | 1 | One patient's DOB differs between Creator and the log by roughly 20 months. One of the two is wrong. Pull both values from Creator and the log. |
 | **Total** | **22** | |
 
 The first two causes, 21 of the 22, are the same century-DOB and name-particle

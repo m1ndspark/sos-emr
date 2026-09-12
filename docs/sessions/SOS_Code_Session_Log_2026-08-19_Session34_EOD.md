@@ -189,7 +189,7 @@ July 3008s could not be invoiced.
 | Century DOB bug | 18 | patient R.S. is stored `2043-04-16` |
 | Name particle bug | 3 | "De Jesus" became MI "D" and last name "Jesus"; same for "De La Rosa" |
 | First name mismatch | 1 | Creator and the log disagree on the first name for the same surname and DOB (patients N-1 / N-2) |
-| DOB conflict | 1 | patient C.D.L.R.: `1956-10-30` in Creator against `1958-06-06` in the log. One of the two is wrong. |
+| DOB conflict | 1 | One patient's DOB differs between Creator and the log by roughly 20 months. One of the two is wrong. Pull both values from Creator and the log. |
 
 ### Built
 
