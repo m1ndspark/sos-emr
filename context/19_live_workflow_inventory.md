@@ -466,5 +466,50 @@ DRIFT this time. If it reports AMBIGUOUS again, extract with parse_workflows as
 before rather than by hand.
 
 --------------------------------------------------------------------------------
+## Known drift: MPU referral source work is live, not exported (added 2026-09-14)
+--------------------------------------------------------------------------------
+Everything below was built in Creator on 2026-09-14 AFTER v47 was exported and
+is in no export. DO NOT HAND WRITE ANY OF IT. It arrives on the next .ds and is
+extracted by ds_sync then. The rule it serves (every MPU source filters to
+Referral_Source == "Contracted Partner", a filter, never a delete) is recorded
+in context/11 and context/32 section 8b.
+
+The PVS push back address fix in the section above is still pending too. It is
+the same next export, not a separate one.
+
+NEW STANDALONE FUNCTIONS, no repo file yet:
+- assign_direct_partner. Resolved partnerless referrals against the new
+  Partners record "Direct" (one location "Direct - Individual", no Books
+  Customer ID, so it can never be invoiced).
+- assign_partner_branch. Resolved partnerless referrals against a real partner
+  branch. After both, sos_referral_health reports NOPARTNER 0.
+- flag_duplicate_referrals.
+- diag_referral_dump. Diagnostic only.
+- backfill_pvs_referral_source. Wrote Referral_Source on all 478 linked PVS
+  rows.
+
+CHANGED WORKFLOW:
+Encounter_PatientVisit / On User Input / Referral Link Pre Fill
+(Encounter_PatientVisit/OnUserInput__Referral_Link__PreFill.dg). Now copies
+Referrals_Main.Referral_Source into the new PVS Single Line field
+Referral_Source, and blanks it when Referral_Link is cleared. Until the next
+export the repo copy is KNOWN to be the pre-change body.
+
+FIELD CHANGES, already visible in schema/ via run_schema_monitor:
+- Encounter_PatientVisit.Referral_Source, new Single Line.
+- Referrals_Main.Referral_Source choices are now Contracted Partner, SOS
+  Internal, Direct/Individual. The "Contracted Parnter" typo is gone.
+
+STANDING RULE, same as backfill_pvs_from_referral: the Pre Fill runs On User
+Input and On Add only, so any future PVS import must be followed by
+backfill_pvs_referral_source or the imported rows carry a blank source and fall
+out of every MPU filter.
+
+OPEN, for Neil, in context/32 section 8b: about 5 PVS rows have no
+Referral_Link, so Referral_Source is blank and a strict equals filter drops
+them silently. Not yet ruled whether blank is excluded or a data error to
+surface.
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------
