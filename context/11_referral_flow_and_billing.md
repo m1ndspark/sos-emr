@@ -26,11 +26,30 @@ detail so users don't retype it every referral. Parked.
 --------------------------------------------------------------------------------
 2. REFERRAL_SOURCE - CLASSIFIES THE SENDER
 --------------------------------------------------------------------------------
-`Referral_Source` (Radio): "Contracted Parnter" [sic - typo in live choice] / "SOS Internal".
+`Referral_Source` (Radio), verified in v47 on 2026-09-14, THREE choices:
+"Contracted Partner" / "SOS Internal" / "Direct/Individual".
   - Contracted Partner = hospice/partner referrals (99% of volume: AccentCare,
     Empath, Vitas, Chapters, InnoVage).
-  - SOS Internal = all NON-hospice referrals (the 2-3 recurring monthly
-    subscription referrals created by individuals or SOS's own providers).
+  - SOS Internal = NON-hospice referrals created by individuals or by SOS's own
+    providers, including the recurring monthly subscription referrals.
+  - Direct/Individual = added 2026-09-14. An individual who reached SOS directly
+    with no referring organization behind them. Counts in overall volume stats,
+    never in partner reporting.
+The old "Contracted Parnter" typo in the live choice list is gone. Do not
+reintroduce it in filters or code.
+
+MPU FILTER RULE, ruled by Neil 2026-09-14:
+Every MPU data source filters to `Referral_Source == "Contracted Partner"`.
+SOS Internal and Direct/Individual rows are excluded from partner utilization
+reporting and from anything partner-facing, but stay in overall referral counts.
+This is a filter, never a delete: the rows remain in Referrals_Main.
+
+Every referral must resolve to a partner so nothing reads as broken data. Direct
+and internal referrals point at the placeholder Partners record "Direct" and its
+single location "Direct - Individual", which carries no Books Customer ID so it
+can never be invoiced by accident. Partner assignment and Referral_Source are
+independent: assigning the Direct location does not change the source, and
+`assign_partner_branch` deliberately does not touch Referral_Source.
 
 Ties to the patient-identity split:
   - Non-hospice (SOS Internal) -> `Patient_SSN` used.

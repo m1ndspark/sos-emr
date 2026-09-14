@@ -195,6 +195,41 @@ context/09_cognito_import_procedure.md, in particular:
   "Partner - CODE" format must be rewritten first.
 
 --------------------------------------------------------------------------------
+## 8b. Referral source filter, REQUIRED on every MPU source
+--------------------------------------------------------------------------------
+Ruled by Neil 2026-09-14. Every MPU data source, report and export filters to:
+
+    Referral_Source == "Contracted Partner"
+
+`Referral_Source` on Referrals_Main carries three choices as of v47:
+Contracted Partner, SOS Internal, Direct/Individual. Only the first belongs in
+partner utilization reporting.
+
+Rows excluded by this filter still count in overall referral volume. The filter
+never deletes and never blanks anything.
+
+Placeholder partner: direct and internal referrals are linked to the Partners
+record "Direct" and its location "Direct - Individual" so that every referral
+resolves to a partner and the health report reads clean. That location has no
+Books Customer ID, so it cannot be invoiced.
+
+Where this bites, VERIFIED against v47 on 2026-09-14: Encounter_PatientVisit
+does NOT carry Referral_Source. MPU pulls from the PVS, which denormalizes the
+partner fields at entry, so the filter has nothing to read on that side today.
+
+This is a build item before the first Creator-native MPU run, not an
+afterthought. Two ways to close it, Neil's call:
+  1. Denormalize Referral_Source onto Encounter_PatientVisit at entry, the same
+     way Partner_Organization and Partner_Branch already are, plus a backfill
+     for existing rows.
+  2. Filter through Referral_Link on the report instead of denormalizing. No
+     schema change, but it fails on any PVS with a blank Referral_Link.
+Option 1 matches how every other partner field on the PVS already works.
+
+Until this is closed, an MPU run built on the PVS cannot exclude SOS Internal or
+Direct/Individual rows at all.
+
+--------------------------------------------------------------------------------
 ## 9. Open decisions
 --------------------------------------------------------------------------------
 1. Reconcile Type_of_Procedures (15) against the spec's locked service type list
