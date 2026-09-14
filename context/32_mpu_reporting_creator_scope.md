@@ -213,21 +213,26 @@ record "Direct" and its location "Direct - Individual" so that every referral
 resolves to a partner and the health report reads clean. That location has no
 Books Customer ID, so it cannot be invoiced.
 
-Where this bites, VERIFIED against v47 on 2026-09-14: Encounter_PatientVisit
-does NOT carry Referral_Source. MPU pulls from the PVS, which denormalizes the
-partner fields at entry, so the filter has nothing to read on that side today.
+BUILT 2026-09-14. Encounter_PatientVisit did not originally carry
+Referral_Source, and MPU pulls from the PVS, so the filter had nothing to read.
+Neil chose to denormalize rather than join through Referral_Link. Three parts,
+all live:
+  1. New Single Line field Referral_Source on Encounter_PatientVisit. Text, not
+     radio buttons, so a new choice on Referrals_Main can never break it. No
+     user ever types it.
+  2. Referral Link Pre Fill copies Referral_Source onto the PVS alongside the
+     other partner fields, and blanks it when the link is cleared.
+  3. backfill_pvs_referral_source(p_mode, p_limit) filled the existing rows.
+     478 linked PVS, all 478 written, every one Contracted Partner.
 
-This is a build item before the first Creator-native MPU run, not an
-afterthought. Two ways to close it, Neil's call:
-  1. Denormalize Referral_Source onto Encounter_PatientVisit at entry, the same
-     way Partner_Organization and Partner_Branch already are, plus a backfill
-     for existing rows.
-  2. Filter through Referral_Link on the report instead of denormalizing. No
-     schema change, but it fails on any PVS with a blank Referral_Link.
-Option 1 matches how every other partner field on the PVS already works.
+The prefill is On User Input and record event On Add, so it never fires on an
+import or on an existing record. Any future PVS import needs the backfill run
+after it, exactly like backfill_pvs_from_referral.
 
-Until this is closed, an MPU run built on the PVS cannot exclude SOS Internal or
-Direct/Individual rows at all.
+OPEN: roughly 5 PVS rows carry no Referral_Link at all, so their
+Referral_Source is blank and a strict equals filter drops them silently.
+Decide whether MPU treats a blank source as excluded or as a data error to
+surface, and say so in the report criteria rather than leaving it implicit.
 
 --------------------------------------------------------------------------------
 ## 9. Open decisions
