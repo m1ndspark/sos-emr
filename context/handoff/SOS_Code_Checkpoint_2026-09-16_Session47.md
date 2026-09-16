@@ -185,8 +185,15 @@ Needed before the referral form is finalized:
     Contracted Partner and SOS Internal. The MPU rule written on 09-14 says
     Direct/Individual was added.
 
+Session 46 push item is CLOSED. d8bd786 was already on origin, 55aea38 is
+pushed, and 1476c79 and 629554a exist on origin as c2b1a20 and 1728663 after a
+history rewrite. Use the new hashes. main and origin/main are in sync.
+
+This checkpoint is filed in the repo at
+context/handoff/SOS_Code_Checkpoint_2026-09-16_Session47.md, commits 7b11134
+and 025d143.
+
 Carried from Session 46, still open:
-  Push commits d8bd786, 1476c79, 629554a, 55aea38
   The August PVS import itself
   backfill_pvs_repair PREVIEW has never been run
   REF-1357 and REF-1237 partner assignments are wrong
