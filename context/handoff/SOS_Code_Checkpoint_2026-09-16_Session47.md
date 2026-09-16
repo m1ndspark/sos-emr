@@ -90,8 +90,7 @@ Field rulings made this session:
 CSS is complete and live. Figtree body, Libre Franklin headings, both imported
 from Google Fonts. Navy pills, 40px circular radio buttons at 15px bold,
 44px on mobile, green 02cd3b selected state, green checkboxes, green submit
-turning red 
-on hover, green focus glow on inputs and the Ant Select dropdown.
+turning red on hover, green focus glow on inputs and the Ant Select dropdown.
 
 CSS lessons worth keeping:
   HIPAAtizer renders Ant Design, so every selector targets Ant internals
