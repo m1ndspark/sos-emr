@@ -326,6 +326,11 @@ Owner legend:
 | Provider portal profile must expose only the dashboard page, never PVS_Report as its own component, or a provider reaches it unfiltered. | Neil | OPEN | Y | before portal rollout |
 | Referrals filtered report blocked. Assignments holds zero rows with both a referral and an employee, so Referrals_Main.Employee_Link has nothing to backfill from. Neil to assign some visits, then rerun backfill_referral_employee_link. | Neil | OPEN | Y | TBD |
 | Consider Users field (Customers) as record owner on Encounter_PatientVisit as a hard-enforced alternative to page-variable filtering. Researched, not built. | cchat | OPEN | N | TBD |
+| Capture a sample HIPAAtizer webhook payload from the PVS form and send it to cchat. Nothing on the Creator receiver can be built without it. Added Session 47. See context/handoff/SOS_Code_Checkpoint_2026-09-16_Session47.md. | Neil | OPEN | Y | none set |
+| Confirm the BAA is included on HIPAAtizer Simple Compliance Gold Plus before purchase. Free trial has 29 days left as of 2026-09-16. Added Session 47. | Neil | OPEN | N | 2026-10-15 |
+| Confirm whether Referral_Source carries two values or three in the live app. Added Session 47. | Neil | OPEN | N | TBD |
+| Build Referrals_Main2 in Creator from SOS_Referrals_Main2_Field_Design_2026-09-16.xlsx: 52 fields, 8 sections. Added Session 47. | Neil | IN PROGRESS | N | TBD |
+| Complete the PVS integration and launch: Custom API receiver, token mint function, provider launch button, end to end test. Added Session 47. | Neil | OPEN | N | next session |
 
 --------------------------------------------------------------------------------
 END
