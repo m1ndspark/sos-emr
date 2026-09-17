@@ -278,7 +278,7 @@ the repo. The repo is still at v47. v49 carries 37 forms, 86 workflows, and
 ## 9. Open contradictions raised by the Session 48 audit
 --------------------------------------------------------------------------------
 
-Raised by ccode against this checkpoint. None are resolved.
+Raised by ccode against this checkpoint. Item 2 is resolved; the rest are not.
 
 1. Retiring Assignments.Visit_Status silently drops three values. The live
    field carries nine choices; the proposed Assignment_Status carries six.
