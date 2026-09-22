@@ -359,7 +359,7 @@ Owner legend:
 | Test prefill behaviour for dropdown, checkbox, date, phone and currency fields on the HIPAAtizer form. Only a radio group and a text input were tested in Session 48; the general claim that choice fields cannot be prefilled is unverified for the rest. Added Session 48. | Neil / cchat | OPEN | Y | after the form is published |
 | Record count 704 vs 706 resolved: both functions loop Referrals_Main[ID != 0], so they count the same form, and the two-record gap is referrals created during the session between the two runs. The checkpoint wording that implied PVS records was corrected. No further action. | cchat | CLOSED | was N | 2026-09-17 |
 
-| Repoint the HIPAAtizer PVS webhook from the webhook.site placeholder to the live Creator Custom API URL before any real provider submits. webhook.site is a public inspection endpoint with no BAA, readable by anyone holding the URL, and the form is live at sosreferrals.com/new-referral-2. The destination is a HIPAAtizer console setting and cannot be read from the repo. Neil to confirm the current destination. Found by the Session 48 audit. | Neil | OPEN | Y | before any live submission |
+| Set the HIPAAtizer PVS webhook destination to the live Creator Custom API URL. Verified by Neil 2026-09-17: the destination is BLANK, so the Session 47 webhook.site placeholder is gone and no PHI can leave the form. Blank also means a provider submission reaches Creator not at all, so this gates go-live. Never point it at a public inspection endpoint once real data can reach the form. Found by the Session 48 audit. | Neil | OPEN | Y | before go-live |
 
 --------------------------------------------------------------------------------
 END

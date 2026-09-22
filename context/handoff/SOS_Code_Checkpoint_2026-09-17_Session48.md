@@ -303,13 +303,15 @@ Raised by ccode against this checkpoint. Item 2 is resolved; the rest are not.
 6. Pre-existing and separate from this change set: context/34_august_backfill
    _open_items.md carries patient names, committed 2026-09-14, after the no-PHI
    rule was added. Needs its own scrub.
-7. The HIPAAtizer PVS webhook may still point at a webhook.site URL. That
-   placeholder was set in Session 47 for payload capture. webhook.site is a
+7. HIPAAtizer PVS webhook destination. A webhook.site placeholder was set in
+   Session 47 to capture the payload, using junk data only. webhook.site is a
    public inspection endpoint readable by anyone holding the URL and carries no
-   BAA. The form is live at sosreferrals.com/new-referral-2, so a real
-   submission before the URL is repointed would land there. Nothing in the repo
-   tracks the swap, and the destination is a HIPAAtizer console setting that
-   cannot be read from the repo or from chat. Neil must confirm the current
-   destination directly.
+   BAA, so a real submission against it would have been an exposure. Neil
+   checked the HIPAAtizer console on 2026-09-17: the destination field is now
+   BLANK. No PHI can leave the form. Consequence of blank: the form is live at
+   sosreferrals.com/new-referral-2 and a provider submission would be stored in
+   HIPAAtizer and reach Creator not at all. The destination must be set to the
+   live Creator Custom API URL before go-live, and must never be set back to a
+   public inspection endpoint once real data can reach the form.
 
 END
