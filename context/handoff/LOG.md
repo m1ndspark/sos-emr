@@ -498,3 +498,76 @@ missing-artifact notes removed after confirming each artifact is present; one ne
 OPEN row for the push back address FLAG. Also noticed, not edited: two older
 BLOCKING rows look closed by Session 45 work, the 40-row integration rebuild
 (now 41 rows) and the 20 blank Referral_ID records (minted REF-1444 to 1463).
+
+================================================================================
+Session 49 checkpoint (2026-09-21) - ccode
+================================================================================
+Commits: the Session 48 webhook row commit, then this one. Files: context/23_
+task_list.md, context/handoff/SOS_Code_Checkpoint_2026-09-21_Session49.md,
+context/handoff/LOG.md, context/handoff/NEXT.md.
+Status: checkpoint committed, work still open.
+
+Note: LOG.md carries no Session 48 entry. The last entry before this one is the
+v47 sync of 2026-09-12. Not backfilled here.
+
+WHAT LANDED. cchat's Session 49 checkpoint, plus 8 task rows: 3 OPEN BLOCKING,
+3 OPEN NOT BLOCKING, 2 CLOSED. Separately, the Session 48 leftovers in the
+working tree were reviewed and committed first: the HIPAAtizer webhook row
+reworded after Neil verified the console destination is blank, and the matching
+16-line correction in the Session 48 checkpoint.
+
+THE DEFECT. Four August 3008 InnoVage invoices, INV-000090, INV-000091,
+INV-000094 and INV-000095, 81 visits and $14,175, were emailed 2026-09-20 with
+a blank NAME and MRN on every visit block. create_invoice_from_selection prints
+NAME from Patient_Full_Name_1 and MRN from Patient_Hospice_ID with no blank
+guard, and on those PVS both fields plus Referral_Link were blank. INV-000088,
+089, 092 and 093 are clean. July, INV-000056 and 057, is out of scope by Neil's
+direction.
+
+REPAIR. 80 of 81 PVS now carry name and Referral_Link, MRN where the referral
+has one, written by repair_invoice_pvs_from_referral in COMMIT mode: blanks
+only, DOB-verified, conflict-guarded, never touching billing or invoice fields.
+Verified after the fact with diag_invoice_patient_gaps.
+
+FOUR NEW FUNCTIONS EXIST ONLY IN CREATOR: diag_invoice_patient_gaps,
+repair_invoice_pvs_from_referral, diag_pvs_referral_match and
+set_pvs_referral_link. Verified by ccode, not asserted: each name returns grep
+count 0 against SOS_Referrals_App_2026-09-12_v47.ds and 0 in functions/. v47 is
+still the newest export in the repo and the root SOS_Referrals_App.ds is
+byte-identical to it, md5 ebd0ae92d066659a63d76e73f1513a89. A v49 export was
+provided in chat on 2026-09-17 and was never written in, so there is no v48 or
+v49 file here at all. The next fresh export must capture all four.
+
+PASS:
+- No em dashes in any of the four files.
+- No patient names and no DOB values. PVS, REF and invoice identifiers only,
+  which the rule allows.
+- schema/*.md untouched by hand. The only schema changes on this branch came
+  from the schema monitor commits 6d76947 and 523366a, fast-forwarded from
+  origin before any of this work was staged.
+- The repair function is scoped to the named invoices, fills blanks only and
+  carries both a CONFLICT and a DOB BLOCKED guard, so it cannot silently
+  overwrite a populated field or write across a DOB mismatch.
+
+VERIFY LIVE:
+1. PVS-1579--M is the one held record and it blocks the rebill. Its Referral_ID
+   text says REF-1251 but its DOB does not match REF-1251. The only DOB match
+   is REF-1372, InnoVage - Orlando, already linked to PVS-1658--M on
+   INV-000094. Run diag_pvs_referral_match on both and compare dates of service
+   before writing anything. If it is one patient billed on two branches, the
+   rebill totals change.
+2. The creation path that minted 81 PVS with IDs ending --M, Added_User sosmmc,
+   on 2026-09-20 at 14:39 and 21:11/21:27 is still unidentified. Until it is,
+   the next 3008 batch can reproduce this.
+3. Whether create_invoice_from_selection should refuse a visit with a blank
+   name rather than print a blank line is undecided. A guard there would have
+   stopped all four invoices before they were sent.
+4. REF-1251 and REF-1255 carry the same patient DOB, both 3008, both InnoVage -
+   Tampa, dated one day apart. Possible duplicate referral, separate from the
+   PVS-1579--M question.
+5. Books state is unchanged. The PVS repair does not touch a sent invoice, so
+   all four still show the blank fields until each is reset_invoice'd and
+   re-batched.
+
+Awaiting Neil: PVS-1579--M resolved, then the void and rebill, then the notice
+to InnoVage. Also the fresh .ds export.
