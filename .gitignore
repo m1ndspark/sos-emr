@@ -35,3 +35,6 @@ secrets.*
 # function bodies, so the .ds export is the only record of that code. Commit each
 # dated export (SOS_Referrals_App_YYYY-MM-DD.ds) and keep SOS_Referrals_App.ds as a
 # copy of the newest. Definition-only, no record data, no PHI. Do not ignore *.ds.
+
+# Local scratch output from Claude sessions, never committed
+Claude outputs/

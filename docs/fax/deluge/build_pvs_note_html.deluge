@@ -1,0 +1,44 @@
+string build_pvs_note_html(map pVals)
+{
+	v_css = "<style>@page { size: letter; margin: 0.6in 0.65in 0.85in 0.65in; } * { box-sizing: border-box; } body { margin:0; font-family: Helvetica, Arial, sans-serif; font-size: 10.5pt; line-height: 1.42; color:#000; } .page { page-break-after: always; } .page:last-child { page-break-after: auto; } .brand { text-align:center; padding-bottom:8pt; } .brand img { height:46pt; } .cover-title { font-size:34pt; font-weight:bold; color:#0B0B5B; letter-spacing:1pt; margin:14pt 0 2pt 0; } .cover-sub { font-size:9pt; color:#4C4C89; margin-bottom:16pt; } .rule { border-top:2px solid #0B0B5B; margin:0 0 14pt 0; } table.grid { width:100%; border-collapse:collapse; } table.grid td { vertical-align:top; padding:0; } .col { width:50%; padding-right:18pt; } .col.right { padding-right:0; padding-left:18pt; } .blk-hd { font-size:8.5pt; font-weight:bold; letter-spacing:1.4pt; color:#FFFFFF; background:#0B0B5B; padding:4pt 7pt; text-transform:uppercase; } .blk-body { border:1px solid #BFBFBF; border-top:0; padding:8pt 7pt; } .ln { margin:0 0 3pt 0; } .ln .k { color:#4C4C89; font-size:8.5pt; } .nm { font-weight:bold; } .meta { margin:0 0 14pt 0; font-size:9.5pt; } .meta span { display:inline-block; margin-right:22pt; } .meta b { color:#0B0B5B; } .remarks-hd { font-size:8.5pt; font-weight:bold; letter-spacing:1.4pt; color:#FFFFFF; background:#0B0B5B; padding:4pt 7pt; text-transform:uppercase; margin-top:16pt; } .remarks { border:1px solid #BFBFBF; border-top:0; padding:10pt 7pt; min-height:78pt; white-space:pre-wrap; } .notice { margin-top:20pt; border:1px solid #0B0B5B; padding:9pt 10pt; font-size:8pt; line-height:1.4; color:#000; } .notice b { color:#0B0B5B; letter-spacing:.6pt; } .note-title { text-align:center; font-size:14pt; font-weight:bold; color:#0B0B5B; margin:2pt 0 12pt 0; } .amend { text-align:center; font-size:10pt; font-weight:bold; color:#0B0B5B; border:1.5px solid #0B0B5B; padding:4pt; margin:0 0 12pt 0; letter-spacing:1.2pt; } table.hdr { width:100%; border-collapse:collapse; margin-bottom:14pt; } table.hdr td { border:1px solid #AEAED0; padding:4.5pt 7pt; font-size:9.5pt; width:50%; } table.hdr td.r { text-align:right; } table.hdr .k { color:#4C4C89; } .sec { margin:0 0 11pt 0; } .sec h3 { font-size:10pt; font-weight:bold; color:#0B0B5B; margin:0 0 3pt 0; page-break-after:avoid; break-after:avoid; } .sec p { margin:0 0 6pt 0; white-space:pre-wrap; orphans:3; widows:3; } .sec h3 + p { page-break-before:avoid; break-before:avoid; } .note, .note * { font-family: Helvetica, Arial, sans-serif !important; font-size:10.5pt !important; line-height:1.42 !important; color:#000 !important; background:transparent !important; } .note { orphans:3; widows:3; } .note p { margin:0 0 7pt 0 !important; } .note br + br { line-height:0.5 !important; } .note b, .note strong { font-weight:bold !important; } .note h1, .note h2, .note h3, .note h4, .note h5, .note h6 { font-size:10pt !important; font-weight:bold !important; color:#0B0B5B !important; margin:12pt 0 3pt 0 !important; page-break-after:avoid; break-after:avoid; } .note ul, .note ol { margin:0 0 7pt 0 !important; padding-left:18pt !important; } .note li { margin:0 0 2pt 0 !important; } .note table { border-collapse:collapse !important; width:100% !important; margin:0 0 8pt 0 !important; } .note td, .note th { border:1px solid #AEAED0 !important; padding:3pt 6pt !important; } .note img { max-width:100% !important; height:auto !important; } .note a { text-decoration:none !important; } .note font { font-size:10.5pt !important; } .sig { margin-top:22pt; border-top:1px solid #BFBFBF; padding-top:8pt; font-size:9.5pt; page-break-inside:avoid; break-inside:avoid; } .sig .nm { font-weight:bold; } .sig .k { color:#4C4C89; font-size:8.5pt; } .img-wrap { text-align:center; } .img-wrap img { max-width:100%; max-height:8.4in; } .img-cap { font-size:8.5pt; color:#4C4C89; margin-top:5pt; text-align:center; }</style>";
+	v_noteTpl = "<div class='page'> <div class='note-title'>Patient Visit Summary</div> @@AMENDMENT_BANNER@@ <table class='hdr'> <tr> <td><span class='k'>Patient Name</span>&nbsp; <b>@@PATIENT_NAME@@</b></td> <td class='r'><span class='k'>Referral ID</span>&nbsp; @@REFERRAL_ID@@</td> </tr> <tr> <td><span class='k'>Date of Birth</span>&nbsp; @@PATIENT_DOB@@</td> <td class='r'><span class='k'>Referral Date</span>&nbsp; @@REFERRAL_DATE@@</td> </tr> <tr> <td><span class='k'>Gender</span>&nbsp; @@PATIENT_GENDER@@</td> <td class='r'><span class='k'>Referral Source</span>&nbsp; @@REFERRAL_SOURCE@@</td> </tr> <tr> <td><span class='k'>Provider</span>&nbsp; @@PROVIDER_NAME@@</td> <td class='r'><span class='k'>Referred By</span>&nbsp; @@REFERRED_BY@@</td> </tr> <tr> <td><span class='k'>Date of Service</span>&nbsp; @@SERVICE_DATE@@</td> <td class='r'><span class='k'>Clinical Team</span>&nbsp; @@CLINICAL_TEAM@@</td> </tr> <tr> <td><span class='k'>Acuity Level</span>&nbsp; @@ACUITY_LEVEL@@</td> <td class='r'><span class='k'>Visit Status</span>&nbsp; @@VISIT_STATUS@@</td> </tr> <tr> <td><span class='k'>PVS ID</span>&nbsp; @@PVS_ID@@</td> <td class='r'><span class='k'>Note Type</span>&nbsp; @@NOTE_TYPE@@</td> </tr> </table> <div class='sec'><h3>Procedures Performed</h3><p>@@TYPE_OF_PROCEDURES@@</p></div> <div class='sec'><h3>Diagnosis Codes</h3><p>@@ICD_CODES@@</p></div> <div class='note'>@@CLINICAL_NOTE@@</div> <div class='sig'> <div class='nm'>@@PROVIDER_NAME@@</div> <div class='k'>Electronically signed @@SIGNED_TIME@@</div> <div class='k'>SOS Mobile Medical Care &nbsp;|&nbsp; PVS @@PVS_ID@@ &nbsp;|&nbsp; Fax @@FAX_ID@@</div> </div> </div>";
+	v_html = "<!DOCTYPE html><html><head><meta charset='utf-8'>" + v_css + "</head><body>" + v_noteTpl + "</body></html>";
+	v_note = "";
+	v_banner = "";
+	if(pVals.get("CLINICAL_NOTE") != null)
+	{
+		v_note = pVals.get("CLINICAL_NOTE").toString().trim();
+	}
+	if(pVals.get("AMENDMENT_BANNER") != null)
+	{
+		v_banner = pVals.get("AMENDMENT_BANNER").toString();
+	}
+	for each  v_key in pVals.keys()
+	{
+		if(v_key != "CLINICAL_NOTE")
+		{
+			if(v_key != "AMENDMENT_BANNER")
+			{
+				v_val = ifnull(pVals.get(v_key),"").toString().trim();
+				if(v_val == "")
+				{
+					v_val = "NA";
+				}
+				v_val = v_val.replaceAll("&","&amp;",true);
+				v_val = v_val.replaceAll("<","&lt;",true);
+				v_val = v_val.replaceAll(">","&gt;",true);
+				v_val = v_val.replaceAll("&amp;nbsp;","&nbsp;",true);
+				v_val = v_val.replaceAll("&amp;mdash;","-",true);
+				v_html = v_html.replaceAll("@@" + v_key + "@@",v_val,true);
+			}
+		}
+	}
+	if(v_note == "")
+	{
+		v_note = "<p>NA</p>";
+	}
+	v_html = v_html.replaceAll("@@CLINICAL_NOTE@@",v_note,true);
+	v_html = v_html.replaceAll("@@AMENDMENT_BANNER@@",v_banner,true);
+	v_html = v_html.replaceAll("@@FAX_ID@@","PREVIEW",true);
+	return v_html;
+}

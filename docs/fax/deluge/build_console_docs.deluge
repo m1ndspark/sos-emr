@@ -1,0 +1,164 @@
+map build_console_docs(string pFaxID, string pToName, string pToPartner, string pToFax, string pToAttn, string pRemarks, list pPvsIds, list pUploadNames)
+{
+	v_css = "<style>@page { size: letter; margin: 0.6in 0.65in 0.85in 0.65in; } * { box-sizing: border-box; } body { margin:0; font-family: Helvetica, Arial, sans-serif; font-size: 10.5pt; line-height: 1.42; color:#000; } .page { page-break-after: always; } .page:last-child { page-break-after: auto; } .brand { text-align:center; padding-bottom:8pt; } .brand img { height:46pt; } .cover-title { font-size:34pt; font-weight:bold; color:#0B0B5B; letter-spacing:1pt; margin:14pt 0 2pt 0; } .cover-sub { font-size:9pt; color:#4C4C89; margin-bottom:16pt; } .rule { border-top:2px solid #0B0B5B; margin:0 0 14pt 0; } table.grid { width:100%; border-collapse:collapse; } table.grid td { vertical-align:top; padding:0; } .col { width:50%; padding-right:18pt; } .col.right { padding-right:0; padding-left:18pt; } .blk-hd { font-size:8.5pt; font-weight:bold; letter-spacing:1.4pt; color:#FFFFFF; background:#0B0B5B; padding:4pt 7pt; text-transform:uppercase; } .blk-body { border:1px solid #BFBFBF; border-top:0; padding:8pt 7pt; } .ln { margin:0 0 3pt 0; } .ln .k { color:#4C4C89; font-size:8.5pt; } .nm { font-weight:bold; } .meta { margin:0 0 14pt 0; font-size:9.5pt; } .meta span { display:inline-block; margin-right:22pt; } .meta b { color:#0B0B5B; } .remarks-hd { font-size:8.5pt; font-weight:bold; letter-spacing:1.4pt; color:#FFFFFF; background:#0B0B5B; padding:4pt 7pt; text-transform:uppercase; margin-top:16pt; } .remarks { border:1px solid #BFBFBF; border-top:0; padding:10pt 7pt; min-height:78pt; white-space:pre-wrap; } .notice { margin-top:20pt; border:1px solid #0B0B5B; padding:9pt 10pt; font-size:8pt; line-height:1.4; color:#000; } .notice b { color:#0B0B5B; letter-spacing:.6pt; } .note-title { text-align:center; font-size:14pt; font-weight:bold; color:#0B0B5B; margin:2pt 0 12pt 0; } .amend { text-align:center; font-size:10pt; font-weight:bold; color:#0B0B5B; border:1.5px solid #0B0B5B; padding:4pt; margin:0 0 12pt 0; letter-spacing:1.2pt; } table.hdr { width:100%; border-collapse:collapse; margin-bottom:14pt; } table.hdr td { border:1px solid #AEAED0; padding:4.5pt 7pt; font-size:9.5pt; width:50%; } table.hdr td.r { text-align:right; } table.hdr .k { color:#4C4C89; } .sec { margin:0 0 11pt 0; } .sec h3 { font-size:10pt; font-weight:bold; color:#0B0B5B; margin:0 0 3pt 0; page-break-after:avoid; break-after:avoid; } .sec p { margin:0 0 6pt 0; white-space:pre-wrap; orphans:3; widows:3; } .sec h3 + p { page-break-before:avoid; break-before:avoid; } .note, .note * { font-family: Helvetica, Arial, sans-serif !important; font-size:10.5pt !important; line-height:1.42 !important; color:#000 !important; background:transparent !important; } .note { orphans:3; widows:3; } .note p { margin:0 0 7pt 0 !important; } .note br + br { line-height:0.5 !important; } .note b, .note strong { font-weight:bold !important; } .note h1, .note h2, .note h3, .note h4, .note h5, .note h6 { font-size:10pt !important; font-weight:bold !important; color:#0B0B5B !important; margin:12pt 0 3pt 0 !important; page-break-after:avoid; break-after:avoid; } .note ul, .note ol { margin:0 0 7pt 0 !important; padding-left:18pt !important; } .note li { margin:0 0 2pt 0 !important; } .note table { border-collapse:collapse !important; width:100% !important; margin:0 0 8pt 0 !important; } .note td, .note th { border:1px solid #AEAED0 !important; padding:3pt 6pt !important; } .note img { max-width:100% !important; height:auto !important; } .note a { text-decoration:none !important; } .note font { font-size:10.5pt !important; } .sig { margin-top:22pt; border-top:1px solid #BFBFBF; padding-top:8pt; font-size:9.5pt; page-break-inside:avoid; break-inside:avoid; } .sig .nm { font-weight:bold; } .sig .k { color:#4C4C89; font-size:8.5pt; } .img-wrap { text-align:center; } .img-wrap img { max-width:100%; max-height:8.4in; } .img-cap { font-size:8.5pt; color:#4C4C89; margin-top:5pt; text-align:center; }</style>";
+	v_noteTpl = "<div class='page'> <div class='note-title'>Patient Visit Summary</div> @@AMENDMENT_BANNER@@ <table class='hdr'> <tr> <td><span class='k'>Patient Name</span>&nbsp; <b>@@PATIENT_NAME@@</b></td> <td class='r'><span class='k'>Referral ID</span>&nbsp; @@REFERRAL_ID@@</td> </tr> <tr> <td><span class='k'>Date of Birth</span>&nbsp; @@PATIENT_DOB@@</td> <td class='r'><span class='k'>Referral Date</span>&nbsp; @@REFERRAL_DATE@@</td> </tr> <tr> <td><span class='k'>Gender</span>&nbsp; @@PATIENT_GENDER@@</td> <td class='r'><span class='k'>Referral Source</span>&nbsp; @@REFERRAL_SOURCE@@</td> </tr> <tr> <td><span class='k'>Provider</span>&nbsp; @@PROVIDER_NAME@@</td> <td class='r'><span class='k'>Referred By</span>&nbsp; @@REFERRED_BY@@</td> </tr> <tr> <td><span class='k'>Date of Service</span>&nbsp; @@SERVICE_DATE@@</td> <td class='r'><span class='k'>Clinical Team</span>&nbsp; @@CLINICAL_TEAM@@</td> </tr> <tr> <td><span class='k'>Acuity Level</span>&nbsp; @@ACUITY_LEVEL@@</td> <td class='r'><span class='k'>Visit Status</span>&nbsp; @@VISIT_STATUS@@</td> </tr> <tr> <td><span class='k'>PVS ID</span>&nbsp; @@PVS_ID@@</td> <td class='r'><span class='k'>Note Type</span>&nbsp; @@NOTE_TYPE@@</td> </tr> </table> <div class='sec'><h3>Procedures Performed</h3><p>@@TYPE_OF_PROCEDURES@@</p></div> <div class='sec'><h3>Diagnosis Codes</h3><p>@@ICD_CODES@@</p></div> <div class='note'>@@CLINICAL_NOTE@@</div> <div class='sig'> <div class='nm'>@@PROVIDER_NAME@@</div> <div class='k'>Electronically signed @@SIGNED_TIME@@</div> <div class='k'>SOS Mobile Medical Care &nbsp;|&nbsp; PVS @@PVS_ID@@ &nbsp;|&nbsp; Fax @@FAX_ID@@</div> </div> </div>";
+	v_coverTpl = "<div class='page'> <div class='cover-title'>FAX</div> <div class='cover-sub'>Confidential clinical documentation</div> <div class='rule'></div> <div class='meta'> <span><b>Date</b>&nbsp; @@SENT_DATE@@</span> <span><b>Fax ID</b>&nbsp; @@FAX_ID@@</span> <span><b>Enclosures</b>&nbsp; @@ENC_COUNT@@</span> </div> <table class='grid'> <tr> <td class='col'> <div class='blk-hd'>To</div> <div class='blk-body'> <div class='ln nm'>@@TO_NAME@@</div> <div class='ln'>@@TO_PARTNER@@</div> <div class='ln'><span class='k'>Fax</span> @@TO_FAX@@</div> <div class='ln'><span class='k'>Attn</span> @@TO_ATTN@@</div> </div> </td> <td class='col right'> <div class='blk-hd'>From</div> <div class='blk-body'> <div class='ln nm'>SOS Mobile Medical Care</div> <div class='ln'>8270 Woodland Center Blvd, Tampa, FL 33614</div> <div class='ln'><span class='k'>Phone</span> (813) 513-1925 &nbsp;&nbsp;&nbsp; <span class='k'>Fax</span> (813) 626-3312</div> </div> </td> </tr> </table> <div class='remarks-hd'>Message</div> <div class='remarks'>@@REMARKS@@</div> @@ENCLOSURES@@ <div class='notice'> <b>CONFIDENTIALITY NOTICE.</b> This transmission contains protected health information intended only for the individual or entity named above. It is privileged and confidential under federal and state law, including HIPAA. If you are not the intended recipient, any review, disclosure, copying, distribution or action taken in reliance on this information is strictly prohibited. If you received this fax in error, notify SOS Mobile Medical Care immediately at (813) 513-1925 and destroy all copies, electronic and printed. Redisclosure without written patient authorization or as otherwise permitted by law is prohibited. </div> </div>";
+	v_out = Map();
+	v_notes = List();
+	v_enc = "";
+	v_idx = 0;
+	for each  v_pid in pPvsIds
+	{
+		for each  v_pvs in Encounter_PatientVisit[ID == v_pid.toString().toLong()]
+		{
+			v_idx = v_idx + 1;
+			v_refDate = "";
+			if(v_pvs.Referral_Link != null)
+			{
+				for each  v_ref in Referrals_Main[ID == v_pvs.Referral_Link]
+				{
+					if(v_ref.Referral_Date != null)
+					{
+						v_refDate = v_ref.Referral_Date.toString("MM/dd/yyyy");
+					}
+					break;
+				}
+			}
+			v_dob = "";
+			if(v_pvs.Patient_DOB != null)
+			{
+				v_dob = v_pvs.Patient_DOB.toString("MM/dd/yyyy");
+			}
+			v_dos = "";
+			if(v_pvs.Visit_Completion_Date != null)
+			{
+				v_dos = v_pvs.Visit_Completion_Date.toString("MM/dd/yyyy");
+			}
+			v_signed = zoho.currenttime.toString("MM/dd/yyyy h:mm a");
+			if(v_pvs.Modified_Time != null)
+			{
+				v_signed = v_pvs.Modified_Time.toString("MM/dd/yyyy h:mm a");
+			}
+			v_source = ifnull(v_pvs.Partner_Organization,"").toString().trim();
+			v_brnch = ifnull(v_pvs.Partner_Branch,"").toString().trim();
+			if(v_brnch != "")
+			{
+				v_source = v_source + " - " + v_brnch;
+			}
+			v_procs = "";
+			if(v_pvs.Type_of_Procedures != null)
+			{
+				v_procs = v_pvs.Type_of_Procedures.toString(", ");
+			}
+			v_noteType = ifnull(v_pvs.Clinical_Note_Type,"").toString().trim();
+			v_banner = "";
+			if(v_noteType == "Addendum")
+			{
+				v_banner = "<div class='amend'>AMENDED NOTE - SUPERSEDES THE PREVIOUSLY FAXED SUMMARY</div>";
+			}
+			v_pvsIdTxt = ifnull(v_pvs.PVS_ID,"").toString();
+			v_html = "<!DOCTYPE html><html><head><meta charset='utf-8'>" + v_css + "</head><body>" + v_noteTpl + "</body></html>";
+			v_tok = Map();
+			v_tok.put("FAX_ID",pFaxID);
+			v_tok.put("PATIENT_NAME",ifnull(v_pvs.Patient_Full_Name_1,""));
+			v_tok.put("PATIENT_DOB",v_dob);
+			v_tok.put("PATIENT_GENDER",ifnull(v_pvs.Patient_Gender,""));
+			v_tok.put("PROVIDER_NAME",ifnull(v_pvs.Employee_Name_Title,""));
+			v_tok.put("SERVICE_DATE",v_dos);
+			v_tok.put("ACUITY_LEVEL",ifnull(v_pvs.Complexity_Level,""));
+			v_tok.put("VISIT_STATUS",ifnull(v_pvs.Visit_Status,""));
+			v_tok.put("PVS_ID",v_pvsIdTxt);
+			v_tok.put("NOTE_TYPE",v_noteType);
+			v_tok.put("REFERRAL_ID",ifnull(v_pvs.Referral_ID,""));
+			v_tok.put("REFERRAL_DATE",v_refDate);
+			v_tok.put("REFERRAL_SOURCE",v_source);
+			v_tok.put("REFERRED_BY",ifnull(v_pvs.Partner_POC_Name_Title,""));
+			v_tok.put("CLINICAL_TEAM",ifnull(v_pvs.Partner_POC_Team,""));
+			v_tok.put("TYPE_OF_PROCEDURES",v_procs);
+			v_tok.put("ICD_CODES",ifnull(v_pvs.Provider_ICD_Print,""));
+			v_tok.put("SIGNED_TIME",v_signed);
+			for each  v_key in v_tok.keys()
+			{
+				v_val = v_tok.get(v_key).toString().trim();
+				if(v_val == "")
+				{
+					v_val = "NA";
+				}
+				v_val = v_val.replaceAll("&","&amp;",true);
+				v_val = v_val.replaceAll("<","&lt;",true);
+				v_val = v_val.replaceAll(">","&gt;",true);
+				v_val = v_val.replaceAll("&amp;nbsp;","&nbsp;",true);
+				v_val = v_val.replaceAll("&amp;mdash;","-",true);
+				v_html = v_html.replaceAll("@@" + v_key + "@@",v_val,true);
+			}
+			v_noteHtml = ifnull(v_pvs.Final_Clinical_Note,"").toString().trim();
+			if(v_noteHtml == "")
+			{
+				v_noteHtml = "<p>NA</p>";
+			}
+			v_html = v_html.replaceAll("@@CLINICAL_NOTE@@",v_noteHtml,true);
+			v_html = v_html.replaceAll("@@AMENDMENT_BANNER@@",v_banner,true);
+			v_nm = ifnull(v_pvs.Patient_Full_Name_1,"").toString().trim();
+			v_nm = v_nm.replaceAll("&","&amp;",true);
+			v_nm = v_nm.replaceAll("<","&lt;",true);
+			v_nm = v_nm.replaceAll(">","&gt;",true);
+			v_encDos = v_dos;
+			if(v_encDos == "")
+			{
+				v_encDos = "NA";
+			}
+			v_enc = v_enc + "<div class='ln'>" + v_idx + ". " + v_nm + " &nbsp;|&nbsp; " + v_pvsIdTxt + " &nbsp;|&nbsp; DOS " + v_encDos + "</div>";
+			v_item = Map();
+			v_item.put("record_id",v_pvs.ID.toString());
+			v_item.put("pvs_id",v_pvsIdTxt);
+			v_item.put("patient",v_nm);
+			v_item.put("html",v_html);
+			v_notes.add(v_item);
+			break;
+		}
+	}
+	if(pUploadNames != null)
+	{
+		for each  v_fn in pUploadNames
+		{
+			v_idx = v_idx + 1;
+			v_f = v_fn.toString().trim();
+			v_f = v_f.replaceAll("&","&amp;",true);
+			v_f = v_f.replaceAll("<","&lt;",true);
+			v_f = v_f.replaceAll(">","&gt;",true);
+			v_enc = v_enc + "<div class='ln'>" + v_idx + ". File &nbsp;|&nbsp; " + v_f + "</div>";
+		}
+	}
+	v_encBlock = "";
+	if(v_enc != "")
+	{
+		v_encBlock = "<div class='remarks-hd'>Enclosures</div><div class='blk-body'>" + v_enc + "</div>";
+	}
+	v_cover = "<!DOCTYPE html><html><head><meta charset='utf-8'>" + v_css + "</head><body>" + v_coverTpl + "</body></html>";
+	v_ctok = Map();
+	v_ctok.put("SENT_DATE",zoho.currentdate.toString("MM/dd/yyyy"));
+	v_ctok.put("FAX_ID",pFaxID);
+	v_ctok.put("TO_NAME",pToName);
+	v_ctok.put("TO_PARTNER",pToPartner);
+	v_ctok.put("TO_FAX",pToFax);
+	v_ctok.put("TO_ATTN",pToAttn);
+	v_ctok.put("REMARKS",pRemarks);
+	v_ctok.put("ENC_COUNT",v_idx.toString());
+	for each  v_ck in v_ctok.keys()
+	{
+		v_cv = v_ctok.get(v_ck).toString().trim();
+		if(v_cv == "")
+		{
+			v_cv = "NA";
+		}
+		v_cv = v_cv.replaceAll("&","&amp;",true);
+		v_cv = v_cv.replaceAll("<","&lt;",true);
+		v_cv = v_cv.replaceAll(">","&gt;",true);
+		v_cover = v_cover.replaceAll("@@" + v_ck + "@@",v_cv,true);
+	}
+	v_cover = v_cover.replaceAll("@@ENCLOSURES@@",v_encBlock,true);
+	v_out.put("cover",v_cover);
+	v_out.put("notes",v_notes);
+	v_out.put("count",v_notes.size());
+	return v_out;
+}
