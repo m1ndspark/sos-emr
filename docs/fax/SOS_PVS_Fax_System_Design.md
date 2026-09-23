@@ -1,17 +1,28 @@
 # SOS PVS Fax System - Design Spec
 
-Designed 2026-08-19 (Session 34), built through Session 35 the same day. This
-document is the spec: it stands on its own and is the file to read first before
-touching any of this code.
+Designed 2026-08-19 (Session 34), built through Session 35 the same day, and
+finished and proven live 2026-09-22 (Session 50). Sections 1 to 12 are the
+original spec, annotated where Session 50 changed or corrected them. **Section 13
+is the design as actually built and wins over the spec wherever they differ.**
 
-**State: auth is live, nothing has been faxed yet.** All four functions compile
-and authenticate against RingCentral. Section 12 lists the three live-form gaps
-standing between that and a working send. Section 11 is the gotchas list.
+**State as of 2026-09-22: LIVE.** Eight real faxes sent (FAX-092226-1001 to
+1008), seven delivered and confirmed by RingCentral, one failed on a RingCentral
+503. The full loop works: Fax PVS button, review modal, send, self re-arming
+poll, retry sweep, 4:00 am digest, Fax Log report. Section 11 is the gotchas
+list; section 14 is the Session 50 Creator and Deluge findings.
+
+> **Repo drift, read before trusting any function body here.** The bodies in
+> `docs/fax/deluge/` and the repo `.ds` (v51, exported 2026-09-22 06:35) both
+> PREDATE every Session 50 change: five functions changed, three created,
+> diagnostics added, three `PVS_Fax_Review` workflows, three schedules, one
+> report, two new form fields. Creator is the source of truth. The next fresh
+> `.ds` export resyncs them; until then treat every body in this repo as stale.
 
 Platform: Zoho Creator (Deluge) plus the RingCentral Fax API.
 Session logs:
 [Session 34](../sessions/SOS_Code_Session_Log_2026-08-19_Session34_EOD.md) (design),
-[Session 35](../sessions/SOS_Code_Session_Log_2026-08-19_Session35_EOD.md) (build).
+[Session 35](../sessions/SOS_Code_Session_Log_2026-08-19_Session35_EOD.md) (build),
+[Session 50](../../context/handoff/SOS_Code_Session_Log_2026-09-22_Session50_EOD.md) (finished, live).
 
 ---
 
@@ -32,7 +43,11 @@ ported.
 
 ## 3. Logic map, 11 steps
 
-Plain language, in order. This is the contract the code implements.
+Plain language, in order. This was the contract as designed.
+
+> **Superseded in part by Session 50, see section 13.** Steps 4, 5 and 7 did not
+> ship as written: there is no redirect on save, no review page on every fax, and
+> no attachments. Steps 9 to 11 shipped substantially as written.
 
 1. **PVS save.** The provider completes the PVS and saves. Normal downstream
    workflows run.
@@ -80,7 +95,8 @@ A NEW field. The existing `Partner_Billing_POC_Fax` is deliberately not reused,
 because invoices are not faxed and that field is unused. `Partner_PVS_Fax` is the
 clinical-note fax destination for the branch.
 
-Status: **not created.**
+Status: **created.** Populated on 19 of 23 rows as of 2026-09-22. Blank on all
+four InnoVage rows, and InnoVage has duplicate Orlando and Tampa rows (open).
 
 ### 4.2 `Encounter_PatientVisit` - add `Visit_Status` and `Fax_Status`
 
@@ -122,8 +138,8 @@ choice, so the field now carries all four values.
 >
 > The three-option capture in `schema/Encounter_PatientVisit.md` is reading the
 > **PVS** field, and it predates Neil adding `Failed`. It says nothing about the
-> `Fax_Log` field, which is a separate field on a separate form and is currently
-> short four of its seven choices. See section 12.
+> `Fax_Log` field, which is a separate field on a separate form. That field now
+> carries all seven choices (closed Session 50, see section 12).
 
 ### 4.3 `API_Config` - new form
 
@@ -189,7 +205,11 @@ Building | Queued | Sent | Failed | Retry Pending | Stuck | Permanent Fail
 `Failed`. `poll_fax_status` moves it to `Sent`, `Retry Pending`, `Stuck` or
 `Permanent Fail`. Miss any one option and the corresponding write silently fails.
 
-Status: **BUILT (Session 35), with three gaps.** `schema/Fax_Log.md`, captured
+Status: **BUILT and live. The three gaps below are CLOSED (Session 50):** the
+form now carries `Partner_Location_Link`, `Sent_By` and the seven-value
+`Fax_Status`. The rest of this status note is kept as the Session 35 record.
+
+Session 35 status: **BUILT, with three gaps.** `schema/Fax_Log.md`, captured
 15:05 on 2026-08-19, shows 24 fields. `poll_fax_status` now saves. Two extra
 fields exist that the code does not use, `Attachments_Included` and
 `Fax_Log_ID_Stamp`, which is fine.
@@ -203,7 +223,12 @@ function compiling:
 | `Sent_By` | `Employees` |
 | `Fax_Status` with 7 choices | `Fax_Status` with 4 |
 
-**See section 12.** These block the first real send.
+**See section 12.** These blocked the first real send until Session 50.
+
+Two write rules added in Session 50: `Original_Fax_Link` (self-lookup) and
+`Sent_By` (Employees lookup) are set only AFTER the insert and only when they
+resolve. Passing 0 to the self-lookup kills the insert, and `Sent_By` was being
+handed a login email.
 
 ### 4.5 `PVS_Fax_Review` - new page
 
@@ -211,7 +236,9 @@ The review screen from step 4. Renders the note exactly as it will print, and
 carries Edit, Fax Now, the destination number with its override control, the
 attachment picker, and the Remarks textarea.
 
-Status: **not started.**
+Status: **BUILT, but not as specified (Session 50).** It is a stateless form
+opened as an exception-path MODAL, not a review page shown on every fax, and has
+no attachment picker. See section 13.
 
 ### 4.6 `Sequence_Tracker` - FAX prefix record
 
@@ -226,9 +253,13 @@ Status: **DONE.**
 Every one of these is a decision already made. Do not relitigate them without
 Neil.
 
-- **A review step is required before sending.** The PVS saves, then redirects to
-  a review page rendering the note exactly as it will print, with Edit and Fax
-  Now.
+> **Session 50 changed four of these, marked SUPERSEDED below.** Section 13 has
+> the replacements.
+
+- ~~**A review step is required before sending.**~~ **SUPERSEDED Session 50.**
+  The PVS saves, then redirects to a review page rendering the note exactly as it
+  will print, with Edit and Fax Now. Replaced by a Fax PVS button that sends
+  immediately; the review form is an exception-path modal only.
 - **The draft invoice is created at the initial save, NOT after the fax.** If a
   review-stage edit changes complexity, after hours or billing branch, the
   invoice re-syncs. It locks once faxed.
@@ -248,20 +279,25 @@ Neil.
 - **Never fax a cancelled visit. Attempted (Not Completed) DOES fax.**
 - **The gate is `Visit_Status != Cancelled` AND `Clinical_Note_Type` is Final or
   Addendum.**
-- **Attachments: the provider picks which ones ride along.**
+- ~~**Attachments: the provider picks which ones ride along.**~~ **SUPERSEDED
+  Session 50.** No attachments at all. One fax equals our cover plus the note.
 - **The cover sheet is OURS, prepended into the PDF, not RingCentral's.** This
   reversed an earlier call. Reason: Neil may need to print and hand over copies,
   and an archive that does not match what was sent is worthless in an audit.
   RingCentral's cover is set to none via `coverIndex 0`.
 - **Remarks is a textarea** pre-filled with `Clinical notes for [Patient]`, fully
-  editable per fax, with the confidentiality notice appended by the template so
+  editable per fax (as built: the modal's Cover Remarks rich text field, prefilled
+  with "Clinical note(s) for:" plus patient name and MRN), with the confidentiality notice appended by the template so
   it cannot be deleted.
-- **The sender is always (813) 626-3312, SOS Mobile Medical Care, Joshua Kolanko
-  APRN.**
+- ~~**The sender is always (813) 626-3312, SOS Mobile Medical Care, Joshua
+  Kolanko APRN.**~~ **SUPERSEDED Session 50.** The cover FROM block is company
+  only, no provider name. See section 13.
 - **Retry 3 times, but only on codes RingCentral has already given up on, never
   on busy.** RingCentral's carrier already retries a busy line for about 48 hours
   on its own.
-- **The daily digest runs at 4:00 am Eastern, fixed, no daylight shift**, to
+- **The daily digest runs at 4:00 am Eastern, fixed, no daylight shift**
+  (DEVIATION, open: as built it fires in the app timezone and so does shift with
+  daylight saving), to
   joshua.kolanko@sosmmc.com and neil.heird@sosmmc.com. It covers unfaxed Final
   notes past 24 hours from Added Time, Preliminary notes past 24 hours, permanent
   failures, anything stuck in Queued, and every override.
@@ -297,8 +333,10 @@ before writing a line.
   itself.
 - **Page count cannot go on the cover** because it is unknown until the PDF
   renders. The running footer carries page x of y instead.
-- **Deluge `replaceAll` is regex-based**, so template tokens are `@@NAME@@`.
-  Braces break it.
+- **Two-argument Deluge `replaceAll` is regex-based**, so template tokens are
+  `@@NAME@@`. Braces break it. **The three-argument form
+  `replaceAll(a, b, true)` is LITERAL, not regex** (confirmed again Session 50,
+  see section 14), so every regex strip must use the two-argument form.
 - **HTML escaping is per token, with two deliberate exemptions.** Every text
   token is escaped; the clinical note and the amendment banner are NOT, because
   they ARE html. This was verified by extracting the string literals, re-running
@@ -316,7 +354,10 @@ one page per image attachment.
 - Letter size, Helvetica, SOS navy `0B0B5B`.
 - The logo is inlined as base64, so nothing depends on WordPress staying up.
 - A running footer on every page carries patient, DOB, PVS ID, fax ID and
-  page x of y, so a loose sheet is still identifiable.
+  page x of y, so a loose sheet is still identifiable. **MISSING as of Session
+  50:** the footer is set through the `convertToPDF` options argument, which was
+  dropped to get a send working. See section 14, item 7.
+- As built there are no attachment pages: cover, page break, note.
 - The clinical note renders inside a scoped CSS reset.
 
 ---
@@ -334,21 +375,34 @@ exists.
 | `build_pvs_fax_html` | Returns the finished HTML for a PVS. `@@NAME@@` tokens, per-token HTML escaping with the note and amendment banner exempt. | written, in Creator |
 | `get_rc_token` | Reads `API_Config`. Returns the cached token if it has more than 5 minutes left, otherwise mints a new one from the JWT bearer grant and stores it with an expiry derived from the response's `expires_in` (3600 second fallback). **Nothing else ever touches a token.** | written, in Creator |
 | `send_pvs_fax` | Stamps the fax ID, inserts the `Fax_Log` record as `Building`, renders the PDF through `zoho.file.convertToPDF`, attaches it to the log, posts multipart to RingCentral, records Queued or Failed on both the log and the PVS. | written, in Creator |
-| `poll_fax_status` | Polls every Queued record, closes Sent ones, records `faxErrorCode` on failures, routes to Retry Pending or Permanent Fail, marks anything Queued past 4 hours as Stuck. Permanent Fail is taken either from a no-retry error code or from `Attempt_Number >= 3`. Returns a one-line summary so Creator's scheduled-workflow history is a usable run trail. | written, **does not save** until `Fax_Log` exists in full |
+| `poll_fax_status` | Polls every Queued record, closes Sent ones, records `faxErrorCode` on failures, routes to Retry Pending or Permanent Fail, marks anything Queued past 4 hours as Stuck. Permanent Fail is taken either from a no-retry error code or from `Attempt_Number >= 3`. Returns a one-line summary so Creator's scheduled-workflow history is a usable run trail. | written, in Creator |
+
+Session 50 status: all four above were changed live and the repo bodies are
+stale (see the drift note at the top). New in Session 50, bodies in Creator
+only: `retry_failed_faxes`, `send_fax_digest`, `send_referral_confirmation`, and
+the diagnostics `diag_pvs_fax_number`, `diag_fax_error`, `diag_rc_token`,
+`diag_fax_pdf_image`, `diag_collection_shape`. See section 13.
 
 ---
 
 ### 8.1 Five defects found and fixed
 
 Found by ccode 2026-08-19 when the real bodies were first committed (`fc4276d`),
-except defect 5 which Neil caught. **All five are fixed in source and the
-corrected bodies are re-extracted here** as of `fc4276d`'s follow-up commit.
+except defect 5 which Neil caught. **All five were fixed in the repo source and
+the corrected bodies re-extracted here** as of `fc4276d`'s follow-up commit.
+
+> **CORRECTION 2026-09-22 (Session 50): defect 3 was fixed in the repo, NOT in
+> the app.** The live `get_rc_token` was still the old version, hardcoded 115
+> minute cache and no margin, until it was fixed live on 2026-09-22. The repo
+> said fixed while the app did not. The lesson: a fix in `docs/fax/deluge/` is
+> not live until Neil pastes it into Creator and a fresh `.ds` confirms it. The
+> other four were not re-verified against live either.
 
 | # | Function | Defect | Status |
 |---|---|---|---|
 | 1 | `create_3008_pvs_july` | `PVS_ID` sequence off by one, would duplicate a billing record locator | FIXED |
 | 2 | `send_pvs_fax`, `build_pvs_fax_html` | `&mdash;` rendered an em dash on every faxed page | FIXED |
-| 3 | `get_rc_token` | no safety margin on the cached token | FIXED |
+| 3 | `get_rc_token` | no safety margin on the cached token | FIXED in repo 2026-08-19, **live only 2026-09-22** |
 | 4 | `poll_fax_status` | busy and no-answer routed to retry, against the ruling | FIXED, one caveat |
 | 5 | `send_pvs_fax` | `FAX` sequence off by one, same shape as defect 1 | FIXED |
 
@@ -383,7 +437,8 @@ second left and the fax POST would fail on an expired bearer. It also stored a
 fixed 115 minute expiry, which was only correct if the app happened to issue a
 7200-second token.
 
-Both are fixed, and the fix is better than the original design. The read now
+Both were fixed in the repo copy on 2026-08-19, but that copy never reached
+Creator; see the correction above. The live fix landed 2026-09-22. The read now
 carries a real margin:
 
 ```
@@ -403,9 +458,14 @@ v_cfg.RC_Token_Expiry = zoho.currenttime.addMinutes(v_mins);
 ```
 
 `expires_in` is read off the token response with a 3600-second fallback, so the
-cache window is correct whatever the app issues. **This closes the VERIFY LIVE
-item on token TTL that stood in the previous revision of this document.** Nothing
-needs checking against a live response any more.
+cache window is correct whatever the app issues. As of 2026-09-22 this is live.
+
+Live symptom of the unfixed version: RingCentral issues 3600-second tokens, so
+the 115 minute cache served a dead token for about 55 minutes of every cycle,
+surfacing as `TokenInvalid` / OAU-213 "Token not found" on a send. Expiry math
+also cannot catch a revoked token, so `send_pvs_fax` now clears the cache and
+retries once on `TokenInvalid`. That in-send retry is separate from
+`retry_failed_faxes` and does not consume an attempt.
 
 **4. `poll_fax_status` retried busy lines, against the ruling.** The ruling is
 "retry 3 times, but only on codes RingCentral has already given up on, never on
@@ -425,6 +485,10 @@ NotAcceptingFax | InvalidNumber | NumberBlocked | InternationalDisabled
 > `Retry Pending`, which for a busy line is exactly the behavior the ruling
 > forbids. `Fax_Error_Reason` stores the raw response, so the real string will be
 > on the log record when it happens.
+>
+> Still open after Session 50: the only live failure (FAX-092226-1004) was a
+> RingCentral 503 on the POST, not a `faxErrorCode` from the message store, so the
+> enum list remains unverified.
 
 **5. `send_pvs_fax` minted the `FAX` sequence off by one.** Same shape as defect
 1: read N, issue N+1, store N+1, no `break`. Caught by Neil, not by the original
@@ -453,14 +517,24 @@ store it plus one, `break`. Any new minter must follow it.
 
 ## 9. Still to build
 
-- `retry_failed_faxes`.
-- The 4:00 am digest function.
-- The `PVS_Fax_Review` page.
-- Faxes Sent and Fax Exceptions reports.
-- `Partner_PVS_Fax` on `Partner_Billing_Contacts`.
+Updated 2026-09-22 (Session 50). Built since the original list:
+`retry_failed_faxes`, the digest (`send_fax_digest`), `PVS_Fax_Review` (as a
+modal), the Fax Log report, `Partner_PVS_Fax`, and the three section 12 gaps.
+
+Still open:
+
+- `convertToPDF` options argument, to restore the running footer (section 14).
+- The Fax Exceptions saved filter view on the Fax Log report.
+- Re-fax reason capture. The warn-and-allow ruling has nowhere to store a
+  reason: no `Resend_Reason` field, and On Validate does not block or warn on an
+  already-Sent PVS.
+- `Partner_PVS_Fax` on the four InnoVage rows, and the duplicate InnoVage
+  Orlando and Tampa rows.
+- Digest timezone, which shifts with daylight saving (section 5).
+- Phase 2: the 3008 fax route and imaging order faxing to vendors. Both are
+  blocked in v1 with a gate message.
 - Optional: a validation workflow rejecting a fax number that is not 10 or 11
   digits.
-- The three live-form gaps in section 12.
 
 ---
 
@@ -480,15 +554,15 @@ Closed 2026-08-19 (Session 35). This section previously read "Blocking, on Neil"
 stuck 0`. **The whole chain compiles, authenticates and runs.**
 
 **Token TTL, settled.** The live response returns `expires_in` **3600**, not the
-7199 RingCentral's documentation implies. `get_rc_token` reads `expires_in` off the
-response rather than hardcoding, so this needs no further action. Had the original
-hardcoded 115 minute expiry survived, every token would have been treated as valid
-for roughly an hour after it died, and the failure would have shown up as
-intermittent, hard-to-reproduce fax failures. The Session 34 fix paid for itself on
-the first live call.
+7199 RingCentral's documentation implies. The repo's `get_rc_token` read
+`expires_in` off the response, but **the live function did not until 2026-09-22**
+(see the 8.1 correction). The hardcoded 115 minute expiry did survive in Creator,
+and it failed exactly as predicted: dead tokens served for roughly an hour after
+they died, showing up as `TokenInvalid` on a send. This paragraph previously
+claimed the Session 34 fix paid for itself on the first live call; it had not
+reached the app.
 
-Nothing has actually been faxed yet. Auth working is not the same as a send
-working, and section 12 lists what stands between the two.
+First real fax: 2026-09-22 (Session 50), FAX-092226-1001.
 
 ---
 
@@ -514,8 +588,8 @@ broke `create_3008_pvs_july` on its COMMIT run; see
 `Partner_Locations` and the field arrives named `Partner_Locations`, not whatever
 you intended to call it. Renaming the **display** name does not rename the **link**
 name, and Deluge references the link name. Rename the link name explicitly, and
-confirm it in `schema/<Form>.md` afterwards. This one is still biting: see section
-12.
+confirm it in `schema/<Form>.md` afterwards. This bit `Fax_Log` twice; see section
+12 (closed Session 50).
 
 **A self-lookup works, but the form must be saved first.** You cannot add a lookup
 pointing at the form you are currently creating. Save the form, reopen it, then add
@@ -547,6 +621,10 @@ screen displays.
 ---
 
 ## 12. Live-form gaps found at sync time
+
+**ALL CLOSED (Session 50, 2026-09-22).** `Fax_Log` now carries the seven-value
+`Fax_Status` choice set, `Partner_Location_Link` and `Sent_By`, and fax sends
+write to all three. The rest of this section is kept as the 2026-08-19 record.
 
 Found by ccode 2026-08-19 by diffing the delivered Deluge against
 `schema/Fax_Log.md`, captured 15:05 that day, **after** the form was built. These
@@ -586,3 +664,155 @@ bodies correct.
 > failure is waiting for the first send. Open `send_pvs_fax` in Creator and check
 > which. The `Fax_Status` gap is real either way, because a bad choice value is a
 > string write that compiles fine and fails at runtime.
+
+---
+
+## 13. As built, Session 50 (2026-09-22)
+
+This is the design as it runs live. Where it differs from sections 3 to 5, this
+section wins. Source: the
+[Session 50 log](../../context/handoff/SOS_Code_Session_Log_2026-09-22_Session50_EOD.md).
+Function bodies are NOT reproduced here; the repo copies are stale until the next
+`.ds` export.
+
+### 13.1 Where the design departs from the spec
+
+| Spec (sections 3 to 5) | As built |
+|---|---|
+| PVS save redirects to a review page | **No redirect on save, deliberately.** `openUrl` is terminal and would kill any On Success jobs not yet run, including the draft invoice. NEIL RULING 2026-09-22: "so lets not create a new problem." |
+| Review step on every fax | **No review step.** A Fax PVS Button column on each `PVS_Report` row sends immediately. |
+| `PVS_Fax_Review` is the review page | `PVS_Fax_Review` is a stateless form opened as a **modal**, on the exception path only: no number on file, or duplicate contacts. It takes a one-off number with a reason. |
+| Provider picks attachments | **No attachments.** One fax equals one document: our cover sheet plus the note. Imaging reports are inbound and separate. |
+| Destination from `Partner_PVS_Fax` | Same, and `Partner_PVS_Fax` is the only authority. `Fax_Address_Book` plays no part. |
+| Sender line names the provider | Cover FROM block is company only (13.4). |
+| Digest fixed at 4:00 am Eastern | Fires daily at 04:00 in the app timezone, so it shifts with daylight saving (open). |
+
+v1 scope is Patient Visit only. 3008 and Imaging Order reach the modal and get a
+gate message; both are Phase 2.
+
+Override does NOT unlock the rest of the record. The form is stateless, so edits
+there would change what is faxed while the PVS still said something else.
+
+### 13.2 Functions
+
+| Function | Session 50 change |
+|---|---|
+| `send_pvs_fax` | two-argument regex strip, lookup guards (4.4), `convertToPDF` options dropped, clear-cache-and-retry-once on `TokenInvalid`, try/catch on both POSTs, guarded truncation |
+| `get_rc_token` | `expires_in` plus five minute margin, live for the first time (8.1) |
+| `poll_fax_status` | try/catch, guarded truncation, error count |
+| `retry_failed_faxes` | NEW. Picks up Retry Pending rows, three attempt cap, spawns a new fax linked to the original through `Original_Fax_Link`, retires the old row to Failed |
+| `send_fax_digest` | NEW. Five sections, ZeptoMail. Floor hardcoded at 22-Sep-2026 so pre-fax history is excluded |
+| `build_pvs_fax_html` | cover FROM block rewritten |
+| `send_referral_confirmation` | NEW, not fax. Partner-facing referral confirmation to `Partner_POC_Email` only, wrapping `build_referral_confirmation_html` |
+| `process_new_referral` | calls `send_referral_confirmation` in the success branch only |
+| `diag_pvs_fax_number`, `diag_fax_error`, `diag_rc_token`, `diag_fax_pdf_image`, `diag_collection_shape` | NEW, diagnostic, read only |
+
+### 13.3 Workflows, schedules, report, form changes
+
+`PVS_Fax_Review` is a stateless form, so the only events available are Field
+rules, On Load, On User Input and Click of a button.
+
+| Workflow | Event |
+|---|---|
+| PVS Fax Review On Load | On Load (the three-argument `replaceAll` defect was here too) |
+| PVS Fax Review Override Unlock | On User Input of `Override_Unlock` |
+| PVS Fax Review Fax Now | Click of a button: gate checks, calls `send_pvs_fax`, alerts, closes the modal |
+
+| Schedule | Trigger |
+|---|---|
+| Fax Poll Re-arm | `Fax_Log`, `Last_Polled_Time` + 3 minutes, condition Fax Status is Queued |
+| Fax Retry Sweep | `Fax_Log`, `Last_Polled_Time` + 15 minutes, condition Fax Status is Retry Pending |
+| Fax Digest Daily 4am | daily at 04:00 |
+
+The poll is a self re-arming schedule on `Last_Polled_Time`, not a cron.
+FAX-092226-1008 resolved to Sent through the schedule with no manual poll, which
+proved the re-arm works.
+
+Report: Fax Log, sorted by Submitted Time descending. The Fax Exceptions saved
+view does not exist yet.
+
+Form changes: `PVS_Fax_Review` gained `Patient_Name` and `Referral_ID`, both
+prefilled and disabled; `PVS_Link` and `Patient_Display` hidden; `Note_Preview`
+relabeled Cover Remarks and made editable rich text that feeds the cover;
+`Cover_Remarks` hidden. `PVS_Report` gained a Button column labeled Fax PVS.
+
+### 13.4 Cover sheet and alerts
+
+Cover FROM block:
+
+```
+SOS Mobile Medical Care
+8270 Woodland Center Blvd, Tampa, FL 33614
+Phone (813) 513-1925    Fax (813) 626-3312
+```
+
+No provider name. The (561) 560-8302 x101 extension is gone from both the FROM
+block and the confidentiality notice.
+
+Alert wording:
+
+```
+SUCCESS: [patient] ([REF ID]) Faxing to [destination] at [number]. Fax ID [FAX-...].
+FAILURE: FAX NOT SENT. Fax ID [FAX-...]. Check the fax log for details.
+```
+
+### 13.5 Live results
+
+| Fax | Result |
+|---|---|
+| FAX-092226-1001 | Sent, 3 pages |
+| FAX-092226-1002 | Sent, 3 pages |
+| FAX-092226-1003 | Sent, 3 pages (to 813-626-3312; all others to the test line) |
+| FAX-092226-1004 | Failed, RingCentral 503 Service Temporary Unavailable |
+| FAX-092226-1005 | Sent, 4 pages |
+| FAX-092226-1006 | Sent, 4 pages |
+| FAX-092226-1007 | Sent, 4 pages |
+| FAX-092226-1008 | Sent, 3 pages, resolved by the schedule |
+
+Digest after the floor was added: missed 0, prelim 0, failures 0, overrides 8.
+
+---
+
+## 14. Creator and Deluge findings, Session 50
+
+Each of these is also recorded in `context/05_deluge_learnings.md`.
+
+1. **Three-argument `replaceAll` does NOT apply a regex.** The third argument
+   switches to literal matching. `v_raw.replaceAll("[^0-9]","",true)` returned
+   `"+19418062117"`; `v_raw.replaceAll("[^0-9]","")` returned `"19418062117"`.
+   It was in `send_pvs_fax` and the PVS Fax Review On Load, so every fax would
+   have posted a malformed E.164 like `++19418062117`, and the modal flagged a
+   valid number as not 10 digits. Only those two places used the broken form; the
+   other seven three-argument calls in the app replace literal strings and are
+   correct. This was already recorded in `context/05` on 2026-07-23 and recurred
+   anyway.
+2. **`alert` is not available in a report action.** Error: "'ALERT' task can be
+   used only in on load, on validate and on change actions".
+3. **`info` IS visible to the user in a report action**, in a "log messages"
+   dialog. This contradicts the assumption that `info` output is invisible.
+4. **`openUrl` with "popup window" works from a report button** and opens a
+   Creator form as a true modal. The per-row control is a Button COLUMN on the
+   report, not the action item; the action item alone renders nothing on the row.
+5. **`openUrl("#Script:dialog.close","same window")` DOES close a stateless
+   popup form**, contradicting the community thread that said it only refreshes.
+6. **`openUrl` is terminal.** An `openUrl` in an On Success workflow would kill
+   whatever On Success jobs had not yet run, including the draft invoice. This is
+   why the redirect on PVS save was skipped (13.1).
+7. **`zoho.file.convertToPDF` options argument: UNRESOLVED, parked at Neil's
+   instruction.** `Collection()` plus two-argument `insert` produced a LIST; a
+   Map was rejected as the wrong type; a key-value literal was also rejected.
+   Zoho's doc says lowercase `collection()` plus `insert`, which is what failed.
+   The options argument was dropped entirely to get a send, so the running footer
+   (patient, DOB, PVS ID, fax ID, page x of y) is missing from every faxed page.
+8. **try/catch IS supported in Deluge custom functions**, and is required around
+   `invokeurl`: `invokeurl` THROWS on a 503 rather than returning a body. Unwrapped,
+   that aborted `send_pvs_fax` and stranded the `Fax_Log` row at Building.
+9. **`left(250)` throws when the string is shorter than 250.** This hid the real
+   RingCentral error behind a second failure. Guard every truncation on length.
+10. **A self-lookup rejects 0.** Passing 0 to `Original_Fax_Link` kills the
+    insert. Set optional lookups after the insert, and only when they resolve.
+    Same for `Sent_By`, an Employees lookup that was being handed a login email.
+11. **`for each` cannot iterate a variable holding a fetched record set in a
+    standalone function.** The query has to sit inline in the `for each`.
+12. **A stateless form offers only Field rules, On Load, On User Input and Click
+    of a button.** There is no On Validate or On Success to hang logic on.

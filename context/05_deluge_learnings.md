@@ -81,6 +81,8 @@ CONFIRMED DOES NOT WORK
   number. FIX: use the 2-arg form; every other phone/ID formatter in the repo does.
   Found live on Employees "Validate Employee Phone Block". Do not pass the third
   argument to replaceAll in this build.
+  RECURRED 2026-09-22 in send_pvs_fax and the PVS Fax Review On Load; see the
+  Session 50 section at the end of this file.
 - PARENTHESIZED ||-SUBGROUP INSIDE A COMPOUND if REVERTS ON SAVE (2026-07-14).
   A condition like  if(A && B && (C || D))  -- parentheses grouping an OR inside a
   larger &&-chain -- is SILENTLY STRIPPED by Creator on save, reverting to
@@ -720,3 +722,76 @@ The required-field check for Facility_Room_Number was removed from
 OnValidate PVS_Required_Fields on 2026-09-11. This is deliberate, not an
 oversight and not collateral from the duplicated-tail cleanup that happened in
 the same file on the same day. Do not "restore" it.
+
+
+================================================================================
+SESSION 50 LEARNINGS  (2026-09-22, PVS fax system build)
+================================================================================
+Source: context/handoff/SOS_Code_Session_Log_2026-09-22_Session50_EOD.md.
+Also recorded in docs/fax/SOS_PVS_Fax_System_Design.md section 14.
+
+THREE-ARGUMENT replaceAll IS LITERAL, NOT REGEX (RECURRENCE)
+The third argument switches replaceAll to literal matching.
+    v_raw.replaceAll("[^0-9]","",true)   returns "+19418062117"
+    v_raw.replaceAll("[^0-9]","")        returns "19418062117"
+This was already in this file (2026-07-23) and still shipped in send_pvs_fax and
+the PVS Fax Review On Load, which would have posted a malformed E.164 like
+++19418062117 on every fax. RULE: any regex strip uses the two-argument form.
+The three-argument form is correct only for literal search strings; the seven
+other three-argument calls in the app are literal and fine.
+
+alert IS NOT AVAILABLE IN A REPORT ACTION
+Error: "'ALERT' task can be used only in on load, on validate and on change
+actions". Confirmed with a throwaway ZZ test button.
+
+info IS VISIBLE TO THE USER IN A REPORT ACTION
+It renders in a "log messages" dialog. Do not assume info output is invisible
+there; do not info anything a user should not see.
+
+openUrl WITH "popup window" WORKS FROM A REPORT BUTTON
+It opens a Creator form as a true modal. The per-row control is a Button COLUMN
+on the report; the report action item alone renders nothing on the row.
+
+openUrl("#Script:dialog.close","same window") CLOSES A STATELESS POPUP
+Confirmed 2026-09-22. This contradicts the community thread that said it only
+refreshes.
+
+openUrl IS TERMINAL
+Placed in an On Success workflow it would kill whatever On Success jobs had not
+yet run, including the draft invoice. This is why the PVS save does not redirect
+to the fax form.
+
+A STATELESS FORM HAS FOUR EVENTS ONLY
+Field rules, On Load, On User Input, Click of a button. No On Validate, no On
+Success.
+
+try/catch IS SUPPORTED IN CUSTOM FUNCTIONS, AND invokeurl NEEDS IT
+invokeurl THROWS on a 503 instead of returning a body. Unwrapped, that aborted
+send_pvs_fax and stranded the Fax_Log row at Building. Wrap every external POST
+in try/catch and write the failure state in the catch.
+
+left(n) THROWS WHEN THE STRING IS SHORTER THAN n
+left(250) on a short error string threw, hiding the real RingCentral error
+behind a second failure. Guard every truncation on length first.
+
+A SELF-LOOKUP REJECTS 0; SET OPTIONAL LOOKUPS AFTER THE INSERT
+Passing 0 to Fax_Log.Original_Fax_Link killed the insert. Sent_By, an Employees
+lookup, was being handed a login email. Set optional lookups after the insert,
+and only when they resolve to a real record ID.
+
+for each CANNOT ITERATE A STORED FETCH IN A STANDALONE FUNCTION
+A variable holding a fetched record set cannot be the target of for each inside
+a standalone function. Put the query inline in the loop.
+
+zoho.file.convertToPDF OPTIONS ARGUMENT: UNRESOLVED
+Collection() plus two-argument insert produced a LIST. A Map was rejected as the
+wrong type. A key-value literal was also rejected. Zoho's doc says lowercase
+collection() plus insert, which is what failed. The options argument was dropped
+to get a send, so the fax running footer is currently missing. PARKED at Neil's
+instruction; do not treat any of these three shapes as working.
+
+A REPO FIX IS NOT A LIVE FIX
+get_rc_token was documented as fixed (expires_in, five minute margin) in the
+repo since 2026-08-19. The live function was still the old hardcoded 115 minute
+version until 2026-09-22. Confirm a fix in a fresh .ds export before recording
+it as live.
