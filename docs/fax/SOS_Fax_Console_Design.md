@@ -407,3 +407,76 @@ The per-row Fax PVS button on `PVS_Report` is unchanged.
 
 None of these objects are in the repo `.ds`. v52 (2026-09-23 13:12) predates
 them; see the task list drift row.
+
+---
+
+# 13. Backlog diagnostics, 2026-09-23 (Session 52)
+
+Four read-only diagnostics, written and run to size the unfaxed backlog before
+anyone sends it through the console. None of them write. None are in any `.ds`
+export yet.
+
+## 13.1 diag_fax_readiness, p_days 180
+
+| Measure | Count |
+|---|---|
+| unfaxed_patient_visits | 447 |
+| ready_to_fax | 389 |
+| blocked_no_billing_branch | 4 |
+| blocked_no_fax_number | 22 |
+| blocked_duplicate_contacts | 0 |
+| blocked_not_final | 5 |
+| blocked_empty_note | 27 |
+| referrals_missing_branch_link | 1 (REF-1500) |
+
+The 27 empty notes are one contiguous block, PVS-1479 through PVS-1504, which
+reads as a bulk creation rather than 27 separate omissions. Not investigated.
+
+## 13.2 diag_missing_pvs_fax (new)
+
+24 Partner_Locations; 16 carry a usable PVS fax on an Active billing contact.
+
+- No billing contact record at all: AccentCare - Pasco, Chapters - Good
+  Shepherd, Chapters - HPH Hospice, Chapters - LifePath, Cornerstone - Main,
+  Direct - Individual.
+- Active contacts but no PVS fax: InnoVage - Orlando, InnoVage - Tampa. By
+  design; InnoVage goes back by email.
+- No location carries more than one faxable Active contact.
+
+## 13.3 diag_unfaxed_by_branch (new)
+
+59 unfaxed, 0 without a billing branch. Tests `Fax_Status != "Sent"`.
+
+| Branch | Unfaxed | Blocked |
+|---|---|---|
+| AccentCare - Pasco | 2 | yes, no fax number |
+| Chapters - LifePath | 1 | yes, no fax number |
+| Empath - Tidewell | 16 | no |
+| Empath - Suncoast - PIN | 14 | no |
+| Pinellas | 6 | no |
+| Hillsborough | 5 | no |
+| Empath - Trustbridge | 4 | no |
+| Empath - Suncoast - HIL | 4 | no |
+| Empath - Marion | 4 | no |
+| Empath - Polk | 2 | no |
+| Sumter | 1 | no |
+
+Only three notes are blocked by a missing fax number. (Pinellas, Hillsborough
+and Sumter are recorded as the log gives them, without the organization.)
+
+## 13.4 diag_sept_pvs_completeness (new, date window arguments)
+
+01-Sep-2026 to 30-Sep-2026: 60 Patient Visits, 54 complete. Billing_Branch,
+Partner_Organization and Facility Name clean on all 60. The only gap is a
+missing Facility Room Number on six: PVS-1528-JK, PVS-1534-AS, PVS-1535-AS,
+PVS-1539-AS, PVS-1544-JK, PVS-1754-JK. These block the September send, and
+only Neil can supply them.
+
+## 13.5 UNRESOLVED: 447 vs 59
+
+`diag_fax_readiness` counts 447 unfaxed Patient Visits over 180 days.
+`diag_unfaxed_by_branch` counts 59. `diag_unfaxed_by_branch` tests
+`Fax_Status != "Sent"`; `diag_fax_readiness` must test something else. One of
+the two is wrong, and **the 389 ready-to-fax figure cannot be trusted until this
+is settled.** Nobody should size or send the backlog off either number until
+then.
