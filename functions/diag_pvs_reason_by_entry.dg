@@ -1,0 +1,60 @@
+v_Counts = Map();
+v_Blanks = Map();
+v_Samples = Map();
+v_Total = 0;
+for each  v_P in Encounter_PatientVisit[ID != 0]
+{
+	v_Total = v_Total + 1;
+	v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+	if(v_Type == "")
+	{
+		v_Type = "(blank entry type)";
+	}
+	v_C = v_Counts.get(v_Type);
+	if(v_C == null)
+	{
+		v_C = 0;
+	}
+	v_Counts.put(v_Type,v_C + 1);
+	v_Reason = ifnull(v_P.Reason_for_Referral,"").toString().trim();
+	if(v_Reason == "")
+	{
+		v_B = v_Blanks.get(v_Type);
+		if(v_B == null)
+		{
+			v_B = 0;
+		}
+		v_Blanks.put(v_Type,v_B + 1);
+	}
+	else if(v_Type == "3008")
+	{
+		v_S = v_Samples.get(v_Reason);
+		if(v_S == null)
+		{
+			v_S = 0;
+		}
+		v_Samples.put(v_Reason,v_S + 1);
+	}
+}
+v_Out = "Total PVS records: " + v_Total;
+v_Out = v_Out + "\n\nBY ENTRY TYPE (count | blank reason)";
+for each  v_K in v_Counts.keys()
+{
+	v_B2 = v_Blanks.get(v_K);
+	if(v_B2 == null)
+	{
+		v_B2 = 0;
+	}
+	v_Out = v_Out + "\n" + v_K + " | " + v_Counts.get(v_K) + " | " + v_B2;
+}
+v_Out = v_Out + "\n\n3008 REASON VALUES IN USE";
+v_N = 0;
+for each  v_K2 in v_Samples.keys()
+{
+	v_N = v_N + 1;
+	if(v_N <= 40)
+	{
+		v_Out = v_Out + "\n(" + v_Samples.get(v_K2) + ") " + v_K2;
+	}
+}
+return v_Out;

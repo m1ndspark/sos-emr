@@ -1,0 +1,106 @@
+v_Raw = ifnull(p_pvsIds,"").toString().trim();
+if(v_Raw == "")
+{
+	return "ERROR: Enter one or more PVS IDs separated by commas, for example PVS-1579--M,PVS-1580--M.";
+}
+v_Out = List();
+for each  v_Piece in v_Raw.toList(",")
+{
+	v_Id = v_Piece.trim();
+	if(v_Id == "")
+	{
+		continue;
+	}
+	v_Out.add("==========");
+	v_P = Encounter_PatientVisit[PVS_ID == v_Id];
+	if(v_P.ID == null)
+	{
+		v_Out.add(v_Id + " | NOT FOUND");
+		continue;
+	}
+	v_PDob = "";
+	if(v_P.Patient_DOB != null)
+	{
+		v_PDob = v_P.Patient_DOB.toString("M/d/yyyy");
+	}
+	v_Dos = "";
+	if(v_P.Visit_Completion_Date != null)
+	{
+		v_Dos = v_P.Visit_Completion_Date.toString("M/d/yyyy");
+	}
+	v_Out.add(v_Id + " | PVS DOB " + v_PDob + " | DOS " + v_Dos + " | Referral_ID text " + ifnull(v_P.Referral_ID,""));
+	v_Seen = List();
+	if(v_P.Referral_Link != null)
+	{
+		v_RL = Referrals_Main[ID == v_P.Referral_Link];
+		if(v_RL.ID != null)
+		{
+			v_Seen.add(v_RL.ID);
+			v_D = "";
+			if(v_RL.Patient_DOB != null)
+			{
+				v_D = v_RL.Patient_DOB.toString("M/d/yyyy");
+			}
+			v_RD = "";
+			if(v_RL.Referral_Date != null)
+			{
+				v_RD = v_RL.Referral_Date.toString("M/d/yyyy");
+			}
+			v_Out.add("  LINKED  " + ifnull(v_RL.Referral_ID,"") + " | DOB " + v_D + " | Type " + ifnull(v_RL.Referral_Type,"") + " | Ref Date " + v_RD + " | Branch " + ifnull(v_RL.Partner_Location_Label,""));
+		}
+		else
+		{
+			v_Out.add("  LINKED  DEAD " + v_P.Referral_Link);
+		}
+	}
+	else
+	{
+		v_Out.add("  LINKED  none");
+	}
+	v_Txt = ifnull(v_P.Referral_ID,"").toString().trim();
+	if(v_Txt != "")
+	{
+		v_RT = Referrals_Main[Referral_ID == v_Txt];
+		if(v_RT.ID != null)
+		{
+			v_D = "";
+			if(v_RT.Patient_DOB != null)
+			{
+				v_D = v_RT.Patient_DOB.toString("M/d/yyyy");
+			}
+			v_RD = "";
+			if(v_RT.Referral_Date != null)
+			{
+				v_RD = v_RT.Referral_Date.toString("M/d/yyyy");
+			}
+			v_Out.add("  TEXT    " + ifnull(v_RT.Referral_ID,"") + " | DOB " + v_D + " | Type " + ifnull(v_RT.Referral_Type,"") + " | Ref Date " + v_RD + " | Branch " + ifnull(v_RT.Partner_Location_Label,""));
+			if(!v_Seen.contains(v_RT.ID))
+			{
+				v_Seen.add(v_RT.ID);
+			}
+		}
+		else
+		{
+			v_Out.add("  TEXT    " + v_Txt + " NOT FOUND");
+		}
+	}
+	if(v_P.Patient_DOB != null)
+	{
+		v_Count = 0;
+		for each  v_RM in Referrals_Main[Patient_DOB == v_P.Patient_DOB]
+		{
+			v_Count = v_Count + 1;
+			v_RD = "";
+			if(v_RM.Referral_Date != null)
+			{
+				v_RD = v_RM.Referral_Date.toString("M/d/yyyy");
+			}
+			v_Out.add("  DOB MATCH " + ifnull(v_RM.Referral_ID,"(no REF ID)") + " | Type " + ifnull(v_RM.Referral_Type,"") + " | Ref Date " + v_RD + " | Branch " + ifnull(v_RM.Partner_Location_Label,""));
+		}
+		if(v_Count == 0)
+		{
+			v_Out.add("  DOB MATCH none in Referrals_Main");
+		}
+	}
+}
+return v_Out.toString("\n");

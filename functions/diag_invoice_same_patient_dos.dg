@@ -1,0 +1,72 @@
+v_Raw = ifnull(p_invoiceNumbers,"").toString().trim();
+if(v_Raw == "")
+{
+	return "ERROR: Enter one or more Books invoice numbers separated by commas, for example INV-000098,INV-000099.";
+}
+v_Out = List();
+v_TotalGroups = 0;
+for each  v_Piece in v_Raw.toList(",")
+{
+	v_Num = v_Piece.trim();
+	if(v_Num == "")
+	{
+		continue;
+	}
+	v_Out.add("==========");
+	v_Inv = Invoices[Books_Invoice_Number == v_Num];
+	if(v_Inv.ID == null)
+	{
+		v_Out.add(v_Num + " | NOT FOUND");
+		continue;
+	}
+	v_Keys = List();
+	v_Map = Map();
+	v_Count = 0;
+	for each  p in Encounter_PatientVisit[Invoice_Link == v_Inv.ID]
+	{
+		v_Count = v_Count + 1;
+		v_Dob = "no DOB";
+		if(p.Patient_DOB != null)
+		{
+			v_Dob = p.Patient_DOB.toString("yyyy-MM-dd");
+		}
+		v_Dos = "no DOS";
+		if(p.Visit_Completion_Date != null)
+		{
+			v_Dos = p.Visit_Completion_Date.toString("MM-dd-yyyy");
+		}
+		v_Key = v_Dob + "|" + v_Dos;
+		v_Added = "";
+		if(p.Added_Time != null)
+		{
+			v_Added = p.Added_Time.toString("M/d/yyyy HH:mm");
+		}
+		v_Line = "    " + ifnull(p.PVS_ID,"rec " + p.ID) + " | Referral_ID " + ifnull(p.Referral_ID,"") + " | " + ifnull(p.Complexity_Level,"") + " | Added " + v_Added + " | hold [" + ifnull(p.Hold_From_Invoicing,"") + "]";
+		if(!v_Keys.contains(v_Key))
+		{
+			v_Keys.add(v_Key);
+			v_Map.put(v_Key,List());
+		}
+		v_L = v_Map.get(v_Key);
+		v_L.add(v_Line);
+		v_Map.put(v_Key,v_L);
+	}
+	v_Groups = 0;
+	v_Detail = List();
+	for each  k in v_Keys
+	{
+		v_L = v_Map.get(k);
+		if(v_L.size() > 1)
+		{
+			v_Groups = v_Groups + 1;
+			v_Detail.add("  SAME DOB + DOS (" + v_L.size() + " records), DOS " + k.toList("|").get(1));
+			v_Detail.addAll(v_L);
+		}
+	}
+	v_TotalGroups = v_TotalGroups + v_Groups;
+	v_Out.add(v_Num + " | PVS " + v_Count + " | same-patient same-day groups: " + v_Groups);
+	v_Out.addAll(v_Detail);
+}
+v_Out.add("==========");
+v_Out.add("TOTAL groups: " + v_TotalGroups);
+return v_Out.toString("\n");

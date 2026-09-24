@@ -1,19 +1,74 @@
+v_mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: p_mode must be PREVIEW or COMMIT.";
+}
+v_raw = ifnull(p_pvsIds,"").trim();
+v_targets = List();
+if(v_raw != "")
+{
+	for each  t in v_raw.toList(",")
+	{
+		v_t = t.trim();
+		if(v_t != "")
+		{
+			if(!v_targets.contains(v_t))
+			{
+				v_targets.add(v_t);
+			}
+		}
+	}
+}
+v_recs = List();
+if(v_targets.size() > 0)
+{
+	v_found = List();
+	for each  k in v_targets
+	{
+		for each  p in Encounter_PatientVisit[PVS_ID == k]
+		{
+			v_recs.add(p.ID);
+			if(!v_found.contains(k))
+			{
+				v_found.add(k);
+			}
+		}
+	}
+	v_missingIds = List();
+	for each  k in v_targets
+	{
+		if(!v_found.contains(k))
+		{
+			v_missingIds.add(k);
+		}
+	}
+}
+else
+{
+	v_missingIds = List();
+	for each  p in Encounter_PatientVisit[ID != 0]
+	{
+		v_recs.add(p.ID);
+	}
+}
 v_filled = 0;
 v_kept = 0;
 v_norate = 0;
 v_skipped = 0;
 v_miss = List();
-for each  p in Encounter_PatientVisit[ID != 0]
+v_detail = List();
+for each  rid in v_recs
 {
-	v_lvl = p.Complexity_Level;
-	if(v_lvl == null)
-	{
-		v_lvl = "";
-	}
-	v_lvl = v_lvl.trim();
+	p = Encounter_PatientVisit[ID == rid];
+	v_key = ifnull(p.PVS_ID,"NO-ID");
+	v_lvl = ifnull(p.Complexity_Level,"").trim();
 	if(p.Billing_Branch == null || v_lvl == "" || v_lvl == "No Charge")
 	{
 		v_skipped = v_skipped + 1;
+		if(v_targets.size() > 0)
+		{
+			v_detail.add(v_key + " | SKIP | branch or level not eligible");
+		}
 	}
 	else
 	{
@@ -25,6 +80,10 @@ for each  p in Encounter_PatientVisit[ID != 0]
 		if(v_amt > 0)
 		{
 			v_kept = v_kept + 1;
+			if(v_targets.size() > 0)
+			{
+				v_detail.add(v_key + " | KEEP | already $" + v_amt);
+			}
 		}
 		else
 		{
@@ -34,30 +93,53 @@ for each  p in Encounter_PatientVisit[ID != 0]
 				v_rate = r.Rate_Amount;
 				break;
 			}
+			v_loc = Partner_Locations[ID == p.Billing_Branch];
+			v_label = ifnull(v_loc.Partner_Location_Label,"UNKNOWN BRANCH");
 			if(v_rate == null)
 			{
 				v_norate = v_norate + 1;
-				v_loc = Partner_Locations[ID == p.Billing_Branch];
-				v_key = v_loc.Partner_Location_Label + " / " + v_lvl;
-				if(!v_miss.contains(v_key))
+				v_pair = v_label + " / " + v_lvl;
+				if(!v_miss.contains(v_pair))
 				{
-					v_miss.add(v_key);
+					v_miss.add(v_pair);
 				}
+				v_detail.add(v_key + " | NO RATE | " + v_pair);
 			}
 			else
 			{
-				update p
-				[
-					Complexity_Charge=v_rate
-				];
+				if(v_mode == "COMMIT")
+				{
+					update p
+					[
+						Complexity_Charge=v_rate
+					];
+				}
 				v_filled = v_filled + 1;
+				v_detail.add(v_key + " | FILL | " + v_label + " / " + v_lvl + " -> $" + v_rate);
 			}
 		}
 	}
 }
-v_out = "Charges filled: " + v_filled + ". Already had a charge, left alone: " + v_kept + ". No current rate found: " + v_norate + ". Not eligible: " + v_skipped + ".";
+v_out = "MODE: " + v_mode;
+if(v_targets.size() > 0)
+{
+	v_out = v_out + " | Scope: " + v_targets.size() + " PVS ID(s)";
+}
+else
+{
+	v_out = v_out + " | Scope: ALL PVS records";
+}
+v_out = v_out + "\nCharges filled: " + v_filled + ". Already had a charge, left alone: " + v_kept + ". No current rate found: " + v_norate + ". Not eligible: " + v_skipped + ".";
+if(v_missingIds.size() > 0)
+{
+	v_out = v_out + "\nPVS IDs not found: " + v_missingIds.toString(", ");
+}
 if(v_miss.size() > 0)
 {
-	v_out = v_out + " Missing rates: " + v_miss.toString(", ");
+	v_out = v_out + "\nMissing rates: " + v_miss.toString(", ");
+}
+if(v_detail.size() > 0)
+{
+	v_out = v_out + "\n\nDETAIL\n" + v_detail.toString("\n");
 }
 return v_out;

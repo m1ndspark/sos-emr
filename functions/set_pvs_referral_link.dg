@@ -1,0 +1,51 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_PvsId = ifnull(p_pvsId,"").toString().trim();
+v_RefId = ifnull(p_refId,"").toString().trim();
+if(v_PvsId == "" || v_RefId == "")
+{
+	return "ERROR: Enter a PVS ID and a Referral ID, for example PVS-1580--M and REF-1255.";
+}
+v_P = Encounter_PatientVisit[PVS_ID == v_PvsId];
+if(v_P.ID == null)
+{
+	return "ERROR: " + v_PvsId + " not found.";
+}
+v_R = Referrals_Main[Referral_ID == v_RefId];
+if(v_R.ID == null)
+{
+	return "ERROR: " + v_RefId + " not found in Referrals_Main.";
+}
+if(v_P.Patient_DOB == null || v_R.Patient_DOB == null)
+{
+	return "BLOCKED: DOB missing on " + v_PvsId + " or " + v_RefId + ". Nothing written.";
+}
+if(v_P.Patient_DOB != v_R.Patient_DOB)
+{
+	return "BLOCKED: DOB mismatch, " + v_PvsId + " " + v_P.Patient_DOB.toString("M/d/yyyy") + " vs " + v_RefId + " " + v_R.Patient_DOB.toString("M/d/yyyy") + ". Nothing written.";
+}
+v_Current = "none";
+if(v_P.Referral_Link != null)
+{
+	v_Cur = Referrals_Main[ID == v_P.Referral_Link];
+	if(v_Cur.ID != null)
+	{
+		v_Current = ifnull(v_Cur.Referral_ID,"(no REF ID)");
+	}
+	else
+	{
+		v_Current = "DEAD " + v_P.Referral_Link;
+	}
+}
+if(v_R.ID == v_P.Referral_Link)
+{
+	return v_Mode + " | " + v_PvsId + " already linked to " + v_RefId + ". Nothing to change.";
+}
+if(v_Mode == "COMMIT")
+{
+	v_P.Referral_Link=v_R.ID;
+}
+return v_Mode + " | " + v_PvsId + " | Referral_Link " + v_Current + " -> " + v_RefId + " | DOB match " + v_P.Patient_DOB.toString("M/d/yyyy") + " | written=" + if(v_Mode == "COMMIT",1,0);

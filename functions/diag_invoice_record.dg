@@ -1,0 +1,30 @@
+v_Found = false;
+v_Out = "";
+for each  v_I in Invoices[ID == p_invoiceId]
+{
+	v_Found = true;
+	v_Out = v_Out + "Record ID: " + v_I.ID + "\n";
+	v_Out = v_Out + "Invoice_Record_Status: " + ifnull(v_I.Invoice_Record_Status,"") + "\n";
+	v_Out = v_Out + "Books_Invoice_Number: [" + ifnull(v_I.Books_Invoice_Number,"") + "]\n";
+	v_Out = v_Out + "Books_Invoice_ID: [" + ifnull(v_I.Books_Invoice_ID,"") + "]\n";
+	v_Out = v_Out + "Books_Customer_ID: [" + ifnull(v_I.Books_Customer_ID,"") + "]\n";
+	v_Out = v_Out + "Invoice_Total: " + ifnull(v_I.Invoice_Total,0) + "\n";
+	v_Out = v_Out + "Visit_Count: " + ifnull(v_I.Visit_Count,0) + "\n";
+	v_Out = v_Out + "Invoice_Date: " + ifnull(v_I.Invoice_Date,"").toString() + "\n";
+	v_Out = v_Out + "Books_Sync_Timestamp: " + ifnull(v_I.Books_Sync_Timestamp,"").toString() + "\n\n";
+	v_Out = v_Out + "BOOKS SYNC MESSAGE\n" + ifnull(v_I.Books_Sync_Message,"(blank)").toString() + "\n\n";
+	break;
+}
+if(!v_Found)
+{
+	return "No invoice record found with ID " + p_invoiceId + ".";
+}
+v_Out = v_Out + "LINKED VISITS\n";
+v_N = 0;
+for each  v_P in Encounter_PatientVisit[Invoice_Link == p_invoiceId]
+{
+	v_N = v_N + 1;
+	v_Out = v_Out + ifnull(v_P.PVS_ID,"NO-ID").toString() + " | " + ifnull(v_P.Complexity_Level,"") + " | $" + ifnull(v_P.Complexity_Charge,0) + " | status " + ifnull(v_P.Invoice_Status,"") + "\n";
+}
+v_Out = v_Out + "Count: " + v_N;
+return v_Out;

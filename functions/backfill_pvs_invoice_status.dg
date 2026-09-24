@@ -1,0 +1,53 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_Scanned = 0;
+v_Set = 0;
+v_AlreadySet = 0;
+v_OnInvoice = 0;
+v_Sample = "";
+v_Ids = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+{
+	v_Scanned = v_Scanned + 1;
+	v_Id = ifnull(v_P.PVS_ID,"NO-ID").toString().trim();
+	v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	v_Link = ifnull(v_P.Invoice_Link,"").toString().trim();
+	if(v_Link != "")
+	{
+		v_OnInvoice = v_OnInvoice + 1;
+		continue;
+	}
+	if(v_Inv != "")
+	{
+		v_AlreadySet = v_AlreadySet + 1;
+		continue;
+	}
+	v_Set = v_Set + 1;
+	if(v_Sample.length() < 600)
+	{
+		v_Sample = v_Sample + v_Id + "\n";
+	}
+	v_Ids.add(v_P.ID);
+}
+if(v_Mode == "COMMIT")
+{
+	for each  v_One in v_Ids
+	{
+		for each  v_U in Encounter_PatientVisit[ID == v_One]
+		{
+			v_U.Invoice_Status="Draft";
+			break;
+		}
+	}
+}
+v_Out = "MODE: " + v_Mode + "\n";
+v_Out = v_Out + "WINDOW " + p_from.toString("MM-dd-yyyy") + " to " + p_to.toString("MM-dd-yyyy") + "\n";
+v_Out = v_Out + "Scanned: " + v_Scanned + "\n\n";
+v_Out = v_Out + "Set to Draft: " + v_Set + "\n";
+v_Out = v_Out + "Already had a status: " + v_AlreadySet + "\n";
+v_Out = v_Out + "Skipped, already on an invoice: " + v_OnInvoice + "\n\n";
+v_Out = v_Out + "SAMPLE\n" + v_Sample;
+return v_Out;

@@ -1,13 +1,26 @@
 if(input.Referral_Link != null)
 {
 	v_Ref = Referrals_Main[ID == input.Referral_Link];
-	input.Billing_Branch = v_Ref.Partner_Branch_Link;
-	input.Partner_Branch = v_Ref.Partner_Branch;
-	input.Partner_Organization = v_Ref.Partner_Organization;
+	if(v_Ref.ID != null)
+	{
+		input.Billing_Branch = v_Ref.Partner_Branch_Link;
+		input.Partner_Branch = ifnull(v_Ref.Partner_Branch,"");
+		input.Partner_Organization = ifnull(v_Ref.Partner_Organization,"");
+		input.Partner_Location_Label = ifnull(v_Ref.Partner_Location_Label,"");
+	}
+	else
+	{
+		input.Billing_Branch = null;
+		input.Partner_Branch = "";
+		input.Partner_Organization = "";
+		input.Partner_Location_Label = "";
+		alert "That referral record could not be found. Reselect the Referral Link.";
+	}
 }
 else
 {
 	input.Billing_Branch = null;
 	input.Partner_Branch = "";
 	input.Partner_Organization = "";
+	input.Partner_Location_Label = "";
 }

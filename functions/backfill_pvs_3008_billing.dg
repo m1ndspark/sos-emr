@@ -1,0 +1,179 @@
+v_mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: p_mode must be PREVIEW or COMMIT.";
+}
+v_lvlSet = 0;
+v_dateSet = 0;
+v_chgSet = 0;
+v_touched = 0;
+v_already = 0;
+v_invoiced = 0;
+v_nodate = 0;
+v_outside = 0;
+v_nobranch = 0;
+v_norate = 0;
+v_miss = List();
+v_detail = List();
+for each  p in Encounter_PatientVisit[Type_of_Entry == "3008"]
+{
+	v_pid = ifnull(p.PVS_ID,"NO-ID");
+	v_skip = false;
+	if(p.Invoice_Link != null)
+	{
+		v_skip = true;
+	}
+	if(p.Invoice_Status == "Final")
+	{
+		v_skip = true;
+	}
+	if(v_skip)
+	{
+		v_invoiced = v_invoiced + 1;
+	}
+	else
+	{
+		v_cd = p.Cares_3008_Completion_Date;
+		if(v_cd == null)
+		{
+			v_nodate = v_nodate + 1;
+		}
+		else if(p_from != null && v_cd < p_from)
+		{
+			v_outside = v_outside + 1;
+		}
+		else if(p_to != null && v_cd > p_to)
+		{
+			v_outside = v_outside + 1;
+		}
+		else
+		{
+			v_acts = List();
+			v_newLvl = null;
+			v_newDate = null;
+			v_newChg = null;
+			v_lvl = ifnull(p.Complexity_Level,"").trim();
+			if(v_lvl == "")
+			{
+				v_newLvl = "Cares 3008 Assessment";
+				v_lvl = "Cares 3008 Assessment";
+				v_acts.add("level");
+			}
+			if(p.Visit_Completion_Date == null)
+			{
+				v_newDate = v_cd;
+				v_acts.add("date");
+			}
+			v_amt = 0.0;
+			if(p.Complexity_Charge != null)
+			{
+				v_amt = p.Complexity_Charge.toDecimal();
+			}
+			if(v_amt <= 0)
+			{
+				if(p.Billing_Branch == null)
+				{
+					v_nobranch = v_nobranch + 1;
+					v_detail.add(v_pid + " | NO BRANCH | cannot price");
+				}
+				else
+				{
+					v_rate = null;
+					for each  r in Partner_Rates[Partner_Location_Link == p.Billing_Branch && Rate_Type == v_lvl && Current_Rate == "Yes"]
+					{
+						v_rate = r.Rate_Amount;
+						break;
+					}
+					v_loc = Partner_Locations[ID == p.Billing_Branch];
+					v_label = ifnull(v_loc.Partner_Location_Label,"UNKNOWN BRANCH");
+					if(v_rate == null)
+					{
+						v_norate = v_norate + 1;
+						v_pair = v_label + " / " + v_lvl;
+						if(!v_miss.contains(v_pair))
+						{
+							v_miss.add(v_pair);
+						}
+						v_detail.add(v_pid + " | NO RATE | " + v_pair);
+					}
+					else
+					{
+						v_newChg = v_rate;
+						v_acts.add("charge $" + v_rate);
+					}
+				}
+			}
+			if(v_acts.size() == 0)
+			{
+				v_already = v_already + 1;
+			}
+			else
+			{
+				v_touched = v_touched + 1;
+				if(v_newLvl != null)
+				{
+					v_lvlSet = v_lvlSet + 1;
+				}
+				if(v_newDate != null)
+				{
+					v_dateSet = v_dateSet + 1;
+				}
+				if(v_newChg != null)
+				{
+					v_chgSet = v_chgSet + 1;
+				}
+				if(v_detail.size() < 100)
+				{
+					v_detail.add(v_pid + " | SET | " + v_acts.toString(", "));
+				}
+				if(v_mode == "COMMIT")
+				{
+					if(v_newLvl != null)
+					{
+						p.Complexity_Level=v_newLvl;
+					}
+					if(v_newDate != null)
+					{
+						p.Visit_Completion_Date=v_newDate;
+					}
+					if(v_newChg != null)
+					{
+						p.Complexity_Charge=v_newChg;
+					}
+				}
+			}
+		}
+	}
+}
+v_out = "MODE: " + v_mode;
+if(p_from != null || p_to != null)
+{
+	v_f = "any";
+	if(p_from != null)
+	{
+		v_f = p_from.toString("MM-dd-yyyy");
+	}
+	v_t = "any";
+	if(p_to != null)
+	{
+		v_t = p_to.toString("MM-dd-yyyy");
+	}
+	v_out = v_out + " | Window: " + v_f + " to " + v_t;
+}
+else
+{
+	v_out = v_out + " | Window: all 3008 records";
+}
+v_out = v_out + "\nRecords changed: " + v_touched + " (level " + v_lvlSet + ", date " + v_dateSet + ", charge " + v_chgSet + ").";
+v_out = v_out + "\nAlready complete: " + v_already + ". Already invoiced, skipped: " + v_invoiced + ".";
+v_out = v_out + "\nNo 3008 completion date: " + v_nodate + ". Outside window: " + v_outside + ".";
+v_out = v_out + "\nNo billing branch: " + v_nobranch + ". No current rate: " + v_norate + ".";
+if(v_miss.size() > 0)
+{
+	v_out = v_out + "\nMissing rates: " + v_miss.toString(", ");
+}
+if(v_detail.size() > 0)
+{
+	v_out = v_out + "\n\nDETAIL\n" + v_detail.toString("\n");
+}
+return v_out;

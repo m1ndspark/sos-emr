@@ -1,0 +1,14 @@
+v_Out = "PARTNER LOCATIONS: recID | label | Books_Customer_ID | status\n\n";
+v_N = 0;
+for each  v_L in Partner_Locations[ID != 0]
+{
+	v_N = v_N + 1;
+	v_Bid = ifnull(v_L.Books_Customer_ID,"BLANK").toString().trim();
+	if(v_Bid == "")
+	{
+		v_Bid = "BLANK";
+	}
+	v_Out = v_Out + v_L.ID + " | " + ifnull(v_L.Partner_Location_Label,"NO LABEL").toString().trim() + " | " + v_Bid + " | " + ifnull(v_L.Partner_Location_Status,"").toString().trim() + "\n";
+}
+v_Out = v_Out + "\nCount: " + v_N;
+return v_Out;

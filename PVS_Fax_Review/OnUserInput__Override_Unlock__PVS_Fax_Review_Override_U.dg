@@ -1,0 +1,16 @@
+input.Override_Fax = "";
+input.Override_Fax_Confirm = "";
+input.Override_Reason = "";
+input.Result_Message = "";
+if(input.Override_Unlock)
+{
+	show Override_Fax;
+	show Override_Fax_Confirm;
+	show Override_Reason;
+}
+else
+{
+	hide Override_Fax;
+	hide Override_Fax_Confirm;
+	hide Override_Reason;
+}

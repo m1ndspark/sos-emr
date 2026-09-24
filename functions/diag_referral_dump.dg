@@ -1,0 +1,76 @@
+v_Ids = ifnull(p_refIds,"").toString().trim();
+if(v_Ids == "")
+{
+	return "SKIP-NOIDS";
+}
+v_Out = List();
+for each  v_Raw in v_Ids.toList(",")
+{
+	v_Key = v_Raw.trim();
+	if(v_Key != "")
+	{
+		v_Found = false;
+		for each  v_R in Referrals_Main[Referral_ID == v_Key]
+		{
+			v_Found = true;
+			v_Out.add("===== " + v_Key + " (record " + v_R.ID.toString() + ")");
+			v_Map = Map();
+			v_Map.put("01 Referral Date",v_R.Referral_Date);
+			v_Map.put("02 Referral Added Time",v_R.Referral_Added_Time);
+			v_Map.put("03 Added Time",v_R.Added_Time);
+			v_Map.put("04 Notified Time",v_R.Notified_Time);
+			v_Map.put("05 Referral Source",v_R.Referral_Source);
+			v_Map.put("06 Service",v_R.Referral_Type);
+			v_Map.put("07 Form Token",v_R.Form_Token);
+			v_Map.put("08 Cognito Referral ID",v_R.Cognito_Referral_ID);
+			v_Map.put("09 Patient Full Name",v_R.Patient_Full_Name);
+			v_Map.put("10 Patient DOB",v_R.Patient_DOB);
+			v_Map.put("11 Patient DOB text",v_R.Patient_DOB1);
+			v_Map.put("12 Patient Gender",v_R.Patient_Gender);
+			v_Map.put("13 Patient Phone",v_R.Patient_Phone);
+			v_Map.put("14 Patient Hospice ID",v_R.Patient_Hospice_ID);
+			v_Map.put("15 Patient MBI",v_R.Patient_MBI);
+			v_Map.put("16 Patient Location",v_R.Patient_Location);
+			v_Map.put("17 Patient Full Address",v_R.Patient_Full_Address);
+			v_Map.put("18 Facility Name",v_R.Facility_Name);
+			v_Map.put("19 Facility Phone",v_R.Facility_Phone);
+			v_Map.put("20 AC Full Name",v_R.AC_Full_Name);
+			v_Map.put("21 AC Phone",v_R.AC_Phone);
+			v_Map.put("22 AC Relationship",v_R.AC_Relationship_to_Patient);
+			v_Map.put("23 Partner Organization",v_R.Partner_Organization);
+			v_Map.put("24 Partner Branch",v_R.Partner_Branch);
+			v_Map.put("25 Partner Location Label",v_R.Partner_Location_Label);
+			v_Map.put("26 Partner Branch Submitted",v_R.Partner_Branch_Submitted);
+			v_Map.put("27 Partner ID",v_R.Partner_ID);
+			v_Map.put("28 POC Name & Title",v_R.Partner_POC_Name_Title);
+			v_Map.put("29 POC Team",v_R.Partner_POC_Team);
+			v_Map.put("30 POC Phone",v_R.Partner_POC_Phone);
+			v_Map.put("31 POC Email",v_R.Partner_POC_Email);
+			v_Map.put("32 Reason for Referral",v_R.Referral_Reason);
+			v_Map.put("33 Partner ICD Codes",v_R.Partner_ICD_Codes);
+			v_Map.put("34 Additional Information",v_R.Additional_Information);
+			v_Map.put("35 Data Issues",v_R.Data_Issues);
+			for each  v_K in v_Map.keys()
+			{
+				v_V = ifnull(v_Map.get(v_K),"").toString().trim();
+				if(v_V != "")
+				{
+					v_Out.add("  " + v_K + " = " + v_V);
+				}
+			}
+			if(v_R.Partner_Link != null)
+			{
+				v_Out.add("  36 Partner Link = " + v_R.Partner_Link.Partner_Display_Name);
+			}
+			if(v_R.Partner_Branch_Link != null)
+			{
+				v_Out.add("  37 Partner Branch Link = " + v_R.Partner_Branch_Link.Partner_Location_Label);
+			}
+		}
+		if(!v_Found)
+		{
+			v_Out.add("===== " + v_Key + " NOTFOUND");
+		}
+	}
+}
+return v_Out.toString("\n");

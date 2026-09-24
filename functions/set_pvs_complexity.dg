@@ -1,0 +1,50 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_Pvs = ifnull(p_pvsId,"").toString().trim();
+v_Lvl = ifnull(p_level,"").toString().trim();
+if(v_Pvs == "")
+{
+	return "PVS ID is required.";
+}
+v_Valid = {"High Complexity","Moderate Complexity","Low Complexity","Hospital at Home","Telemedicine","Care Coordination","General Consultation","No Charge","Cares 3008 Assessment","Visit Cancelled"};
+if(!v_Valid.contains(v_Lvl))
+{
+	return "Invalid level [" + v_Lvl + "]. Allowed: " + v_Valid.toString(", ");
+}
+v_Tid = null;
+v_CurLvl = "";
+v_CurInv = "";
+for each  v_P in Encounter_PatientVisit[PVS_ID == v_Pvs]
+{
+	v_Tid = v_P.ID;
+	v_CurLvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+	v_CurInv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	break;
+}
+if(v_Tid == null)
+{
+	return "No PVS found with PVS_ID " + v_Pvs + ".";
+}
+v_NewInv = v_CurInv;
+if(v_CurInv == "")
+{
+	v_NewInv = "Draft";
+}
+v_Out = "MODE: " + v_Mode + "\n";
+v_Out = v_Out + "Record: " + v_Tid + "\n\n";
+v_Out = v_Out + "Complexity_Level: [" + v_CurLvl + "] -> [" + v_Lvl + "]\n";
+v_Out = v_Out + "Invoice_Status: [" + v_CurInv + "] -> [" + v_NewInv + "]\n";
+if(v_Mode == "COMMIT")
+{
+	for each  v_U in Encounter_PatientVisit[ID == v_Tid]
+	{
+		v_U.Complexity_Level=v_Lvl;
+		v_U.Invoice_Status=v_NewInv;
+		break;
+	}
+	v_Out = v_Out + "\nCOMMITTED.";
+}
+return v_Out;

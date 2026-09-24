@@ -1,0 +1,48 @@
+v_Rows = List();
+for each  v_R in Referrals_Main[ID != 0]
+{
+	v_Id = ifnull(v_R.Referral_ID,"").toString().trim();
+	if(v_Id == "")
+	{
+		v_Rec = v_R.ID.toString();
+		v_Name = ifnull(v_R.Patient_Full_Name,"").toString().trim();
+		if(v_Name == "")
+		{
+			v_First = ifnull(v_R.Patient_First_Name,"").toString().trim();
+			v_Last = ifnull(v_R.Patient_Last_Name,"").toString().trim();
+			v_Name = (v_First + " " + v_Last).trim();
+			if(v_Name == "")
+			{
+				v_Name = "(no name)";
+			}
+		}
+		v_Dob = "(none)";
+		if(v_R.Patient_DOB != null)
+		{
+			v_Dob = v_R.Patient_DOB.toString("MM-dd-yyyy");
+		}
+		v_Dob1 = ifnull(v_R.Patient_DOB1,"(blank)").toString();
+		v_Date = "(none)";
+		if(v_R.Referral_Date != null)
+		{
+			v_Date = v_R.Referral_Date.toString("MM-dd-yyyy");
+		}
+		v_Added = "(none)";
+		if(v_R.Referral_Added_Time != null)
+		{
+			v_Added = v_R.Referral_Added_Time.toString("MM-dd-yyyy hh:mm a");
+		}
+		v_Tok = ifnull(v_R.Form_Token,"(blank)").toString();
+		v_Cog = ifnull(v_R.Cognito_Referral_ID,"(blank)").toString();
+		v_Svc = ifnull(v_R.Referral_Type,"(blank)").toString();
+		v_Poc = ifnull(v_R.Partner_POC_Email,"(blank)").toString();
+		v_Org = ifnull(v_R.Partner_Organization,"(blank)").toString();
+		v_Rows.add("Record ID: " + v_Rec + "\n  Patient: " + v_Name + "\n  DOB date: " + v_Dob + "\n  DOB text: " + v_Dob1 + "\n  Service: " + v_Svc + "\n  Referral Date: " + v_Date + "\n  Added: " + v_Added + "\n  Form Token: " + v_Tok + "\n  Cognito ID: " + v_Cog + "\n  POC Email: " + v_Poc + "\n  Organization: " + v_Org);
+	}
+}
+v_Out = "Referrals with a blank Referral_ID: " + v_Rows.size();
+if(v_Rows.size() > 0)
+{
+	v_Out = v_Out + "\n\n" + v_Rows.toString("\n\n");
+}
+return v_Out;

@@ -1,0 +1,35 @@
+v_Total = 0;
+v_Missing = 0;
+v_Rows = List();
+for each  v_P in Encounter_PatientVisit[Type_of_Entry == "3008"]
+{
+	v_Total = v_Total + 1;
+	v_Reason = ifnull(v_P.Reason_for_Referral,"").toString().trim();
+	if(v_Reason == "")
+	{
+		v_Missing = v_Missing + 1;
+		if(v_Rows.size() < 200)
+		{
+			v_Id = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+			v_Name = ifnull(v_P.Patient_Full_Name_1,"").toString().trim();
+			if(v_Name == "")
+			{
+				v_Name = ifnull(v_P.Patient_Full_Name_2,"(no name)").toString();
+			}
+			v_Ref = ifnull(v_P.Referral_ID,"(no referral)").toString();
+			v_Date = "(no date)";
+			if(v_P.Cares_3008_Completion_Date != null)
+			{
+				v_Date = v_P.Cares_3008_Completion_Date.toString("MM-dd-yyyy");
+			}
+			v_Stat = ifnull(v_P.Visit_Status,"(no status)").toString();
+			v_Rows.add(v_Id + " | " + v_Name + " | " + v_Ref + " | " + v_Date + " | " + v_Stat);
+		}
+	}
+}
+v_Out = "3008 entries: " + v_Total + " | blank Reason for Referral: " + v_Missing;
+if(v_Rows.size() > 0)
+{
+	v_Out = v_Out + "\n\nPVS ID | Patient | Referral ID | 3008 Date | Status\n" + v_Rows.toString("\n");
+}
+return v_Out;

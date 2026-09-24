@@ -1,0 +1,41 @@
+v_out = Map();
+v_list = List();
+for each  v_c in Partner_Billing_Contacts[Partner_Billing_POC_Status == "Active"]
+{
+	v_fax = ifnull(v_c.Partner_PVS_Fax,"").toString().trim();
+	v_digits = v_fax.replaceAll("[^0-9]","");
+	if(v_digits.length() >= 10)
+	{
+		v_partner = "";
+		for each  v_p in Partners[ID == v_c.Partner_Link]
+		{
+			v_partner = ifnull(v_p.Partner_Display_Name,"").toString();
+			break;
+		}
+		v_branch = "";
+		for each  v_loc in Partner_Locations[ID == v_c.Partner_Location_Link]
+		{
+			v_branch = ifnull(v_loc.Partner_Location_Name,"").toString();
+			break;
+		}
+		v_attn = (ifnull(v_c.Partner_Billing_POC_First_Name,"").toString() + " " + ifnull(v_c.Partner_Billing_POC_Last_Name,"").toString()).trim();
+		v_label = v_partner;
+		if(v_branch != "")
+		{
+			v_label = v_partner + " - " + v_branch;
+		}
+		v_item = Map();
+		v_item.put("contact_id",v_c.ID.toString());
+		v_item.put("branch_id",ifnull(v_c.Partner_Location_Link,"").toString());
+		v_item.put("label",v_label);
+		v_item.put("partner",v_partner);
+		v_item.put("branch",v_branch);
+		v_item.put("attn",v_attn);
+		v_item.put("fax",v_digits);
+		v_list.add(v_item);
+	}
+}
+v_out.put("ok",true);
+v_out.put("count",v_list.size());
+v_out.put("recipients",v_list);
+return v_out;

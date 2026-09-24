@@ -1,0 +1,66 @@
+v_out = Map();
+v_apply = false;
+if(p_mode.trim().toLowerCase() == "apply")
+{
+	v_apply = true;
+}
+v_out.put("mode",if(v_apply,"apply","report"));
+v_out.put("report",p_report);
+v_out.put("field",p_field);
+v_out.put("new_value",p_value);
+v_crit = "(" + p_key_field + "%3D%3D%22" + zoho.encryption.urlEncode(p_key_value) + "%22)";
+v_url = "https://www.zohoapis.com/creator/v2.1/data" + zoho.appuri + "report/" + p_report + "?criteria=" + v_crit + "&max_records=200";
+v_find = invokeurl
+[
+	url :v_url
+	type :GET
+	connection:"creator_api"
+];
+v_rows = ifnull(v_find.get("data"),List());
+if(v_rows.size() == 0)
+{
+	v_out.put("status","ERROR - no record matched " + p_key_field + " = " + p_key_value);
+	v_out.put("api_response",v_find.toString());
+	return v_out;
+}
+if(v_rows.size() > 1)
+{
+	v_out.put("status","ERROR - " + v_rows.size() + " records matched. Key must be unique.");
+	return v_out;
+}
+v_rec = v_rows.get(0);
+v_id = ifnull(v_rec.get("ID"),"").toString();
+v_out.put("record_id",v_id);
+if(!v_rec.containKey(p_field))
+{
+	v_out.put("status","ERROR - field " + p_field + " is not on report " + p_report + ". Add it to the report or check the link name.");
+	return v_out;
+}
+v_out.put("current_value",ifnull(v_rec.get(p_field),"").toString());
+if(!v_apply)
+{
+	v_out.put("status","Preview only. Nothing was written.");
+	return v_out;
+}
+v_data = Map();
+v_data.put(p_field,p_value);
+v_body = Map();
+v_body.put("data",v_data);
+v_upd = invokeurl
+[
+	url :"https://www.zohoapis.com/creator/v2.1/data" + zoho.appuri + "report/" + p_report + "/" + v_id
+	type :PATCH
+	parameters:v_body.toString()
+	connection:"creator_api"
+];
+v_out.put("api_response",v_upd.toString());
+v_code = ifnull(v_upd.get("code"),0).toLong();
+if(v_code == 3000)
+{
+	v_out.put("status","Updated.");
+}
+else
+{
+	v_out.put("status","Update did not confirm - read api_response.");
+}
+return v_out;

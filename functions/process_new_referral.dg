@@ -533,7 +533,8 @@ else if(v_WasUnnotified && v_Notify == "YES")
 	}
 	else
 	{
-		v_Steps.add("notified at " + v_NotifiedAt.toString() + " [referral=" + v_NotifyRef + "] [3008=" + v_Notify3008 + "] [imaging=" + v_NotifyImg + "]");
+		v_NotifyPartner = thisapp.send_referral_confirmation(v_RecId.toString());
+		v_Steps.add("notified at " + v_NotifiedAt.toString() + " [referral=" + v_NotifyRef + "] [3008=" + v_Notify3008 + "] [imaging=" + v_NotifyImg + "] [partner=" + v_NotifyPartner + "]");
 	}
 }
 else if(v_WasUnnotified)

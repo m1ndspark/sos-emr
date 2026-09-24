@@ -1,0 +1,47 @@
+v_Rows = List();
+for each  v_P in Encounter_PatientVisit[ID != 0]
+{
+	v_Reason = ifnull(v_P.Reason_for_Referral,"").toString().trim();
+	if(v_Reason == "")
+	{
+		v_Id = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+		v_Entry = ifnull(v_P.Type_of_Entry,"(blank)").toString();
+		v_Name = ifnull(v_P.Patient_Full_Name_1,"").toString().trim();
+		if(v_Name == "")
+		{
+			v_Name = ifnull(v_P.Patient_Full_Name_2,"(no name)").toString();
+		}
+		v_RefId = ifnull(v_P.Referral_ID,"").toString().trim();
+		if(v_RefId == "")
+		{
+			v_RefId = "(no referral)";
+		}
+		v_RefType = "(no linked referral)";
+		v_RefReason = "";
+		if(v_P.Referral_Link != null)
+		{
+			v_R = Referrals_Main[ID == v_P.Referral_Link];
+			if(v_R.ID != null)
+			{
+				v_RefType = ifnull(v_R.Referral_Type,"(blank)").toString();
+				v_RefReason = ifnull(v_R.Referral_Reason,"").toString().trim();
+				if(v_RefReason == "")
+				{
+					v_RefReason = "(referral reason also blank)";
+				}
+			}
+		}
+		v_Date = "(no date)";
+		if(v_P.Visit_Completion_Date != null)
+		{
+			v_Date = v_P.Visit_Completion_Date.toString("MM-dd-yyyy");
+		}
+		v_Rows.add(v_Id + " | " + v_Entry + " | " + v_Name + " | " + v_RefId + " | referral service: " + v_RefType + " | " + v_Date + " | referral reason: " + v_RefReason);
+	}
+}
+v_Out = "PVS records with blank Reason for Referral: " + v_Rows.size();
+if(v_Rows.size() > 0)
+{
+	v_Out = v_Out + "\n\nPVS ID | Entry Type | Patient | Referral ID | Referral Service | Visit Date | Referral Reason\n" + v_Rows.toString("\n");
+}
+return v_Out;

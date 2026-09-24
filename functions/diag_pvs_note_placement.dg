@@ -1,0 +1,71 @@
+v_Scanned = 0;
+v_Both = 0;
+v_FinalOnly = 0;
+v_ThreeOnly = 0;
+v_Neither = 0;
+v_MisPV = 0;
+v_Mis3008 = 0;
+v_MisOther = 0;
+v_Sample = "";
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+{
+	v_Scanned = v_Scanned + 1;
+	v_Id = ifnull(v_P.PVS_ID,"NO-ID").toString().trim();
+	v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+	v_Fin = ifnull(v_P.Final_Clinical_Note,"").toString().trim();
+	v_Thr = ifnull(v_P.Notes_3008,"").toString().trim();
+	v_HasF = false;
+	if(v_Fin != "")
+	{
+		v_HasF = true;
+	}
+	v_HasT = false;
+	if(v_Thr != "")
+	{
+		v_HasT = true;
+	}
+	if(v_HasF && v_HasT)
+	{
+		v_Both = v_Both + 1;
+	}
+	else if(v_HasF)
+	{
+		v_FinalOnly = v_FinalOnly + 1;
+	}
+	else if(v_HasT)
+	{
+		v_ThreeOnly = v_ThreeOnly + 1;
+		if(v_Type == "Patient Visit")
+		{
+			v_MisPV = v_MisPV + 1;
+			if(v_Sample.length() < 800)
+			{
+				v_Sample = v_Sample + v_Id + " | " + v_Type + " | 3008 len " + v_Thr.length() + "\n";
+			}
+		}
+		else if(v_Type == "3008")
+		{
+			v_Mis3008 = v_Mis3008 + 1;
+		}
+		else
+		{
+			v_MisOther = v_MisOther + 1;
+		}
+	}
+	else
+	{
+		v_Neither = v_Neither + 1;
+	}
+}
+v_Out = "WINDOW " + p_from.toString("MM-dd-yyyy") + " to " + p_to.toString("MM-dd-yyyy") + "\n";
+v_Out = v_Out + "Scanned: " + v_Scanned + "\n\n";
+v_Out = v_Out + "Both fields populated: " + v_Both + "\n";
+v_Out = v_Out + "Final_Clinical_Note only: " + v_FinalOnly + "\n";
+v_Out = v_Out + "Notes_3008 only: " + v_ThreeOnly + "\n";
+v_Out = v_Out + "Neither: " + v_Neither + "\n\n";
+v_Out = v_Out + "Notes_3008 only, by Type_of_Entry\n";
+v_Out = v_Out + "  Patient Visit (mis-mapped): " + v_MisPV + "\n";
+v_Out = v_Out + "  3008 (correct): " + v_Mis3008 + "\n";
+v_Out = v_Out + "  Other: " + v_MisOther + "\n\n";
+v_Out = v_Out + "SAMPLE MIS-MAPPED\n" + v_Sample;
+return v_Out;

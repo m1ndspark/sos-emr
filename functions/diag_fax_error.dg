@@ -1,0 +1,19 @@
+v_key = ifnull(p_faxId,"").trim();
+if(Fax_Log[Fax_ID == v_key].count() == 0)
+{
+	info "No Fax_Log row for " + v_key;
+	return "not found";
+}
+for each  v_row in Fax_Log[Fax_ID == v_key]
+{
+	info "Fax_ID: " + ifnull(v_row.Fax_ID,"");
+	info "Status: " + ifnull(v_row.Fax_Status,"");
+	info "Destination_Fax: " + ifnull(v_row.Destination_Fax,"");
+	info "Destination_Name: " + ifnull(v_row.Destination_Name,"");
+	info "Number_Source: " + ifnull(v_row.Number_Source,"");
+	info "RC_Message_ID: " + ifnull(v_row.RC_Message_ID,"");
+	info "Fax_Error_Code: " + ifnull(v_row.Fax_Error_Code,"");
+	info "Fax_Error_Reason: " + ifnull(v_row.Fax_Error_Reason,"");
+	break;
+}
+return "done";

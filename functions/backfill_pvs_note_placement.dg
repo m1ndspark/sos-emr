@@ -1,0 +1,73 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_Scanned = 0;
+v_Moved = 0;
+v_NotPV = 0;
+v_NoSource = 0;
+v_HasTarget = 0;
+v_Batched = 0;
+v_Sample = "";
+v_Ids = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+{
+	v_Scanned = v_Scanned + 1;
+	v_Rid = v_P.ID;
+	v_Id = ifnull(v_P.PVS_ID,"NO-ID").toString().trim();
+	v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+	v_Fin = ifnull(v_P.Final_Clinical_Note,"").toString().trim();
+	v_Thr = ifnull(v_P.Notes_3008,"").toString().trim();
+	v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	v_Link = ifnull(v_P.Invoice_Link,"").toString().trim();
+	if(v_Type != "Patient Visit")
+	{
+		v_NotPV = v_NotPV + 1;
+		continue;
+	}
+	if(v_Thr == "")
+	{
+		v_NoSource = v_NoSource + 1;
+		continue;
+	}
+	if(v_Fin != "")
+	{
+		v_HasTarget = v_HasTarget + 1;
+		continue;
+	}
+	if(v_Link != "" || v_Inv == "Final")
+	{
+		v_Batched = v_Batched + 1;
+		continue;
+	}
+	v_Moved = v_Moved + 1;
+	if(v_Sample.length() < 800)
+	{
+		v_Sample = v_Sample + v_Id + " | chars " + v_Thr.length() + "\n";
+	}
+	v_Ids.add(v_Rid);
+}
+if(v_Mode == "COMMIT")
+{
+	for each  v_One in v_Ids
+	{
+		for each  v_U in Encounter_PatientVisit[ID == v_One]
+		{
+			v_Text = ifnull(v_U.Notes_3008,"").toString();
+			v_U.Final_Clinical_Note=v_Text;
+			v_U.Notes_3008="";
+			break;
+		}
+	}
+}
+v_Out = "MODE: " + v_Mode + "\n";
+v_Out = v_Out + "WINDOW " + p_from.toString("MM-dd-yyyy") + " to " + p_to.toString("MM-dd-yyyy") + "\n";
+v_Out = v_Out + "Scanned: " + v_Scanned + "\n\n";
+v_Out = v_Out + "Moved: " + v_Moved + "\n";
+v_Out = v_Out + "Skipped, not Patient Visit: " + v_NotPV + "\n";
+v_Out = v_Out + "Skipped, Notes_3008 blank: " + v_NoSource + "\n";
+v_Out = v_Out + "Skipped, Final_Clinical_Note already set: " + v_HasTarget + "\n";
+v_Out = v_Out + "Skipped, already batched: " + v_Batched + "\n\n";
+v_Out = v_Out + "SAMPLE\n" + v_Sample;
+return v_Out;

@@ -1,0 +1,60 @@
+v_out = Map();
+v_counts = Map();
+v_noBranch = 0;
+v_total = 0;
+for each  p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && Visit_Status != "Cancelled" && Fax_Status != "Sent" && Clinical_Note_Type == "Final" || Clinical_Note_Type == "Addendum"]
+{
+	v_total = v_total + 1;
+	if(p.Billing_Branch == null)
+	{
+		v_noBranch = v_noBranch + 1;
+		continue;
+	}
+	v_Loc = Partner_Locations[ID == p.Billing_Branch];
+	v_label = "unknown branch";
+	if(v_Loc.ID != null)
+	{
+		v_label = ifnull(v_Loc.Partner_Location_Label,"").toString();
+		if(v_label == "")
+		{
+			v_label = ifnull(v_Loc.Partner_Location_Name,"").toString();
+		}
+	}
+	v_n = 0;
+	if(v_counts.containKey(v_label))
+	{
+		v_n = v_counts.get(v_label).toLong();
+	}
+	v_counts.put(v_label,v_n + 1);
+}
+v_withFax = List();
+v_withoutFax = List();
+for each  v_key in v_counts.keys()
+{
+	v_hasFax = false;
+	for each  v_Loc2 in Partner_Locations[Partner_Location_Label == v_key]
+	{
+		for each  v_c in Partner_Billing_Contacts[Partner_Location_Link == v_Loc2.ID && Partner_Billing_POC_Status == "Active"]
+		{
+			v_d = ifnull(v_c.Partner_PVS_Fax,"").toString().replaceAll("[^0-9]","");
+			if(v_d.length() >= 10)
+			{
+				v_hasFax = true;
+			}
+		}
+	}
+	v_line = v_key + " = " + v_counts.get(v_key);
+	if(v_hasFax)
+	{
+		v_withFax.add(v_line);
+	}
+	else
+	{
+		v_withoutFax.add(v_line);
+	}
+}
+v_out.put("unfaxed_total",v_total);
+v_out.put("no_billing_branch",v_noBranch);
+v_out.put("branches_with_fax",v_withFax);
+v_out.put("branches_without_fax",v_withoutFax);
+return v_out;

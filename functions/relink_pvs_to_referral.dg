@@ -1,0 +1,249 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Candidates = 0;
+v_Matched = 0;
+v_Unmatched = 0;
+v_Written = 0;
+v_Msgs = List();
+v_Bad = List();
+for each  v_P in Encounter_PatientVisit[Referral_Link == null]
+{
+	v_RefId = ifnull(v_P.Referral_ID,"").toString().trim();
+	if(v_RefId == "")
+	{
+		continue;
+	}
+	v_Candidates = v_Candidates + 1;
+	v_PvsId = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+	v_R = Referrals_Main[Referral_ID == v_RefId];
+	if(v_R.ID == null)
+	{
+		v_Unmatched = v_Unmatched + 1;
+		if(v_Bad.size() < 40)
+		{
+			v_Bad.add(v_PvsId + " -> " + v_RefId + " not found in Referrals_Main");
+		}
+		continue;
+	}
+	v_Matched = v_Matched + 1;
+	v_Filled = List();
+	if(ifnull(v_P.Reason_for_Referral,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Referral_Reason,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Reason_for_Referral");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Reason_for_Referral=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Patient_Full_Name_1,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_Full_Name,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_Full_Name_1");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_Full_Name_1=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Patient_Full_Name_2,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_Full_Name,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_Full_Name_2");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_Full_Name_2=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Patient_First_Name,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_First_Name,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_First_Name");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_First_Name=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Patient_MI,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_MI,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_MI");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_MI=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Patient_Last_Name,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_Last_Name,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_Last_Name");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_Last_Name=v_Val;
+			}
+		}
+	}
+	if(v_P.Patient_DOB == null && v_R.Patient_DOB != null)
+	{
+		v_Filled.add("Patient_DOB");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Patient_DOB=v_R.Patient_DOB;
+		}
+	}
+	if(ifnull(v_P.Patient_Gender,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_Gender,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_Gender");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_Gender=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Patient_Hospice_ID,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_Hospice_ID,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_Hospice_ID");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_Hospice_ID=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Patient_Phone,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_Phone,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_Phone");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_Phone=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Patient_Location,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Patient_Location,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Patient_Location");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_Location=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Facility_Name,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Facility_Name,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Facility_Name");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Facility_Name=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Facility_Phone,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Facility_Phone,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Facility_Phone");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Facility_Phone=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Facility_Room_Number,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Facility_Room_Number,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Facility_Room_Number");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Facility_Room_Number=v_Val;
+			}
+		}
+	}
+	if(v_P.Billing_Branch == null && v_R.Partner_Branch_Link != null)
+	{
+		v_Filled.add("Billing_Branch");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Billing_Branch=v_R.Partner_Branch_Link;
+		}
+	}
+	if(ifnull(v_P.Partner_Branch,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Partner_Branch,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Partner_Branch");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Partner_Branch=v_Val;
+			}
+		}
+	}
+	if(ifnull(v_P.Partner_Organization,"").toString().trim() == "")
+	{
+		v_Val = ifnull(v_R.Partner_Organization,"").toString().trim();
+		if(v_Val != "")
+		{
+			v_Filled.add("Partner_Organization");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Partner_Organization=v_Val;
+			}
+		}
+	}
+	v_Filled.add("Referral_Link");
+	if(v_Mode == "COMMIT")
+	{
+		v_P.Referral_Link=v_R.ID;
+		v_Written = v_Written + 1;
+	}
+	if(v_Msgs.size() < 40)
+	{
+		v_Msgs.add(v_PvsId + " -> " + v_RefId + " : " + v_Filled.toString(", "));
+	}
+}
+v_Out = v_Mode + " | candidates=" + v_Candidates + " | matched=" + v_Matched + " | unmatched=" + v_Unmatched + " | written=" + v_Written;
+if(v_Msgs.size() > 0)
+{
+	v_Out = v_Out + "\n\nFIELDS FILLED\n" + v_Msgs.toString("\n");
+}
+if(v_Bad.size() > 0)
+{
+	v_Out = v_Out + "\n\nUNMATCHED\n" + v_Bad.toString("\n");
+}
+return v_Out;

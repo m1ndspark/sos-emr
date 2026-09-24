@@ -1,0 +1,53 @@
+v_retried = 0;
+v_exhausted = 0;
+v_skipped = 0;
+for each  v_row in Fax_Log[Fax_Status == "Retry Pending"]
+{
+	v_att = 1;
+	if(v_row.Attempt_Number != null)
+	{
+		v_att = v_row.Attempt_Number.toLong();
+	}
+	if(v_att >= 3)
+	{
+		v_row.Fax_Status="Permanent Fail";
+		v_row.Completed_Time=zoho.currenttime;
+		v_exhausted = v_exhausted + 1;
+	}
+	else
+	{
+		v_pid = 0;
+		if(v_row.PVS_Link != null)
+		{
+			v_pid = v_row.PVS_Link.toLong();
+		}
+		if(v_pid == 0 || Encounter_PatientVisit[ID == v_pid].count() == 0)
+		{
+			v_row.Fax_Status="Permanent Fail";
+			v_row.Fax_Error_Reason="Retry abandoned: PVS record not found";
+			v_row.Completed_Time=zoho.currenttime;
+			v_skipped = v_skipped + 1;
+		}
+		else
+		{
+			v_pvs = Encounter_PatientVisit[ID == v_pid];
+			v_orig = v_row.ID;
+			if(v_row.Original_Fax_Link != null)
+			{
+				v_orig = v_row.Original_Fax_Link.toLong();
+			}
+			v_toName = ifnull(v_row.Destination_Name,"").toString();
+			v_toFax = ifnull(v_row.Destination_Fax,"").toString();
+			v_src = ifnull(v_row.Number_Source,"").toString();
+			v_reason = ifnull(v_row.Override_Reason,"").toString();
+			v_remarks = ifnull(v_row.Cover_Remarks,"").toString();
+			v_partner = ifnull(v_pvs.Partner_Location_Label,"").toString();
+			v_empty = List();
+			v_res = thisapp.send_pvs_fax(v_pid,v_toName,v_partner,v_toFax,v_toName,v_remarks,v_src,v_reason,v_empty,v_empty,v_att + 1,v_orig);
+			v_row.Fax_Status="Failed";
+			v_row.Completed_Time=zoho.currenttime;
+			v_retried = v_retried + 1;
+		}
+	}
+}
+return "retried " + v_retried + ", exhausted " + v_exhausted + ", skipped " + v_skipped;

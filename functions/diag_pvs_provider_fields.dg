@@ -1,0 +1,53 @@
+v_Key = ifnull(p_pvs_id,"").toString().trim();
+if(v_Key == "")
+{
+	return "Pass a PVS ID, for example PVS-1425-AS.";
+}
+v_P = Encounter_PatientVisit[PVS_ID == v_Key];
+if(v_P.ID == null)
+{
+	return "No PVS found with PVS ID " + v_Key + ".";
+}
+v_Out = List();
+v_Out.add("PVS ID: " + ifnull(v_P.PVS_ID,"(blank)"));
+v_Out.add("Referral ID: " + ifnull(v_P.Referral_ID,"(blank)"));
+v_Out.add("Type of Entry: " + ifnull(v_P.Type_of_Entry,"(blank)"));
+v_Out.add("Invoice Status: " + ifnull(v_P.Invoice_Status,"(blank)"));
+v_Out.add("---");
+v_Out.add("Employee_First_Name: [" + ifnull(v_P.Employee_First_Name,"") + "]");
+v_Out.add("Employee_Last_Name: [" + ifnull(v_P.Employee_Last_Name,"") + "]");
+v_Out.add("Employee_Full_Name: [" + ifnull(v_P.Employee_Full_Name,"") + "]");
+v_Out.add("Employee_Title: [" + ifnull(v_P.Employee_Title,"") + "]");
+v_Out.add("Employee_Name_Title: [" + ifnull(v_P.Employee_Name_Title,"") + "]");
+v_Out.add("Employee_Initials: [" + ifnull(v_P.Employee_Initials,"") + "]");
+v_Out.add("Employee_Email: [" + ifnull(v_P.Employee_Email,"") + "]");
+v_Out.add("Provider_Login_Email: [" + ifnull(v_P.Provider_Login_Email,"") + "]");
+if(v_P.Employee_Link == null)
+{
+	v_Out.add("Employee_Link: EMPTY");
+}
+else
+{
+	v_E = Employees[ID == v_P.Employee_Link];
+	v_Out.add("Employee_Link: " + v_P.Employee_Link.toString() + " = " + ifnull(v_E.Employee_Name_Title,"(no name title on the employee record)"));
+}
+v_Out.add("---");
+if(v_P.Billing_Branch == null)
+{
+	v_Out.add("Billing_Branch: EMPTY");
+}
+else
+{
+	v_L = Partner_Locations[ID == v_P.Billing_Branch];
+	v_Out.add("Billing_Branch: " + ifnull(v_L.Partner_Location_Label,"(unresolved)"));
+}
+v_Out.add("Complexity_Level: [" + ifnull(v_P.Complexity_Level,"") + "]");
+if(v_P.Complexity_Charge == null)
+{
+	v_Out.add("Complexity_Charge: EMPTY");
+}
+else
+{
+	v_Out.add("Complexity_Charge: " + v_P.Complexity_Charge.toString());
+}
+return v_Out.toString("\n");

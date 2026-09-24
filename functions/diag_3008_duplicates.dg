@@ -1,0 +1,82 @@
+v_keys = List();
+v_map = Map();
+for each  p in Encounter_PatientVisit[Type_of_Entry == "3008"]
+{
+	v_skip = false;
+	if(p.Invoice_Link != null)
+	{
+		v_skip = true;
+	}
+	if(p.Invoice_Status == "Final")
+	{
+		v_skip = true;
+	}
+	if(!v_skip)
+	{
+		v_key = ifnull(p.Referral_ID,"").toString().trim();
+		if(v_key == "")
+		{
+			v_key = ifnull(p.PVS_Referral_ID,"").toString().trim();
+		}
+		if(v_key == "")
+		{
+			v_key = ifnull(p.Patient_Full_Name_1,"").toString().trim().toLowerCase();
+			if(p.Patient_DOB != null)
+			{
+				v_key = v_key + "~" + p.Patient_DOB.toString("yyyy-MM-dd");
+			}
+		}
+		if(v_key == "")
+		{
+			v_key = "NO KEY";
+		}
+		v_dstr = "null";
+		if(p.Visit_Completion_Date != null)
+		{
+			v_dstr = p.Visit_Completion_Date.toString("MM-dd-yyyy");
+		}
+		v_label = "NO BRANCH";
+		if(p.Billing_Branch != null)
+		{
+			v_loc = Partner_Locations[ID == p.Billing_Branch];
+			v_label = ifnull(v_loc.Partner_Location_Label,"UNKNOWN");
+		}
+		v_amt = 0.0;
+		if(p.Complexity_Charge != null)
+		{
+			v_amt = p.Complexity_Charge.toDecimal();
+		}
+		v_row = ifnull(p.PVS_ID,"NO-ID") + " | " + v_label + " | DOS " + v_dstr + " | status [" + ifnull(p.Invoice_Status,"") + "] | $" + v_amt + " | hold [" + ifnull(p.Hold_From_Invoicing,"") + "]";
+		if(!v_keys.contains(v_key))
+		{
+			v_keys.add(v_key);
+			v_map.put(v_key,List());
+		}
+		v_list = v_map.get(v_key);
+		v_list.add(v_row);
+		v_map.put(v_key,v_list);
+	}
+}
+v_groups = 0;
+v_extra = 0;
+v_out = "";
+for each  k in v_keys
+{
+	v_l = v_map.get(k);
+	if(v_l.size() > 1)
+	{
+		v_groups = v_groups + 1;
+		v_extra = v_extra + v_l.size() - 1;
+		v_out = v_out + "\n\nKEY: " + k + "  (" + v_l.size() + " records)";
+		for each  row in v_l
+		{
+			v_out = v_out + "\n   " + row;
+		}
+	}
+}
+v_head = "DUPLICATE 3008 GROUPS: " + v_groups + " | Extra records beyond one per key: " + v_extra;
+if(v_groups == 0)
+{
+	return v_head + "\nNo duplicates among uninvoiced 3008 records.";
+}
+return v_head + v_out;

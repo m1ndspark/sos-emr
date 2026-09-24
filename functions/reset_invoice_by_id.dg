@@ -1,0 +1,132 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "LIST" && v_Mode != "RESET")
+{
+	return "Invalid mode. Use LIST or RESET.";
+}
+if(v_Mode == "LIST")
+{
+	v_Names = Map();
+	for each  v_L in Partner_Locations[ID != 0]
+	{
+		v_Names.put(v_L.ID.toString(),ifnull(v_L.Partner_Location_Label,"NO LABEL").toString().trim());
+	}
+	v_Out = "INVOICES WITH NO BOOKS INVOICE NUMBER\n\n";
+	v_N = 0;
+	for each  v_I in Invoices[ID != 0]
+	{
+		v_Num = ifnull(v_I.Books_Invoice_Number,"").toString().trim();
+		if(v_Num == "")
+		{
+			v_N = v_N + 1;
+			v_Bid = ifnull(v_I.Partner_Location_Link,"").toString().trim();
+			v_Bn = "NO BRANCH";
+			if(v_Bid != "")
+			{
+				v_Hit = v_Names.get(v_Bid);
+				if(v_Hit != null)
+				{
+					v_Bn = v_Hit;
+				}
+			}
+			v_Tot = 0.0;
+			if(v_I.Invoice_Total != null)
+			{
+				v_Tot = v_I.Invoice_Total.toDecimal();
+			}
+			v_Vc = 0;
+			if(v_I.Visit_Count != null)
+			{
+				v_Vc = v_I.Visit_Count;
+			}
+			v_Linked = 0;
+			for each  v_P in Encounter_PatientVisit[Invoice_Link == v_I.ID]
+			{
+				v_Linked = v_Linked + 1;
+			}
+			v_Out = v_Out + v_I.ID + "  |  " + v_Bn + "  |  $" + v_Tot + "  |  visits " + v_Vc + "  |  still linked " + v_Linked + "  |  " + ifnull(v_I.Invoice_Record_Status,"") + "\n";
+		}
+	}
+	v_Out = v_Out + "\nCount: " + v_N;
+	return v_Out;
+}
+if(p_confirm != "RESET")
+{
+	return "ERROR: Nothing was changed. Pass RESET as the third argument to confirm.";
+}
+if(p_invoiceId == null || p_invoiceId == 0)
+{
+	return "ERROR: No invoice record ID supplied.";
+}
+v_Tid = null;
+v_Bnum = "";
+v_Bid = "";
+v_Prev = "";
+for each  v_I in Invoices[ID == p_invoiceId]
+{
+	v_Tid = v_I.ID;
+	v_Bnum = ifnull(v_I.Books_Invoice_Number,"").toString().trim();
+	v_Bid = ifnull(v_I.Books_Invoice_ID,"").toString().trim();
+	v_Prev = ifnull(v_I.Books_Sync_Message,"").toString();
+	break;
+}
+if(v_Tid == null)
+{
+	return "ERROR: No invoice record found with ID " + p_invoiceId + ".";
+}
+v_Count = 0;
+v_List = List();
+for each  v_P in Encounter_PatientVisit[Invoice_Link == v_Tid]
+{
+	v_List.add(ifnull(v_P.PVS_ID,"NO-ID").toString().trim());
+	v_Count = v_Count + 1;
+	update v_P
+	[
+		Invoice_Link=null
+		Invoice_Status="Draft"
+	];
+}
+v_BooksMsg = "No Books invoice was created.";
+if(v_Bid != "")
+{
+	v_Headers = Map();
+	v_Headers.put("Content-Type","application/json");
+	v_VoidResp = invokeurl
+	[
+		url :"https://www.zohoapis.com/books/v3/invoices/" + v_Bid + "/status/void?organization_id=911048634"
+		type :POST
+		headers:v_Headers
+		connection:"zoho_books_partners"
+	];
+	if(v_VoidResp.get("code") == 0)
+	{
+		v_BooksMsg = "Books invoice " + v_Bnum + " voided.";
+	}
+	else
+	{
+		v_Vmsg = v_VoidResp.toString();
+		if(v_Vmsg.length() > 500)
+		{
+			v_Vmsg = v_Vmsg.subString(0,500);
+		}
+		v_BooksMsg = "BOOKS VOID FAILED for " + v_Bnum + ": " + v_Vmsg;
+	}
+}
+v_Stamp = "RESET " + zoho.currenttime.toString() + " - " + v_BooksMsg + " || " + v_Prev;
+if(v_Stamp.length() > 2000)
+{
+	v_Stamp = v_Stamp.subString(0,2000);
+}
+for each  v_U in Invoices[ID == v_Tid]
+{
+	v_U.Invoice_Record_Status="Void";
+	v_U.Books_Sync_Message=v_Stamp;
+	v_U.Books_Sync_Timestamp=zoho.currenttime;
+	break;
+}
+v_Msg = "Reset complete. Invoice record " + v_Tid + " set to Void. Visits returned to Draft: " + v_Count;
+if(v_Count > 0)
+{
+	v_Msg = v_Msg + " (" + v_List.toString(", ") + ")";
+}
+v_Msg = v_Msg + ". " + v_BooksMsg;
+return v_Msg;

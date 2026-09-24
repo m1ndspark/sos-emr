@@ -1,24 +1,101 @@
-v_updated = 0;
-v_skipped = 0;
-v_manual = 0;
-for each  p in Encounter_PatientVisit[Referral_Link != null]
+v_out = Map();
+v_apply = false;
+if(p_mode.trim().toLowerCase() == "apply")
 {
-	v_Ref = Referrals_Main[ID == p.Referral_Link];
-	if(v_Ref.ID != null && v_Ref.Partner_Branch_Link != null)
+	v_apply = true;
+}
+v_resolved = List();
+v_noref = List();
+v_badref = List();
+v_unresolved = List();
+v_cResolved = 0;
+v_cNoRef = 0;
+v_cBadRef = 0;
+v_cUnresolved = 0;
+v_cRefreshed = 0;
+for each  p in Encounter_PatientVisit[Billing_Branch == null]
+{
+	v_pid = ifnull(p.PVS_ID,"").toString();
+	if(p.Referral_Link == null)
 	{
-		v_Loc = Partner_Locations[ID == v_Ref.Partner_Branch_Link];
-		p.Billing_Branch=v_Ref.Partner_Branch_Link;
-		if(v_Loc.ID != null)
+		v_cNoRef = v_cNoRef + 1;
+		if(v_noref.size() < 50)
 		{
-			p.Partner_Branch=v_Loc.Partner_Location_Name;
-			p.Partner_Location_Label=v_Loc.Partner_Location_Label;
-			p.Partner_Organization=v_Loc.Partner_Link.Partner_Display_Name;
+			v_noref.add(v_pid);
 		}
-		v_updated = v_updated + 1;
+		continue;
 	}
-	else
+	v_Ref = Referrals_Main[ID == p.Referral_Link];
+	if(v_Ref.ID == null)
 	{
-		v_skipped = v_skipped + 1;
+		v_cBadRef = v_cBadRef + 1;
+		if(v_badref.size() < 50)
+		{
+			v_badref.add(v_pid);
+		}
+		continue;
+	}
+	v_BranchId = null;
+	if(v_Ref.Partner_Branch_Link != null)
+	{
+		v_BranchId = v_Ref.Partner_Branch_Link;
+	}
+	if(v_BranchId == null)
+	{
+		v_Org = ifnull(v_Ref.Partner_Organization,"").trim();
+		v_Brn = ifnull(v_Ref.Partner_Branch,"").trim();
+		if(v_Org != "" && v_Brn != "")
+		{
+			for each  v_Loc in Partner_Locations[Partner_Location_Name == v_Brn]
+			{
+				if(ifnull(v_Loc.Partner_Link.Partner_Display_Name,"").trim() == v_Org)
+				{
+					v_BranchId = v_Loc.ID;
+					break;
+				}
+			}
+		}
+	}
+	if(v_BranchId == null)
+	{
+		v_cUnresolved = v_cUnresolved + 1;
+		if(v_unresolved.size() < 50)
+		{
+			v_unresolved.add(v_pid + " | REF " + ifnull(v_Ref.Referral_ID,"").toString());
+		}
+		continue;
+	}
+	v_LocRec = Partner_Locations[ID == v_BranchId];
+	if(v_LocRec.ID == null)
+	{
+		v_cUnresolved = v_cUnresolved + 1;
+		if(v_unresolved.size() < 50)
+		{
+			v_unresolved.add(v_pid + " | branch record not found");
+		}
+		continue;
+	}
+	v_cResolved = v_cResolved + 1;
+	if(v_resolved.size() < 50)
+	{
+		v_resolved.add(v_pid + " -> " + ifnull(v_LocRec.Partner_Location_Label,"").toString());
+	}
+	if(v_apply)
+	{
+		v_Charge = 0;
+		if(p.Complexity_Level != null && p.Complexity_Level != "")
+		{
+			for each  v_r in Partner_Rates[Partner_Location_Link == v_BranchId && Rate_Type == p.Complexity_Level && Current_Rate == "Yes"]
+			{
+				v_Charge = v_r.Rate_Amount;
+				break;
+			}
+		}
+		p.Billing_Branch=v_BranchId;
+		p.Partner_Branch=ifnull(v_LocRec.Partner_Location_Name,"");
+		p.Partner_Location_Label=ifnull(v_LocRec.Partner_Location_Label,"");
+		p.Partner_Organization=ifnull(v_LocRec.Partner_Link.Partner_Display_Name,"");
+		p.Complexity_Charge=v_Charge;
 	}
 }
 for each  q in Encounter_PatientVisit[Referral_Link == null && Billing_Branch != null]
@@ -26,10 +103,23 @@ for each  q in Encounter_PatientVisit[Referral_Link == null && Billing_Branch !=
 	v_Loc2 = Partner_Locations[ID == q.Billing_Branch];
 	if(v_Loc2.ID != null)
 	{
-		q.Partner_Branch=v_Loc2.Partner_Location_Name;
-		q.Partner_Location_Label=v_Loc2.Partner_Location_Label;
-		q.Partner_Organization=v_Loc2.Partner_Link.Partner_Display_Name;
-		v_manual = v_manual + 1;
+		v_cRefreshed = v_cRefreshed + 1;
+		if(v_apply)
+		{
+			q.Partner_Branch=ifnull(v_Loc2.Partner_Location_Name,"");
+			q.Partner_Location_Label=ifnull(v_Loc2.Partner_Location_Label,"");
+			q.Partner_Organization=ifnull(v_Loc2.Partner_Link.Partner_Display_Name,"");
+		}
 	}
 }
-return "PVS billing branch - from referral: " + v_updated + " | skipped (no branch on referral): " + v_skipped + " | no-referral PVS refreshed: " + v_manual;
+v_out.put("mode",if(v_apply,"apply","report"));
+v_out.put("resolved",v_cResolved);
+v_out.put("no_referral",v_cNoRef);
+v_out.put("referral_not_found",v_cBadRef);
+v_out.put("unresolved",v_cUnresolved);
+v_out.put("no_referral_text_refresh",v_cRefreshed);
+v_out.put("sample_resolved",v_resolved);
+v_out.put("sample_no_referral",v_noref);
+v_out.put("sample_referral_not_found",v_badref);
+v_out.put("sample_unresolved",v_unresolved);
+return v_out;

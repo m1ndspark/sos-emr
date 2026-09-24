@@ -1,0 +1,96 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_Pvs = ifnull(p_pvsId,"").toString().trim();
+v_Why = ifnull(p_reason,"").toString().trim();
+if(v_Pvs == "")
+{
+	return "PVS ID is required.";
+}
+if(v_Why == "")
+{
+	return "A reason is required.";
+}
+v_Tid = null;
+v_Chg = 0.0;
+v_Ah = 0.0;
+v_Ss = 0.0;
+v_Eq = 0.0;
+v_Ot = 0.0;
+v_Hold = "";
+v_Row = "";
+v_Inv = "";
+v_Link = "";
+for each  v_P in Encounter_PatientVisit[PVS_ID == v_Pvs]
+{
+	v_Tid = v_P.ID;
+	if(v_P.Complexity_Charge != null)
+	{
+		v_Chg = v_P.Complexity_Charge.toDecimal();
+	}
+	if(v_P.After_Hours_Fee != null)
+	{
+		v_Ah = v_P.After_Hours_Fee.toDecimal();
+	}
+	if(v_P.Super_Stat_Fee != null)
+	{
+		v_Ss = v_P.Super_Stat_Fee.toDecimal();
+	}
+	if(v_P.Equipment_Charge_Amount != null)
+	{
+		v_Eq = v_P.Equipment_Charge_Amount.toDecimal();
+	}
+	if(v_P.Other_Charges_Amount != null)
+	{
+		v_Ot = v_P.Other_Charges_Amount.toDecimal();
+	}
+	v_Hold = ifnull(v_P.Hold_From_Invoicing,"").toString().trim();
+	v_Row = ifnull(v_P.Row_Status,"").toString().trim();
+	v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	v_Link = ifnull(v_P.Invoice_Link,"").toString().trim();
+	break;
+}
+if(v_Tid == null)
+{
+	return "No PVS found with PVS_ID " + v_Pvs + ".";
+}
+if(v_Link != "")
+{
+	return v_Pvs + " is already attached to invoice " + v_Link + ". Resolve that invoice first.";
+}
+if(v_Inv == "Final")
+{
+	return v_Pvs + " is already Final. Resolve the invoice first.";
+}
+v_Note = v_Why + " Retired " + zoho.currentdate.toString("MM-dd-yyyy") + " by " + zoho.loginuser + ".";
+v_Total = v_Chg + v_Ah + v_Ss + v_Eq + v_Ot;
+v_Out = "MODE: " + v_Mode + "\n";
+v_Out = v_Out + "PVS: " + v_Pvs + " (record " + v_Tid + ")\n\n";
+v_Out = v_Out + "Hold_From_Invoicing: [" + v_Hold + "] -> [Yes]\n";
+v_Out = v_Out + "Row_Status: [" + v_Row + "] -> [Cancelled]\n";
+v_Out = v_Out + "Complexity_Charge: [" + v_Chg + "] -> [0]\n";
+v_Out = v_Out + "After_Hours_Fee: [" + v_Ah + "] -> [0]\n";
+v_Out = v_Out + "Super_Stat_Fee: [" + v_Ss + "] -> [0]\n";
+v_Out = v_Out + "Equipment_Charge_Amount: [" + v_Eq + "] -> [0]\n";
+v_Out = v_Out + "Other_Charges_Amount: [" + v_Ot + "] -> [0]\n";
+v_Out = v_Out + "Row_Status_Note: -> [" + v_Note + "]\n\n";
+v_Out = v_Out + "Dollars removed from the period: " + v_Total + "\n";
+if(v_Mode == "COMMIT")
+{
+	for each  v_U in Encounter_PatientVisit[ID == v_Tid]
+	{
+		v_U.Hold_From_Invoicing="Yes";
+		v_U.Row_Status="Cancelled";
+		v_U.Complexity_Charge=0;
+		v_U.After_Hours_Fee=0;
+		v_U.Super_Stat_Fee=0;
+		v_U.Equipment_Charge_Amount=0;
+		v_U.Other_Charges_Amount=0;
+		v_U.Row_Status_Note=v_Note;
+		break;
+	}
+	v_Out = v_Out + "\nCOMMITTED.";
+}
+return v_Out;

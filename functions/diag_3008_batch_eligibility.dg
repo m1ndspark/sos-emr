@@ -1,0 +1,117 @@
+v_lines = List();
+v_reasons = List();
+v_rCount = Map();
+v_branches = List();
+v_bCount = Map();
+v_elig = 0;
+v_total = 0;
+for each  p in Encounter_PatientVisit[Type_of_Entry == "3008"]
+{
+	v_total = v_total + 1;
+	v_pid = ifnull(p.PVS_ID,"NO-ID");
+	v_label = "NO BRANCH";
+	if(p.Billing_Branch != null)
+	{
+		v_loc = Partner_Locations[ID == p.Billing_Branch];
+		v_label = ifnull(v_loc.Partner_Location_Label,"UNKNOWN");
+	}
+	v_stat = ifnull(p.Invoice_Status,"").trim();
+	v_lvl = ifnull(p.Complexity_Level,"").trim();
+	v_amt = 0.0;
+	if(p.Complexity_Charge != null)
+	{
+		v_amt = p.Complexity_Charge.toDecimal();
+	}
+	v_dstr = "null";
+	if(p.Visit_Completion_Date != null)
+	{
+		v_dstr = p.Visit_Completion_Date.toString("MM-dd-yyyy");
+	}
+	v_why = "";
+	if(p.Billing_Branch == null)
+	{
+		v_why = "no Billing Branch";
+	}
+	else if(v_stat == "")
+	{
+		v_why = "Invoice Status is BLANK";
+	}
+	else if(v_stat != "Draft")
+	{
+		v_why = "Invoice Status is " + v_stat;
+	}
+	else if(p.Visit_Completion_Date == null)
+	{
+		v_why = "no Visit Completion Date";
+	}
+	else if(p_from != null && p.Visit_Completion_Date < p_from)
+	{
+		v_why = "date before window";
+	}
+	else if(p_to != null && p.Visit_Completion_Date > p_to)
+	{
+		v_why = "date after window";
+	}
+	else if(p.Invoice_Link != null)
+	{
+		v_why = "already linked to an invoice";
+	}
+	else if(p.Hold_From_Invoicing == "Yes")
+	{
+		v_why = "held from invoicing";
+	}
+	else if(v_lvl == "")
+	{
+		v_why = "no Complexity Level";
+	}
+	else if(v_lvl == "Visit Cancelled")
+	{
+		v_why = "Visit Cancelled";
+	}
+	else if(v_amt <= 0)
+	{
+		v_why = "no Complexity Charge";
+	}
+	if(v_why == "")
+	{
+		v_why = "ELIGIBLE";
+		v_elig = v_elig + 1;
+	}
+	if(!v_reasons.contains(v_why))
+	{
+		v_reasons.add(v_why);
+		v_rCount.put(v_why,0);
+	}
+	v_rCount.put(v_why,v_rCount.get(v_why) + 1);
+	v_bKey = v_label + " >> " + v_why;
+	if(!v_branches.contains(v_bKey))
+	{
+		v_branches.add(v_bKey);
+		v_bCount.put(v_bKey,0);
+	}
+	v_bCount.put(v_bKey,v_bCount.get(v_bKey) + 1);
+	v_lines.add(v_pid + " | " + v_label + " | DOS " + v_dstr + " | status [" + v_stat + "] | lvl [" + v_lvl + "] | $" + v_amt + " | " + v_why);
+}
+v_f = "any";
+if(p_from != null)
+{
+	v_f = p_from.toString("MM-dd-yyyy");
+}
+v_t = "any";
+if(p_to != null)
+{
+	v_t = p_to.toString("MM-dd-yyyy");
+}
+v_out = "3008 RECORDS: " + v_total + " | Window " + v_f + " to " + v_t + " | ELIGIBLE: " + v_elig;
+v_out = v_out + "\n\nBY REASON";
+for each  r in v_reasons
+{
+	v_out = v_out + "\n" + v_rCount.get(r) + " - " + r;
+}
+v_out = v_out + "\n\nBY BRANCH AND REASON";
+for each  b in v_branches
+{
+	v_out = v_out + "\n" + v_bCount.get(b) + " - " + b;
+}
+v_out = v_out + "\n\nDETAIL\n" + v_lines.toString("\n");
+return v_out;

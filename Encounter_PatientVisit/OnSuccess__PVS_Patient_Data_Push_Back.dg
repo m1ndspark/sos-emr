@@ -29,6 +29,11 @@ if(input.Referral_Link != null)
 		v_PvsCity = ifnull(input.Patient_Address.district_city,"").toString().trim();
 		v_PvsState = ifnull(input.Patient_Address.state_province,"").toString().trim();
 		v_PvsZip = ifnull(input.Patient_Address.postal_Code,"").toString().trim();
+		v_OutA1 = v_RefA1;
+		v_OutA2 = v_RefA2;
+		v_OutCity = v_RefCity;
+		v_OutState = v_RefState;
+		v_OutZip = v_RefZip;
 		v_DobChanged = false;
 		if(v_PvsDob != null && v_PvsDob != v_RefDob)
 		{
@@ -42,22 +47,27 @@ if(input.Referral_Link != null)
 		v_AddrChanged = false;
 		if(v_PvsA1 != "" && v_PvsA1 != v_RefA1)
 		{
+			v_OutA1 = v_PvsA1;
 			v_AddrChanged = true;
 		}
-		if(v_PvsA2 != v_RefA2)
+		if(v_PvsA2 != "" && v_PvsA2 != v_RefA2)
 		{
+			v_OutA2 = v_PvsA2;
 			v_AddrChanged = true;
 		}
 		if(v_PvsCity != "" && v_PvsCity != v_RefCity)
 		{
+			v_OutCity = v_PvsCity;
 			v_AddrChanged = true;
 		}
 		if(v_PvsState != "" && v_PvsState != v_RefState)
 		{
+			v_OutState = v_PvsState;
 			v_AddrChanged = true;
 		}
 		if(v_PvsZip != "" && v_PvsZip != v_RefZip)
 		{
+			v_OutZip = v_PvsZip;
 			v_AddrChanged = true;
 		}
 		if(v_DobChanged || v_PhoneChanged || v_AddrChanged)
@@ -83,11 +93,11 @@ if(input.Referral_Link != null)
 				{
 					update v_Upd
 					[
-						Patient_Address.address_line_1=v_PvsA1
-						Patient_Address.address_line_2=v_PvsA2
-						Patient_Address.district_city=v_PvsCity
-						Patient_Address.state_province=v_PvsState
-						Patient_Address.postal_Code=v_PvsZip
+						Patient_Address.address_line_1=v_OutA1
+						Patient_Address.address_line_2=v_OutA2
+						Patient_Address.district_city=v_OutCity
+						Patient_Address.state_province=v_OutState
+						Patient_Address.postal_Code=v_OutZip
 					];
 				}
 			}

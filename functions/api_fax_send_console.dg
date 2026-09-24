@@ -1,0 +1,272 @@
+v_out = Map();
+v_out.put("ok",false);
+v_logId = ifnull(pLogId,"").toString().trim();
+if(v_logId == "")
+{
+	v_out.put("error","No draft fax supplied");
+	return v_out;
+}
+if(Fax_Log[ID == v_logId.toLong()].count() == 0)
+{
+	v_out.put("error","Draft fax not found");
+	return v_out;
+}
+v_row = Fax_Log[ID == v_logId.toLong()];
+if(pPvsIds == null || pPvsIds.size() == 0)
+{
+	v_out.put("error","Select at least one note");
+	return v_out;
+}
+if(pPvsIds.size() > 10)
+{
+	v_out.put("error","Maximum 10 notes per fax. Split this into more than one send.");
+	return v_out;
+}
+v_cid = ifnull(pContactId,"").toString().trim();
+if(v_cid == "")
+{
+	v_out.put("error","No recipient selected");
+	return v_out;
+}
+if(Partner_Billing_Contacts[ID == v_cid.toLong()].count() == 0)
+{
+	v_out.put("error","Recipient not found");
+	return v_out;
+}
+v_c = Partner_Billing_Contacts[ID == v_cid.toLong()];
+v_digits = ifnull(v_c.Partner_PVS_Fax,"").toString().replaceAll("[^0-9]","");
+if(v_digits.length() == 10)
+{
+	v_digits = "1" + v_digits;
+}
+if(v_digits.length() < 11)
+{
+	v_out.put("error","Recipient has no usable fax number");
+	return v_out;
+}
+v_e164 = "+" + v_digits;
+v_partner = "";
+for each  v_p in Partners[ID == v_c.Partner_Link]
+{
+	v_partner = ifnull(v_p.Partner_Display_Name,"").toString();
+	break;
+}
+v_brnch = "";
+for each  v_loc in Partner_Locations[ID == v_c.Partner_Location_Link]
+{
+	v_brnch = ifnull(v_loc.Partner_Location_Name,"").toString();
+	break;
+}
+v_toName = v_partner;
+if(v_brnch != "")
+{
+	v_toName = v_partner + " - " + v_brnch;
+}
+v_attn = (ifnull(v_c.Partner_Billing_POC_First_Name,"").toString() + " " + ifnull(v_c.Partner_Billing_POC_Last_Name,"").toString()).trim();
+v_faxId = "";
+for each  v_try in {1,2,3,4,5}
+{
+	if(v_faxId == "")
+	{
+		v_seqVal = 0;
+		for each  v_rec in Sequence_Tracker[Object_Prefix == "FAX"]
+		{
+			v_seqVal = v_rec.Object_Sequence;
+			v_rec.Object_Sequence=v_seqVal + 1;
+			break;
+		}
+		v_cand = "FAX-" + zoho.currentdate.toString("MMddyy") + "-" + leftpad(v_seqVal.toString(),4).replaceAll(" ","0",true);
+		if(Fax_Log[Fax_ID == v_cand].count() == 0)
+		{
+			v_faxId = v_cand;
+		}
+	}
+}
+if(v_faxId == "")
+{
+	v_out.put("error","Could not mint a unique Fax ID");
+	return v_out;
+}
+v_row.Fax_ID=v_faxId;
+v_row.Destination_Fax=v_e164;
+v_row.Destination_Name=v_toName;
+v_row.Cover_Remarks=pRemarks;
+v_row.Number_Source="Address Book";
+v_row.Submitted_Time=zoho.currenttime;
+if(v_c.Partner_Link != null)
+{
+	v_row.Partner_Link=v_c.Partner_Link;
+}
+if(v_c.Partner_Location_Link != null)
+{
+	v_row.Partner_Location_Link=v_c.Partner_Location_Link;
+}
+v_docs = thisapp.build_console_docs(v_faxId,v_toName,v_partner,v_e164,v_attn,pRemarks,pPvsIds,List());
+v_noteList = v_docs.get("notes");
+if(v_noteList == null || v_noteList.size() == 0)
+{
+	v_row.Fax_Status="Failed";
+	v_row.Fax_Error_Reason="No notes could be rendered";
+	v_row.Completed_Time=zoho.currenttime;
+	v_out.put("error","No notes could be rendered");
+	return v_out;
+}
+v_parts = List();
+v_pTo = Map();
+v_pTo.put("paramName","to");
+v_pTo.put("content",v_e164);
+v_pTo.put("stringPart","true");
+v_parts.add(v_pTo);
+v_pRes = Map();
+v_pRes.put("paramName","faxResolution");
+v_pRes.put("content","High");
+v_pRes.put("stringPart","true");
+v_parts.add(v_pRes);
+v_pCov = Map();
+v_pCov.put("paramName","coverIndex");
+v_pCov.put("content","0");
+v_pCov.put("stringPart","true");
+v_parts.add(v_pCov);
+v_coverPdf = zoho.file.convertToPDF(v_docs.get("cover").toString());
+v_coverPdf.setFileName(v_faxId + "-cover.pdf");
+v_row.Fax_PDF=v_coverPdf;
+v_coverPdf.setParamName("attachment");
+v_parts.add(v_coverPdf);
+v_manifest = "Cover: " + v_faxId + "-cover.pdf";
+v_seq = 0;
+v_stamp = List();
+for each  v_nItem in v_noteList
+{
+	v_seq = v_seq + 1;
+	v_pvsIdTxt = v_nItem.get("pvs_id").toString();
+	v_recId = v_nItem.get("record_id").toString();
+	v_fname = (v_faxId + "-" + v_pvsIdTxt).replaceAll("[^A-Za-z0-9._-]","_") + ".pdf";
+	v_notePdf = zoho.file.convertToPDF(v_nItem.get("html").toString());
+	v_notePdf.setFileName(v_fname);
+	v_att = insert into Fax_Attachments
+	[
+		Fax_Log=v_logId.toLong()
+		Attachment_Type="PVS Note"
+		Attachment_Name=v_fname
+		Source_PVS_Link=v_recId.toLong()
+		Sequence_Number=v_seq
+		Added_User=zoho.loginuser
+	];
+	v_attRow = Fax_Attachments[ID == v_att];
+	v_attRow.Attachment_File=v_notePdf;
+	v_notePdf.setParamName("attachment");
+	v_parts.add(v_notePdf);
+	v_manifest = v_manifest + "\n" + v_seq + ". " + v_nItem.get("patient").toString() + " | " + v_pvsIdTxt;
+	v_stamp.add(v_recId);
+}
+v_row.Attachments_Included=v_manifest;
+v_token = thisapp.get_rc_token();
+if(v_token == "")
+{
+	v_row.Fax_Status="Failed";
+	v_row.Fax_Error_Reason="No RingCentral access token";
+	v_row.Completed_Time=zoho.currenttime;
+	v_out.put("fax_id",v_faxId);
+	v_out.put("error","No RingCentral access token");
+	return v_out;
+}
+v_thrown = "";
+v_resp = Map();
+try 
+{
+	v_resp = invokeurl
+	[
+		url :"https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/fax"
+		type :POST
+		headers:{"Authorization":"Bearer " + v_token,"Accept":"application/json"}
+		files:v_parts
+	];
+}	catch (e)
+{
+	v_thrown = e.message.toString();
+	v_resp = Map();
+}
+v_msgId = "";
+if(v_resp.get("id") != null)
+{
+	v_msgId = v_resp.get("id").toString();
+}
+if(v_msgId == "")
+{
+	v_first = v_resp.toString() + " " + v_thrown;
+	if(v_first.contains("TokenInvalid") || v_first.contains("OAU-213") || v_first.contains("Token not found"))
+	{
+		for each  v_cfg in API_Config[Config_Name == "RingCentral"]
+		{
+			v_cfg.RC_Access_Token="";
+			v_cfg.RC_Token_Expiry=zoho.currenttime.addMinutes(-60);
+			break;
+		}
+		v_token = thisapp.get_rc_token();
+		if(v_token != "")
+		{
+			v_thrown = "";
+			try 
+			{
+				v_resp = invokeurl
+				[
+					url :"https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/fax"
+					type :POST
+					headers:{"Authorization":"Bearer " + v_token,"Accept":"application/json"}
+					files:v_parts
+				];
+			}				catch (e2)
+			{
+				v_thrown = e2.message.toString();
+				v_resp = Map();
+			}
+			if(v_resp.get("id") != null)
+			{
+				v_msgId = v_resp.get("id").toString();
+			}
+		}
+	}
+}
+if(v_msgId != "")
+{
+	v_row.RC_Message_ID=v_msgId;
+	v_row.Fax_Status="Queued";
+	v_row.Last_Polled_Time=zoho.currenttime;
+	if(v_resp.get("conversationId") != null)
+	{
+		v_row.RC_Conversation_ID=v_resp.get("conversationId").toString();
+	}
+	for each  v_sid in v_stamp
+	{
+		for each  v_pv in Encounter_PatientVisit[ID == v_sid.toLong()]
+		{
+			v_pv.Fax_Status="Queued";
+			break;
+		}
+	}
+	v_out.put("ok",true);
+	v_out.put("status","Queued");
+}
+else
+{
+	v_errTxt = v_thrown;
+	if(v_errTxt == "")
+	{
+		v_errTxt = v_resp.toString();
+	}
+	if(v_errTxt.length() > 250)
+	{
+		v_errTxt = v_errTxt.left(250);
+	}
+	v_row.Fax_Status="Failed";
+	v_row.Fax_Error_Reason=v_errTxt;
+	v_row.Completed_Time=zoho.currenttime;
+	v_out.put("status","Failed");
+	v_out.put("error",v_errTxt);
+}
+v_out.put("fax_id",v_faxId);
+v_out.put("log_id",v_logId);
+v_out.put("to",v_toName);
+v_out.put("fax",v_e164);
+v_out.put("count",v_noteList.size());
+return v_out;

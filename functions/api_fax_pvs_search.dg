@@ -1,0 +1,88 @@
+v_out = Map();
+v_list = List();
+v_branch = ifnull(p_branchId,"").toString().trim();
+v_q = ifnull(p_query,"").toString().trim().toLowerCase();
+v_unsent = ifnull(p_unsentOnly,"").toString().trim().toLowerCase();
+v_cap = 200;
+v_n = 0;
+v_rows = List();
+if(v_branch != "")
+{
+	for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && Billing_Branch == v_branch.toLong()]
+	{
+		v_rows.add(v_p.ID);
+	}
+}
+else
+{
+	v_floor = zoho.currentdate.subDay(120);
+	for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && Added_Time >= v_floor]
+	{
+		v_rows.add(v_p.ID);
+	}
+}
+for each  v_id in v_rows
+{
+	if(v_n < v_cap)
+	{
+		for each  v_r in Encounter_PatientVisit[ID == v_id]
+		{
+			v_type = ifnull(v_r.Clinical_Note_Type,"").toString();
+			v_fax = ifnull(v_r.Fax_Status,"").toString();
+			v_keep = true;
+			if(v_type != "Final" && v_type != "Addendum")
+			{
+				v_keep = false;
+			}
+			if(v_unsent == "true")
+			{
+				if(v_fax == "Sent" || v_fax == "Queued")
+				{
+					v_keep = false;
+				}
+			}
+			v_name = ifnull(v_r.Patient_Full_Name_1,"").toString();
+			v_pvsid = ifnull(v_r.PVS_ID,"").toString();
+			if(v_q != "")
+			{
+				v_hay = (v_name + " " + v_pvsid + " " + ifnull(v_r.Referral_ID,"").toString()).toLowerCase();
+				if(!v_hay.contains(v_q))
+				{
+					v_keep = false;
+				}
+			}
+			if(v_keep)
+			{
+				v_bname = "";
+				for each  v_loc in Partner_Locations[ID == v_r.Billing_Branch]
+				{
+					v_bname = ifnull(v_loc.Partner_Location_Name,"").toString();
+					break;
+				}
+				v_dos = "";
+				if(v_r.Visit_Completion_Date != null)
+				{
+					v_dos = v_r.Visit_Completion_Date.toString("MM/dd/yyyy");
+				}
+				v_item = Map();
+				v_item.put("record_id",v_r.ID.toString());
+				v_item.put("pvs_id",v_pvsid);
+				v_item.put("patient",v_name);
+				v_item.put("mrn",ifnull(v_r.Patient_Hospice_ID,"").toString());
+				v_item.put("dos",v_dos);
+				v_item.put("note_type",v_type);
+				v_item.put("fax_status",v_fax);
+				v_item.put("branch",v_bname);
+				v_item.put("referral_id",ifnull(v_r.Referral_ID,"").toString());
+				v_list.add(v_item);
+				v_n = v_n + 1;
+			}
+			break;
+		}
+	}
+}
+v_out.put("ok",true);
+v_out.put("count",v_list.size());
+v_out.put("capped",v_n >= v_cap);
+v_out.put("notes",v_list);
+return v_out;

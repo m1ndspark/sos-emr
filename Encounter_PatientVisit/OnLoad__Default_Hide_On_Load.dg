@@ -4,154 +4,362 @@ if(v_User == "joshua.kolanko@sosmmc.com" || v_User == "neil.heird@sosmmc.com")
 {
 	v_Billing = true;
 }
-hide Referral_Link;
-hide Referral_ID;
-hide System_Fields_Section;
-hide Final_Clinical_Note_Section;
-hide Type_of_Procedure_Section;
-hide Visit_Cost_Drivers_Section;
-hide Charges_Section;
-hide Cares_3008_Completion_Section;
-hide Lab_Orders_Section;
-hide Imaging_Orders_Section;
-hide Diversion_Tracking_Section;
-hide Files_Upload_Section;
-hide Type_of_Diversion;
-hide Referral_Partner_Section;
-hide Edit_Needed;
-hide Patient_Full_Name_1;
-show Patient_First_Name;
-show Patient_MI;
-show Patient_Last_Name;
-hide Partner_POC_First_Name;
-hide Partner_POC_Last_Name;
-hide Partner_POC_Title;
-hide Equipment_Charge_Amount;
-hide Equipment_Charge_Details;
-hide Other_Charges_Amount;
-hide Other_Charges_Details;
-hide Facility_Name;
-hide Facility_Phone;
-hide Facility_Room_Number;
-hide Employee_First_Name;
-hide Employee_Last_Name;
-hide Employee_Title;
-hide Employee_Full_Name;
-show Employee_Name_Title;
-hide Invoice_Status;
-hide Billing_Branch;
-hide Patient_Full_Address;
-if(input.Has_Referral_ID == "No")
+v_Existing = false;
+if(input.PVS_ID != null)
 {
-	disable Type_of_Entry;
-	show Billing_Branch;
-	enable Billing_Branch;
+	if(input.PVS_ID.toString().trim() != "")
+	{
+		v_Existing = true;
+	}
 }
-if(input.Has_Referral_ID == "Yes")
+v_Batched = false;
+if(input.Invoice_Link != null)
 {
-	disable Patient_First_Name;
-	disable Patient_MI;
-	disable Patient_Last_Name;
-	disable Patient_Gender;
-	disable Partner_ICD_Codes;
-	disable Reason_for_Referral;
-	disable Goals_of_Care;
-	disable List_Patient_Allergies;
-	disable List_Patient_Anticoagulants;
-	disable Advanced_Directives_Details;
-	disable Additional_Information;
-	show Billing_Branch;
-	disable Billing_Branch;
+	v_Batched = true;
 }
-else
+if(input.Invoice_Status == "Final")
 {
+	v_Batched = true;
+}
+v_Unlock = false;
+if(v_Existing && !v_Batched)
+{
+	v_Unlock = true;
+}
+if(v_Unlock)
+{
+	show Referral_Lookup_Section;
+	show Cares_3008_Completion_Section;
+	show Patient_Details_Section;
+	show Patient_Location_Section;
+	show Referral_Details_Section;
+	show Imaging_Orders_Section;
+	show Lab_Orders_Section;
+	show Final_Clinical_Note_Section;
+	show Type_of_Procedure_Section;
+	show Visit_Cost_Drivers_Section;
+	show Charges_Section;
+	show Files_Upload_Section;
+	show Diversion_Tracking_Section;
+	show Referral_Partner_Section;
+	show Provider_Signature_Section;
+	show System_Fields_Section;
+	show Has_Referral_ID;
+	show Referral_Link;
+	show Type_of_Entry;
+	show Patient_Full_Name_2;
+	show Was_3008_Completed;
+	show PVS_3008_Upload;
+	show Cares_3008_Completion_Date;
+	show Notes_3008;
+	show Patient_First_Name;
+	show Patient_MI;
+	show Patient_Last_Name;
+	show Patient_DOB;
+	show Patient_DOB1;
+	show Patient_Gender;
+	show Patient_Hospice_ID;
+	show Patient_SSN;
+	show Patient_Phone;
+	show Patient_Email;
+	show Patient_Location;
+	show Facility_Name;
+	show Facility_Phone;
+	show Facility_Room_Number;
+	show Patient_Address;
+	show Patient_Full_Address;
+	show Reason_for_Referral;
+	show Goals_of_Care;
+	show Partner_ICD_Codes;
+	show Additional_Information;
+	show List_Patient_Allergies;
+	show List_Patient_Anticoagulants;
+	show Advanced_Directives_Details;
+	show General_Files_Upload;
+	show Imaging_Orders;
+	show Imaging_Order_Indication;
+	show Upload_Imaging_Order_Files;
+	show Imaging_Ordered_Date;
+	show Lab_Type_Orders;
+	show Lab_Order_Indication;
+	show Requested_Lab_Vendor;
+	show Lab_Files_Upload;
+	show Lab_Order_Date;
+	show Clinical_Note_Type;
+	show Final_Clinical_Note;
+	show Provider_ICD10_Codes_Link;
+	show Provider_ICD_Print;
+	show Clinical_Note_File_Upload;
+	show Type_of_Procedures;
+	show Complexity_Level;
+	show Additional_Charges;
+	show Complexity_Charge;
+	show After_Hours_Fee;
+	show Super_Stat_Fee;
+	show Equipment_Charge_Amount;
+	show Equipment_Charge_Details;
+	show Other_Charges_Amount;
+	show Other_Charges_Details;
+	show PVS_File_Upload;
+	show Diversion_Tracking;
+	show Type_of_Diversion;
+	show Partner_Organization;
+	show Partner_Branch;
+	show Partner_POC_Name_Title;
+	show Partner_POC_Team;
+	show Partner_POC_First_Name;
+	show Partner_POC_Last_Name;
+	show Partner_POC_Title;
+	show Partner_POC_Phone;
+	show Partner_POC_Email;
+	show Partner_Location_Label;
+	show Employee_Name_Title;
+	show Employee_First_Name;
+	show Employee_Last_Name;
+	show Employee_Title;
+	show Employee_Initials;
+	show Employee_Email;
+	show Visit_Completion_Date;
+	show Billing_Branch;
+	show PVS_ID;
+	show PVS_Referral_ID;
+	show Referral_ID;
+	show Partner_ID;
+	show Fax_Status;
+	enable Has_Referral_ID;
+	enable Referral_Link;
+	enable Type_of_Entry;
+	enable Patient_Full_Name_2;
+	enable Was_3008_Completed;
+	enable PVS_3008_Upload;
+	enable Cares_3008_Completion_Date;
+	enable Notes_3008;
 	enable Patient_First_Name;
 	enable Patient_MI;
 	enable Patient_Last_Name;
 	enable Patient_DOB;
+	enable Patient_DOB1;
 	enable Patient_Gender;
-	enable Patient_Address;
-	enable Patient_Phone;
-	enable Patient_Email;
 	enable Patient_Hospice_ID;
 	enable Patient_SSN;
+	enable Patient_Phone;
+	enable Patient_Email;
+	enable Patient_Location;
 	enable Facility_Name;
 	enable Facility_Phone;
 	enable Facility_Room_Number;
-	enable Partner_ICD_Codes;
+	enable Patient_Address;
+	enable Patient_Full_Address;
 	enable Reason_for_Referral;
 	enable Goals_of_Care;
+	enable Partner_ICD_Codes;
+	enable Additional_Information;
 	enable List_Patient_Allergies;
 	enable List_Patient_Anticoagulants;
 	enable Advanced_Directives_Details;
-	enable Additional_Information;
+	enable General_Files_Upload;
+	enable Imaging_Orders;
+	enable Imaging_Order_Indication;
+	enable Upload_Imaging_Order_Files;
+	enable Imaging_Ordered_Date;
+	enable Lab_Type_Orders;
+	enable Lab_Order_Indication;
+	enable Requested_Lab_Vendor;
+	enable Lab_Files_Upload;
+	enable Lab_Order_Date;
+	enable Clinical_Note_Type;
+	enable Final_Clinical_Note;
+	enable Provider_ICD10_Codes_Link;
+	enable Provider_ICD_Print;
+	enable Clinical_Note_File_Upload;
+	enable Type_of_Procedures;
+	enable Complexity_Level;
+	enable Additional_Charges;
+	enable Complexity_Charge;
+	enable After_Hours_Fee;
+	enable Super_Stat_Fee;
+	enable Equipment_Charge_Amount;
+	enable Equipment_Charge_Details;
+	enable Other_Charges_Amount;
+	enable Other_Charges_Details;
+	enable PVS_File_Upload;
+	enable Diversion_Tracking;
+	enable Type_of_Diversion;
+	enable Partner_Organization;
+	enable Partner_Branch;
+	enable Partner_POC_Name_Title;
+	enable Partner_POC_Team;
+	enable Partner_POC_First_Name;
+	enable Partner_POC_Last_Name;
+	enable Partner_POC_Title;
+	enable Partner_POC_Phone;
+	enable Partner_POC_Email;
+	enable Partner_Location_Label;
+	enable Employee_Name_Title;
+	enable Employee_First_Name;
+	enable Employee_Last_Name;
+	enable Employee_Title;
+	enable Employee_Initials;
+	enable Employee_Email;
+	enable Visit_Completion_Date;
+	enable Billing_Branch;
+	enable PVS_ID;
+	enable PVS_Referral_ID;
+	enable Referral_ID;
+	enable Partner_ID;
+	enable Fax_Status;
 }
-disable Employee_First_Name;
-disable Employee_Last_Name;
-disable Employee_Initials;
-disable Employee_Title;
-disable Employee_Full_Name;
-disable Employee_Name_Title;
-disable Employee_Email;
-disable PVS_ID;
-disable Referral_ID;
-disable Referral_ID_Stamp;
-disable Partner_ID;
-disable Partner_ID_Stamp;
-disable Invoice_Status;
-disable PVS_Referral_ID;
-disable Provider_ICD_Print;
-if(input.Type_of_Entry == "Patient Visit")
+else
 {
-	show Referral_Details_Section;
-	show Final_Clinical_Note_Section;
-	show Type_of_Procedure_Section;
-	show Visit_Cost_Drivers_Section;
-	if(v_Billing)
+	hide Referral_Link;
+	hide Referral_ID;
+	hide System_Fields_Section;
+	hide Final_Clinical_Note_Section;
+	hide Type_of_Procedure_Section;
+	hide Visit_Cost_Drivers_Section;
+	hide Charges_Section;
+	hide Cares_3008_Completion_Section;
+	hide Lab_Orders_Section;
+	hide Imaging_Orders_Section;
+	hide Diversion_Tracking_Section;
+	hide Files_Upload_Section;
+	hide Type_of_Diversion;
+	hide Referral_Partner_Section;
+	hide Edit_Needed;
+	hide Patient_Full_Name_1;
+	show Patient_First_Name;
+	show Patient_MI;
+	show Patient_Last_Name;
+	hide Partner_POC_First_Name;
+	hide Partner_POC_Last_Name;
+	hide Partner_POC_Title;
+	hide Equipment_Charge_Amount;
+	hide Equipment_Charge_Details;
+	hide Other_Charges_Amount;
+	hide Other_Charges_Details;
+	hide Facility_Name;
+	hide Facility_Phone;
+	hide Facility_Room_Number;
+	hide Employee_First_Name;
+	hide Employee_Last_Name;
+	hide Employee_Title;
+	hide Employee_Full_Name;
+	show Employee_Name_Title;
+	hide Invoice_Status;
+	hide Billing_Branch;
+	hide Patient_Full_Address;
+	if(input.Has_Referral_ID == "No")
 	{
-		show Charges_Section;
+		disable Type_of_Entry;
+		show Billing_Branch;
+		enable Billing_Branch;
 	}
-	show Diversion_Tracking_Section;
-	show Files_Upload_Section;
-}
-else if(input.Type_of_Entry == "3008")
-{
-	show Cares_3008_Completion_Section;
-}
-else if(input.Type_of_Entry == "Lab Order")
-{
-	show Lab_Orders_Section;
-	show Diversion_Tracking_Section;
-}
-else if(input.Type_of_Entry == "Imaging Order")
-{
-	show Imaging_Orders_Section;
-	show Diversion_Tracking_Section;
-}
-else if(input.Type_of_Entry == "Clinic Hours")
-{
-	show Diversion_Tracking_Section;
-}
-if(input.Patient_Location == "Facility")
-{
-	show Facility_Name;
-	show Facility_Phone;
-	show Facility_Room_Number;
-}
-if(input.Diversion_Tracking == "Yes")
-{
-	show Type_of_Diversion;
-}
-if(v_Billing && input.Additional_Charges != null)
-{
-	if(input.Additional_Charges.contains("Equipment Charge"))
+	if(input.Has_Referral_ID == "Yes")
 	{
-		show Equipment_Charge_Amount;
-		show Equipment_Charge_Details;
+		disable Patient_First_Name;
+		disable Patient_MI;
+		disable Patient_Last_Name;
+		disable Patient_Gender;
+		disable Partner_ICD_Codes;
+		disable Reason_for_Referral;
+		disable Goals_of_Care;
+		disable List_Patient_Allergies;
+		disable List_Patient_Anticoagulants;
+		disable Advanced_Directives_Details;
+		disable Additional_Information;
+		show Billing_Branch;
+		disable Billing_Branch;
 	}
-	if(input.Additional_Charges.contains("Other"))
+	else
 	{
-		show Other_Charges_Amount;
-		show Other_Charges_Details;
+		enable Patient_First_Name;
+		enable Patient_MI;
+		enable Patient_Last_Name;
+		enable Patient_DOB;
+		enable Patient_Gender;
+		enable Patient_Address;
+		enable Patient_Phone;
+		enable Patient_Email;
+		enable Patient_Hospice_ID;
+		enable Patient_SSN;
+		enable Facility_Name;
+		enable Facility_Phone;
+		enable Facility_Room_Number;
+		enable Partner_ICD_Codes;
+		enable Reason_for_Referral;
+		enable Goals_of_Care;
+		enable List_Patient_Allergies;
+		enable List_Patient_Anticoagulants;
+		enable Advanced_Directives_Details;
+		enable Additional_Information;
+	}
+	disable Employee_First_Name;
+	disable Employee_Last_Name;
+	disable Employee_Initials;
+	disable Employee_Title;
+	disable Employee_Full_Name;
+	disable Employee_Name_Title;
+	disable Employee_Email;
+	disable PVS_ID;
+	disable Referral_ID;
+	disable Referral_ID_Stamp;
+	disable Partner_ID;
+	disable Partner_ID_Stamp;
+	disable Invoice_Status;
+	disable PVS_Referral_ID;
+	disable Provider_ICD_Print;
+	if(input.Type_of_Entry == "Patient Visit")
+	{
+		show Referral_Details_Section;
+		show Final_Clinical_Note_Section;
+		show Type_of_Procedure_Section;
+		show Visit_Cost_Drivers_Section;
+		if(v_Billing)
+		{
+			show Charges_Section;
+		}
+		show Diversion_Tracking_Section;
+		show Files_Upload_Section;
+	}
+	else if(input.Type_of_Entry == "3008")
+	{
+		show Cares_3008_Completion_Section;
+	}
+	else if(input.Type_of_Entry == "Lab Order")
+	{
+		show Lab_Orders_Section;
+		show Diversion_Tracking_Section;
+	}
+	else if(input.Type_of_Entry == "Imaging Order")
+	{
+		show Imaging_Orders_Section;
+		show Diversion_Tracking_Section;
+	}
+	else if(input.Type_of_Entry == "Clinic Hours")
+	{
+		show Diversion_Tracking_Section;
+	}
+	if(input.Patient_Location == "Facility")
+	{
+		show Facility_Name;
+		show Facility_Phone;
+		show Facility_Room_Number;
+	}
+	if(input.Diversion_Tracking == "Yes")
+	{
+		show Type_of_Diversion;
+	}
+	if(v_Billing && input.Additional_Charges != null)
+	{
+		if(input.Additional_Charges.contains("Equipment Charge"))
+		{
+			show Equipment_Charge_Amount;
+			show Equipment_Charge_Details;
+		}
+		if(input.Additional_Charges.contains("Other"))
+		{
+			show Other_Charges_Amount;
+			show Other_Charges_Details;
+		}
 	}
 }

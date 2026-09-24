@@ -1,0 +1,67 @@
+v_Key = ifnull(p_referral_id,"").toString().trim();
+if(v_Key == "")
+{
+	return "Pass a Referral ID, for example REF-1448.";
+}
+v_R = Referrals_Main[Referral_ID == v_Key];
+if(v_R.ID == null)
+{
+	return "No referral found with Referral ID " + v_Key + ".";
+}
+v_Out = List();
+v_Out.add("Referral ID: " + ifnull(v_R.Referral_ID,"(blank)"));
+v_Out.add("Patient: " + ifnull(v_R.Patient_Full_Name,"(blank)"));
+v_Out.add("Service: " + ifnull(v_R.Referral_Type,"(blank)"));
+v_Out.add("POC Email: " + ifnull(v_R.Partner_POC_Email,"(blank)"));
+if(v_R.Partner_Branch_Link == null)
+{
+	v_Out.add("Partner_Branch_Link: EMPTY");
+}
+else
+{
+	v_Loc = Partner_Locations[ID == v_R.Partner_Branch_Link];
+	if(v_Loc.ID == null)
+	{
+		v_Out.add("Partner_Branch_Link: " + v_R.Partner_Branch_Link.toString() + " (points to a missing location)");
+	}
+	else
+	{
+		v_Out.add("Partner_Branch_Link: " + v_R.Partner_Branch_Link.toString() + " = " + ifnull(v_Loc.Partner_Location_Label,"(no label)"));
+	}
+}
+if(v_R.Partner_Link == null)
+{
+	v_Out.add("Partner_Link: EMPTY");
+}
+else
+{
+	v_Out.add("Partner_Link: " + v_R.Partner_Link.toString());
+}
+v_Out.add("Partner_Organization: " + ifnull(v_R.Partner_Organization,"(blank)"));
+v_Out.add("Partner_Branch: " + ifnull(v_R.Partner_Branch,"(blank)"));
+v_Out.add("Partner_Location_Label: " + ifnull(v_R.Partner_Location_Label,"(blank)"));
+v_Out.add("Partner_ID: " + ifnull(v_R.Partner_ID,"(blank)"));
+v_Out.add("Partner_Branch_Submitted: " + ifnull(v_R.Partner_Branch_Submitted,"(blank)"));
+v_Email = ifnull(v_R.Partner_POC_Email,"").toString().trim();
+if(v_Email == "")
+{
+	v_Out.add("Contact match: no POC email on the referral");
+}
+else
+{
+	v_C = Partner_Referral_Contacts[Partner_POC_Email == v_Email];
+	if(v_C.ID == null)
+	{
+		v_Out.add("Contact match: no Partner_Referral_Contacts row for " + v_Email);
+	}
+	else if(v_C.Partner_Locations_Link == null)
+	{
+		v_Out.add("Contact match: found, but that contact has no Partner_Locations_Link");
+	}
+	else
+	{
+		v_CLoc = Partner_Locations[ID == v_C.Partner_Locations_Link];
+		v_Out.add("Contact match: " + v_C.Partner_Locations_Link.toString() + " = " + ifnull(v_CLoc.Partner_Location_Label,"(no label)"));
+	}
+}
+return v_Out.toString("\n");

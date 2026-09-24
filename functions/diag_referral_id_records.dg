@@ -1,0 +1,60 @@
+v_Raw = ifnull(p_refIds,"").toString().trim();
+if(v_Raw == "")
+{
+	return "ERROR: Enter one or more Referral IDs separated by commas, for example REF-1251,REF-1255.";
+}
+v_Out = List();
+for each  v_Piece in v_Raw.toList(",")
+{
+	v_Id = v_Piece.trim();
+	if(v_Id == "")
+	{
+		continue;
+	}
+	v_Out.add("==========");
+	v_Count = 0;
+	for each  r in Referrals_Main[Referral_ID == v_Id] sort by ID asc
+	{
+		v_Count = v_Count + 1;
+		v_D = "";
+		if(r.Patient_DOB != null)
+		{
+			v_D = r.Patient_DOB.toString("M/d/yyyy");
+		}
+		v_RD = "";
+		if(r.Referral_Date != null)
+		{
+			v_RD = r.Referral_Date.toString("M/d/yyyy");
+		}
+		v_Out.add(v_Id + " | rec=" + r.ID + " | Ref Date " + v_RD + " | " + ifnull(r.Patient_First_Name,"") + " " + ifnull(r.Patient_Last_Name,"") + " | DOB " + v_D + " | DOB1 text " + ifnull(r.Patient_DOB1,"") + " | Type " + ifnull(r.Referral_Type,"") + " | Branch " + ifnull(r.Partner_Location_Label,""));
+		v_PCount = 0;
+		for each  p in Encounter_PatientVisit[Referral_Link == r.ID]
+		{
+			v_PCount = v_PCount + 1;
+			v_PD = "";
+			if(p.Patient_DOB != null)
+			{
+				v_PD = p.Patient_DOB.toString("M/d/yyyy");
+			}
+			v_Dos = "";
+			if(p.Visit_Completion_Date != null)
+			{
+				v_Dos = p.Visit_Completion_Date.toString("M/d/yyyy");
+			}
+			v_Out.add("    PVS " + ifnull(p.PVS_ID,"rec " + p.ID) + " | DOB " + v_PD + " | DOS " + v_Dos + " | Invoice_Status " + ifnull(p.Invoice_Status,""));
+		}
+		if(v_PCount == 0)
+		{
+			v_Out.add("    no PVS linked");
+		}
+	}
+	if(v_Count == 0)
+	{
+		v_Out.add(v_Id + " | NOT FOUND");
+	}
+	else
+	{
+		v_Out.add(v_Id + " | records holding this ID: " + v_Count);
+	}
+}
+return v_Out.toString("\n");

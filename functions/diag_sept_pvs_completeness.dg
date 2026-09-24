@@ -1,0 +1,48 @@
+v_out = Map();
+v_noBranch = List();
+v_noOrg = List();
+v_noFacilityName = List();
+v_noRoom = List();
+v_total = 0;
+v_clean = 0;
+for each  p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && Visit_Status != "Cancelled" && Visit_Completion_Date >= p_start && Visit_Completion_Date <= p_end]
+{
+	v_total = v_total + 1;
+	v_pid = ifnull(p.PVS_ID,"").toString();
+	v_bad = false;
+	if(p.Billing_Branch == null)
+	{
+		v_noBranch.add(v_pid);
+		v_bad = true;
+	}
+	if(ifnull(p.Partner_Organization,"").trim() == "")
+	{
+		v_noOrg.add(v_pid);
+		v_bad = true;
+	}
+	if(ifnull(p.Patient_Location,"").toString() == "Facility")
+	{
+		if(ifnull(p.Facility_Name,"").trim() == "")
+		{
+			v_noFacilityName.add(v_pid);
+			v_bad = true;
+		}
+		if(ifnull(p.Facility_Room_Number,"").trim() == "")
+		{
+			v_noRoom.add(v_pid);
+			v_bad = true;
+		}
+	}
+	if(!v_bad)
+	{
+		v_clean = v_clean + 1;
+	}
+}
+v_out.put("window",p_start.toString("yyyy-MM-dd") + " to " + p_end.toString("yyyy-MM-dd"));
+v_out.put("visits_checked",v_total);
+v_out.put("complete",v_clean);
+v_out.put("missing_billing_branch",v_noBranch);
+v_out.put("missing_partner_organization",v_noOrg);
+v_out.put("facility_missing_name",v_noFacilityName);
+v_out.put("facility_missing_room",v_noRoom);
+return v_out;

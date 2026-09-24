@@ -1,0 +1,153 @@
+v_out = Map();
+v_ids = List();
+if(p_days > 0)
+{
+	v_floor = zoho.currentdate.subDay(p_days);
+	for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && Added_Time >= v_floor]
+	{
+		v_ids.add(v_p.ID);
+	}
+}
+else
+{
+	for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit"]
+	{
+		v_ids.add(v_p.ID);
+	}
+}
+v_cNoBranch = 0;
+v_cNoFax = 0;
+v_cDupFax = 0;
+v_cPrelim = 0;
+v_cEmpty = 0;
+v_cReady = 0;
+v_cTotal = 0;
+v_sNoBranch = List();
+v_sNoFax = List();
+v_sDupFax = List();
+v_sPrelim = List();
+v_sEmpty = List();
+v_sReady = List();
+for each  v_id in v_ids
+{
+	for each  v_r in Encounter_PatientVisit[ID == v_id]
+	{
+		v_fx = ifnull(v_r.Fax_Status,"").toString();
+		if(v_fx != "Sent" && v_fx != "Queued")
+		{
+			v_cTotal = v_cTotal + 1;
+			v_pid = ifnull(v_r.PVS_ID,"").toString();
+			if(v_pid == "")
+			{
+				v_pid = "ID-" + v_r.ID.toString();
+			}
+			v_nt = ifnull(v_r.Clinical_Note_Type,"").toString().trim();
+			if(v_nt != "Final" && v_nt != "Addendum")
+			{
+				v_cPrelim = v_cPrelim + 1;
+				if(v_sPrelim.size() < 25)
+				{
+					v_sPrelim.add(v_pid);
+				}
+			}
+			else if(ifnull(v_r.Final_Clinical_Note,"").toString().trim() == "")
+			{
+				v_cEmpty = v_cEmpty + 1;
+				if(v_sEmpty.size() < 25)
+				{
+					v_sEmpty.add(v_pid);
+				}
+			}
+			else
+			{
+				v_b = 0;
+				if(v_r.Billing_Branch != null)
+				{
+					v_b = v_r.Billing_Branch.toLong();
+				}
+				if(v_b == 0)
+				{
+					v_cNoBranch = v_cNoBranch + 1;
+					if(v_sNoBranch.size() < 25)
+					{
+						v_sNoBranch.add(v_pid);
+					}
+				}
+				else
+				{
+					v_c = Partner_Billing_Contacts[Partner_Location_Link == v_b && Partner_Billing_POC_Status == "Active" && Partner_PVS_Fax != ""].count();
+					if(v_c == 0)
+					{
+						v_cNoFax = v_cNoFax + 1;
+						if(v_sNoFax.size() < 25)
+						{
+							v_sNoFax.add(v_pid);
+						}
+					}
+					else if(v_c > 1)
+					{
+						v_cDupFax = v_cDupFax + 1;
+						if(v_sDupFax.size() < 25)
+						{
+							v_sDupFax.add(v_pid);
+						}
+					}
+					else
+					{
+						v_cReady = v_cReady + 1;
+						if(v_sReady.size() < 25)
+						{
+							v_sReady.add(v_pid);
+						}
+					}
+				}
+			}
+		}
+		break;
+	}
+}
+v_cRefNoLink = 0;
+v_sRefNoLink = List();
+if(p_days > 0)
+{
+	v_rfloor = zoho.currentdate.subDay(p_days);
+	for each  v_rf in Referrals_Main[Added_Time >= v_rfloor]
+	{
+		if(v_rf.Partner_Branch_Link == null)
+		{
+			v_cRefNoLink = v_cRefNoLink + 1;
+			if(v_sRefNoLink.size() < 25)
+			{
+				v_sRefNoLink.add(ifnull(v_rf.Referral_ID,"").toString());
+			}
+		}
+	}
+}
+else
+{
+	for each  v_rf in Referrals_Main[Partner_Branch_Link == null]
+	{
+		v_cRefNoLink = v_cRefNoLink + 1;
+		if(v_sRefNoLink.size() < 25)
+		{
+			v_sRefNoLink.add(ifnull(v_rf.Referral_ID,"").toString());
+		}
+	}
+}
+v_out.put("window_days",p_days);
+v_out.put("unfaxed_patient_visits",v_cTotal);
+v_out.put("ready_to_fax",v_cReady);
+v_out.put("blocked_no_billing_branch",v_cNoBranch);
+v_out.put("blocked_no_fax_number",v_cNoFax);
+v_out.put("blocked_duplicate_contacts",v_cDupFax);
+v_out.put("blocked_not_final",v_cPrelim);
+v_out.put("blocked_empty_note",v_cEmpty);
+v_out.put("referrals_missing_branch_link",v_cRefNoLink);
+v_out.put("sample_ready",v_sReady);
+v_out.put("sample_no_billing_branch",v_sNoBranch);
+v_out.put("sample_no_fax_number",v_sNoFax);
+v_out.put("sample_duplicate_contacts",v_sDupFax);
+v_out.put("sample_not_final",v_sPrelim);
+v_out.put("sample_empty_note",v_sEmpty);
+v_out.put("sample_referrals_missing_branch_link",v_sRefNoLink);
+return v_out;

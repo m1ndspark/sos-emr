@@ -1,0 +1,78 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_Dupe = ifnull(p_dupePvsId,"").toString().trim();
+v_Keep = ifnull(p_keeperPvsId,"").toString().trim();
+if(v_Dupe == "" || v_Keep == "")
+{
+	return "Both PVS IDs are required.";
+}
+if(v_Dupe == v_Keep)
+{
+	return "Duplicate and keeper cannot be the same PVS.";
+}
+v_Tid = null;
+v_CurChg = 0;
+v_CurHold = "";
+v_CurRow = "";
+v_CurDup = "";
+v_CurInv = "";
+v_CurLink = "";
+for each  v_P in Encounter_PatientVisit[PVS_ID == v_Dupe]
+{
+	v_Tid = v_P.ID;
+	v_CurChg = ifnull(v_P.Complexity_Charge,0);
+	v_CurHold = ifnull(v_P.Hold_From_Invoicing,"").toString().trim();
+	v_CurRow = ifnull(v_P.Row_Status,"").toString().trim();
+	v_CurDup = ifnull(v_P.Duplicate_Of_PVS_ID,"").toString().trim();
+	v_CurInv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	v_CurLink = ifnull(v_P.Invoice_Link,"").toString().trim();
+	break;
+}
+if(v_Tid == null)
+{
+	return "No PVS found with PVS_ID " + v_Dupe + ".";
+}
+v_Kid = null;
+for each  v_K in Encounter_PatientVisit[PVS_ID == v_Keep]
+{
+	v_Kid = v_K.ID;
+	break;
+}
+if(v_Kid == null)
+{
+	return "Keeper PVS " + v_Keep + " does not exist. Nothing changed.";
+}
+if(v_CurLink != "")
+{
+	return v_Dupe + " is already attached to invoice " + v_CurLink + ". Resolve that invoice first.";
+}
+if(v_CurInv == "Final")
+{
+	return v_Dupe + " is already Final. Resolve the invoice first.";
+}
+v_Note = "Duplicate of " + v_Keep + ". Retired " + zoho.currentdate.toString("MM-dd-yyyy") + " by " + zoho.loginuser + ".";
+v_Out = "MODE: " + v_Mode + "\n";
+v_Out = v_Out + "Duplicate: " + v_Dupe + " (record " + v_Tid + ")\n";
+v_Out = v_Out + "Keeper: " + v_Keep + " (record " + v_Kid + ")\n\n";
+v_Out = v_Out + "Hold_From_Invoicing: [" + v_CurHold + "] -> [Yes]\n";
+v_Out = v_Out + "Row_Status: [" + v_CurRow + "] -> [Duplicate]\n";
+v_Out = v_Out + "Duplicate_Of_PVS_ID: [" + v_CurDup + "] -> [" + v_Keep + "]\n";
+v_Out = v_Out + "Complexity_Charge: [" + v_CurChg + "] -> [0]\n";
+v_Out = v_Out + "Row_Status_Note: -> [" + v_Note + "]\n";
+if(v_Mode == "COMMIT")
+{
+	for each  v_U in Encounter_PatientVisit[ID == v_Tid]
+	{
+		v_U.Hold_From_Invoicing="Yes";
+		v_U.Row_Status="Duplicate";
+		v_U.Duplicate_Of_PVS_ID=v_Keep;
+		v_U.Complexity_Charge=0;
+		v_U.Row_Status_Note=v_Note;
+		break;
+	}
+	v_Out = v_Out + "\nCOMMITTED.";
+}
+return v_Out;

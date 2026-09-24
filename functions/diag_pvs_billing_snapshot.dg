@@ -1,0 +1,94 @@
+v_key = ifnull(p_pvsKey,"").trim();
+if(v_key == "")
+{
+	return "ERROR: p_pvsKey is required.";
+}
+v_keyU = v_key.toUpperCase();
+v_hits = List();
+for each  p in Encounter_PatientVisit[ID != 0]
+{
+	v_id = ifnull(p.PVS_ID,"");
+	if(v_id.toUpperCase().contains(v_keyU))
+	{
+		v_hits.add(p.ID);
+	}
+}
+if(v_hits.size() == 0)
+{
+	return "No PVS record whose PVS_ID contains [" + v_key + "].";
+}
+v_out = "MATCHES for [" + v_key + "]: " + v_hits.size() + "\n";
+for each  rid in v_hits
+{
+	p = Encounter_PatientVisit[ID == rid];
+	v_pid = ifnull(p.PVS_ID,"");
+	v_lvl = ifnull(p.Complexity_Level,"").trim();
+	v_label = "NONE";
+	if(p.Billing_Branch != null)
+	{
+		v_loc = Partner_Locations[ID == p.Billing_Branch];
+		v_label = ifnull(v_loc.Partner_Location_Label,"UNKNOWN");
+	}
+	v_chg = "null";
+	if(p.Complexity_Charge != null)
+	{
+		v_chg = p.Complexity_Charge.toString();
+	}
+	v_linked = "no";
+	if(p.Invoice_Link != null)
+	{
+		v_linked = "yes";
+	}
+	v_out = v_out + "\nRecord ID: " + p.ID + "\n";
+	v_out = v_out + "PVS_ID [" + v_pid + "]\n";
+	v_out = v_out + "Patient [" + ifnull(p.Patient_Full_Name_2,"") + "]\n";
+	v_out = v_out + "Type_of_Entry [" + ifnull(p.Type_of_Entry,"") + "]\n";
+	v_out = v_out + "Billing_Branch [" + v_label + "]\n";
+	v_out = v_out + "Complexity_Level [" + v_lvl + "]\n";
+	v_out = v_out + "Complexity_Charge [" + v_chg + "]\n";
+	v_out = v_out + "Invoice_Status [" + ifnull(p.Invoice_Status,"") + "]  Invoice_Link: " + v_linked + "\n";
+	if(p.Billing_Branch == null)
+	{
+		v_out = v_out + "Rate for current level: no branch set\n";
+		v_out = v_out + "Rate for Cares 3008 Assessment: no branch set\n";
+	}
+	else
+	{
+		v_r1 = null;
+		if(v_lvl != "")
+		{
+			for each  r in Partner_Rates[Partner_Location_Link == p.Billing_Branch && Rate_Type == v_lvl && Current_Rate == "Yes"]
+			{
+				v_r1 = r.Rate_Amount;
+				break;
+			}
+		}
+		if(v_lvl == "")
+		{
+			v_out = v_out + "Rate for current level: level is blank\n";
+		}
+		else if(v_r1 == null)
+		{
+			v_out = v_out + "Rate for current level (" + v_lvl + "): none\n";
+		}
+		else
+		{
+			v_out = v_out + "Rate for current level (" + v_lvl + "): $" + v_r1 + "\n";
+		}
+		v_r2 = null;
+		for each  r2 in Partner_Rates[Partner_Location_Link == p.Billing_Branch && Rate_Type == "Cares 3008 Assessment" && Current_Rate == "Yes"]
+		{
+			v_r2 = r2.Rate_Amount;
+			break;
+		}
+		if(v_r2 == null)
+		{
+			v_out = v_out + "Rate for Cares 3008 Assessment: none on this branch\n";
+		}
+		else
+		{
+			v_out = v_out + "Rate for Cares 3008 Assessment: $" + v_r2 + "\n";
+		}
+	}
+}
+return v_out;

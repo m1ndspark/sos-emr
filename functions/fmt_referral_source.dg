@@ -1,0 +1,19 @@
+v_o = ifnull(pOrg,"").toString().trim();
+v_b = ifnull(pBranch,"").toString().trim();
+if(v_b == "")
+{
+	return v_o;
+}
+if(v_o == "")
+{
+	return v_b;
+}
+if(v_b.contains(v_o))
+{
+	return v_b;
+}
+if(v_o.contains(v_b))
+{
+	return v_o;
+}
+return v_o + " - " + v_b;

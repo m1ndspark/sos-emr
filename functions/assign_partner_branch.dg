@@ -1,0 +1,87 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "SKIP-NOMODE";
+}
+v_Raw = ifnull(p_map,"").toString().trim();
+if(v_Raw == "")
+{
+	return "SKIP-NOMAP";
+}
+v_Lines = List();
+v_Changed = 0;
+v_Missing = 0;
+for each  v_Entry in v_Raw.toList(",")
+{
+	v_E = v_Entry.trim();
+	if(v_E != "")
+	{
+		v_Pos = v_E.indexOf("=");
+		if(v_Pos < 1)
+		{
+			v_Lines.add(v_E + " BADENTRY");
+		}
+		else
+		{
+			v_Key = v_E.subString(0,v_Pos).trim();
+			v_Lab = v_E.subString(v_Pos + 1).trim();
+			v_LocId = null;
+			v_PartnerId = null;
+			v_LocName = "";
+			v_LocLabel = "";
+			v_Org = "";
+			v_PID = "";
+			for each  v_L in Partner_Locations[Partner_Location_Label == v_Lab && Partner_Location_Status == "Active"]
+			{
+				v_LocId = v_L.ID;
+				v_PartnerId = v_L.Partner_Link;
+				v_LocName = v_L.Partner_Location_Name;
+				v_LocLabel = v_L.Partner_Location_Label;
+				v_Org = v_L.Partner_Link.Partner_Display_Name;
+				v_PID = v_L.Partner_Link.Partner_ID;
+				break;
+			}
+			if(v_LocId == null)
+			{
+				v_Lines.add(v_Key + " NOLOCATION for label [" + v_Lab + "]");
+			}
+			else
+			{
+				v_RecId = null;
+				for each  v_R in Referrals_Main[Referral_ID == v_Key]
+				{
+					v_RecId = v_R.ID;
+					break;
+				}
+				if(v_RecId == null)
+				{
+					v_Missing = v_Missing + 1;
+					v_Lines.add(v_Key + " NOTFOUND");
+				}
+				else
+				{
+					if(v_Mode == "COMMIT")
+					{
+						for each  v_Upd in Referrals_Main[ID == v_RecId]
+						{
+							update v_Upd
+							[
+								Partner_Organization=v_Org
+								Partner_Branch=v_LocName
+								Partner_Location_Label=v_LocLabel
+								Partner_Link=v_PartnerId
+								Partner_Branch_Link=v_LocId
+								Partner_ID=v_PID
+								Partner_ID_Stamp=v_PartnerId.toString()
+							];
+						}
+					}
+					v_Changed = v_Changed + 1;
+					v_Lines.add(v_Key + " " + v_Mode + " org=" + v_Org + " branch=" + v_LocName + " label=" + v_LocLabel);
+				}
+			}
+		}
+	}
+}
+v_Head = "ASSIGN PARTNER BRANCH | mode=" + v_Mode + " | changed=" + v_Changed + " | notfound=" + v_Missing;
+return v_Head + "\n" + v_Lines.toString("\n");

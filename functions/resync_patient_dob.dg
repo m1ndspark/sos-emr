@@ -1,0 +1,73 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Total = 0;
+v_Eligible = 0;
+v_Changed = 0;
+v_Same = 0;
+v_Bad = 0;
+v_Written = 0;
+v_Msgs = List();
+v_BadList = List();
+for each  v_Rec in Referrals_Main[ID != 0]
+{
+	v_Total = v_Total + 1;
+	v_Txt = ifnull(v_Rec.Patient_DOB1,"").toString().trim();
+	if(v_Txt == "")
+	{
+		continue;
+	}
+	v_Eligible = v_Eligible + 1;
+	v_RefId = ifnull(v_Rec.Referral_ID,"(no id)").toString();
+	v_New = thisapp.parse_patient_dob(v_Txt);
+	if(v_New == null)
+	{
+		v_Bad = v_Bad + 1;
+		if(v_BadList.size() < 40)
+		{
+			v_BadList.add(v_RefId + " [" + v_Txt + "]");
+		}
+		continue;
+	}
+	v_CurStr = "";
+	if(v_Rec.Patient_DOB != null)
+	{
+		v_CurStr = v_Rec.Patient_DOB.toString("MM-dd-yyyy");
+	}
+	v_NewStr = v_New.toString("MM-dd-yyyy");
+	if(v_CurStr == v_NewStr)
+	{
+		v_Same = v_Same + 1;
+		continue;
+	}
+	v_Changed = v_Changed + 1;
+	if(v_Msgs.size() < 40)
+	{
+		v_Cur = v_CurStr;
+		if(v_Cur == "")
+		{
+			v_Cur = "(blank)";
+		}
+		v_Msgs.add(v_RefId + ": " + v_Cur + " -> " + v_NewStr);
+	}
+	if(v_Mode == "COMMIT")
+	{
+		update v_Rec
+		[
+			Patient_DOB=v_New
+		];
+		v_Written = v_Written + 1;
+	}
+}
+v_Out = v_Mode + " | records=" + v_Total + " | with DOB text=" + v_Eligible + " | changed=" + v_Changed + " | unchanged=" + v_Same + " | written=" + v_Written + " | unparseable=" + v_Bad;
+if(v_Msgs.size() > 0)
+{
+	v_Out = v_Out + "\n\nCHANGES\n" + v_Msgs.toString("\n");
+}
+if(v_BadList.size() > 0)
+{
+	v_Out = v_Out + "\n\nUNPARSEABLE\n" + v_BadList.toString("\n");
+}
+return v_Out;

@@ -1,0 +1,60 @@
+v_Key = ifnull(p_pvs_id,"").toString().trim();
+v_P = Encounter_PatientVisit[PVS_ID == v_Key];
+if(v_P.ID == null)
+{
+	return "No PVS found with PVS ID " + v_Key + ".";
+}
+v_Out = List();
+v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+v_IsFinal = "no";
+if(v_Inv == "Final")
+{
+	v_IsFinal = "yes";
+}
+v_Out.add("Invoice_Status raw: [" + v_Inv + "] skipped as Final: " + v_IsFinal);
+if(v_P.Visit_Completion_Date == null)
+{
+	v_Out.add("Visit_Completion_Date: EMPTY, outside any window");
+}
+else
+{
+	v_Out.add("Visit_Completion_Date: " + v_P.Visit_Completion_Date.toString("MM-dd-yyyy"));
+}
+v_Fn = ifnull(v_P.Employee_First_Name,"").toString().trim();
+v_Ln = ifnull(v_P.Employee_Last_Name,"").toString().trim();
+v_Nt = ifnull(v_P.Employee_Name_Title,"").toString().trim();
+v_Ti = ifnull(v_P.Employee_Title,"").toString().trim();
+v_Fu = ifnull(v_P.Employee_Full_Name,"").toString().trim();
+v_Out.add("first[" + v_Fn + "] last[" + v_Ln + "] title[" + v_Ti + "] nameTitle[" + v_Nt + "] fullName[" + v_Fu + "]");
+v_IsComplete = "no";
+if(v_Fn != "" && v_Ln != "" && v_Nt != "" && v_Ti != "" && v_Fu != "")
+{
+	v_IsComplete = "yes";
+}
+v_Out.add("Counted as already complete: " + v_IsComplete);
+v_Em = ifnull(v_P.Employee_Email,"").toString().trim().toLowerCase();
+v_In = ifnull(v_P.Employee_Initials,"").toString().trim().toUpperCase();
+v_Out.add("Match keys: email[" + v_Em + "] initials[" + v_In + "]");
+v_Hit = "";
+v_Count = 0;
+for each  v_E in Employees[ID != 0]
+{
+	if(ifnull(v_E.Employee_Email,"").toString().trim().toLowerCase() == v_Em)
+	{
+		v_Count = v_Count + 1;
+		v_Hit = ifnull(v_E.Employee_Name_Title,"(employee has no Name_Title)").toString();
+	}
+}
+v_Out.add("Employees matching that email: " + v_Count + " gives " + v_Hit);
+v_IC = 0;
+v_IH = "";
+for each  v_E2 in Employees[ID != 0]
+{
+	if(ifnull(v_E2.Employee_Initials,"").toString().trim().toUpperCase() == v_In)
+	{
+		v_IC = v_IC + 1;
+		v_IH = ifnull(v_E2.Employee_Email,"(no email)").toString();
+	}
+}
+v_Out.add("Employees matching those initials: " + v_IC + " gives " + v_IH);
+return v_Out.toString("\n");

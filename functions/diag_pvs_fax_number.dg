@@ -1,0 +1,43 @@
+if(Encounter_PatientVisit[ID == pPvsID].count() == 0)
+{
+	info "PVS record " + pPvsID + " not found.";
+	return "not found";
+}
+v_pvs = Encounter_PatientVisit[ID == pPvsID];
+v_branch = 0;
+if(v_pvs.Billing_Branch != null)
+{
+	v_branch = v_pvs.Billing_Branch.toLong();
+}
+info "PVS: " + ifnull(v_pvs.PVS_ID,"");
+info "Billing_Branch ID: " + v_branch;
+info "Branch label: " + ifnull(v_pvs.Partner_Location_Label,"");
+if(v_branch == 0)
+{
+	info "No billing branch on this PVS.";
+	return "no branch";
+}
+v_cnt = Partner_Billing_Contacts[Partner_Location_Link == v_branch].count();
+info "Contacts for this branch, any status: " + v_cnt;
+for each  v_bc in Partner_Billing_Contacts[Partner_Location_Link == v_branch]
+{
+	v_raw = "";
+	if(v_bc.Partner_PVS_Fax != null)
+	{
+		v_raw = v_bc.Partner_PVS_Fax.toString();
+	}
+	v_three = v_raw.replaceAll("[^0-9]","",true);
+	v_two = v_raw.replaceAll("[^0-9]","");
+	v_strip = v_two;
+	if(v_two.length() == 11 && v_two.startsWith("1"))
+	{
+		v_strip = v_two.subString(1,11);
+	}
+	info "----";
+	info "Contact ID: " + v_bc.ID;
+	info "Partner_PVS_Fax RAW: [" + v_raw + "] length " + v_raw.length();
+	info "THREE-ARG replaceAll: [" + v_three + "] length " + v_three.length();
+	info "TWO-ARG replaceAll: [" + v_two + "] length " + v_two.length();
+	info "After 11 to 10 strip: [" + v_strip + "] length " + v_strip.length();
+}
+return "done";

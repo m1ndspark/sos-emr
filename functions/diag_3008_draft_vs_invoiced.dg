@@ -1,0 +1,89 @@
+if(p_from == null || p_to == null)
+{
+	return "ERROR: Enter both dates.";
+}
+v_keyMap = Map();
+for each  f in Encounter_PatientVisit[Type_of_Entry == "3008" && Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+{
+	if(f.Invoice_Link != null || f.Invoice_Status == "Final")
+	{
+		v_invNum = "no invoice link";
+		if(f.Invoice_Link != null)
+		{
+			v_inv = Invoices[ID == f.Invoice_Link];
+			if(v_inv.ID != null)
+			{
+				v_invNum = ifnull(v_inv.Books_Invoice_Number,"no Books number");
+			}
+		}
+		v_tag = ifnull(f.PVS_ID,"rec " + f.ID) + " on " + v_invNum;
+		v_dos = f.Visit_Completion_Date.toString("yyyy-MM-dd");
+		v_rid = ifnull(f.Referral_ID,"").toString().trim();
+		if(v_rid != "")
+		{
+			v_keyMap.put("T|" + v_rid + "|" + v_dos,v_tag);
+		}
+		if(f.Referral_Link != null)
+		{
+			v_keyMap.put("L|" + f.Referral_Link + "|" + v_dos,v_tag);
+		}
+	}
+}
+v_dup = List();
+v_new = List();
+v_branchDup = Map();
+v_branchNew = Map();
+v_branches = List();
+for each  p in Encounter_PatientVisit[Type_of_Entry == "3008" && Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+{
+	if(p.Invoice_Link == null && p.Invoice_Status != "Final")
+	{
+		v_label = "NO BRANCH";
+		if(p.Billing_Branch != null)
+		{
+			v_loc = Partner_Locations[ID == p.Billing_Branch];
+			v_label = ifnull(v_loc.Partner_Location_Label,"UNKNOWN");
+		}
+		if(!v_branches.contains(v_label))
+		{
+			v_branches.add(v_label);
+			v_branchDup.put(v_label,0);
+			v_branchNew.put(v_label,0);
+		}
+		v_dos = p.Visit_Completion_Date.toString("yyyy-MM-dd");
+		v_rid = ifnull(p.Referral_ID,"").toString().trim();
+		v_match = "";
+		if(v_rid != "" && v_keyMap.containKey("T|" + v_rid + "|" + v_dos))
+		{
+			v_match = v_keyMap.get("T|" + v_rid + "|" + v_dos);
+		}
+		else if(p.Referral_Link != null && v_keyMap.containKey("L|" + p.Referral_Link + "|" + v_dos))
+		{
+			v_match = v_keyMap.get("L|" + p.Referral_Link + "|" + v_dos);
+		}
+		v_line = ifnull(p.PVS_ID,"rec " + p.ID) + " | " + v_label + " | DOS " + p.Visit_Completion_Date.toString("MM-dd-yyyy") + " | Referral_ID " + v_rid + " | status [" + ifnull(p.Invoice_Status,"") + "] | hold [" + ifnull(p.Hold_From_Invoicing,"") + "]";
+		if(v_match != "")
+		{
+			v_dup.add(v_line + " | DUPLICATE OF " + v_match);
+			v_branchDup.put(v_label,v_branchDup.get(v_label) + 1);
+		}
+		else
+		{
+			v_new.add(v_line + " | NO MATCH");
+			v_branchNew.put(v_label,v_branchNew.get(v_label) + 1);
+		}
+	}
+}
+v_out = List();
+v_out.add("WINDOW " + p_from.toString("MM-dd-yyyy") + " to " + p_to.toString("MM-dd-yyyy") + " | uninvoiced 3008 with a visit date: " + (v_dup.size() + v_new.size()) + " | DUPLICATE " + v_dup.size() + " | NO MATCH " + v_new.size());
+for each  b in v_branches
+{
+	v_out.add("  " + b + " | duplicate " + v_branchDup.get(b) + " | no match " + v_branchNew.get(b));
+}
+v_out.add("");
+v_out.add("NO MATCH (possible real unbilled visits)");
+v_out.addAll(v_new);
+v_out.add("");
+v_out.add("DUPLICATE (already invoiced)");
+v_out.addAll(v_dup);
+return v_out.toString("\n");

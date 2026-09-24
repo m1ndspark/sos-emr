@@ -1,0 +1,15 @@
+v_raw = ifnull(input.Fax_Override_Number,"").toString();
+v_d = v_raw.replaceAll("[^0-9]","");
+if(v_d.length() == 11 && v_d.startsWith("1"))
+{
+	v_d = v_d.subString(1,11);
+}
+v_new = v_d;
+if(v_d.length() == 10)
+{
+	v_new = "(" + v_d.subString(0,3) + ") " + v_d.subString(3,6) + "-" + v_d.subString(6,10);
+}
+if(v_new != v_raw)
+{
+	input.Fax_Override_Number = v_new;
+}

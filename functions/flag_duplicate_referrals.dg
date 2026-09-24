@@ -1,0 +1,81 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "SKIP-NOMODE";
+}
+v_Raw = ifnull(p_pairs,"").toString().trim();
+if(v_Raw == "")
+{
+	return "SKIP-NOPAIRS";
+}
+v_Lines = List();
+v_Changed = 0;
+v_Skipped = 0;
+v_Missing = 0;
+for each  v_Pair in v_Raw.toList(",")
+{
+	v_P = v_Pair.trim();
+	if(v_P != "")
+	{
+		v_Parts = v_P.toList("|");
+		if(v_Parts.size() != 2)
+		{
+			v_Lines.add(v_P + " BADPAIR");
+		}
+		else
+		{
+			v_A = v_Parts.get(0).trim();
+			v_B = v_Parts.get(1).trim();
+			v_Sides = List();
+			v_Sides.add(v_A + "|" + v_B);
+			v_Sides.add(v_B + "|" + v_A);
+			for each  v_Side in v_Sides
+			{
+				v_S = v_Side.toList("|");
+				v_Me = v_S.get(0);
+				v_Other = v_S.get(1);
+				v_Note = "DUPLICATE OF " + v_Other;
+				v_RecId = null;
+				v_Cur = "";
+				for each  v_R in Referrals_Main[Referral_ID == v_Me]
+				{
+					v_RecId = v_R.ID;
+					v_Cur = ifnull(v_R.Data_Issues,"").toString();
+					break;
+				}
+				if(v_RecId == null)
+				{
+					v_Missing = v_Missing + 1;
+					v_Lines.add(v_Me + " NOTFOUND");
+				}
+				else if(v_Cur.contains(v_Note))
+				{
+					v_Skipped = v_Skipped + 1;
+					v_Lines.add(v_Me + " SKIP already flagged");
+				}
+				else
+				{
+					v_New = v_Note;
+					if(v_Cur.trim() != "")
+					{
+						v_New = v_Cur.trim() + "; " + v_Note;
+					}
+					if(v_Mode == "COMMIT")
+					{
+						for each  v_Upd in Referrals_Main[ID == v_RecId]
+						{
+							update v_Upd
+							[
+								Data_Issues=v_New
+							];
+						}
+					}
+					v_Changed = v_Changed + 1;
+					v_Lines.add(v_Me + " " + v_Mode + " " + v_Note);
+				}
+			}
+		}
+	}
+}
+v_Head = "FLAG DUPLICATE REFERRALS | mode=" + v_Mode + " | changed=" + v_Changed + " | skipped=" + v_Skipped + " | notfound=" + v_Missing;
+return v_Head + "\n" + v_Lines.toString("\n");

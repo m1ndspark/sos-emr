@@ -1,0 +1,152 @@
+v_floor = '22-Sep-2026'.toDate();
+v_cut = zoho.currenttime.subHour(24);
+v_missed = "";
+v_nMissed = 0;
+v_prelim = "";
+v_nPrelim = 0;
+for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && Added_Time < v_cut && Added_Time >= v_floor]
+{
+	v_fs = ifnull(v_p.Fax_Status,"").toString();
+	v_nt = ifnull(v_p.Clinical_Note_Type,"").toString();
+	v_vs = ifnull(v_p.Visit_Status,"").toString();
+	if(v_vs != "Cancelled")
+	{
+		if(v_nt == "Final" || v_nt == "Addendum")
+		{
+			if(v_fs == "" || v_fs == "Not Sent")
+			{
+				v_nMissed = v_nMissed + 1;
+				v_missed = v_missed + "<tr><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + ifnull(v_p.Patient_Full_Name_1,"") + "</td><td>" + ifnull(v_p.Partner_Location_Label,"") + "</td><td>" + v_nt + "</td></tr>";
+			}
+		}
+		else if(v_nt == "Preliminary")
+		{
+			v_nPrelim = v_nPrelim + 1;
+			v_prelim = v_prelim + "<tr><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + ifnull(v_p.Patient_Full_Name_1,"") + "</td><td>" + ifnull(v_p.Partner_Location_Label,"") + "</td></tr>";
+		}
+	}
+}
+v_fail = "";
+v_nFail = 0;
+for each  v_f in Fax_Log[Fax_Status == "Permanent Fail" || Fax_Status == "Stuck" || Fax_Status == "Retry Pending"]
+{
+	v_nFail = v_nFail + 1;
+	v_fail = v_fail + "<tr><td>" + ifnull(v_f.Fax_ID,"") + "</td><td>" + ifnull(v_f.Fax_Status,"") + "</td><td>" + ifnull(v_f.Destination_Name,"") + "</td><td>" + ifnull(v_f.Destination_Fax,"") + "</td><td>" + ifnull(v_f.Fax_Error_Code,"") + "</td></tr>";
+}
+v_ovr = "";
+v_nOvr = 0;
+for each  v_o in Fax_Log[Number_Source == "Manual Override" && Submitted_Time > v_cut]
+{
+	v_sender = "";
+	if(v_o.Sent_By != null)
+	{
+		for each  v_e in Employees[ID == v_o.Sent_By]
+		{
+			v_sender = ifnull(v_e.Employee_Name_Title,"").toString().trim();
+			break;
+		}
+	}
+	if(v_sender == "")
+	{
+		v_sender = ifnull(v_o.Added_User,"").toString().trim();
+	}
+	if(v_sender == "")
+	{
+		v_sender = "unknown";
+	}
+	v_nOvr = v_nOvr + 1;
+	v_ovr = v_ovr + "<tr><td>" + ifnull(v_o.Fax_ID,"") + "</td><td>" + v_sender + "</td><td>" + ifnull(v_o.Destination_Name,"") + "</td><td>" + ifnull(v_o.Destination_Fax,"") + "</td><td>" + ifnull(v_o.Override_Reason,"") + "</td></tr>";
+}
+if(v_nMissed == 0 && v_nPrelim == 0 && v_nFail == 0 && v_nOvr == 0)
+{
+	return "nothing to report";
+}
+v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+if(v_cfg.count() == 0)
+{
+	return "aborted: no ZEPTOMAIL config";
+}
+v_token = ifnull(v_cfg.Zepto_Send_Token,"").trim();
+if(v_token == "")
+{
+	return "aborted: no Zepto send token";
+}
+v_css = "<style>body{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111;} h2{color:#0B0B5B;font-size:15px;margin:18px 0 6px 0;} table{border-collapse:collapse;width:100%;margin-bottom:8px;} th{background:#0B0B5B;color:#fff;text-align:left;padding:5px 7px;font-size:11px;letter-spacing:.6px;} td{border:1px solid #BFBFBF;padding:5px 7px;} .none{color:#4C4C89;}</style>";
+v_body = "<h1 style='font-size:17px;color:#0B0B5B;'>SOS Fax Digest - " + zoho.currentdate.toString("MM/dd/yyyy") + "</h1>";
+v_body = v_body + "<h2>Unfaxed final notes past 24 hours (" + v_nMissed + ")</h2>";
+if(v_nMissed > 0)
+{
+	v_body = v_body + "<table><tr><th>PVS</th><th>Patient</th><th>Branch</th><th>Note Type</th></tr>" + v_missed + "</table>";
+}
+else
+{
+	v_body = v_body + "<p class='none'>None.</p>";
+}
+v_body = v_body + "<h2>Preliminary notes past 24 hours (" + v_nPrelim + ")</h2>";
+if(v_nPrelim > 0)
+{
+	v_body = v_body + "<table><tr><th>PVS</th><th>Patient</th><th>Branch</th></tr>" + v_prelim + "</table>";
+}
+else
+{
+	v_body = v_body + "<p class='none'>None.</p>";
+}
+v_body = v_body + "<h2>Fax failures needing attention (" + v_nFail + ")</h2>";
+if(v_nFail > 0)
+{
+	v_body = v_body + "<table><tr><th>Fax ID</th><th>Status</th><th>Destination</th><th>Number</th><th>Error</th></tr>" + v_fail + "</table>";
+}
+else
+{
+	v_body = v_body + "<p class='none'>None.</p>";
+}
+v_body = v_body + "<h2>Number overrides in the last 24 hours (" + v_nOvr + ")</h2>";
+if(v_nOvr > 0)
+{
+	v_body = v_body + "<table><tr><th>Fax ID</th><th>Sent By</th><th>Destination</th><th>Number Used</th><th>Reason</th></tr>" + v_ovr + "</table>";
+}
+else
+{
+	v_body = v_body + "<p class='none'>None.</p>";
+}
+v_html = "<html><head><meta charset='utf-8'>" + v_css + "</head><body>" + v_body + "</body></html>";
+v_fromMap = Map();
+v_fromMap.put("address","notifications@sosreferrals.com");
+v_fromMap.put("name","SOS Mobile Medical Care");
+v_toList = List();
+for each  v_addr in {"joshua.kolanko@sosmmc.com","neil.heird@sosmmc.com"}
+{
+	v_addrMap = Map();
+	v_addrMap.put("address",v_addr);
+	v_entry = Map();
+	v_entry.put("email_address",v_addrMap);
+	v_toList.add(v_entry);
+}
+v_payload = Map();
+v_payload.put("from",v_fromMap);
+v_payload.put("to",v_toList);
+v_payload.put("subject","SOS Fax Digest - " + zoho.currentdate.toString("MM/dd/yyyy"));
+v_payload.put("htmlbody",v_html);
+v_hdr = Map();
+v_hdr.put("Accept","application/json");
+v_hdr.put("Content-Type","application/json");
+v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+v_thrown = "";
+try 
+{
+	v_resp = invokeurl
+	[
+		url :"https://api.zeptomail.com/v1.1/email"
+		type :POST
+		body:v_payload.toString()
+		headers:v_hdr
+	];
+}	catch (e)
+{
+	v_thrown = e.message.toString();
+}
+if(v_thrown != "")
+{
+	return "send failed: " + v_thrown;
+}
+return "sent: missed " + v_nMissed + ", prelim " + v_nPrelim + ", failures " + v_nFail + ", overrides " + v_nOvr;

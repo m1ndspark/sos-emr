@@ -22,6 +22,7 @@ if(input.Referral_Link != null)
 		input.Referral_ID = v_Rec.Referral_ID;
 		input.Referral_ID_Stamp = v_Rec.Referral_ID_Stamp;
 		input.Referral_Date = v_Rec.Referral_Date;
+		input.Referral_Source = v_Rec.Referral_Source;
 		input.Partner_ID = v_Rec.Partner_ID;
 		input.Partner_ID_Stamp = v_Rec.Partner_ID_Stamp;
 		input.Partner_Organization = v_Rec.Partner_Organization;
@@ -74,7 +75,6 @@ if(input.Referral_Link != null)
 			hide Facility_Room_Number;
 		}
 		disable Partner_Organization;
-		disable Partner_Branch;
 		disable Partner_POC_Phone;
 		disable Partner_POC_Email;
 		disable Partner_POC_Team;
@@ -109,6 +109,7 @@ else
 	input.Referral_ID = null;
 	input.Referral_ID_Stamp = null;
 	input.Referral_Date = null;
+	input.Referral_Source = null;
 	input.Partner_ID = null;
 	input.Partner_ID_Stamp = null;
 	input.Partner_Organization = null;

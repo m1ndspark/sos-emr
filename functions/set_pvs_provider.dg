@@ -1,63 +1,135 @@
-v_target = null;
-for each  p in Encounter_PatientVisit[PVS_ID == p_pvsId]
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
 {
-	v_target = p;
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_Pvs = ifnull(p_pvsId,"").toString().trim();
+v_Em = ifnull(p_employeeEmail,"").toString().trim().toLowerCase();
+if(v_Pvs == "")
+{
+	return "PVS ID is required.";
+}
+if(v_Em == "")
+{
+	return "Employee email is required.";
+}
+v_Tid = null;
+v_CurId = "";
+v_CurFn = "";
+v_CurLn = "";
+v_CurTi = "";
+v_CurIn = "";
+v_CurEm = "";
+v_CurNt = "";
+v_CurFull = "";
+v_CurLogin = "";
+v_CurLink = "";
+for each  v_P in Encounter_PatientVisit[PVS_ID == v_Pvs]
+{
+	v_Tid = v_P.ID;
+	v_CurId = ifnull(v_P.PVS_ID,"").toString().trim();
+	v_CurFn = ifnull(v_P.Employee_First_Name,"").toString().trim();
+	v_CurLn = ifnull(v_P.Employee_Last_Name,"").toString().trim();
+	v_CurTi = ifnull(v_P.Employee_Title,"").toString().trim();
+	v_CurIn = ifnull(v_P.Employee_Initials,"").toString().trim();
+	v_CurEm = ifnull(v_P.Employee_Email,"").toString().trim();
+	v_CurNt = ifnull(v_P.Employee_Name_Title,"").toString().trim();
+	v_CurFull = ifnull(v_P.Employee_Full_Name,"").toString().trim();
+	v_CurLogin = ifnull(v_P.Provider_Login_Email,"").toString().trim();
+	v_CurLink = ifnull(v_P.Employee_Link,"").toString().trim();
 	break;
 }
-if(v_target == null)
+if(v_Tid == null)
 {
-	return "No PVS found with PVS_ID " + p_pvsId + ".";
+	return "No PVS found with PVS_ID " + v_Pvs + ".";
 }
-v_emp = null;
-for each  e in Employees[Employee_Email == p_employeeEmail]
+v_Eid = null;
+v_Fn = "";
+v_Ln = "";
+v_Ti = "";
+v_In = "";
+v_Work = "";
+v_Portal = "";
+v_Nt = "";
+for each  v_E in Employees[ID != 0]
 {
-	v_emp = e;
-	break;
-}
-if(v_emp == null)
-{
-	return "No Employees record with email " + p_employeeEmail + ".";
-}
-v_first = ifnull(v_emp.Employee_First_Name,"");
-v_last = ifnull(v_emp.Employee_Last_Name,"");
-v_title = ifnull(v_emp.Employee_Title,"");
-v_init = ifnull(v_emp.Employee_Initials,"");
-v_fullname = (v_first + " " + v_last).trim();
-v_nametitle = v_fullname;
-if(v_title.trim() != "" && v_nametitle != "")
-{
-	v_nametitle = v_nametitle + ", " + v_title.trim();
-}
-v_newId = ifnull(v_target.PVS_ID,"");
-v_idnote = "PVS_ID unchanged.";
-if(v_newId.endsWith("-") && v_init.trim() != "")
-{
-	v_candidate = v_newId + v_init.trim();
-	v_clash = false;
-	for each  c in Encounter_PatientVisit[PVS_ID == v_candidate]
+	v_W = ifnull(v_E.Employee_Email,"").toString().trim().toLowerCase();
+	v_Po = ifnull(v_E.Employee_Portal_Email,"").toString().trim().toLowerCase();
+	if(v_W == v_Em || v_Po == v_Em)
 	{
-		v_clash = true;
+		v_Eid = v_E.ID;
+		v_Fn = ifnull(v_E.Employee_First_Name,"").toString().trim();
+		v_Ln = ifnull(v_E.Employee_Last_Name,"").toString().trim();
+		v_Ti = ifnull(v_E.Employee_Title,"").toString().trim();
+		v_In = ifnull(v_E.Employee_Initials,"").toString().trim();
+		v_Work = ifnull(v_E.Employee_Email,"").toString().trim();
+		v_Portal = ifnull(v_E.Employee_Portal_Email,"").toString().trim();
+		v_Nt = ifnull(v_E.Employee_Name_Title,"").toString().trim();
 		break;
 	}
-	if(v_clash)
-	{
-		v_idnote = "PVS_ID not changed - " + v_candidate + " already exists.";
-	}
-	else
-	{
-		v_newId = v_candidate;
-		v_idnote = "PVS_ID repaired to " + v_newId + ".";
-	}
 }
-update v_target
-[
-	Employee_First_Name=v_first
-	Employee_Last_Name=v_last
-	Employee_Title=v_title
-	Employee_Initials=v_init
-	Employee_Email=ifnull(v_emp.Employee_Email,"")
-	Employee_Full_Name=v_fullname
-	Employee_Name_Title=v_nametitle
-	PVS_ID=v_newId
-];
-return "Provider set to " + v_nametitle + ". " + v_idnote;
+if(v_Eid == null)
+{
+	return "No Employees record matches " + v_Em + ".";
+}
+if(v_In == "")
+{
+	return "Employee " + v_Fn + " " + v_Ln + " has no Employee_Initials. Set that first.";
+}
+v_Login = v_Work;
+if(v_Portal != "")
+{
+	v_Login = v_Portal;
+}
+v_Full = (v_Fn + " " + v_Ln).trim();
+v_Parts = v_CurId.toList("-");
+if(v_Parts.size() < 2)
+{
+	return "PVS_ID " + v_CurId + " is not in the expected PVS-nnnn- format.";
+}
+v_NewId = v_Parts.get(0) + "-" + v_Parts.get(1) + "-" + v_In;
+v_Clash = "";
+for each  v_C in Encounter_PatientVisit[PVS_ID == v_NewId]
+{
+	if(v_C.ID != v_Tid)
+	{
+		v_Clash = v_C.ID.toString();
+	}
+	break;
+}
+if(v_Clash != "")
+{
+	return "PVS_ID " + v_NewId + " already exists on record " + v_Clash + ". Nothing changed.";
+}
+v_Out = "MODE: " + v_Mode + "\n";
+v_Out = v_Out + "Record: " + v_Tid + "\n";
+v_Out = v_Out + "Employee: " + v_Full + " " + v_Ti + " (" + v_Eid + ")\n\n";
+v_Out = v_Out + "PVS_ID: [" + v_CurId + "] -> [" + v_NewId + "]\n";
+v_Out = v_Out + "Employee_Link: [" + v_CurLink + "] -> [" + v_Eid + "]\n";
+v_Out = v_Out + "Employee_First_Name: [" + v_CurFn + "] -> [" + v_Fn + "]\n";
+v_Out = v_Out + "Employee_Last_Name: [" + v_CurLn + "] -> [" + v_Ln + "]\n";
+v_Out = v_Out + "Employee_Title: [" + v_CurTi + "] -> [" + v_Ti + "]\n";
+v_Out = v_Out + "Employee_Initials: [" + v_CurIn + "] -> [" + v_In + "]\n";
+v_Out = v_Out + "Employee_Email: [" + v_CurEm + "] -> [" + v_Work + "]\n";
+v_Out = v_Out + "Employee_Name_Title: [" + v_CurNt + "] -> [" + v_Nt + "]\n";
+v_Out = v_Out + "Employee_Full_Name: [" + v_CurFull + "] -> [" + v_Full + "]\n";
+v_Out = v_Out + "Provider_Login_Email: [" + v_CurLogin + "] -> [" + v_Login + "]\n";
+if(v_Mode == "COMMIT")
+{
+	for each  v_U in Encounter_PatientVisit[ID == v_Tid]
+	{
+		v_U.PVS_ID=v_NewId;
+		v_U.Employee_Link=v_Eid;
+		v_U.Employee_First_Name=v_Fn;
+		v_U.Employee_Last_Name=v_Ln;
+		v_U.Employee_Title=v_Ti;
+		v_U.Employee_Initials=v_In;
+		v_U.Employee_Email=v_Work;
+		v_U.Employee_Name_Title=v_Nt;
+		v_U.Employee_Full_Name=v_Full;
+		v_U.Provider_Login_Email=v_Login;
+		break;
+	}
+	v_Out = v_Out + "\nCOMMITTED.";
+}
+return v_Out;

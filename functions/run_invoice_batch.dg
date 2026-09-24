@@ -3,23 +3,53 @@ if(v_b.ID == null)
 {
 	return "ERROR: Batch record not found.";
 }
+v_hist = ifnull(v_b.Result_Message,"").toString();
+if(!v_hist.contains("Invoice created:"))
+{
+	v_hist = "";
+}
+v_stamp = zoho.currenttime.toString("MM-dd-yyyy hh:mm a");
 if(v_b.Partner_Location_Link == null)
 {
+	v_line = v_stamp + " - ERROR: No billing branch selected.";
 	v_b.Batch_Status="Failed";
-	v_b.Result_Message="ERROR: No billing branch selected.";
-	return v_b.Result_Message;
+	if(v_hist == "")
+	{
+		v_b.Result_Message=v_line;
+	}
+	else
+	{
+		v_b.Result_Message=v_hist + "\n" + v_line;
+	}
+	return v_line;
 }
 if(v_b.Date_From == null || v_b.Date_To == null)
 {
+	v_line = v_stamp + " - ERROR: Date From and Date To are both required.";
 	v_b.Batch_Status="Failed";
-	v_b.Result_Message="ERROR: Date From and Date To are both required.";
-	return v_b.Result_Message;
+	if(v_hist == "")
+	{
+		v_b.Result_Message=v_line;
+	}
+	else
+	{
+		v_b.Result_Message=v_hist + "\n" + v_line;
+	}
+	return v_line;
 }
 if(v_b.Date_From > v_b.Date_To)
 {
+	v_line = v_stamp + " - ERROR: Date From is after Date To.";
 	v_b.Batch_Status="Failed";
-	v_b.Result_Message="ERROR: Date From is after Date To.";
-	return v_b.Result_Message;
+	if(v_hist == "")
+	{
+		v_b.Result_Message=v_line;
+	}
+	else
+	{
+		v_b.Result_Message=v_hist + "\n" + v_line;
+	}
+	return v_line;
 }
 v_cap = 0.0;
 if(p_maxTotal != null)
@@ -129,38 +159,70 @@ for each  v_r in v_recs
 }
 if(v_dups.size() > 0)
 {
+	v_line = v_stamp + " - STOPPED - nothing was invoiced. " + v_dups.size() + " possible duplicate visit pair(s) found. Each pair below shares the same referral, date of service and complexity level, which usually means the same visit was entered or imported twice. TO RESOLVE: open both records in each pair, decide which one is correct, and set Hold From Invoicing = Yes on the other; if neither should be billed, set its Complexity Level to Visit Cancelled. Then run this batch again. PAIRS: " + v_dups.toString("; ");
 	v_b.Batch_Status="Failed";
-	v_b.Result_Message="STOPPED - nothing was invoiced. " + v_dups.size() + " possible duplicate visit pair(s) found. Each pair below shares the same referral, date of service and complexity level, which usually means the same visit was entered or imported twice. TO RESOLVE: open both records in each pair, decide which one is correct, and set Hold From Invoicing = Yes on the other; if neither should be billed, set its Complexity Level to Visit Cancelled. Then run this batch again. PAIRS: " + v_dups.toString("; ");
-	return v_b.Result_Message;
+	if(v_hist == "")
+	{
+		v_b.Result_Message=v_line;
+	}
+	else
+	{
+		v_b.Result_Message=v_hist + "\n" + v_line;
+	}
+	return v_line;
 }
 if(v_bad.size() > 0)
 {
+	v_line = v_stamp + " - STOPPED - nothing was invoiced. " + v_bad.size() + " visit(s) have no complexity level or no rate. TO RESOLVE: set the Complexity Level on each visit below, run backfill_pvs_complexity_charge to pull the rate from the partner's card, then run this batch again. VISITS: " + v_bad.toString(", ");
 	v_b.Batch_Status="Failed";
-	v_b.Result_Message="STOPPED - nothing was invoiced. " + v_bad.size() + " visit(s) have no complexity level or no rate. TO RESOLVE: set the Complexity Level on each visit below, run backfill_pvs_complexity_charge to pull the rate from the partner's card, then run this batch again. VISITS: " + v_bad.toString(", ");
-	return v_b.Result_Message;
+	if(v_hist == "")
+	{
+		v_b.Result_Message=v_line;
+	}
+	else
+	{
+		v_b.Result_Message=v_hist + "\n" + v_line;
+	}
+	return v_line;
 }
 if(v_ids.size() == 0)
 {
+	v_line = v_stamp + " - No eligible visits found for that branch and date range. Check the branch, the date range, and whether the visits are still in Draft and not held from invoicing.";
 	v_b.Batch_Status="Failed";
-	v_b.Result_Message="No eligible visits found for that branch and date range. Check the branch, the date range, and whether the visits are still in Draft and not held from invoicing.";
-	return v_b.Result_Message;
+	if(v_hist == "")
+	{
+		v_b.Result_Message=v_line;
+	}
+	else
+	{
+		v_b.Result_Message=v_hist + "\n" + v_line;
+	}
+	return v_line;
 }
 v_out = thisapp.create_invoice_from_selection(v_ids);
 if(v_out.startsWith("ERROR"))
 {
+	v_line = v_stamp + " - " + v_out;
 	v_b.Batch_Status="Failed";
-	v_b.Result_Message=v_out;
 }
 else
 {
 	v_b.Batch_Status="Complete";
 	if(v_left > 0)
 	{
-		v_b.Result_Message=v_out + " | Batched " + v_ids.size() + " visit(s) totalling " + v_running + ". " + v_left + " visit(s) left for the next batch.";
+		v_line = v_stamp + " - " + v_out + " | Batched " + v_ids.size() + " visit(s) totalling " + v_running + ". " + v_left + " visit(s) left for the next batch.";
 	}
 	else
 	{
-		v_b.Result_Message=v_out + " | Batched " + v_ids.size() + " visit(s) totalling " + v_running + ".";
+		v_line = v_stamp + " - " + v_out + " | Batched " + v_ids.size() + " visit(s) totalling " + v_running + ".";
 	}
 }
-return v_b.Result_Message;
+if(v_hist == "")
+{
+	v_b.Result_Message=v_line;
+}
+else
+{
+	v_b.Result_Message=v_hist + "\n" + v_line;
+}
+return v_line;

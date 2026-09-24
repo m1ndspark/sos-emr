@@ -1,0 +1,106 @@
+v_mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: p_mode must be PREVIEW or COMMIT.";
+}
+v_keys = List();
+v_map = Map();
+for each  p in Encounter_PatientVisit[Type_of_Entry == "3008"]
+{
+	v_skip = false;
+	if(p.Invoice_Link != null)
+	{
+		v_skip = true;
+	}
+	if(p.Invoice_Status == "Final")
+	{
+		v_skip = true;
+	}
+	if(p.Hold_From_Invoicing == "Yes")
+	{
+		v_skip = true;
+	}
+	if(!v_skip)
+	{
+		v_key = ifnull(p.Referral_ID,"").toString().trim();
+		if(v_key == "")
+		{
+			v_key = ifnull(p.PVS_Referral_ID,"").toString().trim();
+		}
+		if(v_key == "")
+		{
+			v_key = ifnull(p.Patient_Full_Name_1,"").toString().trim().toLowerCase();
+			if(p.Patient_DOB != null)
+			{
+				v_key = v_key + "~" + p.Patient_DOB.toString("yyyy-MM-dd");
+			}
+		}
+		if(v_key != "")
+		{
+			if(!v_keys.contains(v_key))
+			{
+				v_keys.add(v_key);
+				v_map.put(v_key,List());
+			}
+			v_l = v_map.get(v_key);
+			v_l.add(p.ID);
+			v_map.put(v_key,v_l);
+		}
+	}
+}
+v_groups = 0;
+v_retired = 0;
+v_lines = List();
+for each  k in v_keys
+{
+	v_ids = v_map.get(k);
+	if(v_ids.size() > 1)
+	{
+		v_groups = v_groups + 1;
+		v_bestId = null;
+		v_bestNum = 0;
+		v_bestPid = "";
+		for each  rid in v_ids
+		{
+			g = Encounter_PatientVisit[ID == rid];
+			v_pid = ifnull(g.PVS_ID,"");
+			v_num = 0;
+			v_parts = v_pid.toList("-");
+			if(v_parts.size() > 1)
+			{
+				v_num = v_parts.get(1).toLong();
+			}
+			if(v_bestId == null || v_num < v_bestNum)
+			{
+				v_bestId = rid;
+				v_bestNum = v_num;
+				v_bestPid = v_pid;
+			}
+		}
+		for each  rid in v_ids
+		{
+			if(rid != v_bestId)
+			{
+				d = Encounter_PatientVisit[ID == rid];
+				v_dpid = ifnull(d.PVS_ID,"");
+				v_retired = v_retired + 1;
+				if(v_lines.size() < 150)
+				{
+					v_lines.add(v_dpid + " -> duplicate of " + v_bestPid + " (key " + k + ")");
+				}
+				if(v_mode == "COMMIT")
+				{
+					d.Hold_From_Invoicing="Yes";
+					d.Row_Status="Duplicate";
+					d.Duplicate_Of_PVS_ID=v_bestPid;
+				}
+			}
+		}
+	}
+}
+v_out = "MODE: " + v_mode + " | Duplicate groups: " + v_groups + " | Records to retire: " + v_retired;
+if(v_lines.size() > 0)
+{
+	v_out = v_out + "\n\n" + v_lines.toString("\n");
+}
+return v_out;

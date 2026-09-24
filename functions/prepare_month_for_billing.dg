@@ -1,0 +1,189 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_From = p_from.toDate();
+v_To = p_to.toDate();
+v_Total = 0;
+v_SkipFinal = 0;
+v_Linked = 0;
+v_LinkFail = 0;
+v_Branched = 0;
+v_BranchFail = 0;
+v_Charged = 0;
+v_Zeroed = 0;
+v_NoRate = 0;
+v_NeedLevel = List();
+v_StillNoLink = List();
+v_StillNoBranch = List();
+v_StillNoCharge = List();
+v_MissRates = List();
+v_Counts = Map();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= v_From && Visit_Completion_Date <= v_To]
+{
+	v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	if(v_Inv == "Final")
+	{
+		v_SkipFinal = v_SkipFinal + 1;
+		continue;
+	}
+	v_Total = v_Total + 1;
+	v_PvsId = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+	v_RefTxt = ifnull(v_P.Referral_ID,"").toString().trim();
+	v_LinkId = v_P.Referral_Link;
+	if(v_LinkId == null && v_RefTxt != "")
+	{
+		v_R = Referrals_Main[Referral_ID == v_RefTxt];
+		if(v_R.ID != null)
+		{
+			v_Linked = v_Linked + 1;
+			v_LinkId = v_R.ID;
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Referral_Link=v_R.ID;
+			}
+		}
+		else
+		{
+			v_LinkFail = v_LinkFail + 1;
+			v_StillNoLink.add(v_PvsId + " to " + v_RefTxt + " not in Referrals_Main");
+		}
+	}
+	else if(v_LinkId == null)
+	{
+		v_LinkFail = v_LinkFail + 1;
+		v_StillNoLink.add(v_PvsId + " has no Referral ID text to match on");
+	}
+	v_BranchId = v_P.Billing_Branch;
+	if(v_BranchId == null && v_LinkId != null)
+	{
+		v_R2 = Referrals_Main[ID == v_LinkId];
+		if(v_R2.ID != null && v_R2.Partner_Branch_Link != null)
+		{
+			v_BranchId = v_R2.Partner_Branch_Link;
+			v_Branched = v_Branched + 1;
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Billing_Branch=v_R2.Partner_Branch_Link;
+				v_Loc = Partner_Locations[ID == v_R2.Partner_Branch_Link];
+				if(v_Loc.ID != null)
+				{
+					v_P.Partner_Branch=v_Loc.Partner_Location_Name;
+					v_P.Partner_Location_Label=v_Loc.Partner_Location_Label;
+					v_P.Partner_Organization=v_Loc.Partner_Link.Partner_Display_Name;
+				}
+			}
+		}
+		else
+		{
+			v_BranchFail = v_BranchFail + 1;
+			v_StillNoBranch.add(v_PvsId + " referral has no Partner_Branch_Link");
+		}
+	}
+	else if(v_BranchId == null)
+	{
+		v_BranchFail = v_BranchFail + 1;
+		v_StillNoBranch.add(v_PvsId + " has no referral link to derive a branch from");
+	}
+	v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+	if(v_Lvl == "")
+	{
+		v_NeedLevel.add(v_PvsId);
+		continue;
+	}
+	v_CK = v_Counts.get(v_Lvl);
+	if(v_CK == null)
+	{
+		v_CK = 0;
+	}
+	v_Counts.put(v_Lvl,v_CK + 1);
+	if(v_Lvl == "No Charge" || v_Lvl == "Visit Cancelled")
+	{
+		if(v_P.Complexity_Charge == null)
+		{
+			v_Zeroed = v_Zeroed + 1;
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Complexity_Charge=0;
+			}
+		}
+		continue;
+	}
+	v_Amt = 0.0;
+	if(v_P.Complexity_Charge != null)
+	{
+		v_Amt = v_P.Complexity_Charge.toDecimal();
+	}
+	if(v_Amt > 0)
+	{
+		continue;
+	}
+	if(v_BranchId == null)
+	{
+		v_StillNoCharge.add(v_PvsId + " no branch, cannot price");
+		continue;
+	}
+	v_Rate = null;
+	for each  v_Rt in Partner_Rates[Partner_Location_Link == v_BranchId && Rate_Type == v_Lvl && Current_Rate == "Yes"]
+	{
+		v_Rate = v_Rt.Rate_Amount;
+		break;
+	}
+	if(v_Rate == null)
+	{
+		v_NoRate = v_NoRate + 1;
+		v_Loc2 = Partner_Locations[ID == v_BranchId];
+		v_Key = ifnull(v_Loc2.Partner_Location_Label,"(unknown branch)") + " / " + v_Lvl;
+		if(!v_MissRates.contains(v_Key))
+		{
+			v_MissRates.add(v_Key);
+		}
+		v_StillNoCharge.add(v_PvsId + " no current rate for " + v_Key);
+	}
+	else
+	{
+		v_Charged = v_Charged + 1;
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Complexity_Charge=v_Rate;
+		}
+	}
+}
+v_Out = v_Mode + " | window " + v_From.toString("MM-dd-yyyy") + " to " + v_To.toString("MM-dd-yyyy") + " | visits in scope: " + v_Total + " | already Final, skipped: " + v_SkipFinal;
+v_Out = v_Out + "\n\nACTIONS";
+v_Out = v_Out + "\nReferral links set: " + v_Linked;
+v_Out = v_Out + "\nBilling branches set: " + v_Branched;
+v_Out = v_Out + "\nComplexity charges priced: " + v_Charged;
+v_Out = v_Out + "\nNon-billable set to zero: " + v_Zeroed;
+v_Out = v_Out + "\n\nSTILL BLOCKING AFTER THIS RUN";
+v_Out = v_Out + "\nNo referral link: " + v_LinkFail;
+v_Out = v_Out + "\nNo billing branch: " + v_BranchFail;
+v_Out = v_Out + "\nNo complexity level (needs a human): " + v_NeedLevel.size();
+v_Out = v_Out + "\nNo complexity charge: " + v_StillNoCharge.size();
+v_Out = v_Out + "\n\nVISIT COUNTS BY COMPLEXITY LEVEL";
+for each  v_K in v_Counts.keys()
+{
+	v_Out = v_Out + "\n" + v_K + ": " + v_Counts.get(v_K);
+}
+if(v_NeedLevel.size() > 0)
+{
+	v_Out = v_Out + "\n\nSET COMPLEXITY LEVEL ON THESE\n" + v_NeedLevel.toString("\n");
+}
+if(v_StillNoLink.size() > 0)
+{
+	v_Out = v_Out + "\n\nUNLINKED\n" + v_StillNoLink.toString("\n");
+}
+if(v_StillNoBranch.size() > 0)
+{
+	v_Out = v_Out + "\n\nNO BRANCH\n" + v_StillNoBranch.toString("\n");
+}
+if(v_StillNoCharge.size() > 0)
+{
+	v_Out = v_Out + "\n\nNO CHARGE\n" + v_StillNoCharge.toString("\n");
+}
+if(v_MissRates.size() > 0)
+{
+	v_Out = v_Out + "\n\nMISSING RATE CARDS\n" + v_MissRates.toString("\n");
+}
+return v_Out;

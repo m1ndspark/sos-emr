@@ -182,6 +182,8 @@ v_payload = Map();
 v_payload.put("customer_id",v_loc.Books_Customer_ID);
 v_payload.put("date",zoho.currentdate.toString("yyyy-MM-dd"));
 v_payload.put("reference_number",v_invId.toString());
+v_payload.put("payment_terms",30);
+v_payload.put("payment_terms_label","Net 30");
 v_payload.put("line_items",v_lineItems);
 v_headers = Map();
 v_headers.put("Content-Type","application/json");
@@ -206,7 +208,12 @@ if(v_resp.get("code") == 0)
 }
 else
 {
+	v_msg = v_resp.toString();
+	if(v_msg.length() > 2000)
+	{
+		v_msg = v_msg.subString(0,2000);
+	}
 	v_inv.Invoice_Record_Status="Failed";
-	v_inv.Books_Sync_Message=v_resp.toString().left(2000);
+	v_inv.Books_Sync_Message=v_msg;
 	return "INVID:" + v_invId + "|ERROR: Books rejected the invoice. See Books Sync Message on invoice record " + v_invId + ".";
 }

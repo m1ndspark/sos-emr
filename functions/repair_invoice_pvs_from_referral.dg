@@ -1,0 +1,279 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Raw = ifnull(p_invoiceNumbers,"").toString().trim();
+if(v_Raw == "")
+{
+	return "ERROR: Enter one or more Books invoice numbers separated by commas, for example INV-000090,INV-000091.";
+}
+v_Nums = List();
+for each  v_Piece in v_Raw.toList(",")
+{
+	v_N = v_Piece.trim();
+	if(v_N != "" && !v_Nums.contains(v_N))
+	{
+		v_Nums.add(v_N);
+	}
+}
+v_Total = 0;
+v_Eligible = 0;
+v_Written = 0;
+v_NotFound = List();
+v_Trace = List();
+v_Msgs = List();
+v_Conflict = List();
+v_DobBlock = List();
+v_Bad = List();
+v_StillBlank = List();
+for each  v_Num in v_Nums
+{
+	v_Inv = Invoices[Books_Invoice_Number == v_Num];
+	if(v_Inv.ID == null)
+	{
+		v_NotFound.add(v_Num);
+		continue;
+	}
+	for each  v_P in Encounter_PatientVisit[Invoice_Link == v_Inv.ID]
+	{
+		v_Total = v_Total + 1;
+		v_PvsId = ifnull(v_P.PVS_ID,"rec " + v_P.ID).toString();
+		v_TextRef = ifnull(v_P.Referral_ID,"").toString().trim();
+		v_LinkVal = "";
+		v_LinkRecId = 0;
+		v_LinkRefId = "";
+		if(v_P.Referral_Link != null)
+		{
+			v_LinkVal = v_P.Referral_Link.toString();
+			v_RL = Referrals_Main[ID == v_P.Referral_Link];
+			if(v_RL.ID != null)
+			{
+				v_LinkRecId = v_RL.ID;
+				v_LinkRefId = ifnull(v_RL.Referral_ID,"(no REF ID)").toString();
+			}
+			else
+			{
+				v_LinkRefId = "DEAD";
+			}
+		}
+		v_TextRecId = 0;
+		v_TextFound = "";
+		if(v_TextRef != "")
+		{
+			v_RT = Referrals_Main[Referral_ID == v_TextRef];
+			if(v_RT.ID != null)
+			{
+				v_TextRecId = v_RT.ID;
+				v_TextFound = ifnull(v_RT.Referral_ID,"").toString();
+			}
+			else
+			{
+				v_TextFound = "NOT FOUND";
+			}
+		}
+		v_Trace.add(v_Num + " | " + v_PvsId + " | link=" + v_LinkVal + " -> " + v_LinkRefId + " | text=" + v_TextRef + " -> " + v_TextFound);
+		if(v_LinkRecId != 0 && v_TextRecId != 0 && v_LinkRecId != v_TextRecId)
+		{
+			v_Conflict.add(v_Num + " | " + v_PvsId + " link points to " + v_LinkRefId + " but Referral_ID text points to " + v_TextFound);
+			continue;
+		}
+		v_UseRecId = 0;
+		v_Via = "";
+		if(v_LinkRecId != 0)
+		{
+			v_UseRecId = v_LinkRecId;
+			v_Via = "link";
+		}
+		else if(v_TextRecId != 0)
+		{
+			v_UseRecId = v_TextRecId;
+			v_Via = "Referral_ID";
+		}
+		if(v_UseRecId == 0)
+		{
+			v_Bad.add(v_Num + " | " + v_PvsId + " no referral found (link=" + v_LinkRefId + ", text=" + v_TextRef + ")");
+			continue;
+		}
+		v_R = Referrals_Main[ID == v_UseRecId];
+		v_RefLabel = ifnull(v_R.Referral_ID,"").toString();
+		if(v_R.Patient_DOB == null)
+		{
+			v_DobBlock.add(v_Num + " | " + v_PvsId + " -> " + v_RefLabel + " referral has no DOB, cannot verify patient");
+			continue;
+		}
+		if(v_P.Patient_DOB != null && v_P.Patient_DOB != v_R.Patient_DOB)
+		{
+			v_DobBlock.add(v_Num + " | " + v_PvsId + " -> " + v_RefLabel + " DOB MISMATCH (PVS " + v_P.Patient_DOB.toString("M/d/yyyy") + " vs referral " + v_R.Patient_DOB.toString("M/d/yyyy") + ")");
+			continue;
+		}
+		v_Eligible = v_Eligible + 1;
+		v_Filled = List();
+		v_Name1 = ifnull(v_P.Patient_Full_Name_1,"").toString().trim();
+		v_Mrn = ifnull(v_P.Patient_Hospice_ID,"").toString().trim();
+		if(v_Name1 == "")
+		{
+			v_Val = ifnull(v_R.Patient_Full_Name,"").toString().trim();
+			if(v_Val != "")
+			{
+				v_Filled.add("Patient_Full_Name_1");
+				v_Name1 = v_Val;
+				if(v_Mode == "COMMIT")
+				{
+					v_P.Patient_Full_Name_1=v_Val;
+				}
+			}
+		}
+		if(ifnull(v_P.Patient_Full_Name_2,"").toString().trim() == "")
+		{
+			v_Val = ifnull(v_R.Patient_Full_Name,"").toString().trim();
+			if(v_Val != "")
+			{
+				v_Filled.add("Patient_Full_Name_2");
+				if(v_Mode == "COMMIT")
+				{
+					v_P.Patient_Full_Name_2=v_Val;
+				}
+			}
+		}
+		if(ifnull(v_P.Patient_First_Name,"").toString().trim() == "")
+		{
+			v_Val = ifnull(v_R.Patient_First_Name,"").toString().trim();
+			if(v_Val != "")
+			{
+				v_Filled.add("Patient_First_Name");
+				if(v_Mode == "COMMIT")
+				{
+					v_P.Patient_First_Name=v_Val;
+				}
+			}
+		}
+		if(ifnull(v_P.Patient_MI,"").toString().trim() == "")
+		{
+			v_Val = ifnull(v_R.Patient_MI,"").toString().trim();
+			if(v_Val != "")
+			{
+				v_Filled.add("Patient_MI");
+				if(v_Mode == "COMMIT")
+				{
+					v_P.Patient_MI=v_Val;
+				}
+			}
+		}
+		if(ifnull(v_P.Patient_Last_Name,"").toString().trim() == "")
+		{
+			v_Val = ifnull(v_R.Patient_Last_Name,"").toString().trim();
+			if(v_Val != "")
+			{
+				v_Filled.add("Patient_Last_Name");
+				if(v_Mode == "COMMIT")
+				{
+					v_P.Patient_Last_Name=v_Val;
+				}
+			}
+		}
+		if(v_P.Patient_DOB == null)
+		{
+			v_Filled.add("Patient_DOB");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Patient_DOB=v_R.Patient_DOB;
+			}
+		}
+		if(ifnull(v_P.Patient_Gender,"").toString().trim() == "")
+		{
+			v_Val = ifnull(v_R.Patient_Gender,"").toString().trim();
+			if(v_Val != "")
+			{
+				v_Filled.add("Patient_Gender");
+				if(v_Mode == "COMMIT")
+				{
+					v_P.Patient_Gender=v_Val;
+				}
+			}
+		}
+		if(v_Mrn == "")
+		{
+			v_Val = ifnull(v_R.Patient_Hospice_ID,"").toString().trim();
+			if(v_Val != "")
+			{
+				v_Filled.add("Patient_Hospice_ID");
+				v_Mrn = v_Val;
+				if(v_Mode == "COMMIT")
+				{
+					v_P.Patient_Hospice_ID=v_Val;
+				}
+			}
+		}
+		if(ifnull(v_P.Reason_for_Referral,"").toString().trim() == "")
+		{
+			v_Val = ifnull(v_R.Referral_Reason,"").toString().trim();
+			if(v_Val != "")
+			{
+				v_Filled.add("Reason_for_Referral");
+				if(v_Mode == "COMMIT")
+				{
+					v_P.Reason_for_Referral=v_Val;
+				}
+			}
+		}
+		if(v_Via == "Referral_ID")
+		{
+			v_Filled.add("Referral_Link");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Referral_Link=v_UseRecId;
+			}
+		}
+		if(v_Filled.size() > 0 && v_Mode == "COMMIT")
+		{
+			v_Written = v_Written + 1;
+		}
+		v_FillTxt = "nothing to fill";
+		if(v_Filled.size() > 0)
+		{
+			v_FillTxt = v_Filled.toString(", ");
+		}
+		v_Msgs.add(v_Num + " | " + v_PvsId + " -> " + v_RefLabel + " (via " + v_Via + ", DOB match) : " + v_FillTxt);
+		if(v_Name1 == "" || v_Mrn == "")
+		{
+			v_Gap = List();
+			if(v_Name1 == "")
+			{
+				v_Gap.add("NAME");
+			}
+			if(v_Mrn == "")
+			{
+				v_Gap.add("MRN");
+			}
+			v_StillBlank.add(v_Num + " | " + v_PvsId + " still blank: " + v_Gap.toString(", ") + " (blank on referral " + v_RefLabel + " too)");
+		}
+	}
+}
+v_Out = v_Mode + " | invoices=" + v_Nums.size() + " | PVS=" + v_Total + " | eligible=" + v_Eligible + " | conflicts=" + v_Conflict.size() + " | DOB blocked=" + v_DobBlock.size() + " | unmatched=" + v_Bad.size() + " | written=" + v_Written;
+if(v_NotFound.size() > 0)
+{
+	v_Out = v_Out + "\n\nINVOICES NOT FOUND\n" + v_NotFound.toString("\n");
+}
+if(v_Conflict.size() > 0)
+{
+	v_Out = v_Out + "\n\nCONFLICTS (NOT WRITTEN)\n" + v_Conflict.toString("\n");
+}
+if(v_DobBlock.size() > 0)
+{
+	v_Out = v_Out + "\n\nDOB BLOCKED (NOT WRITTEN)\n" + v_DobBlock.toString("\n");
+}
+if(v_Bad.size() > 0)
+{
+	v_Out = v_Out + "\n\nUNMATCHED\n" + v_Bad.toString("\n");
+}
+if(v_StillBlank.size() > 0)
+{
+	v_Out = v_Out + "\n\nSTILL BLANK AFTER REPAIR\n" + v_StillBlank.toString("\n");
+}
+if(v_Msgs.size() > 0)
+{
+	v_Out = v_Out + "\n\nFIELDS FILLED\n" + v_Msgs.toString("\n");
+}
+v_Out = v_Out + "\n\nTRACE\n" + v_Trace.toString("\n");
+return v_Out;

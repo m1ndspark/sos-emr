@@ -1,0 +1,88 @@
+v_From = '01-Aug-2026';
+v_To = '31-Aug-2026';
+v_Total = 0;
+v_NoBranch = 0;
+v_NoComplexity = 0;
+v_NoCharge = 0;
+v_NoLink = 0;
+v_NoReason = 0;
+v_Draft = 0;
+v_Final = 0;
+v_OtherInv = 0;
+v_Types = Map();
+v_Branches = Map();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= v_From && Visit_Completion_Date <= v_To]
+{
+	v_Total = v_Total + 1;
+	v_T = ifnull(v_P.Type_of_Entry,"(blank)").toString();
+	v_TC = v_Types.get(v_T);
+	if(v_TC == null)
+	{
+		v_TC = 0;
+	}
+	v_Types.put(v_T,v_TC + 1);
+	if(v_P.Billing_Branch == null)
+	{
+		v_NoBranch = v_NoBranch + 1;
+	}
+	else
+	{
+		v_L = Partner_Locations[ID == v_P.Billing_Branch];
+		v_Lbl = ifnull(v_L.Partner_Location_Label,"(unresolved)").toString();
+		v_BC = v_Branches.get(v_Lbl);
+		if(v_BC == null)
+		{
+			v_BC = 0;
+		}
+		v_Branches.put(v_Lbl,v_BC + 1);
+	}
+	if(ifnull(v_P.Complexity_Level,"").toString().trim() == "")
+	{
+		v_NoComplexity = v_NoComplexity + 1;
+	}
+	if(v_P.Complexity_Charge == null)
+	{
+		v_NoCharge = v_NoCharge + 1;
+	}
+	if(v_P.Referral_Link == null)
+	{
+		v_NoLink = v_NoLink + 1;
+	}
+	if(ifnull(v_P.Reason_for_Referral,"").toString().trim() == "")
+	{
+		v_NoReason = v_NoReason + 1;
+	}
+	v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	if(v_Inv == "Draft" || v_Inv == "")
+	{
+		v_Draft = v_Draft + 1;
+	}
+	else if(v_Inv == "Final")
+	{
+		v_Final = v_Final + 1;
+	}
+	else
+	{
+		v_OtherInv = v_OtherInv + 1;
+	}
+}
+v_Out = "AUGUST 2026 PVS STATE (Visit_Completion_Date 01-Aug to 31-Aug)";
+v_Out = v_Out + "\nTotal records: " + v_Total;
+v_Out = v_Out + "\nInvoice status: draft or blank " + v_Draft + " | Final " + v_Final + " | other " + v_OtherInv;
+v_Out = v_Out + "\n\nBLOCKERS TO BILLING";
+v_Out = v_Out + "\nNo Billing Branch: " + v_NoBranch;
+v_Out = v_Out + "\nNo Complexity Level: " + v_NoComplexity;
+v_Out = v_Out + "\nNo Complexity Charge: " + v_NoCharge;
+v_Out = v_Out + "\nNo Referral Link: " + v_NoLink;
+v_Out = v_Out + "\nNo Reason for Referral: " + v_NoReason;
+v_Out = v_Out + "\n\nBY ENTRY TYPE";
+for each  v_K in v_Types.keys()
+{
+	v_Out = v_Out + "\n" + v_K + ": " + v_Types.get(v_K);
+}
+v_Out = v_Out + "\n\nBY BILLING BRANCH";
+for each  v_B in v_Branches.keys()
+{
+	v_Out = v_Out + "\n" + v_B + ": " + v_Branches.get(v_B);
+}
+return v_Out;

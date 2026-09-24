@@ -1,0 +1,101 @@
+v_mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: p_mode must be PREVIEW or COMMIT.";
+}
+v_raw = ifnull(p_dupePvsIds,"").trim();
+if(v_raw == "")
+{
+	return "ERROR: p_dupePvsIds is required.";
+}
+v_targets = List();
+for each  t in v_raw.toList(",")
+{
+	v_t = t.trim();
+	if(v_t != "")
+	{
+		if(!v_targets.contains(v_t))
+		{
+			v_targets.add(v_t);
+		}
+	}
+}
+v_done = 0;
+v_lines = List();
+v_problem = List();
+for each  k in v_targets
+{
+	v_rid = null;
+	for each  p in Encounter_PatientVisit[PVS_ID == k]
+	{
+		v_rid = p.ID;
+		break;
+	}
+	if(v_rid == null)
+	{
+		v_problem.add(k + " | NOT FOUND");
+	}
+	else
+	{
+		d = Encounter_PatientVisit[ID == v_rid];
+		v_bad = false;
+		if(d.Invoice_Link != null)
+		{
+			v_bad = true;
+		}
+		if(d.Invoice_Status == "Final")
+		{
+			v_bad = true;
+		}
+		if(v_bad)
+		{
+			v_problem.add(k + " | ALREADY INVOICED, refused");
+		}
+		else
+		{
+			v_ref = ifnull(d.Referral_ID,"").toString().trim();
+			v_keeper = "";
+			v_hits = 0;
+			if(v_ref != "")
+			{
+				for each  o in Encounter_PatientVisit[Type_of_Entry == "3008" && Referral_ID == v_ref]
+				{
+					v_opid = ifnull(o.PVS_ID,"");
+					if(v_opid != k)
+					{
+						if(o.Invoice_Link == null && o.Invoice_Status != "Final" && o.Hold_From_Invoicing != "Yes")
+						{
+							v_hits = v_hits + 1;
+							v_keeper = v_opid;
+						}
+					}
+				}
+			}
+			if(v_hits != 1)
+			{
+				v_problem.add(k + " | AMBIGUOUS, found " + v_hits + " keeper candidate(s) for referral " + v_ref);
+			}
+			else
+			{
+				v_done = v_done + 1;
+				v_lines.add(k + " -> duplicate of " + v_keeper + " (referral " + v_ref + ")");
+				if(v_mode == "COMMIT")
+				{
+					d.Hold_From_Invoicing="Yes";
+					d.Row_Status="Duplicate";
+					d.Duplicate_Of_PVS_ID=v_keeper;
+				}
+			}
+		}
+	}
+}
+v_out = "MODE: " + v_mode + " | Supplied: " + v_targets.size() + " | Retired: " + v_done + " | Refused: " + v_problem.size();
+if(v_lines.size() > 0)
+{
+	v_out = v_out + "\n\nRETIRED\n" + v_lines.toString("\n");
+}
+if(v_problem.size() > 0)
+{
+	v_out = v_out + "\n\nREFUSED\n" + v_problem.toString("\n");
+}
+return v_out;

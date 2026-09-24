@@ -1,0 +1,18 @@
+v_out = Map();
+v_log = insert into Fax_Log
+[
+	Fax_Status="Building"
+	Attempt_Number=1
+	Number_Source="Address Book"
+	Added_User=zoho.loginuser
+];
+v_logId = v_log;
+v_row = Fax_Log[ID == v_logId];
+for each  v_emp in Employees[Employee_Email == zoho.loginuserid]
+{
+	v_row.Sent_By=v_emp.ID;
+	break;
+}
+v_out.put("ok",true);
+v_out.put("log_id",v_logId.toString());
+return v_out;

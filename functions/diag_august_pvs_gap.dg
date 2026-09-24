@@ -1,0 +1,66 @@
+v_From = '01-Aug-2026';
+v_To = '31-Aug-2026';
+v_RefFrom = '01-Aug-2026';
+v_RefTo = '31-Aug-2026';
+v_NoDate = 0;
+v_OutOfRange = 0;
+v_Rows = List();
+v_Range = List();
+for each  v_P in Encounter_PatientVisit[ID != 0]
+{
+	v_Vc = v_P.Visit_Completion_Date;
+	v_RefDate = null;
+	if(v_P.Referral_Link != null)
+	{
+		v_R = Referrals_Main[ID == v_P.Referral_Link];
+		if(v_R.ID != null)
+		{
+			v_RefDate = v_R.Referral_Date;
+		}
+	}
+	v_IsAugRef = false;
+	if(v_RefDate != null)
+	{
+		if(v_RefDate >= v_RefFrom && v_RefDate <= v_RefTo)
+		{
+			v_IsAugRef = true;
+		}
+	}
+	if(v_Vc == null)
+	{
+		v_NoDate = v_NoDate + 1;
+		if(v_IsAugRef && v_Rows.size() < 60)
+		{
+			v_Id = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+			v_Ref = ifnull(v_P.Referral_ID,"(no referral)").toString();
+			v_T = ifnull(v_P.Type_of_Entry,"(blank)").toString();
+			v_S = ifnull(v_P.Visit_Status,"(blank)").toString();
+			v_Rows.add(v_Id + " | " + v_Ref + " | " + v_T + " | status " + v_S + " | referral " + v_RefDate.toString("MM-dd-yyyy"));
+		}
+	}
+	else if(v_IsAugRef)
+	{
+		if(v_Vc < v_From || v_Vc > v_To)
+		{
+			v_OutOfRange = v_OutOfRange + 1;
+			if(v_Range.size() < 60)
+			{
+				v_Id = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+				v_Ref = ifnull(v_P.Referral_ID,"(no referral)").toString();
+				v_Range.add(v_Id + " | " + v_Ref + " | visit " + v_Vc.toString("MM-dd-yyyy") + " | referral " + v_RefDate.toString("MM-dd-yyyy"));
+			}
+		}
+	}
+}
+v_Out = "PVS records with NO Visit_Completion_Date anywhere in the app: " + v_NoDate;
+v_Out = v_Out + "\nOf those, tied to an August referral: " + v_Rows.size();
+v_Out = v_Out + "\nPVS tied to an August referral but dated outside August: " + v_OutOfRange;
+if(v_Rows.size() > 0)
+{
+	v_Out = v_Out + "\n\nNO VISIT DATE, AUGUST REFERRAL\nPVS ID | Referral | Type | Status | Referral Date\n" + v_Rows.toString("\n");
+}
+if(v_Range.size() > 0)
+{
+	v_Out = v_Out + "\n\nAUGUST REFERRAL, VISIT DATED OUTSIDE AUGUST\nPVS ID | Referral | Visit Date | Referral Date\n" + v_Range.toString("\n");
+}
+return v_Out;

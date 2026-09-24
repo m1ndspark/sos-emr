@@ -1,0 +1,74 @@
+if(Encounter_PatientVisit[ID == pPvsID].count() == 0)
+{
+	info "PVS record " + pPvsID + " not found.";
+	return "not found";
+}
+v_pvs = Encounter_PatientVisit[ID == pPvsID];
+v_f1 = "";
+v_f2 = "";
+v_f3 = "";
+if(v_pvs.Clinical_Note_File_Upload != null)
+{
+	v_f1 = v_pvs.Clinical_Note_File_Upload.toString();
+}
+if(v_pvs.PVS_File_Upload != null)
+{
+	v_f2 = v_pvs.PVS_File_Upload.toString();
+}
+if(v_pvs.PVS_3008_Upload != null)
+{
+	v_f3 = v_pvs.PVS_3008_Upload.toString();
+}
+info "PVS_ID: " + ifnull(v_pvs.PVS_ID,"");
+info "Clinical_Note_File_Upload RAW: [" + v_f1 + "]";
+info "PVS_File_Upload RAW: [" + v_f2 + "]";
+info "PVS_3008_Upload RAW: [" + v_f3 + "]";
+v_urls = List();
+if(v_f1 != "")
+{
+	v_urls.add(v_f1);
+}
+if(v_f2 != "")
+{
+	v_urls.add(v_f2);
+}
+if(v_f3 != "")
+{
+	v_urls.add(v_f3);
+}
+info "Candidate count: " + v_urls.size();
+v_imgs = "";
+v_n = 0;
+for each  v_u in v_urls
+{
+	v_n = v_n + 1;
+	v_imgs = v_imgs + "<div style='page-break-after:always;'><div style='font-family:Helvetica,Arial,sans-serif;font-size:10pt;color:#0B0B5B;margin-bottom:8pt;'>Candidate " + v_n + "</div><div style='font-family:Helvetica,Arial,sans-serif;font-size:8pt;word-break:break-all;margin-bottom:10pt;'>" + v_u + "</div><div style='border:1px solid #BFBFBF;padding:6pt;text-align:center;'><img src='" + v_u + "' style='max-width:100%;max-height:7.5in;'></div></div>";
+}
+if(v_imgs == "")
+{
+	v_imgs = "<div style='font-family:Helvetica,Arial,sans-serif;'>No files on this PVS.</div>";
+}
+v_html = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>" + v_imgs + "</body></html>";
+v_opt = Collection();
+v_opt.insert("units","in");
+v_opt.insert("page-width","8.5");
+v_opt.insert("page-height","11");
+v_opt.insert("top-margin","0.6");
+v_opt.insert("bottom-margin","0.75");
+v_opt.insert("left-margin","0.65");
+v_opt.insert("right-margin","0.65");
+v_opt.insert("print-background",true);
+v_opt.insert("disable-javascript",true);
+v_opt.insert("mask-html",true);
+v_pdf = zoho.file.convertToPDF(v_html,v_opt);
+v_pdf.setFileName("diag_fax_pdf_image_" + pPvsID + ".pdf");
+sendmail
+[
+	from :zoho.adminuserid
+	to :"neil.heird@sosmmc.com"
+	subject :"DIAG fax PDF image test - PVS " + pPvsID
+	message :"Candidates: " + v_urls.toString()
+	Attachments :file:v_pdf
+]
+info "PDF built and emailed.";
+return "done";

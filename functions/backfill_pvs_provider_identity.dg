@@ -1,0 +1,202 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_From = p_from.toDate();
+v_To = p_to.toDate();
+v_Scanned = 0;
+v_Filled = 0;
+v_Complete = 0;
+v_NoMatch = 0;
+v_NoKey = 0;
+v_Rows = List();
+v_Bad = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= v_From && Visit_Completion_Date <= v_To]
+{
+	v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	if(v_Inv == "Final")
+	{
+		continue;
+	}
+	v_Scanned = v_Scanned + 1;
+	v_PvsId = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+	v_Fn = ifnull(v_P.Employee_First_Name,"").toString().trim();
+	v_Ln = ifnull(v_P.Employee_Last_Name,"").toString().trim();
+	v_Nt = ifnull(v_P.Employee_Name_Title,"").toString().trim();
+	v_Ti = ifnull(v_P.Employee_Title,"").toString().trim();
+	v_Fu = ifnull(v_P.Employee_Full_Name,"").toString().trim();
+	if(v_Fn != "" && v_Ln != "" && v_Nt != "" && v_Ti != "" && v_Fu != "")
+	{
+		v_Complete = v_Complete + 1;
+		continue;
+	}
+	v_Em = ifnull(v_P.Employee_Email,"").toString().trim().toLowerCase();
+	v_In = ifnull(v_P.Employee_Initials,"").toString().trim().toUpperCase();
+	v_Found = false;
+	v_EId = null;
+	v_EFn = "";
+	v_ELn = "";
+	v_ETi = "";
+	v_ENt = "";
+	v_EIn = "";
+	v_EEm = "";
+	if(v_Em != "")
+	{
+		for each  v_Try in Employees[ID != 0]
+		{
+			if(ifnull(v_Try.Employee_Email,"").toString().trim().toLowerCase() == v_Em)
+			{
+				v_Found = true;
+				v_EId = v_Try.ID;
+				v_EFn = ifnull(v_Try.Employee_First_Name,"").toString().trim();
+				v_ELn = ifnull(v_Try.Employee_Last_Name,"").toString().trim();
+				v_ETi = ifnull(v_Try.Employee_Title,"").toString().trim();
+				v_ENt = ifnull(v_Try.Employee_Name_Title,"").toString().trim();
+				v_EIn = ifnull(v_Try.Employee_Initials,"").toString().trim();
+				v_EEm = ifnull(v_Try.Employee_Email,"").toString().trim();
+				break;
+			}
+		}
+	}
+	if(!v_Found && v_In != "")
+	{
+		v_Hits = 0;
+		for each  v_Try2 in Employees[ID != 0]
+		{
+			if(ifnull(v_Try2.Employee_Initials,"").toString().trim().toUpperCase() == v_In)
+			{
+				v_Hits = v_Hits + 1;
+				v_EId = v_Try2.ID;
+				v_EFn = ifnull(v_Try2.Employee_First_Name,"").toString().trim();
+				v_ELn = ifnull(v_Try2.Employee_Last_Name,"").toString().trim();
+				v_ETi = ifnull(v_Try2.Employee_Title,"").toString().trim();
+				v_ENt = ifnull(v_Try2.Employee_Name_Title,"").toString().trim();
+				v_EIn = ifnull(v_Try2.Employee_Initials,"").toString().trim();
+				v_EEm = ifnull(v_Try2.Employee_Email,"").toString().trim();
+			}
+		}
+		if(v_Hits == 1)
+		{
+			v_Found = true;
+		}
+		else
+		{
+			v_Bad.add(v_PvsId + " initials " + v_In + " matched " + v_Hits + " employees");
+		}
+	}
+	if(!v_Found)
+	{
+		if(v_Em == "" && v_In == "")
+		{
+			v_NoKey = v_NoKey + 1;
+		}
+		else
+		{
+			v_NoMatch = v_NoMatch + 1;
+			if(v_Bad.size() < 40)
+			{
+				v_Bad.add(v_PvsId + " no employee match on email " + v_Em + " or initials " + v_In);
+			}
+		}
+		continue;
+	}
+	if(v_ENt == "")
+	{
+		v_ENt = (v_EFn + " " + v_ELn).trim();
+		if(v_ETi != "")
+		{
+			v_ENt = v_ENt + ", " + v_ETi;
+		}
+	}
+	v_EFu = (v_EFn + " " + v_ELn).trim();
+	v_Set = List();
+	if(v_Fn == "" && v_EFn != "")
+	{
+		v_Set.add("Employee_First_Name");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Employee_First_Name=v_EFn;
+		}
+	}
+	if(v_Ln == "" && v_ELn != "")
+	{
+		v_Set.add("Employee_Last_Name");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Employee_Last_Name=v_ELn;
+		}
+	}
+	if(v_Ti == "" && v_ETi != "")
+	{
+		v_Set.add("Employee_Title");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Employee_Title=v_ETi;
+		}
+	}
+	if(v_Nt == "" && v_ENt != "")
+	{
+		v_Set.add("Employee_Name_Title");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Employee_Name_Title=v_ENt;
+		}
+	}
+	if(v_Fu == "" && v_EFu != "")
+	{
+		v_Set.add("Employee_Full_Name");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Employee_Full_Name=v_EFu;
+		}
+	}
+	if(v_In == "" && v_EIn != "")
+	{
+		v_Set.add("Employee_Initials");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Employee_Initials=v_EIn;
+		}
+	}
+	if(v_Em == "" && v_EEm != "")
+	{
+		v_Set.add("Employee_Email");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Employee_Email=v_EEm;
+		}
+	}
+	if(v_P.Employee_Link == null && v_EId != null)
+	{
+		v_Set.add("Employee_Link");
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Employee_Link=v_EId;
+		}
+	}
+	if(v_Set.size() > 0)
+	{
+		v_Filled = v_Filled + 1;
+		if(v_Rows.size() < 60)
+		{
+			v_Rows.add(v_PvsId + " to " + v_ENt + " : " + v_Set.toString(", "));
+		}
+	}
+	else
+	{
+		v_Complete = v_Complete + 1;
+	}
+}
+v_Out = v_Mode + " | window " + v_From.toString("MM-dd-yyyy") + " to " + v_To.toString("MM-dd-yyyy");
+v_Out = v_Out + "\nScanned: " + v_Scanned + " | already complete: " + v_Complete + " | records filled: " + v_Filled;
+v_Out = v_Out + "\nNo employee match: " + v_NoMatch + " | no email or initials to match on: " + v_NoKey;
+if(v_Rows.size() > 0)
+{
+	v_Out = v_Out + "\n\nFILLED\n" + v_Rows.toString("\n");
+}
+if(v_Bad.size() > 0)
+{
+	v_Out = v_Out + "\n\nUNRESOLVED\n" + v_Bad.toString("\n");
+}
+return v_Out;

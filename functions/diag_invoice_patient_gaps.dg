@@ -1,0 +1,109 @@
+v_raw = ifnull(p_invoiceNumbers,"").trim();
+if(v_raw == "")
+{
+	return "ERROR: Enter one or more Books invoice numbers separated by commas, for example INV-000091,INV-000092.";
+}
+v_nums = List();
+for each  v_piece in v_raw.toList(",")
+{
+	v_n = v_piece.trim();
+	if(v_n != "" && !v_nums.contains(v_n))
+	{
+		v_nums.add(v_n);
+	}
+}
+v_fieldNames = {"Patient_Full_Name_1","Patient_Full_Name_2","Patient_First_Name","Patient_Last_Name","Patient_Hospice_ID","Referral_ID","PVS_Referral_ID"};
+v_out = List();
+v_gCount = 0;
+v_gName = 0;
+v_gMrn = 0;
+v_gNoLink = 0;
+v_notFound = 0;
+for each  v_num in v_nums
+{
+	v_inv = Invoices[Books_Invoice_Number == v_num];
+	if(v_inv.ID == null)
+	{
+		v_notFound = v_notFound + 1;
+		v_out.add("==========");
+		v_out.add("INVOICE " + v_num + " | NOT FOUND in Invoices");
+		continue;
+	}
+	v_out.add("==========");
+	v_out.add("INVOICE " + v_num + " | Record ID " + v_inv.ID + " | Status " + ifnull(v_inv.Invoice_Record_Status,"") + " | Visit_Count " + ifnull(v_inv.Visit_Count,""));
+	v_count = 0;
+	v_nameBlank = 0;
+	v_mrnBlank = 0;
+	v_noLink = 0;
+	for each  v_p in Encounter_PatientVisit[Invoice_Link == v_inv.ID]
+	{
+		v_count = v_count + 1;
+		v_vals = List();
+		v_vals.add(ifnull(v_p.Patient_Full_Name_1,""));
+		v_vals.add(ifnull(v_p.Patient_Full_Name_2,""));
+		v_vals.add(ifnull(v_p.Patient_First_Name,""));
+		v_vals.add(ifnull(v_p.Patient_Last_Name,""));
+		v_vals.add(ifnull(v_p.Patient_Hospice_ID,""));
+		v_vals.add(ifnull(v_p.Referral_ID,""));
+		v_vals.add(ifnull(v_p.PVS_Referral_ID,""));
+		v_added = "";
+		if(v_p.Added_Time != null)
+		{
+			v_added = v_p.Added_Time.toString("M/d/yyyy HH:mm");
+		}
+		v_line = ifnull(v_p.PVS_ID,"rec " + v_p.ID) + " | Type " + ifnull(v_p.Type_of_Entry,"") + " | Added_User " + ifnull(v_p.Added_User,"") + " | Added_Time " + v_added;
+		for each index v_i in v_fieldNames
+		{
+			v_flag = "filled";
+			if(v_vals.get(v_i).toString().trim() == "")
+			{
+				v_flag = "BLANK";
+			}
+			v_line = v_line + " | " + v_fieldNames.get(v_i) + "=" + v_flag;
+		}
+		if(v_vals.get(0).toString().trim() == "")
+		{
+			v_nameBlank = v_nameBlank + 1;
+		}
+		if(v_vals.get(4).toString().trim() == "")
+		{
+			v_mrnBlank = v_mrnBlank + 1;
+		}
+		if(v_p.Referral_Link == null)
+		{
+			v_noLink = v_noLink + 1;
+			v_line = v_line + " | Referral_Link=BLANK";
+		}
+		else
+		{
+			v_ref = Referrals_Main[ID == v_p.Referral_Link];
+			if(v_ref.ID == null)
+			{
+				v_line = v_line + " | Referral_Link=DEAD (" + v_p.Referral_Link + ")";
+			}
+			else
+			{
+				v_refName = "filled";
+				if(ifnull(v_ref.Patient_Full_Name,"").toString().trim() == "")
+				{
+					v_refName = "BLANK";
+				}
+				v_refMrn = "filled";
+				if(ifnull(v_ref.Patient_Hospice_ID,"").toString().trim() == "")
+				{
+					v_refMrn = "BLANK";
+				}
+				v_line = v_line + " | Referral_Link=" + ifnull(v_ref.Referral_ID,"no REF ID") + " | Ref.Patient_Full_Name=" + v_refName + " | Ref.Patient_Hospice_ID=" + v_refMrn;
+			}
+		}
+		v_out.add(v_line);
+	}
+	v_out.add("Subtotal " + v_num + ": PVS " + v_count + " | Name_1 blank " + v_nameBlank + " | MRN blank " + v_mrnBlank + " | No Referral_Link " + v_noLink);
+	v_gCount = v_gCount + v_count;
+	v_gName = v_gName + v_nameBlank;
+	v_gMrn = v_gMrn + v_mrnBlank;
+	v_gNoLink = v_gNoLink + v_noLink;
+}
+v_out.add("==========");
+v_out.add("TOTAL: invoices " + v_nums.size() + " | not found " + v_notFound + " | PVS " + v_gCount + " | Name_1 blank " + v_gName + " | MRN blank " + v_gMrn + " | No Referral_Link " + v_gNoLink);
+return v_out.toString("\n");

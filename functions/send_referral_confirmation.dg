@@ -1,0 +1,86 @@
+v_key = ifnull(p_refKey,"").trim();
+if(v_key == "")
+{
+	return "SKIP-NOKEY";
+}
+v_ref = Referrals_Main[Referral_ID == v_key];
+if(v_ref.count() == 0)
+{
+	if(v_key.matches("^[0-9]+$"))
+	{
+		v_ref = Referrals_Main[ID == v_key.toLong()];
+	}
+}
+if(v_ref.count() == 0)
+{
+	return "SKIP-NOTFOUND";
+}
+v_recId = v_ref.ID;
+v_refid = "";
+for each  v_Live in Referrals_Main[ID == v_recId]
+{
+	v_refid = ifnull(v_Live.Referral_ID,"").toString().trim();
+}
+if(v_refid == "")
+{
+	return "SKIP-NOID";
+}
+v_to = ifnull(v_ref.Partner_POC_Email,"").toString().trim();
+if(v_to == "")
+{
+	return "SKIP-NOEMAIL";
+}
+v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+if(v_cfg.count() == 0)
+{
+	return "SKIP-NOCONFIG";
+}
+v_token = ifnull(v_cfg.Zepto_Send_Token,"").trim();
+if(v_token == "")
+{
+	return "SKIP-NOTOKEN";
+}
+v_tpl = thisapp.build_referral_confirmation_html(v_recId);
+if(v_tpl.isEmpty())
+{
+	return "SKIP-NOHTML";
+}
+v_html = v_tpl.get("html").toString();
+v_subject = v_tpl.get("subject").toString();
+v_fromMap = Map();
+v_fromMap.put("address","notifications@sosreferrals.com");
+v_fromMap.put("name","SOS Mobile Medical Care");
+v_addrMap = Map();
+v_addrMap.put("address",v_to);
+v_entry = Map();
+v_entry.put("email_address",v_addrMap);
+v_toList = List();
+v_toList.add(v_entry);
+v_payload = Map();
+v_payload.put("from",v_fromMap);
+v_payload.put("to",v_toList);
+v_payload.put("subject",v_subject);
+v_payload.put("htmlbody",v_html);
+v_hdr = Map();
+v_hdr.put("Accept","application/json");
+v_hdr.put("Content-Type","application/json");
+v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+v_thrown = "";
+try 
+{
+	v_resp = invokeurl
+	[
+		url :"https://api.zeptomail.com/v1.1/email"
+		type :POST
+		body:v_payload.toString()
+		headers:v_hdr
+	];
+}	catch (e)
+{
+	v_thrown = e.message.toString();
+}
+if(v_thrown != "")
+{
+	return "FAIL-" + v_thrown;
+}
+return "SENT-" + v_refid + "-" + v_to;

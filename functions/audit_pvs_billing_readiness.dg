@@ -1,0 +1,479 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "SUMMARY" && v_Mode != "DETAIL")
+{
+	return "Invalid mode. Use SUMMARY or DETAIL.";
+}
+v_Rates = Map();
+for each  v_R in Partner_Rates[Current_Rate == "Yes"]
+{
+	v_Bk = ifnull(v_R.Partner_Location_Link,"").toString().trim();
+	v_Rt = ifnull(v_R.Rate_Type,"").toString().trim();
+	if(v_Bk != "" && v_Rt != "")
+	{
+		v_Rates.put(v_Bk + "|" + v_Rt,ifnull(v_R.Rate_Amount,0));
+	}
+}
+v_Names = Map();
+for each  v_L in Partner_Locations[ID != 0]
+{
+	v_Names.put(v_L.ID.toString(),ifnull(v_L.Partner_Location_Label,"NO LABEL").toString().trim());
+}
+v_Labels = {"Referral Link","Referral ID","Partner ID","Partner Organization","Partner Branch","Billing Branch","Patient First Name","Patient Last Name","Patient DOB","Patient Gender","Patient Phone","Patient Hospice ID","Patient Location","Address Line 1","Address City","Address State","Address Zip","Facility Name","Facility Phone","Reason for Referral","Clinical Note Type","Clinical Note","Type of Procedures","Complexity Level","Complexity Charge","Visit Completion Date","Invoice Status","Diversion Tracking","Provider Name & Title","Provider Email","Provider First Name","Provider Last Name","Provider Title","Provider Initials"};
+v_Counts = Map();
+v_BrStored = Map();
+v_BrExpect = Map();
+v_BrCount = Map();
+v_BrOrder = List();
+v_Scanned = 0;
+v_Clean = 0;
+v_Bad = 0;
+v_Batched = 0;
+v_BatchedAmt = 0.0;
+v_Held = 0;
+v_HeldAmt = 0.0;
+v_Billable = 0;
+v_PriceOk = 0;
+v_PriceBad = 0;
+v_NoCard = 0;
+v_TotStored = 0.0;
+v_TotExpect = 0.0;
+v_Detail = "";
+v_Trunc = false;
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+{
+	v_Scanned = v_Scanned + 1;
+	v_Id = ifnull(v_P.PVS_ID,"NO-ID").toString().trim();
+	v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+	v_Link = ifnull(v_P.Referral_Link,"").toString().trim();
+	v_Rid = ifnull(v_P.Referral_ID,"").toString().trim();
+	v_Pid = ifnull(v_P.Partner_ID,"").toString().trim();
+	v_Org = ifnull(v_P.Partner_Organization,"").toString().trim();
+	v_Brn = ifnull(v_P.Partner_Branch,"").toString().trim();
+	v_Bill = ifnull(v_P.Billing_Branch,"").toString().trim();
+	v_Fn = ifnull(v_P.Patient_First_Name,"").toString().trim();
+	v_Ln = ifnull(v_P.Patient_Last_Name,"").toString().trim();
+	v_Gen = ifnull(v_P.Patient_Gender,"").toString().trim();
+	v_Phn = ifnull(v_P.Patient_Phone,"").toString().trim();
+	v_Hos = ifnull(v_P.Patient_Hospice_ID,"").toString().trim();
+	v_Loc = ifnull(v_P.Patient_Location,"").toString().trim();
+	v_A1 = ifnull(v_P.Patient_Address.address_line_1,"").toString().trim();
+	v_Ac = ifnull(v_P.Patient_Address.district_city,"").toString().trim();
+	v_As = ifnull(v_P.Patient_Address.state_province,"").toString().trim();
+	v_Az = ifnull(v_P.Patient_Address.postal_Code,"").toString().trim();
+	v_Fac = ifnull(v_P.Facility_Name,"").toString().trim();
+	v_Fph = ifnull(v_P.Facility_Phone,"").toString().trim();
+	v_Rea = ifnull(v_P.Reason_for_Referral,"").toString().trim();
+	v_Cnt = ifnull(v_P.Clinical_Note_Type,"").toString().trim();
+	v_Note = ifnull(v_P.Final_Clinical_Note,"").toString().trim();
+	v_Proc = ifnull(v_P.Type_of_Procedures,"").toString().trim();
+	v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+	v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+	v_Ilk = ifnull(v_P.Invoice_Link,"").toString().trim();
+	v_Hold = ifnull(v_P.Hold_From_Invoicing,"").toString().trim();
+	v_Div = ifnull(v_P.Diversion_Tracking,"").toString().trim();
+	v_Add = ifnull(v_P.Additional_Charges,"").toString();
+	v_Ent = ifnull(v_P.Employee_Name_Title,"").toString().trim();
+	v_Eem = ifnull(v_P.Employee_Email,"").toString().trim();
+	v_Efn = ifnull(v_P.Employee_First_Name,"").toString().trim();
+	v_Eln = ifnull(v_P.Employee_Last_Name,"").toString().trim();
+	v_Eti = ifnull(v_P.Employee_Title,"").toString().trim();
+	v_Ein = ifnull(v_P.Employee_Initials,"").toString().trim();
+	v_ChgS = 0.0;
+	if(v_P.Complexity_Charge != null)
+	{
+		v_ChgS = v_P.Complexity_Charge.toDecimal();
+	}
+	v_AhS = 0.0;
+	if(v_P.After_Hours_Fee != null)
+	{
+		v_AhS = v_P.After_Hours_Fee.toDecimal();
+	}
+	v_SsS = 0.0;
+	if(v_P.Super_Stat_Fee != null)
+	{
+		v_SsS = v_P.Super_Stat_Fee.toDecimal();
+	}
+	v_EqS = 0.0;
+	if(v_P.Equipment_Charge_Amount != null)
+	{
+		v_EqS = v_P.Equipment_Charge_Amount.toDecimal();
+	}
+	v_OtS = 0.0;
+	if(v_P.Other_Charges_Amount != null)
+	{
+		v_OtS = v_P.Other_Charges_Amount.toDecimal();
+	}
+	v_HasDob = true;
+	if(v_P.Patient_DOB == null)
+	{
+		v_HasDob = false;
+	}
+	v_HasDos = true;
+	if(v_P.Visit_Completion_Date == null)
+	{
+		v_HasDos = false;
+	}
+	v_HasChg = true;
+	if(v_P.Complexity_Charge == null)
+	{
+		v_HasChg = false;
+	}
+	v_RowS = v_ChgS + v_AhS + v_SsS + v_EqS + v_OtS;
+	v_Skip = false;
+	if(v_Hold == "Yes")
+	{
+		v_Held = v_Held + 1;
+		v_HeldAmt = v_HeldAmt + v_RowS;
+		v_Skip = true;
+	}
+	if(v_Ilk != "" || v_Inv == "Final")
+	{
+		v_Batched = v_Batched + 1;
+		v_BatchedAmt = v_BatchedAmt + v_RowS;
+		v_Skip = true;
+	}
+	v_Miss = List();
+	if(v_Link == "")
+	{
+		v_Miss.add("Referral Link");
+	}
+	if(v_Rid == "")
+	{
+		v_Miss.add("Referral ID");
+	}
+	if(v_Pid == "")
+	{
+		v_Miss.add("Partner ID");
+	}
+	if(v_Org == "")
+	{
+		v_Miss.add("Partner Organization");
+	}
+	if(v_Brn == "")
+	{
+		v_Miss.add("Partner Branch");
+	}
+	if(v_Bill == "")
+	{
+		v_Miss.add("Billing Branch");
+	}
+	if(v_Fn == "")
+	{
+		v_Miss.add("Patient First Name");
+	}
+	if(v_Ln == "")
+	{
+		v_Miss.add("Patient Last Name");
+	}
+	if(!v_HasDob)
+	{
+		v_Miss.add("Patient DOB");
+	}
+	if(v_Gen == "")
+	{
+		v_Miss.add("Patient Gender");
+	}
+	if(v_Phn == "")
+	{
+		v_Miss.add("Patient Phone");
+	}
+	if(v_Hos == "")
+	{
+		v_Miss.add("Patient Hospice ID");
+	}
+	if(v_Loc == "")
+	{
+		v_Miss.add("Patient Location");
+	}
+	if(v_A1 == "")
+	{
+		v_Miss.add("Address Line 1");
+	}
+	if(v_Ac == "")
+	{
+		v_Miss.add("Address City");
+	}
+	if(v_As == "")
+	{
+		v_Miss.add("Address State");
+	}
+	if(v_Az == "")
+	{
+		v_Miss.add("Address Zip");
+	}
+	if(v_Loc == "Facility")
+	{
+		if(v_Fac == "")
+		{
+			v_Miss.add("Facility Name");
+		}
+		if(v_Fph == "")
+		{
+			v_Miss.add("Facility Phone");
+		}
+	}
+	if(v_Rea == "")
+	{
+		v_Miss.add("Reason for Referral");
+	}
+	if(v_Type == "Patient Visit")
+	{
+		if(v_Cnt == "")
+		{
+			v_Miss.add("Clinical Note Type");
+		}
+		if(v_Note == "")
+		{
+			v_Miss.add("Clinical Note");
+		}
+		if(v_Proc == "")
+		{
+			v_Miss.add("Type of Procedures");
+		}
+		if(v_Lvl == "")
+		{
+			v_Miss.add("Complexity Level");
+		}
+		if(!v_HasChg)
+		{
+			v_Miss.add("Complexity Charge");
+		}
+	}
+	if(!v_HasDos)
+	{
+		v_Miss.add("Visit Completion Date");
+	}
+	if(v_Inv == "")
+	{
+		v_Miss.add("Invoice Status");
+	}
+	if(v_Type != "3008")
+	{
+		if(v_Div == "")
+		{
+			v_Miss.add("Diversion Tracking");
+		}
+	}
+	if(v_Ent == "")
+	{
+		v_Miss.add("Provider Name & Title");
+	}
+	if(v_Eem == "")
+	{
+		v_Miss.add("Provider Email");
+	}
+	if(v_Efn == "")
+	{
+		v_Miss.add("Provider First Name");
+	}
+	if(v_Eln == "")
+	{
+		v_Miss.add("Provider Last Name");
+	}
+	if(v_Eti == "")
+	{
+		v_Miss.add("Provider Title");
+	}
+	if(v_Ein == "")
+	{
+		v_Miss.add("Provider Initials");
+	}
+	if(v_Miss.size() == 0)
+	{
+		v_Clean = v_Clean + 1;
+	}
+	else
+	{
+		v_Bad = v_Bad + 1;
+		for each  v_K in v_Miss
+		{
+			v_C = v_Counts.get(v_K);
+			if(v_C == null)
+			{
+				v_C = 0;
+			}
+			v_Counts.put(v_K,v_C + 1);
+		}
+	}
+	v_Verdict = "EXCLUDED";
+	v_RowE = 0.0;
+	if(!v_Skip)
+	{
+		v_Billable = v_Billable + 1;
+		v_Card = null;
+		if(v_Bill != "" && v_Lvl != "")
+		{
+			v_Card = v_Rates.get(v_Bill + "|" + v_Lvl);
+		}
+		v_ChgE = 0.0;
+		if(v_Lvl == "No Charge" || v_Lvl == "Visit Cancelled")
+		{
+			v_ChgE = 0.0;
+			if(v_ChgS == 0.0)
+			{
+				v_Verdict = "OK";
+				v_PriceOk = v_PriceOk + 1;
+			}
+			else
+			{
+				v_Verdict = "SHOULD BE ZERO";
+				v_PriceBad = v_PriceBad + 1;
+			}
+		}
+		else if(v_Card == null)
+		{
+			v_ChgE = v_ChgS;
+			v_Verdict = "NO RATE CARD";
+			v_NoCard = v_NoCard + 1;
+		}
+		else
+		{
+			v_ChgE = v_Card.toDecimal();
+			if(v_ChgS == v_ChgE)
+			{
+				v_Verdict = "OK";
+				v_PriceOk = v_PriceOk + 1;
+			}
+			else
+			{
+				v_Verdict = "MISMATCH";
+				v_PriceBad = v_PriceBad + 1;
+			}
+		}
+		v_AhE = 0.0;
+		if(v_Add.contains("After Hours"))
+		{
+			v_AhC = v_Rates.get(v_Bill + "|After Hours");
+			if(v_AhC == null)
+			{
+				v_AhE = v_AhS;
+				v_Verdict = v_Verdict + " / NO AFTER HOURS CARD";
+			}
+			else
+			{
+				v_AhE = v_AhC.toDecimal();
+				if(v_AhS != v_AhE)
+				{
+					v_Verdict = v_Verdict + " / AFTER HOURS MISMATCH";
+				}
+			}
+		}
+		v_SsE = 0.0;
+		if(v_Add.contains("Super STAT"))
+		{
+			v_SsC = v_Rates.get(v_Bill + "|Super STAT");
+			if(v_SsC == null)
+			{
+				v_SsE = v_SsS;
+				v_Verdict = v_Verdict + " / NO SUPER STAT CARD";
+			}
+			else
+			{
+				v_SsE = v_SsC.toDecimal();
+				if(v_SsS != v_SsE)
+				{
+					v_Verdict = v_Verdict + " / SUPER STAT MISMATCH";
+				}
+			}
+		}
+		v_RowE = v_ChgE + v_AhE + v_SsE + v_EqS + v_OtS;
+		v_TotStored = v_TotStored + v_RowS;
+		v_TotExpect = v_TotExpect + v_RowE;
+		v_BName = "NO BRANCH";
+		if(v_Bill != "")
+		{
+			v_Nm = v_Names.get(v_Bill);
+			if(v_Nm != null)
+			{
+				v_BName = v_Nm;
+			}
+		}
+		if(!v_BrOrder.contains(v_BName))
+		{
+			v_BrOrder.add(v_BName);
+			v_BrStored.put(v_BName,0.0);
+			v_BrExpect.put(v_BName,0.0);
+			v_BrCount.put(v_BName,0);
+		}
+		v_BrStored.put(v_BName,v_BrStored.get(v_BName) + v_RowS);
+		v_BrExpect.put(v_BName,v_BrExpect.get(v_BName) + v_RowE);
+		v_BrCount.put(v_BName,v_BrCount.get(v_BName) + 1);
+	}
+	if(v_Mode == "DETAIL")
+	{
+		v_Show = false;
+		if(v_Miss.size() > 0)
+		{
+			v_Show = true;
+		}
+		if(v_Verdict != "OK" && v_Verdict != "EXCLUDED")
+		{
+			v_Show = true;
+		}
+		if(v_Show)
+		{
+			if(v_Detail.length() < 6000)
+			{
+				v_MissTxt = "none";
+				if(v_Miss.size() > 0)
+				{
+					v_MissTxt = v_Miss.toString(", ");
+				}
+				v_Detail = v_Detail + v_Id + " | " + v_Lvl + " | stored " + v_RowS + " | expected " + v_RowE + " | " + v_Verdict + " | missing: " + v_MissTxt + "\n";
+			}
+			else
+			{
+				v_Trunc = true;
+			}
+		}
+	}
+}
+v_NoDos = 0;
+for each  v_N in Encounter_PatientVisit[Visit_Completion_Date == null]
+{
+	v_NoDos = v_NoDos + 1;
+}
+v_Out = "PVS BILLING READINESS\n";
+v_Out = v_Out + "MODE: " + v_Mode + "\n";
+v_Out = v_Out + "WINDOW " + p_from.toString("MM-dd-yyyy") + " to " + p_to.toString("MM-dd-yyyy") + "\n\n";
+v_Out = v_Out + "Scanned: " + v_Scanned + "\n";
+v_Out = v_Out + "Billable: " + v_Billable + "\n";
+v_Out = v_Out + "Complete: " + v_Clean + "\n";
+v_Out = v_Out + "Incomplete: " + v_Bad + "\n";
+v_Out = v_Out + "Held from invoicing: " + v_Held + " ($" + v_HeldAmt + " excluded)\n";
+v_Out = v_Out + "Already batched or Final: " + v_Batched + " ($" + v_BatchedAmt + " excluded)\n";
+v_Out = v_Out + "Records anywhere with no Visit Completion Date: " + v_NoDos + "\n\n";
+v_Out = v_Out + "PRICING  (billable only)\n";
+v_Out = v_Out + "Priced correctly: " + v_PriceOk + "\n";
+v_Out = v_Out + "Mismatched: " + v_PriceBad + "\n";
+v_Out = v_Out + "No current rate card: " + v_NoCard + "\n";
+v_Out = v_Out + "Stored total: " + v_TotStored + "\n";
+v_Out = v_Out + "Expected total: " + v_TotExpect + "\n";
+v_Out = v_Out + "Variance: " + (v_TotExpect - v_TotStored) + "\n\n";
+v_Out = v_Out + "BY BRANCH  (visits | stored | expected)\n";
+for each  v_B in v_BrOrder
+{
+	v_Out = v_Out + v_BrCount.get(v_B) + "  |  " + v_BrStored.get(v_B) + "  |  " + v_BrExpect.get(v_B) + "  |  " + v_B + "\n";
+}
+v_Out = v_Out + "\nMISSING BY FIELD\n";
+for each  v_L in v_Labels
+{
+	v_V = v_Counts.get(v_L);
+	if(v_V == null)
+	{
+		v_V = 0;
+	}
+	if(v_V > 0)
+	{
+		v_Out = v_Out + v_V + "  |  " + v_L + "\n";
+	}
+}
+if(v_Mode == "DETAIL")
+{
+	v_Out = v_Out + "\nBY RECORD\n" + v_Detail;
+	if(v_Trunc)
+	{
+		v_Out = v_Out + "\n(output truncated, narrow the window)";
+	}
+}
+return v_Out;
