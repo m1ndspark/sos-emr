@@ -1,0 +1,18 @@
+v_app = ifnull(zoho.loginuserid,"NULL");
+v_portalEmail = "NOT AVAILABLE";
+v_portalName = "NOT AVAILABLE";
+try
+{
+	v_portalEmail = thisapp.portal.loginUserEmailid().toString();
+}catch (e)
+{
+	v_portalEmail = "ERROR: " + e.toString();
+}
+try
+{
+	v_portalName = thisapp.portal.loginUserName().toString();
+}catch (e)
+{
+	v_portalName = "ERROR: " + e.toString();
+}
+alert "zoho.loginuserid = " + v_app + "  ||  portal email = " + v_portalEmail + "  ||  portal username = " + v_portalName;

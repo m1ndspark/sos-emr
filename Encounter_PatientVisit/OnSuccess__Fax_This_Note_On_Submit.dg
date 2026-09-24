@@ -1,0 +1,132 @@
+if(input.Fax_This_Note == false)
+{
+	return;
+}
+v_id = input.ID.toLong();
+if(v_id == 0)
+{
+	return;
+}
+v_pvs = Encounter_PatientVisit[ID == v_id];
+v_already = ifnull(v_pvs.Fax_Status,"").toString();
+if(v_already == "Queued" || v_already == "Sent")
+{
+	for each  v_r in Encounter_PatientVisit[ID == v_id]
+	{
+		v_r.Fax_This_Note=false;
+		v_r.Fax_Override_Unlock=false;
+		v_r.Print_Preview="";
+		break;
+	}
+	return;
+}
+v_override = false;
+if(v_pvs.Fax_Override_Unlock == true)
+{
+	v_override = true;
+}
+v_toName = "";
+v_toPartner = "";
+v_faxDigits = "";
+v_faxDisp = "";
+v_attn = "";
+v_src = "Address Book";
+v_rsn = "";
+v_gate = "";
+if(v_override)
+{
+	v_od = ifnull(v_pvs.Fax_Override_Number,"").toString().replaceAll("[^0-9]","");
+	if(v_od.length() == 11 && v_od.startsWith("1"))
+	{
+		v_od = v_od.subString(1,11);
+	}
+	v_rsn = ifnull(v_pvs.Fax_Override_Reason,"").toString().trim();
+	if(v_od.length() != 10)
+	{
+		v_gate = "Override fax number is not 10 digits.";
+	}
+	else if(v_rsn == "")
+	{
+		v_gate = "Override reason is empty.";
+	}
+	else
+	{
+		v_faxDigits = v_od;
+		v_faxDisp = "(" + v_od.subString(0,3) + ") " + v_od.subString(3,6) + "-" + v_od.subString(6,10);
+		v_toName = ifnull(v_pvs.Partner_Location_Label,"").toString().trim();
+		if(v_toName == "")
+		{
+			v_toName = "Manual entry";
+		}
+		v_toPartner = ifnull(v_pvs.Partner_Organization,"").toString().trim();
+		v_attn = v_toName;
+		v_src = "Manual Override";
+	}
+}
+else
+{
+	v_tgt = thisapp.resolve_pvs_fax_target(v_id);
+	if(v_tgt.get("ok") == false)
+	{
+		v_gate = v_tgt.get("gate").toString();
+	}
+	else
+	{
+		v_toName = v_tgt.get("to_name").toString();
+		v_toPartner = v_tgt.get("to_partner").toString();
+		v_faxDigits = v_tgt.get("fax_digits").toString();
+		v_faxDisp = v_tgt.get("fax_display").toString();
+		v_attn = v_tgt.get("attn").toString();
+	}
+}
+if(v_gate != "")
+{
+	for each  v_r in Encounter_PatientVisit[ID == v_id]
+	{
+		v_r.Fax_This_Note=false;
+		v_r.Print_Preview="<p><b>NOT FAXED.</b> " + v_gate + "</p>";
+		break;
+	}
+	return;
+}
+v_nm = ifnull(v_pvs.Patient_Full_Name_1,"").toString().trim();
+v_dos = "";
+if(v_pvs.Visit_Completion_Date != null)
+{
+	v_dos = v_pvs.Visit_Completion_Date.toString("MM/dd/yyyy");
+}
+v_remarks = "Patient Visit Summary for " + v_nm + ", date of service " + v_dos + ". Please contact our office with any questions.";
+v_res = thisapp.send_pvs_fax(v_id,v_toName,v_toPartner,v_faxDigits,v_attn,v_remarks,v_src,v_rsn,List(),List(),1,0);
+v_msg = "";
+if(v_res.get("status") != null)
+{
+	v_msg = v_res.get("status").toString();
+}
+v_fid = "";
+if(v_res.get("fax_id") != null)
+{
+	v_fid = v_res.get("fax_id").toString();
+}
+v_out = "";
+if(v_msg == "Queued")
+{
+	v_out = "<p><b>FAX SENT.</b> " + v_fid + " to " + v_toName + " at " + v_faxDisp + ".</p>";
+}
+else
+{
+	v_err = "";
+	if(v_res.get("error") != null)
+	{
+		v_err = v_res.get("error").toString();
+	}
+	v_out = "<p><b>FAX FAILED.</b> " + v_fid + ". " + v_err + "</p>";
+}
+for each  v_r in Encounter_PatientVisit[ID == v_id]
+{
+	v_r.Fax_This_Note=false;
+	v_r.Fax_Override_Unlock=false;
+	v_r.Fax_Override_Number="";
+	v_r.Fax_Override_Reason="";
+	v_r.Print_Preview=v_out;
+	break;
+}

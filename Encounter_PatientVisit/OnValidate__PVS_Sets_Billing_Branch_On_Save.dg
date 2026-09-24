@@ -1,0 +1,52 @@
+if(input.Billing_Branch != null)
+{
+	return;
+}
+if(input.Referral_Link == null)
+{
+	return;
+}
+v_Ref = Referrals_Main[ID == input.Referral_Link];
+if(v_Ref.ID == null)
+{
+	return;
+}
+v_BranchId = null;
+if(v_Ref.Partner_Branch_Link != null)
+{
+	v_BranchId = v_Ref.Partner_Branch_Link;
+}
+if(v_BranchId == null)
+{
+	v_Org = ifnull(v_Ref.Partner_Organization,"").trim();
+	v_Brn = ifnull(v_Ref.Partner_Branch,"").trim();
+	if(v_Org != "" && v_Brn != "")
+	{
+		for each  v_Loc in Partner_Locations[Partner_Location_Name == v_Brn]
+		{
+			if(ifnull(v_Loc.Partner_Link.Partner_Display_Name,"").trim() == v_Org)
+			{
+				v_BranchId = v_Loc.ID;
+				break;
+			}
+		}
+	}
+}
+if(v_BranchId == null)
+{
+	return;
+}
+input.Billing_Branch = v_BranchId;
+input.Partner_Branch = ifnull(v_Ref.Partner_Branch,"");
+input.Partner_Organization = ifnull(v_Ref.Partner_Organization,"");
+input.Partner_Location_Label = ifnull(v_Ref.Partner_Location_Label,"");
+v_Charge = 0;
+if(input.Complexity_Level != null && input.Complexity_Level != "")
+{
+	for each  v_r in Partner_Rates[Partner_Location_Link == v_BranchId && Rate_Type == input.Complexity_Level && Current_Rate == "Yes"]
+	{
+		v_Charge = v_r.Rate_Amount;
+		break;
+	}
+}
+input.Complexity_Charge = v_Charge;

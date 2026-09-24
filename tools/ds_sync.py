@@ -229,7 +229,9 @@ def main():
     for w in wfs:
         path, how = resolve_wf_path(a.repo, w)
         resolved.append((None if how == "ambiguous" else path, w["body"], w["name"], w))
-    claims = Counter(p for p, _, _, _ in resolved if p)
+    # an EMPTY body never writes, so it must not claim a path and fake a
+    # collision (Partner_Rate_Partner_Stam vs Partner_Rate_Stamp_Genera1, v53)
+    claims = Counter(p for p, b, _, _ in resolved if p and (b or "").strip())
     collided = {p for p, c in claims.items() if c > 1}
 
     rows, written = [], 0

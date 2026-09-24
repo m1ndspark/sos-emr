@@ -1,0 +1,11 @@
+v_note_type = ifnull(input.Clinical_Note_Type,"").toString().trim();
+v_complexity = ifnull(input.Complexity_Level,"").toString().trim();
+v_entry = ifnull(input.Type_of_Entry,"").toString().trim();
+if(v_note_type == "Final" && v_entry != "3008")
+{
+	if(v_complexity == "")
+	{
+		alert "Complexity Level is required before a Final clinical note can be saved. If this visit did not occur, select <strong>Visit Cancelled</strong>. If it is not billable, select No Charge.";
+		cancel submit;
+	}
+}
