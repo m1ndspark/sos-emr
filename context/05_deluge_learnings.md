@@ -801,4 +801,4 @@ In a Creator criteria, Field != "value" does not match records where the field
 is null; they are dropped silently. Test in the loop, not the criteria. Found
 2026-09-24 (Session 53) when a diag reported 59 unfaxed notes against 402. Full
 write-up and the list of remaining offenders:
-context/24_creator_criteria_null_trap.md.
+context/25_creator_criteria_null_trap.md.

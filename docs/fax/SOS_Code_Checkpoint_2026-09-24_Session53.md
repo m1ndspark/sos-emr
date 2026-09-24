@@ -12,7 +12,7 @@ conclusions, marked SUPERSEDES below.
 
 - In a Creator criteria, `Field != "value"` does NOT match records where that
   field is null. It drops them silently. Full write-up:
-  `context/24_creator_criteria_null_trap.md`.
+  `context/25_creator_criteria_null_trap.md`.
 - Found because `diag_unfaxed_by_branch` reported 59 unfaxed notes while the
   rewritten fax digest reported 402 on the same data. The diag's
   `Fax_Status != "Sent"` excluded every note never faxed.
@@ -71,7 +71,10 @@ Full write-up: `docs/data/SOS_Referral_Partner_Field_Convention.md`, Part 2.
 
 - Four-level copy chain, 17 writers on `Partner_Branch` alone.
 - NEIL RULING: link is truth, text is display. One resolver writes every text
-  field. Nine-step plan agreed, NOT YET BUILT.
+  field. Nine-step plan agreed, NOT YET BUILT. Current step list (steps 2 and
+  9 revised late in session; label splitting dropped) is in the convention
+  doc, Part 2. Steps 1 to 4 are additive and go first; 5 and 6 change live
+  intake and go last, together, after 1 to 4 are proven on a test referral.
 
 ## Diagnostics and numbers
 
@@ -123,6 +126,26 @@ nothing built.
   row.
 - Data ownership: inherited values written once at creation and frozen.
 
+## Fax cover remarks defect (found after the session log was written)
+
+- PVS Fax Review Fax Now passed `input.Note_Preview`, the rendered HTML of the
+  whole note preview pane, as the cover REMARKS to `send_pvs_fax`. The cover
+  template prints remarks with `white-space:pre-wrap`, so 33 faxes went out
+  with five pages of raw markup ahead of the note.
+- 27 reached real partners between 22:09 and 22:22 on 2026-09-23. The other 6
+  were tests to SOS's own numbers.
+- NOT a delivery failure. The PVS PDF was attached and rendered correctly, so
+  partners received a readable note after the markup pages. No re-faxing
+  required.
+- FIXED 2026-09-24: `v_remarks` is now a sentence built from patient name and
+  date of service, matching what the PVS-form path already did.
+- Learning: the preview HTML must never enter the fax path. The two paths
+  diverged because the modal reached for `Note_Preview` when it wanted a
+  one-line message.
+- NEW OPEN: all 27 still read Queued in Fax_Log, although at least
+  FAX-092326-1040 demonstrably delivered. `poll_fax_status` may be stalled,
+  which would also make the digest's failure counts wrong.
+
 ## Platform decision - opened, not made
 
 `Claude outputs/SOS_EMR_v2_Platform_Case_2026-09-24.md` already exists in the
@@ -147,6 +170,8 @@ FUNCTIONS CREATED
 
 WORKFLOW UPDATED
 - Fax This Note Preview And Gate - criteria fix
+- PVS Fax Review Fax Now - cover remarks now a one-line sentence, not
+  `Note_Preview` (after the log)
 
 CONNECTION CREATED
 - `creator_api` - Zoho OAuth, scopes ZohoCreator.meta.form.READ, report.READ,
@@ -169,7 +194,8 @@ DECIDE BEFORE BUILDING
 NEXT UP
 - Fix `diag_unfaxed_by_branch` (still has the bad criteria).
 - Sweep the remaining `!=` criteria.
-- Build the partner resolver (nine steps).
+- Build the partner resolver (nine steps, 1 to 4 first).
+- Check whether `poll_fax_status` is stalled (27 delivered faxes still Queued).
 - Add PVS_Status and repurpose PVS Required Fields.
 - Zoho Form conditional mandatory on Facility Room #.
 - Delete Build Patient Full Address from Encounter_PatientVisit.
@@ -203,6 +229,8 @@ CARRIED
 6. Zoho Forms cannot populate a dropdown from Creator. Any list is a
    hand-maintained copy.
 7. Deluge: an on-user-input workflow never fires on an API or form submission.
+8. The note preview HTML must never enter the fax path. The modal reached for
+   `Note_Preview` when it wanted a one-line message (found after the log).
 
 Also: read the .ds before claiming anything about the app. Twice this session a
 statement from memory was wrong where the file was right.

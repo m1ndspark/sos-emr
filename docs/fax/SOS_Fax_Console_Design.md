@@ -487,7 +487,7 @@ then.
 does not match records where `Fax_Status` is null, so `diag_unfaxed_by_branch`
 excluded every note never faxed, which was most of them. Surfaced when that
 diag reported 59 while the rewritten fax digest reported 402 on the same data.
-Full write-up: `context/24_creator_criteria_null_trap.md`.
+Full write-up: `context/25_creator_criteria_null_trap.md`.
 
 Fixed in `resolve_pvs_fax_target` (LIVE), Fax This Note Preview And Gate
 (LIVE) and `diag_fax_readiness`. Both live fixes also compute the duplicate
