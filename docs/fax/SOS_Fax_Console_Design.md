@@ -447,6 +447,9 @@ reads as a bulk creation rather than 27 separate omissions. Not investigated.
 
 59 unfaxed, 0 without a billing branch. Tests `Fax_Status != "Sent"`.
 
+**WRONG, see 13.5.** The criteria drops every note with a null Fax_Status. The
+table below undercounts and is kept only as a record.
+
 | Branch | Unfaxed | Blocked |
 |---|---|---|
 | AccentCare - Pasco | 2 | yes, no fax number |
@@ -461,7 +464,7 @@ reads as a bulk creation rather than 27 separate omissions. Not investigated.
 | Empath - Polk | 2 | no |
 | VITAS - Sumter | 1 | no |
 
-Only three notes are blocked by a missing fax number.
+Only three notes are blocked by a missing fax number. **SUPERSEDED 2026-09-24: the real figure is 20. See 13.5.**
 
 ## 13.4 diag_sept_pvs_completeness (new, date window arguments)
 
@@ -471,7 +474,7 @@ missing Facility Room Number on six: PVS-1528-JK, PVS-1534-AS, PVS-1535-AS,
 PVS-1539-AS, PVS-1544-JK, PVS-1754-JK. These block the September send, and
 only Neil can supply them.
 
-## 13.5 UNRESOLVED: 447 vs 59
+## 13.5 RESOLVED 2026-09-24 (Session 53): 447 vs 59
 
 `diag_fax_readiness` counts 447 unfaxed Patient Visits over 180 days.
 `diag_unfaxed_by_branch` counts 59. `diag_unfaxed_by_branch` tests
@@ -479,3 +482,65 @@ only Neil can supply them.
 the two is wrong, and **the 389 ready-to-fax figure cannot be trusted until this
 is settled.** Nobody should size or send the backlog off either number until
 then.
+
+**RESOLVED.** Cause: the Creator criteria null trap. `Fax_Status != "Sent"`
+does not match records where `Fax_Status` is null, so `diag_unfaxed_by_branch`
+excluded every note never faxed, which was most of them. Surfaced when that
+diag reported 59 while the rewritten fax digest reported 402 on the same data.
+Full write-up: `context/24_creator_criteria_null_trap.md`.
+
+Fixed in `resolve_pvs_fax_target` (LIVE), Fax This Note Preview And Gate
+(LIVE) and `diag_fax_readiness`. Both live fixes also compute the duplicate
+count from the same pass as the chosen contact. `diag_unfaxed_by_branch` itself
+is NOT yet fixed; do not trust its output.
+
+Correct figures, `diag_fax_readiness` p_days 0, after the fix:
+
+| Measure | Count |
+|---|---|
+| unfaxed | 407 |
+| excluded cancelled | 18 |
+| ready to fax | 359 |
+| no billing branch | 0 |
+| no fax number | 20 |
+| duplicate contacts | 0 |
+| not Final | 5 |
+| empty note | 23 |
+| referrals missing branch link | 4 (REF-1500, REF-1556, REF-1557, REF-1558) |
+
+Cancelled visits are now excluded and reported separately. The empty-note
+block is now PVS-1479 to PVS-1506.
+
+# 14. Fax digest rewritten, 2026-09-24 (Session 53)
+
+## 14.1 Why
+
+Neil asked why 33 PVS notes faxed manually never appeared on the digest.
+Answer: the digest reports exceptions only and has no sent section, so a
+successful fax is invisible by design. Reading it turned up two more defects:
+
+- The unfaxed section counted only notes added MORE than 24 hours ago and after
+  a hardcoded floor of 22-Sep-2026. A stale-note report under a "past 24 hours"
+  heading.
+- The failures section had no time window at all.
+
+## 14.2 Ruling
+
+NEIL RULING: cumulative, no date exclusions, drop the floor.
+
+## 14.3 As built
+
+`send_fax_digest` REWRITTEN:
+
+- 24-hour cut and the 22-Sep-2026 floor removed.
+- Both note sections headed "all outstanding".
+- Rows sorted oldest first.
+- Added date column on both tables.
+- The 24-hour window is kept for the overrides section only.
+
+First run after the rewrite: missed 402, prelim 4, failures 0, overrides 3.
+
+## 14.4 Consequence
+
+The digest is now a standing worklist, not an alert. It will be non-empty every
+morning until the backlog clears.

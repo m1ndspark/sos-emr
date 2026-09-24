@@ -72,3 +72,59 @@ September traffic apart from REF-1545, which resolved to it.
 - `Referrals_Partner_Fix_Sept2026.xlsx`, 46 rows, Referral ID plus the four
   partner columns, headers matching the export exactly. **The import of the 46
   corrected rows succeeded on the first try.**
+
+---
+
+# Part 2 - Partner data architecture (Session 53, 2026-09-24)
+
+Measured from v53. Source: Session 53 log, PART 5. Intake root cause:
+`docs/data/SOS_Referral_Intake_Root_Cause.md`.
+
+Note: the split-on-first-separator rules above were written for the September
+bulk correction. Going forward, matching is an exact lookup on
+`Partner_Location_Label`, with no splitting (see the intake root cause doc).
+
+## The four-level copy chain
+
+Partner and branch data is duplicated across five fields per form, with
+**seventeen distinct writers on `Partner_Branch` alone**.
+
+| Level | Form | What it holds |
+|---|---|---|
+| 1 | `Partner_Locations` | the only real record; its ID is the key |
+| 2 | `Partner_Referral_Contacts` | copies it |
+| 3 | `Referrals_Main` | copies it again: `Partner_Branch_Link` plus `Partner_Organization`, `Partner_Branch`, `Partner_Location_Label`, `Partner_Branch_Submitted`, `Partner_ID` |
+| 4 | `Encounter_PatientVisit` | copies it a third time: `Billing_Branch` plus three text fields |
+
+## The three defects
+
+1. The Zoho Form writes the branch label to `Partner_Organization`.
+2. Resolution lives in on-user-input events, which never fire on an API
+   submission.
+3. Nothing validates that a text copy still agrees with its link, so they
+   drift silently.
+
+## Ruling
+
+NEIL RULING: **link is truth, text is display.** One resolver writes every text
+field; nothing else touches them. All 17 writers collapse to one.
+
+Rejected:
+- Dropping the text fields entirely. Touches every report, fax template and
+  email.
+- A drift validator alone. Fixes nothing structural.
+
+## Nine-step plan - AGREED, NOT YET BUILT
+
+The log states the plan as one sentence, in this order:
+
+- new functions `partner_branch_values` and `resolve_branch_id`
+- an On Validate on `Referrals_Main`
+- extend PVS Sets Billing Branch On Save
+- strip the partner text writes out of five workflows and
+  `process_new_referral`
+- a one-time backfill
+- retire the drift-repair backfills
+
+The log does not break these into nine numbered steps. Get the exact step list
+from cchat before building.
