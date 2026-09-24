@@ -450,3 +450,4 @@ END
 | Creator learning: v2.1 max_records accepts ONLY 200, 500 or 1000; any other value returns code 9250. | cchat | DONE | N | 2026-09-23 |
 | Creator learning: the .ds export truncates workflow link names to 25 characters. Never quote an export link name of exactly 25 characters as the live one. | cchat | DONE | N | 2026-09-23 |
 | Creator learning: a field set by Deluge does NOT fire that field's on-user-input workflow. Repeat that workflow's work inline (Branch Sets Charge, Session 52). | cchat | DONE | N | 2026-09-23 |
+| Learning: search the .ds for an existing function before writing a new one. backfill_pvs_billing_branch already existed and a duplicate was written before the miss was caught. | cchat | DONE | N | 2026-09-23 |

@@ -44,10 +44,12 @@ organization. Prefix it with `Empath - ` before splitting:
 
 ## Canonical labels
 
-Twelve canonical full labels were derived from the clean September rows. The
-September fix file confirms these nine in use:
+Twelve canonical full labels, derived from the clean September rows:
 
+- `AccentCare - Hillsborough`
+- `AccentCare - Miami`
 - `AccentCare - Pasco`
+- `AccentCare - Pinellas`
 - `Empath - Marion`
 - `Empath - Polk`
 - `Empath - Suncoast - HIL`
@@ -56,10 +58,6 @@ September fix file confirms these nine in use:
 - `Empath - Trustbridge`
 - `InnoVage - Orlando`
 - `InnoVage - Tampa`
-
-> The full twelve are not listed in the Session 52 log, and the fix file only
-> shows the labels its 46 rows needed. Complete this list from the September
-> export before relying on it.
 
 **`AccentCare - Broward` is a valid thirteenth label.** It exists in
 `Partner_Locations` as an active location (code BRO) but was absent from

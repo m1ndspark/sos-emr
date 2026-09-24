@@ -453,16 +453,15 @@ reads as a bulk creation rather than 27 separate omissions. Not investigated.
 | Chapters - LifePath | 1 | yes, no fax number |
 | Empath - Tidewell | 16 | no |
 | Empath - Suncoast - PIN | 14 | no |
-| Pinellas | 6 | no |
-| Hillsborough | 5 | no |
+| AccentCare - Pinellas | 6 | no |
+| AccentCare - Hillsborough | 5 | no |
 | Empath - Trustbridge | 4 | no |
 | Empath - Suncoast - HIL | 4 | no |
 | Empath - Marion | 4 | no |
 | Empath - Polk | 2 | no |
-| Sumter | 1 | no |
+| VITAS - Sumter | 1 | no |
 
-Only three notes are blocked by a missing fax number. (Pinellas, Hillsborough
-and Sumter are recorded as the log gives them, without the organization.)
+Only three notes are blocked by a missing fax number.
 
 ## 13.4 diag_sept_pvs_completeness (new, date window arguments)
 
