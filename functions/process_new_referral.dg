@@ -34,9 +34,13 @@ if(ifnull(v_R.Form_Token,"").toString().trim() != "")
 	v_FromForm = true;
 }
 v_RefDate = null;
-if(v_FromForm)
+if(v_R.Added_Time != null)
 {
-	if(v_R.Added_Time != null)
+	if(v_FromForm)
+	{
+		v_RefDate = v_R.Added_Time.toDate();
+	}
+	else if(v_R.Added_Time >= zoho.currenttime.subMinutes(10))
 	{
 		v_RefDate = v_R.Added_Time.toDate();
 	}
@@ -181,44 +185,42 @@ v_LocName = "";
 v_LocLabel = "";
 v_Org = "";
 v_PID = "";
-if(v_SubmittedLabel != "")
+v_PStamp = "";
+v_ArgLink = "";
+if(v_R.Partner_Branch_Link != null)
 {
-	v_Sel = v_SubmittedLabel;
-	v_SelKey = v_Sel.toLowerCase();
-	v_Loc = Partner_Locations[Partner_Location_Label == v_Sel && Partner_Location_Status == "Active"];
-	if(v_Loc.ID == null)
+	v_ArgLink = v_R.Partner_Branch_Link.toString();
+}
+v_ArgEmail = ifnull(v_R.Partner_POC_Email,"").toString().trim();
+v_ArgOrg = ifnull(v_R.Partner_Organization,"").toString().trim();
+v_Code = thisapp.resolve_branch_id(v_ArgLink,v_ArgEmail,v_SubmittedLabel,v_ArgOrg);
+if(v_Code != "")
+{
+	v_PV = thisapp.partner_branch_values(v_Code);
+	if(v_PV.get("Found").toString() == "true")
 	{
-		v_Loc = Partner_Locations[Partner_Location_Name == v_Sel && Partner_Location_Status == "Active"];
-	}
-	if(v_Loc.ID == null)
-	{
-		for each  v_L2 in Partner_Locations[Partner_Location_Status == "Active"]
+		for each  v_LL in Partner_Locations[Partner_Location_ID == v_Code]
 		{
-			v_LabKey = "";
-			if(v_L2.Partner_Location_Label != null)
-			{
-				v_LabKey = v_L2.Partner_Location_Label.trim().toLowerCase();
-			}
-			v_NamKey = "";
-			if(v_L2.Partner_Location_Name != null)
-			{
-				v_NamKey = v_L2.Partner_Location_Name.trim().toLowerCase();
-			}
-			if(v_LabKey == v_SelKey || v_NamKey == v_SelKey)
-			{
-				v_Loc = Partner_Locations[ID == v_L2.ID];
-				break;
-			}
+			v_LocId = v_LL.ID;
+			break;
 		}
-	}
-	if(v_Loc.ID != null)
-	{
-		v_LocId = v_Loc.ID;
-		v_PartnerId = v_Loc.Partner_Link;
-		v_LocName = v_Loc.Partner_Location_Name;
-		v_LocLabel = v_Loc.Partner_Location_Label;
-		v_Org = v_Loc.Partner_Link.Partner_Display_Name;
-		v_PID = v_Loc.Partner_Link.Partner_ID;
+		if(v_LocId == null && v_Code.matches("^[0-9]+$"))
+		{
+			v_LocId = v_Code.toLong();
+		}
+		if(v_LocId != null)
+		{
+			v_PLRaw = ifnull(v_PV.get("Partner_Link"),"").toString().trim();
+			if(v_PLRaw != "")
+			{
+				v_PartnerId = v_PLRaw.toLong();
+			}
+			v_LocName = ifnull(v_PV.get("Partner_Branch"),"").toString();
+			v_LocLabel = ifnull(v_PV.get("Partner_Location_Label"),"").toString();
+			v_Org = ifnull(v_PV.get("Partner_Organization"),"").toString();
+			v_PID = ifnull(v_PV.get("Partner_ID"),"").toString();
+			v_PStamp = ifnull(v_PV.get("Partner_ID_Stamp"),"").toString();
+		}
 	}
 }
 for each  v_Rec in Referrals_Main[ID == v_RecId]
@@ -252,7 +254,7 @@ for each  v_Rec in Referrals_Main[ID == v_RecId]
 			Partner_Link=v_PartnerId
 			Partner_Branch_Link=v_LocId
 			Partner_ID=v_PID
-			Partner_ID_Stamp=v_PartnerId.toString()
+			Partner_ID_Stamp=v_PStamp
 		];
 		v_Steps.add("partner resolved");
 	}

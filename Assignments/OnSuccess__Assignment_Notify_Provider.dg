@@ -1,0 +1,11 @@
+v_User = ifnull(zoho.loginuserid,"").toString().trim().toLowerCase();
+if(v_User != "joshua.kolanko@sosmmc.com" && v_User != "neil.heird@sosmmc.com")
+{
+	return;
+}
+if(input.Employee_Link == null)
+{
+	return;
+}
+v_Res = thisapp.send_assignment_notification(input.ID.toString());
+info v_Res;

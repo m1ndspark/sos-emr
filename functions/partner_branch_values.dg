@@ -1,0 +1,47 @@
+v_Out = Map();
+v_Out.put("Found",false);
+v_Out.put("Partner_Link",null);
+v_Out.put("Partner_ID_Stamp","");
+v_Out.put("Partner_Organization","");
+v_Out.put("Partner_Branch","");
+v_Out.put("Partner_Location_Label","");
+v_Out.put("Partner_ID","");
+v_Key = ifnull(pKey,"").toString().trim();
+if(v_Key == "")
+{
+	return v_Out;
+}
+v_LocId = 0;
+for each  v_L in Partner_Locations[Partner_Location_ID == v_Key]
+{
+	v_LocId = v_L.ID;
+	break;
+}
+if(v_LocId == 0 && v_Key.matches("^[0-9]+$"))
+{
+	v_LocId = v_Key.toLong();
+}
+if(v_LocId == 0)
+{
+	return v_Out;
+}
+v_Loc = Partner_Locations[ID == v_LocId];
+if(v_Loc.ID == null)
+{
+	return v_Out;
+}
+v_Out.put("Partner_Branch",ifnull(v_Loc.Partner_Location_Name,"").toString().trim());
+v_Out.put("Partner_Location_Label",ifnull(v_Loc.Partner_Location_Label,"").toString().trim());
+if(v_Loc.Partner_Link != null)
+{
+	v_Out.put("Partner_Link",v_Loc.Partner_Link);
+	v_Out.put("Partner_ID_Stamp",v_Loc.Partner_Link.toString());
+	v_P = Partners[ID == v_Loc.Partner_Link];
+	if(v_P.ID != null)
+	{
+		v_Out.put("Partner_Organization",ifnull(v_P.Partner_Display_Name,"").toString().trim());
+		v_Out.put("Partner_ID",ifnull(v_P.Partner_ID,"").toString().trim());
+	}
+}
+v_Out.put("Found",true);
+return v_Out;

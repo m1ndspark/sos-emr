@@ -1,0 +1,269 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Target = ifnull(p_target,"").toString().trim().toUpperCase();
+if(v_Target != "REFERRALS" && v_Target != "PVS")
+{
+	return "SKIP-NOTARGET: pass REFERRALS or PVS";
+}
+v_From = ifnull(p_from,0);
+v_To = ifnull(p_to,0);
+if(v_From < 0)
+{
+	v_From = 0;
+}
+if(v_To < v_From)
+{
+	v_To = v_From + 99;
+}
+v_Cache = Map();
+for each  v_L in Partner_Locations[ID != 0]
+{
+	v_V = thisapp.partner_branch_values(v_L.ID.toString());
+	if(v_V.get("Found").toString() == "true")
+	{
+		v_V.put("LocId",v_L.ID);
+		v_Cache.put(v_L.ID.toString(),v_V);
+		v_LocCode = ifnull(v_L.Partner_Location_ID,"").toString().trim();
+		if(v_LocCode != "")
+		{
+			v_Cache.put(v_LocCode,v_V);
+		}
+	}
+}
+v_Total = 0;
+v_Changed = 0;
+v_Same = 0;
+v_Unres = 0;
+v_Skipped = 0;
+v_NewBilling = 0;
+v_Msgs = List();
+v_Bad = List();
+v_NewBillingIds = List();
+if(v_Target == "REFERRALS")
+{
+	v_Batch = Referrals_Main[ID != 0] sort by ID range from v_From to v_To;
+	for each  v_R in v_Batch
+	{
+		v_Total = v_Total + 1;
+		v_RefId = ifnull(v_R.Referral_ID,"").toString().trim();
+		if(v_RefId == "")
+		{
+			v_RefId = "NO-REFERRAL-ID record " + v_R.ID.toString();
+		}
+		v_V = null;
+		if(v_R.Partner_Branch_Link != null)
+		{
+			v_V = v_Cache.get(v_R.Partner_Branch_Link.toString());
+		}
+		if(v_V == null)
+		{
+			v_Code = thisapp.resolve_branch_id("",ifnull(v_R.Partner_POC_Email,"").toString(),ifnull(v_R.Partner_Location_Label,"").toString(),ifnull(v_R.Partner_Organization,"").toString());
+			if(v_Code != "")
+			{
+				v_V = v_Cache.get(v_Code);
+			}
+		}
+		if(v_V == null)
+		{
+			v_Unres = v_Unres + 1;
+			if(v_Bad.size() < 40)
+			{
+				v_Bad.add(v_RefId + " [org=" + ifnull(v_R.Partner_Organization,"").toString() + " label=" + ifnull(v_R.Partner_Location_Label,"").toString() + "]");
+			}
+		}
+		else
+		{
+			v_LocId = v_V.get("LocId");
+			v_PartnerId = null;
+			v_PLRaw = ifnull(v_V.get("Partner_Link"),"").toString().trim();
+			if(v_PLRaw != "")
+			{
+				v_PartnerId = v_PLRaw.toLong();
+			}
+			v_NewOrg = ifnull(v_V.get("Partner_Organization"),"").toString();
+			v_NewBranch = ifnull(v_V.get("Partner_Branch"),"").toString();
+			v_NewLabel = ifnull(v_V.get("Partner_Location_Label"),"").toString();
+			v_NewPid = ifnull(v_V.get("Partner_ID"),"").toString();
+			v_NewStamp = ifnull(v_V.get("Partner_ID_Stamp"),"").toString();
+			v_CurLoc = "";
+			if(v_R.Partner_Branch_Link != null)
+			{
+				v_CurLoc = v_R.Partner_Branch_Link.toString();
+			}
+			v_CurPartner = "";
+			if(v_R.Partner_Link != null)
+			{
+				v_CurPartner = v_R.Partner_Link.toString();
+			}
+			v_NewPartner = "";
+			if(v_PartnerId != null)
+			{
+				v_NewPartner = v_PartnerId.toString();
+			}
+			v_CurKey = ifnull(v_R.Partner_Organization,"").toString().trim() + "|" + ifnull(v_R.Partner_Branch,"").toString().trim() + "|" + ifnull(v_R.Partner_Location_Label,"").toString().trim() + "|" + ifnull(v_R.Partner_ID,"").toString().trim() + "|" + ifnull(v_R.Partner_ID_Stamp,"").toString().trim() + "|" + v_CurLoc + "|" + v_CurPartner;
+			v_NewKey = v_NewOrg + "|" + v_NewBranch + "|" + v_NewLabel + "|" + v_NewPid + "|" + v_NewStamp + "|" + v_LocId.toString() + "|" + v_NewPartner;
+			if(v_CurKey != v_NewKey)
+			{
+				v_Changed = v_Changed + 1;
+				if(v_Msgs.size() < 60)
+				{
+					v_Msgs.add(v_RefId + ": [" + ifnull(v_R.Partner_Organization,"").toString() + " / " + ifnull(v_R.Partner_Branch,"").toString() + " / " + ifnull(v_R.Partner_ID,"").toString() + "] -> [" + v_NewOrg + " / " + v_NewBranch + " / " + v_NewPid + "]");
+				}
+				if(v_Mode == "COMMIT")
+				{
+					update v_R
+					[
+						Partner_Organization=v_NewOrg
+						Partner_Branch=v_NewBranch
+						Partner_Location_Label=v_NewLabel
+						Partner_Link=v_PartnerId
+						Partner_Branch_Link=v_LocId
+						Partner_ID=v_NewPid
+						Partner_ID_Stamp=v_NewStamp
+					];
+				}
+			}
+			else
+			{
+				v_Same = v_Same + 1;
+			}
+		}
+	}
+	v_Out = v_Mode + " REFERRALS rows " + v_From + "-" + v_To + " | processed=" + v_Total + " | changed=" + v_Changed + " | unchanged=" + v_Same + " | unresolved=" + v_Unres;
+}
+else
+{
+	v_Cap = v_To - v_From + 1;
+	v_Candidates = 0;
+	for each  v_P in Encounter_PatientVisit[Billing_Branch == null || Partner_Organization == null || Partner_Organization == "" || Partner_Branch == null || Partner_Branch == "" || Partner_Location_Label == null || Partner_Location_Label == ""]
+	{
+		v_Candidates = v_Candidates + 1;
+		if(v_Total >= v_Cap)
+		{
+			continue;
+		}
+		v_Total = v_Total + 1;
+		v_PvsId = ifnull(v_P.PVS_ID,"").toString().trim();
+		if(v_PvsId == "")
+		{
+			v_PvsId = "NO-PVS-ID record " + v_P.ID.toString();
+		}
+		v_CurOrg = ifnull(v_P.Partner_Organization,"").toString().trim();
+		v_CurBranch = ifnull(v_P.Partner_Branch,"").toString().trim();
+		v_CurLabel = ifnull(v_P.Partner_Location_Label,"").toString().trim();
+		v_NeedBilling = false;
+		if(v_P.Billing_Branch == null)
+		{
+			v_NeedBilling = true;
+		}
+		if(!v_NeedBilling && v_CurOrg != "" && v_CurBranch != "" && v_CurLabel != "")
+		{
+			v_Same = v_Same + 1;
+		}
+		else if(v_P.Referral_Link == null)
+		{
+			v_Skipped = v_Skipped + 1;
+		}
+		else
+		{
+			v_V = null;
+			v_Ref = Referrals_Main[ID == v_P.Referral_Link];
+			if(v_Ref.ID != null)
+			{
+				if(v_Ref.Partner_Branch_Link != null)
+				{
+					v_V = v_Cache.get(v_Ref.Partner_Branch_Link.toString());
+				}
+				if(v_V == null)
+				{
+					v_Code = thisapp.resolve_branch_id("",ifnull(v_Ref.Partner_POC_Email,"").toString(),ifnull(v_Ref.Partner_Location_Label,"").toString(),ifnull(v_Ref.Partner_Organization,"").toString());
+					if(v_Code != "")
+					{
+						v_V = v_Cache.get(v_Code);
+					}
+				}
+			}
+			if(v_V == null)
+			{
+				v_Unres = v_Unres + 1;
+				if(v_Bad.size() < 40)
+				{
+					v_Bad.add(v_PvsId);
+				}
+			}
+			else
+			{
+				v_SetOrg = v_CurOrg;
+				v_SetBranch = v_CurBranch;
+				v_SetLabel = v_CurLabel;
+				if(v_SetOrg == "")
+				{
+					v_SetOrg = ifnull(v_V.get("Partner_Organization"),"").toString();
+				}
+				if(v_SetBranch == "")
+				{
+					v_SetBranch = ifnull(v_V.get("Partner_Branch"),"").toString();
+				}
+				if(v_SetLabel == "")
+				{
+					v_SetLabel = ifnull(v_V.get("Partner_Location_Label"),"").toString();
+				}
+				v_Changed = v_Changed + 1;
+				if(v_NeedBilling)
+				{
+					v_NewBilling = v_NewBilling + 1;
+					if(v_NewBillingIds.size() < 60)
+					{
+						v_NewBillingIds.add(v_PvsId);
+					}
+				}
+				if(v_Msgs.size() < 60)
+				{
+					v_Msgs.add(v_PvsId + ": [" + v_CurOrg + " / " + v_CurBranch + " / " + v_CurLabel + "] -> [" + v_SetOrg + " / " + v_SetBranch + " / " + v_SetLabel + "]" + if(v_NeedBilling," +billing branch",""));
+				}
+				if(v_Mode == "COMMIT")
+				{
+					update v_P
+					[
+						Partner_Organization=v_SetOrg
+						Partner_Branch=v_SetBranch
+						Partner_Location_Label=v_SetLabel
+					];
+					if(v_NeedBilling)
+					{
+						v_BillLoc = v_V.get("LocId");
+						update v_P
+						[
+							Billing_Branch=v_BillLoc
+						];
+					}
+				}
+			}
+		}
+	}
+	v_Out = v_Mode + " PVS | PVS with a blank partner field=" + v_Candidates + " | processed=" + v_Total + " | filled=" + v_Changed + " | complete=" + v_Same + " | no referral link=" + v_Skipped + " | unresolved=" + v_Unres + " | new billing branch=" + v_NewBilling;
+	if(v_NewBillingIds.size() > 0)
+	{
+		v_Out = v_Out + " || NEW BILLING BRANCH (complexity charge NOT recalculated): " + v_NewBillingIds.toString();
+	}
+}
+if(v_Target == "REFERRALS")
+{
+	if(v_Total == 0)
+	{
+		v_Out = v_Out + " || NO ROWS IN THIS RANGE, batch complete";
+	}
+	else
+	{
+		v_Out = v_Out + " || NEXT: p_from=" + (v_To + 1) + " p_to=" + (v_To + 1 + (v_To - v_From));
+	}
+}
+v_Out = v_Out + " || CHANGES: " + v_Msgs.toString();
+if(v_Bad.size() > 0)
+{
+	v_Out = v_Out + " || UNRESOLVED: " + v_Bad.toString();
+}
+return v_Out;

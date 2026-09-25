@@ -802,3 +802,47 @@ is null; they are dropped silently. Test in the loop, not the criteria. Found
 2026-09-24 (Session 53) when a diag reported 59 unfaxed notes against 402. Full
 write-up and the list of remaining offenders:
 context/25_creator_criteria_null_trap.md.
+
+FUNCTION HEADERS: NO NAMESPACE PREFIX
+In this app's .ds, a function in the Default namespace has NO prefix on its
+first line. A header like "default.fn(...)" puts the function into a separate
+namespace literally named "default", and thisapp.fn() then fails with "Not able
+to find 'fn' function". Never prefix function headers. Session 54, 2026-09-25.
+
+IDENTIFIERS IN FUNCTION SIGNATURES
+A function that takes or returns a record identifier uses the SOS custom ID
+(LOC-, REF-, PAR-), never the 19-digit record ID. Convert to the record ID only
+at the point of assignment into a lookup. Session 54.
+
+ON VALIDATE ASSIGNMENTS PERSIST
+On Validate input.field assignments on Referrals_Main persist on save, including
+lookups. Proven with REF-1556, Session 54.
+
+ON USER INPUT NEVER WRITES ITS OWN TRIGGER
+An on-user-input workflow must never write its own trigger field; it loops.
+Second instance: first the fax override number, then Partner Contact Lookup
+(Session 54), which spun, reset the phone and blocked Submit.
+
+PRESENTATION RULES MISSED (Session 54)
+The logic map and the full code go in the SAME response. The "Type:" line is
+exactly New or Update Existing. Test instructions must be exact and read from
+Creator, never invented.
+
+STATEMENT LIMIT ON FULL-TABLE LOOPS
+A function that loops every Referrals_Main record and calls thisapp functions
+per record hits "Number of statement execution limit exceed" (backfill_partner_resolver
+v1, Session 54). Batch with "sort by ID range from X to Y", cache lookup-table
+results (e.g. partner_branch_values per location) once before the loop, and call
+per-record helpers only when the cache misses.
+A "sort by ID range from X to Y" fetch whose result is empty throws
+"'<var>' is an empty set and values cannot be retrieved" instead of returning an
+empty collection. On Encounter_PatientVisit it threw even for range 0 to 99
+(Session 54). It then threw the same error on a plain criteria fetch assigned to
+a variable and iterated with "for each v_P in v_Batch", most likely because the
+set was empty. Iterate the fetch inline instead ("for each v_P in Form[criteria]"),
+the pattern every working PVS backfill uses; an empty inline fetch just loops zero times.
+
+REPO / GIT
+Run git read commands from Cowork with GIT_OPTIONAL_LOCKS=0 (e.g.
+GIT_OPTIONAL_LOCKS=0 git status) so they never leave .git/index.lock behind;
+Cowork cannot delete files without an explicit permission grant. Session 54.

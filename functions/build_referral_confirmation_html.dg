@@ -96,10 +96,15 @@ v_html = v_html + "<table role=\"presentation\" class=\"container\" width=\"100%
 v_html = v_html + "<tr><td style=\"background-color:#00003c; padding:20px 24px;\">";
 v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#8d8db8; letter-spacing:.06em; text-transform:uppercase;\">SOS Mobile Medical Care</div>";
 v_html = v_html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">Referral Received</div>";
-v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_vals.get("REFID") + "</div>";
+v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_vals.get("PATNAME") + " &nbsp;&bull;&nbsp; " + v_vals.get("REFID") + "</div>";
+v_html = v_html + "</td></tr>";
+v_html = v_html + "<tr><td style=\"" + v_secStyle + "\">Remarks/Comments</td></tr>";
+v_linkStyle = "color:#2634a3; text-decoration:none; font-weight:bold;";
+v_html = v_html + "<tr><td style=\"padding:11px 24px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#000000;\">";
+v_html = v_html + "<p style=\"margin:0 0 10px 0;\">Our team has received this referral and is already working on it. The information provided is displayed below.</p>";
+v_html = v_html + "<p style=\"margin:0;\">Contact SOS with questions, comments, or changes at <a href=\"tel:8135131925\" style=\"" + v_linkStyle + "\">(813) 513-1925</a> or email us at <a href=\"mailto:info@sosreferrals.com\" style=\"" + v_linkStyle + "\">info@sosreferrals.com</a>.</p>";
 v_html = v_html + "</td></tr>";
 v_html = v_html + v_body;
-v_html = v_html + "<tr><td style=\"padding:18px 24px 0 24px; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:20px; color:#000000;\">We have received this referral and our team will follow up with scheduling. Reply to this message or call us if anything needs to change.</td></tr>";
 v_html = v_html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
 v_html = v_html + "</table></td></tr></table></body></html>";
 v_out.put("html",v_html);

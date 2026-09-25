@@ -217,9 +217,12 @@ it is re-read first.
   the send is REFUSED. It never supplies one, never mints one to fill the gap,
   and never falls back to a record ID dressed up as a referral ID.
 - Referral_Date is never defaulted. It is derived from Creator's system
-  Added_Time, and only for form origin records, identified by a non blank
-  Form_Token. When no trusted arrival date exists, nothing is stamped and
-  nothing is sent. An absent date is reported as absent.
+  Added_Time, and only for (a) form origin records, identified by a non blank
+  Form_Token, or (b) records entered directly in Creator, processed within 10
+  minutes of creation (NEIL RULING 2026-09-25, Session 54: Creator entries send
+  every staff notification and the partner confirmation, same as the form).
+  An import date is never used. When no trusted arrival date exists, nothing is
+  stamped and nothing is sent. An absent date is reported as absent.
 - A value found in free text, such as a DOB appearing in a clinical note, is
   surfaced for Neil's approval and never written automatically. Free text is a
   lead, not a source.

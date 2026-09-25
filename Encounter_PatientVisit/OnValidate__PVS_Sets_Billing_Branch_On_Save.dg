@@ -11,35 +11,54 @@ if(v_Ref.ID == null)
 {
 	return;
 }
-v_BranchId = null;
+v_ArgLink = "";
 if(v_Ref.Partner_Branch_Link != null)
 {
-	v_BranchId = v_Ref.Partner_Branch_Link;
+	v_ArgLink = v_Ref.Partner_Branch_Link.toString();
 }
-if(v_BranchId == null)
+v_ArgEmail = "";
+if(v_Ref.Partner_POC_Email != null)
 {
-	v_Org = ifnull(v_Ref.Partner_Organization,"").trim();
-	v_Brn = ifnull(v_Ref.Partner_Branch,"").trim();
-	if(v_Org != "" && v_Brn != "")
-	{
-		for each  v_Loc in Partner_Locations[Partner_Location_Name == v_Brn]
-		{
-			if(ifnull(v_Loc.Partner_Link.Partner_Display_Name,"").trim() == v_Org)
-			{
-				v_BranchId = v_Loc.ID;
-				break;
-			}
-		}
-	}
+	v_ArgEmail = v_Ref.Partner_POC_Email.toString();
 }
-if(v_BranchId == null)
+v_ArgLabel = "";
+if(v_Ref.Partner_Location_Label != null)
+{
+	v_ArgLabel = v_Ref.Partner_Location_Label.toString();
+}
+v_ArgOrg = "";
+if(v_Ref.Partner_Organization != null)
+{
+	v_ArgOrg = v_Ref.Partner_Organization.toString();
+}
+v_Code = thisapp.resolve_branch_id(v_ArgLink,v_ArgEmail,v_ArgLabel,v_ArgOrg);
+if(v_Code == "")
+{
+	return;
+}
+v_Vals = thisapp.partner_branch_values(v_Code);
+if(v_Vals.get("Found").toString() != "true")
+{
+	return;
+}
+v_BranchId = 0;
+for each  v_L in Partner_Locations[Partner_Location_ID == v_Code]
+{
+	v_BranchId = v_L.ID;
+	break;
+}
+if(v_BranchId == 0 && v_Code.matches("^[0-9]+$"))
+{
+	v_BranchId = v_Code.toLong();
+}
+if(v_BranchId == 0)
 {
 	return;
 }
 input.Billing_Branch = v_BranchId;
-input.Partner_Branch = ifnull(v_Ref.Partner_Branch,"");
-input.Partner_Organization = ifnull(v_Ref.Partner_Organization,"");
-input.Partner_Location_Label = ifnull(v_Ref.Partner_Location_Label,"");
+input.Partner_Organization = v_Vals.get("Partner_Organization");
+input.Partner_Branch = v_Vals.get("Partner_Branch");
+input.Partner_Location_Label = v_Vals.get("Partner_Location_Label");
 v_Charge = 0;
 if(input.Complexity_Level != null && input.Complexity_Level != "")
 {

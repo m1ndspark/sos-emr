@@ -1,0 +1,8 @@
+if(input.Employee_Link != null)
+{
+	input.Assignment_Status = "Assigned";
+}
+else
+{
+	input.Assignment_Status = "Unassigned";
+}

@@ -1,0 +1,63 @@
+if(ifnull(input.Partner_Branch_Submitted,"").toString().trim() == "")
+{
+	v_Sub = ifnull(input.Partner_Location_Label,"").toString().trim();
+	if(v_Sub == "")
+	{
+		v_Sub = ifnull(input.Partner_Organization,"").toString().trim();
+	}
+	if(v_Sub != "")
+	{
+		input.Partner_Branch_Submitted = v_Sub;
+	}
+}
+v_ArgLink = "";
+if(input.Partner_Branch_Link != null)
+{
+	v_ArgLink = input.Partner_Branch_Link.toString();
+}
+v_ArgEmail = "";
+if(input.Partner_POC_Email != null)
+{
+	v_ArgEmail = input.Partner_POC_Email.toString();
+}
+v_ArgLabel = "";
+if(input.Partner_Location_Label != null)
+{
+	v_ArgLabel = input.Partner_Location_Label.toString();
+}
+v_ArgOrg = "";
+if(input.Partner_Organization != null)
+{
+	v_ArgOrg = input.Partner_Organization.toString();
+}
+v_Code = thisapp.resolve_branch_id(v_ArgLink,v_ArgEmail,v_ArgLabel,v_ArgOrg);
+if(v_Code == "")
+{
+	return;
+}
+v_Vals = thisapp.partner_branch_values(v_Code);
+if(v_Vals.get("Found").toString() != "true")
+{
+	return;
+}
+v_LocId = 0;
+for each  v_L in Partner_Locations[Partner_Location_ID == v_Code]
+{
+	v_LocId = v_L.ID;
+	break;
+}
+if(v_LocId == 0 && v_Code.matches("^[0-9]+$"))
+{
+	v_LocId = v_Code.toLong();
+}
+if(v_LocId == 0)
+{
+	return;
+}
+input.Partner_Branch_Link = v_LocId;
+input.Partner_Link = v_Vals.get("Partner_Link");
+input.Partner_Organization = v_Vals.get("Partner_Organization");
+input.Partner_Branch = v_Vals.get("Partner_Branch");
+input.Partner_Location_Label = v_Vals.get("Partner_Location_Label");
+input.Partner_ID = v_Vals.get("Partner_ID");
+input.Partner_ID_Stamp = v_Vals.get("Partner_ID_Stamp");

@@ -1,16 +1,18 @@
-v_Email = input.Partner_POC_Email;
-if(v_Email != null && v_Email != "")
+v_Email = ifnull(input.Partner_POC_Email,"").toString().trim();
+if(v_Email != "")
 {
-	v_Match = Partner_Referral_Contacts[Partner_POC_Email == v_Email];
-	for each  v_Rec in v_Match
+	for each  v_Rec in Partner_Referral_Contacts[Partner_POC_Email == v_Email]
 	{
 		input.Partner_POC_First_Name = v_Rec.Partner_POC_First_Name;
 		input.Partner_POC_Last_Name = v_Rec.Partner_POC_Last_Name;
 		input.Partner_POC_Title = v_Rec.Partner_POC_Title;
-		input.Partner_POC_Phone = v_Rec.Partner_POC_Phone;
-		input.Partner_POC_Email = v_Rec.Partner_POC_Email;
-		input.Partner_Organization = v_Rec.Partner_Organization;
 		input.Partner_POC_Team = v_Rec.Partner_POC_Team;
+		v_NewPhone = ifnull(v_Rec.Partner_POC_Phone,"").toString();
+		v_CurPhone = ifnull(input.Partner_POC_Phone,"").toString();
+		if(v_NewPhone != "" && v_NewPhone.replaceAll("[^0-9]","") != v_CurPhone.replaceAll("[^0-9]",""))
+		{
+			input.Partner_POC_Phone = v_NewPhone;
+		}
 		break;
 	}
 }

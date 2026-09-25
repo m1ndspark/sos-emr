@@ -1,0 +1,71 @@
+v_Found = 0;
+v_Cur = ifnull(pCurrentLink,"").toString().trim();
+if(v_Cur != "")
+{
+	for each  v_L in Partner_Locations[Partner_Location_ID == v_Cur]
+	{
+		v_Found = v_L.ID;
+		break;
+	}
+	if(v_Found == 0 && v_Cur.matches("^[0-9]+$"))
+	{
+		v_Loc = Partner_Locations[ID == v_Cur.toLong()];
+		if(v_Loc.ID != null)
+		{
+			v_Found = v_Loc.ID;
+		}
+	}
+}
+v_Label = ifnull(pLabelText,"").toString().trim();
+if(v_Found == 0 && v_Label != "")
+{
+	for each  v_LL in Partner_Locations[Partner_Location_Label == v_Label && Partner_Location_Status == "Active"]
+	{
+		v_Found = v_LL.ID;
+		break;
+	}
+}
+v_Org = ifnull(pOrgText,"").toString().trim();
+if(v_Found == 0 && v_Org != "")
+{
+	for each  v_LO in Partner_Locations[Partner_Location_Label == v_Org && Partner_Location_Status == "Active"]
+	{
+		v_Found = v_LO.ID;
+		break;
+	}
+}
+v_Email = ifnull(pContactEmail,"").toString().trim();
+if(v_Found == 0 && v_Email != "")
+{
+	for each  v_C in Partner_Referral_Contacts[Partner_POC_Email == v_Email]
+	{
+		if(v_C.Partner_Locations_Link != null)
+		{
+			v_Found = v_C.Partner_Locations_Link;
+			break;
+		}
+	}
+	if(v_Found == 0)
+	{
+		v_EmailKey = v_Email.toLowerCase();
+		for each  v_S in Partner_Referral_Contacts[ID != null]
+		{
+			if(v_S.Partner_POC_Email != null && v_S.Partner_Locations_Link != null && v_S.Partner_POC_Email.toString().trim().toLowerCase() == v_EmailKey)
+			{
+				v_Found = v_S.Partner_Locations_Link;
+				break;
+			}
+		}
+	}
+}
+if(v_Found == 0)
+{
+	return "";
+}
+v_Res = Partner_Locations[ID == v_Found];
+v_Code = ifnull(v_Res.Partner_Location_ID,"").toString().trim();
+if(v_Code == "")
+{
+	v_Code = v_Found.toString();
+}
+return v_Code;

@@ -1,0 +1,197 @@
+v_Key = ifnull(p_asgKey,"").toString().trim();
+if(v_Key == "")
+{
+	return "SKIP-NOKEY";
+}
+v_Asg = Assignments[Assignment_ID == v_Key];
+if(v_Asg.count() == 0)
+{
+	if(v_Key.matches("^[0-9]+$"))
+	{
+		v_Asg = Assignments[ID == v_Key.toLong()];
+	}
+}
+if(v_Asg.count() == 0)
+{
+	return "SKIP-NOTFOUND";
+}
+v_RecId = v_Asg.ID;
+if(ifnull(v_Asg.Assignment_ID,"").toString().trim() == "")
+{
+	thisapp.mint_assignment_id(v_RecId);
+}
+v_A = Assignments[ID == v_RecId];
+v_AsgId = ifnull(v_A.Assignment_ID,"").toString().trim();
+if(v_AsgId == "")
+{
+	return "SKIP-NOID";
+}
+v_Cur = "";
+if(v_A.Employee_Link != null)
+{
+	v_CurEmp = Employees[ID == v_A.Employee_Link];
+	if(v_CurEmp.ID == null)
+	{
+		return "SKIP-NOEMPLOYEE-" + v_AsgId;
+	}
+	v_Cur = ifnull(v_CurEmp.Employee_ID,"").toString().trim();
+	if(v_Cur == "")
+	{
+		return "SKIP-NOEMPLOYEEID-" + v_AsgId;
+	}
+}
+v_Prev = ifnull(v_A.Notified_Employee_ID,"").toString().trim();
+if(v_Cur == v_Prev)
+{
+	return "SKIP-NOCHANGE-" + v_AsgId;
+}
+v_Cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+if(v_Cfg.count() == 0)
+{
+	return "SKIP-NOCONFIG";
+}
+v_Token = ifnull(v_Cfg.Zepto_Send_Token,"").toString().trim();
+if(v_Token == "")
+{
+	return "SKIP-NOTOKEN";
+}
+v_PatName = (ifnull(v_A.Patient_First_Name,"").toString().trim() + " " + ifnull(v_A.Patient_Last_Name,"").toString().trim()).trim();
+if(v_PatName == "")
+{
+	v_PatName = "&mdash;";
+}
+v_Jobs = List();
+if(v_Cur != "")
+{
+	v_Jobs.add("ASSIGNED|" + v_Cur);
+}
+if(v_Prev != "")
+{
+	v_Jobs.add("REMOVED|" + v_Prev);
+}
+for each  v_Stamp in Assignments[ID == v_RecId]
+{
+	v_Stamp.Notified_Employee_ID=v_Cur;
+}
+v_Portal = "https://portal.sosreferrals.com";
+v_SecStyle = "background-color:#0b0b5b; padding:10px 24px; font-family:Arial,Helvetica,sans-serif; font-size:13px; font-weight:bold; color:#ffffff; letter-spacing:.05em; text-transform:uppercase;";
+v_LblStyle = "width:40%; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:20px; color:#4c4c89; padding:11px 0;";
+v_ValStyle = "width:60%; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#000000; padding:11px 0; font-weight:bold;";
+v_LinkStyle = "color:#2634a3; text-decoration:none; font-weight:bold;";
+v_Results = List();
+for each  v_Job in v_Jobs
+{
+	v_Kind = v_Job.getPrefix("|");
+	v_EmpId = v_Job.getSuffix("|");
+	v_To = "";
+	v_First = "";
+	for each  v_E in Employees[Employee_ID == v_EmpId]
+	{
+		v_To = ifnull(v_E.Employee_Email,"").toString().trim();
+		v_First = ifnull(v_E.Employee_First_Name,"").toString().trim();
+		break;
+	}
+	v_Err = "";
+	if(v_To == "")
+	{
+		v_Err = "NOEMAIL";
+	}
+	else
+	{
+		if(v_Kind == "ASSIGNED")
+		{
+			v_Title = "New Visit Assignment";
+			v_Subject = "New Visit Assignment: " + v_AsgId;
+			v_Msg = "You have been assigned to a new patient. Sign in to the <a href=\"" + v_Portal + "\" style=\"" + v_LinkStyle + "\">SOS portal</a> to view details.";
+		}
+		else
+		{
+			v_Title = "Visit Removed";
+			v_Subject = "Visit Removed: " + v_AsgId;
+			v_Msg = "This visit has been removed from your schedule. No action is needed. Questions? Contact SOS at <a href=\"tel:8135131925\" style=\"" + v_LinkStyle + "\">(813) 513-1925</a>.";
+		}
+		v_Html = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+		v_Html = v_Html + "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head>";
+		v_Html = v_Html + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />";
+		v_Html = v_Html + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />";
+		v_Html = v_Html + "<title>" + v_Title + "</title>";
+		v_Html = v_Html + "<style type=\"text/css\">@media only screen and (max-width:600px){.container{width:100% !important;}.stack{display:block !important;width:100% !important;box-sizing:border-box !important;}.lbl{background:#f0f0ff !important;padding-bottom:2px !important;font-size:11px !important;text-transform:uppercase;letter-spacing:.05em;}.val{padding-top:2px !important;font-size:16px !important;}.hero{font-size:19px !important;line-height:25px !important;}}</style>";
+		v_Html = v_Html + "</head><body style=\"margin:0; padding:0; background-color:#eef0f6;\">";
+		v_Html = v_Html + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#eef0f6;\"><tr><td align=\"center\" style=\"padding:20px 10px 32px 10px;\">";
+		v_Html = v_Html + "<table role=\"presentation\" class=\"container\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff;\">";
+		v_Html = v_Html + "<tr><td style=\"background-color:#00003c; padding:20px 24px;\">";
+		v_Html = v_Html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#8d8db8; letter-spacing:.06em; text-transform:uppercase;\">SOS Mobile Medical Care</div>";
+		v_Html = v_Html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">" + v_Title + "</div>";
+		v_Html = v_Html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_PatName + " &nbsp;&bull;&nbsp; " + v_AsgId + "</div>";
+		v_Html = v_Html + "</td></tr>";
+		v_Html = v_Html + "<tr><td style=\"" + v_SecStyle + "\">Remarks/Comments</td></tr>";
+		v_Html = v_Html + "<tr><td style=\"padding:11px 24px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#000000;\">";
+		if(v_First != "")
+		{
+			v_Html = v_Html + "<p style=\"margin:0 0 10px 0;\">" + v_First + ",</p>";
+		}
+		v_Html = v_Html + "<p style=\"margin:0 0 10px 0;\">" + v_Msg + "</p>";
+		v_Html = v_Html + "</td></tr>";
+		v_Html = v_Html + "<tr><td style=\"" + v_SecStyle + "\">Assignment</td></tr>";
+		v_Html = v_Html + "<tr><td style=\"padding:0 24px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">";
+		v_Html = v_Html + "<tr><td class=\"stack lbl\" valign=\"top\" style=\"" + v_LblStyle + " border-bottom:1px solid #e6e6ef;\">Assignment ID</td><td class=\"stack val\" valign=\"top\" style=\"" + v_ValStyle + " border-bottom:1px solid #e6e6ef;\">" + v_AsgId + "</td></tr>";
+		v_Html = v_Html + "<tr><td class=\"stack lbl\" valign=\"top\" style=\"" + v_LblStyle + "\">Patient</td><td class=\"stack val\" valign=\"top\" style=\"" + v_ValStyle + "\">" + v_PatName + "</td></tr>";
+		v_Html = v_Html + "</table></td></tr>";
+		v_Html = v_Html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
+		v_Html = v_Html + "</table></td></tr></table></body></html>";
+		v_FromMap = Map();
+		v_FromMap.put("address","notifications@sosreferrals.com");
+		v_FromMap.put("name","SOS Mobile Medical Care");
+		v_AddrMap = Map();
+		v_AddrMap.put("address",v_To);
+		v_Entry = Map();
+		v_Entry.put("email_address",v_AddrMap);
+		v_ToList = List();
+		v_ToList.add(v_Entry);
+		v_Payload = Map();
+		v_Payload.put("from",v_FromMap);
+		v_Payload.put("to",v_ToList);
+		v_Payload.put("subject",v_Subject);
+		v_Payload.put("htmlbody",v_Html);
+		v_Hdr = Map();
+		v_Hdr.put("Accept","application/json");
+		v_Hdr.put("Content-Type","application/json");
+		v_Hdr.put("Authorization","Zoho-enczapikey " + v_Token);
+		v_Resp = Map();
+		try 
+		{
+			v_Resp = invokeurl
+			[
+				url :"https://api.zeptomail.com/v1.1/email"
+				type :POST
+				body:v_Payload.toString()
+				headers:v_Hdr
+			];
+		}
+		catch (e)
+		{
+			v_Err = e.message.toString();
+		}
+		if(v_Err == "" && v_Resp.get("error") != null)
+		{
+			v_Err = v_Resp.get("error").toString();
+		}
+	}
+	if(v_Err == "")
+	{
+		v_Results.add(v_Kind + " SENT " + v_EmpId + " " + v_To);
+	}
+	else
+	{
+		v_Results.add(v_Kind + " FAIL " + v_EmpId + " " + v_Err);
+		if(v_Kind == "ASSIGNED" || v_Cur == "")
+		{
+			for each  v_Revert in Assignments[ID == v_RecId]
+			{
+				v_Revert.Notified_Employee_ID=v_Prev;
+			}
+			return v_AsgId + ": " + v_Results.toString("; ") + "; NOT NOTIFIED, will retry on next save";
+		}
+	}
+}
+return v_AsgId + ": " + v_Results.toString("; ");
