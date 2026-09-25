@@ -33,14 +33,6 @@ if [ -n "$bad" ]; then
   warn=1
 fi
 
-# --- WARN: _INDEX.md coupling ---
-if printf '%s\n' "$staged" | grep -qE '\.dg$'; then
-  if ! printf '%s\n' "$staged" | grep -qE '(^|/)_INDEX\.md$'; then
-    echo "WARN   A .dg is staged but _INDEX.md is not (is its status row updated?)"
-    warn=1
-  fi
-fi
-
 if [ "$rc" -ne 0 ]; then
   echo
   echo "Commit BLOCKED by sos-emr checks. Fix the BLOCK items above."
