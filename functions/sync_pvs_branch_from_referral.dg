@@ -1,0 +1,86 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Key = ifnull(p_pvsId,"").toString().trim();
+if(v_Key == "")
+{
+	return "SKIP-NOKEY";
+}
+v_Found = 0;
+for each  v_P in Encounter_PatientVisit[PVS_ID == v_Key]
+{
+	v_Found = v_Found + 1;
+	v_RecId = v_P.ID;
+}
+if(v_Found == 0)
+{
+	return "SKIP-NOTFOUND " + v_Key;
+}
+if(v_Found > 1)
+{
+	return "SKIP-AMBIGUOUS " + v_Key + " matches " + v_Found + " records";
+}
+v_Rec = Encounter_PatientVisit[ID == v_RecId];
+v_Status = ifnull(v_Rec.Invoice_Status,"").toString().trim();
+if(v_Status != "" && v_Status != "Draft")
+{
+	return "SKIP-NOTDRAFT " + v_Key + " invoice status is " + v_Status;
+}
+if(v_Rec.Referral_Link == null)
+{
+	return "SKIP-NOREFERRAL " + v_Key;
+}
+v_Ref = Referrals_Main[ID == v_Rec.Referral_Link];
+if(v_Ref.ID == null || v_Ref.Partner_Branch_Link == null)
+{
+	return "SKIP-REFERRALHASNOBRANCH " + v_Key;
+}
+v_RefId = ifnull(v_Ref.Referral_ID,"").toString();
+v_Vals = thisapp.partner_branch_values(v_Ref.Partner_Branch_Link.toString());
+if(v_Vals.get("Found").toString() != "true")
+{
+	return "SKIP-BRANCHNOTFOUND " + v_Key;
+}
+v_NewBranch = v_Ref.Partner_Branch_Link;
+v_Level = ifnull(v_Rec.Complexity_Level,"").toString().trim();
+v_NewCharge = 0;
+v_RateFound = false;
+if(v_Level != "")
+{
+	for each  v_Rt in Partner_Rates[Partner_Location_Link == v_NewBranch && Rate_Type == v_Level && Current_Rate == "Yes"]
+	{
+		v_NewCharge = v_Rt.Rate_Amount;
+		v_RateFound = true;
+		break;
+	}
+}
+v_OldLabel = "";
+for each  v_L in Partner_Locations[ID == v_Rec.Billing_Branch]
+{
+	v_OldLabel = ifnull(v_L.Partner_Location_Label,"").toString();
+}
+v_Out = v_Mode + " " + v_Key + " (" + v_RefId + ") | billing branch [" + v_OldLabel + "] -> [" + v_Vals.get("Partner_Location_Label") + "] | level [" + v_Level + "] charge " + ifnull(v_Rec.Complexity_Charge,0) + " -> " + v_NewCharge;
+if(v_Level != "" && !v_RateFound)
+{
+	v_Out = v_Out + " | NO CURRENT RATE for this level at the new branch, charge would be 0";
+}
+v_Add = ifnull(v_Rec.Additional_Charges,"").toString().trim();
+if(v_Add != "" && v_Add != "[]")
+{
+	v_Out = v_Out + " | ADDITIONAL CHARGES present [" + v_Add + "], premium fees are NOT recalculated by this function";
+}
+if(v_Mode == "COMMIT")
+{
+	for each  v_U in Encounter_PatientVisit[ID == v_RecId]
+	{
+		v_U.Billing_Branch=v_NewBranch;
+		v_U.Partner_Organization=v_Vals.get("Partner_Organization");
+		v_U.Partner_Branch=v_Vals.get("Partner_Branch");
+		v_U.Partner_Location_Label=v_Vals.get("Partner_Location_Label");
+		v_U.Complexity_Charge=v_NewCharge;
+	}
+	v_Out = v_Out + " | WRITTEN";
+}
+return v_Out;

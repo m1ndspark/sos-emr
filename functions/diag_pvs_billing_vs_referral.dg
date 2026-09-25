@@ -1,0 +1,34 @@
+v_From = ifnull(p_from,0);
+v_To = ifnull(p_to,0);
+if(v_To < v_From)
+{
+	v_To = v_From + 399;
+}
+v_Refs = 0;
+v_Mismatch = 0;
+v_List = List();
+v_Batch = Referrals_Main[ID != 0] sort by ID range from v_From to v_To;
+for each  v_R in v_Batch
+{
+	v_Refs = v_Refs + 1;
+	if(v_R.Partner_Branch_Link != null)
+	{
+		for each  v_P in Encounter_PatientVisit[Referral_Link == v_R.ID && Billing_Branch != v_R.Partner_Branch_Link]
+		{
+			v_Mismatch = v_Mismatch + 1;
+			if(v_List.size() < 80)
+			{
+				v_BillLabel = "";
+				for each  v_L in Partner_Locations[ID == v_P.Billing_Branch]
+				{
+					v_BillLabel = ifnull(v_L.Partner_Location_Label,"").toString();
+				}
+				v_List.add(ifnull(v_P.PVS_ID,"").toString() + " billed to [" + v_BillLabel + "] but " + ifnull(v_R.Referral_ID,"").toString() + " is [" + ifnull(v_R.Partner_Location_Label,"").toString() + "] (" + ifnull(v_P.Invoice_Status,"").toString() + ")");
+			}
+		}
+	}
+}
+v_Out = "READ-ONLY | referral rows " + v_From + "-" + v_To + " | referrals checked=" + v_Refs + " | PVS billed to a different branch than their referral=" + v_Mismatch;
+v_Out = v_Out + " || NEXT: p_from=" + (v_To + 1) + " p_to=" + (v_To + 1 + (v_To - v_From));
+v_Out = v_Out + " || MISMATCHES: " + v_List.toString();
+return v_Out;

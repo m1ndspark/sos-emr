@@ -252,3 +252,11 @@ never skipped. Gate 10 is an explicit release statement naming the gates run.
 
 When reporting progress, cite the gate number and the counts. Never report a
 gate complete that was not actually executed.
+
+SINGLE SOURCE OF TRUTH (NEIL RULING 2026-09-25, Session 54)
+The referral is the one source of truth for patient and partner data. A human
+enters it; workflows only normalize obvious format issues and copy it onward to
+other forms (PVS, Assignments, contacts). Wherever an input arrives, there is
+exactly one truthful source, and every downstream copy is derived from it.
+Redundant writers that can disagree with the referral are defects.
+
