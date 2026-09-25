@@ -1,0 +1,12 @@
+v_out = "FAXES WITH MARKUP IN COVER REMARKS";
+v_n = 0;
+for each  f in Fax_Log[ID != 0] sort by Submitted_Time
+{
+	v_r = ifnull(f.Cover_Remarks,"").toString();
+	if(v_r.contains("<div") || v_r.contains("<table") || v_r.contains("style="))
+	{
+		v_n = v_n + 1;
+		v_out = v_out + "\n" + ifnull(f.Fax_ID,"") + " | " + ifnull(f.Submitted_Time,"").toString() + " | " + ifnull(f.Destination_Name,"") + " | " + ifnull(f.Destination_Fax,"") + " | " + ifnull(f.Fax_Status,"");
+	}
+}
+return "Affected: " + v_n + v_out;

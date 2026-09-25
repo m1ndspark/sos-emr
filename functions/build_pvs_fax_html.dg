@@ -1,5 +1,6 @@
 v_logo = "https://sosreferrals.com/wp-content/uploads/2025/11/sos-logo-new-web.png";
 v_pvs = Encounter_PatientVisit[ID == pPvsID];
+v_mrn = ifnull(v_pvs.Patient_Hospice_ID,"").toString().trim();
 v_refDate = "";
 if(v_pvs.Referral_Link != null)
 {
@@ -7,6 +8,10 @@ if(v_pvs.Referral_Link != null)
 	if(v_ref.Referral_Date != null)
 	{
 		v_refDate = v_ref.Referral_Date.toString("MM/dd/yyyy");
+	}
+	if(v_mrn == "")
+	{
+		v_mrn = ifnull(v_ref.Patient_Hospice_ID,"").toString().trim();
 	}
 }
 v_dob = "";
@@ -24,11 +29,22 @@ if(v_pvs.Modified_Time != null)
 {
 	v_signed = v_pvs.Modified_Time.toString("MM/dd/yyyy h:mm a");
 }
-v_source = ifnull(v_pvs.Partner_Organization,"").toString().trim();
-v_branch = ifnull(v_pvs.Partner_Branch,"").toString().trim();
-if(v_branch != "")
+v_source = "";
+if(v_pvs.Billing_Branch != null)
 {
-	v_source = v_source + " - " + v_branch;
+	for each  v_loc in Partner_Locations[ID == v_pvs.Billing_Branch.toLong()]
+	{
+		v_source = ifnull(v_loc.Partner_Location_Label,"").toString().trim();
+		break;
+	}
+}
+if(v_source == "")
+{
+	v_source = ifnull(v_pvs.Partner_Branch,"").toString().trim();
+}
+if(v_source == "")
+{
+	v_source = ifnull(v_pvs.Partner_Organization,"").toString().trim();
 }
 v_procs = "";
 if(v_pvs.Type_of_Procedures != null)
@@ -53,18 +69,32 @@ if(pImageUrls != null)
 	}
 }
 v_css = "<style>@page { size: letter; margin: 0.6in 0.65in 0.85in 0.65in; } * { box-sizing: border-box; } body { margin:0; font-family: Helvetica, Arial, sans-serif; font-size: 10.5pt; line-height: 1.42; color:#000; } .page { page-break-after: always; } .page:last-child { page-break-after: auto; } .brand { text-align:center; padding-bottom:8pt; } .brand img { height:46pt; } .cover-title { font-size:34pt; font-weight:bold; color:#0B0B5B; letter-spacing:1pt; margin:14pt 0 2pt 0; } .cover-sub { font-size:9pt; color:#4C4C89; margin-bottom:16pt; } .rule { border-top:2px solid #0B0B5B; margin:0 0 14pt 0; } table.grid { width:100%; border-collapse:collapse; } table.grid td { vertical-align:top; padding:0; } .col { width:50%; padding-right:18pt; } .col.right { padding-right:0; padding-left:18pt; } .blk-hd { font-size:8.5pt; font-weight:bold; letter-spacing:1.4pt; color:#FFFFFF; background:#0B0B5B; padding:4pt 7pt; text-transform:uppercase; } .blk-body { border:1px solid #BFBFBF; border-top:0; padding:8pt 7pt; } .ln { margin:0 0 3pt 0; } .ln .k { color:#4C4C89; font-size:8.5pt; } .nm { font-weight:bold; } .meta { margin:0 0 14pt 0; font-size:9.5pt; } .meta span { display:inline-block; margin-right:22pt; } .meta b { color:#0B0B5B; } .remarks-hd { font-size:8.5pt; font-weight:bold; letter-spacing:1.4pt; color:#FFFFFF; background:#0B0B5B; padding:4pt 7pt; text-transform:uppercase; margin-top:16pt; } .remarks { border:1px solid #BFBFBF; border-top:0; padding:10pt 7pt; min-height:78pt; white-space:pre-wrap; } .notice { margin-top:20pt; border:1px solid #0B0B5B; padding:9pt 10pt; font-size:8pt; line-height:1.4; color:#000; } .notice b { color:#0B0B5B; letter-spacing:.6pt; } .note-title { text-align:center; font-size:14pt; font-weight:bold; color:#0B0B5B; margin:2pt 0 12pt 0; } .amend { text-align:center; font-size:10pt; font-weight:bold; color:#0B0B5B; border:1.5px solid #0B0B5B; padding:4pt; margin:0 0 12pt 0; letter-spacing:1.2pt; } table.hdr { width:100%; border-collapse:collapse; margin-bottom:14pt; } table.hdr td { border:1px solid #AEAED0; padding:4.5pt 7pt; font-size:9.5pt; width:50%; } table.hdr td.r { text-align:right; } table.hdr .k { color:#4C4C89; } .sec { margin:0 0 11pt 0; } .sec h3 { font-size:10pt; font-weight:bold; color:#0B0B5B; margin:0 0 3pt 0; page-break-after:avoid; break-after:avoid; } .sec p { margin:0 0 6pt 0; white-space:pre-wrap; orphans:3; widows:3; } .sec h3 + p { page-break-before:avoid; break-before:avoid; } .note, .note * { font-family: Helvetica, Arial, sans-serif !important; font-size:10.5pt !important; line-height:1.42 !important; color:#000 !important; background:transparent !important; } .note { orphans:3; widows:3; } .note p { margin:0 0 7pt 0 !important; } .note br + br { line-height:0.5 !important; } .note b, .note strong { font-weight:bold !important; } .note h1, .note h2, .note h3, .note h4, .note h5, .note h6 { font-size:10pt !important; font-weight:bold !important; color:#0B0B5B !important; margin:12pt 0 3pt 0 !important; page-break-after:avoid; break-after:avoid; } .note ul, .note ol { margin:0 0 7pt 0 !important; padding-left:18pt !important; } .note li { margin:0 0 2pt 0 !important; } .note table { border-collapse:collapse !important; width:100% !important; margin:0 0 8pt 0 !important; } .note td, .note th { border:1px solid #AEAED0 !important; padding:3pt 6pt !important; } .note img { max-width:100% !important; height:auto !important; } .note a { text-decoration:none !important; } .note font { font-size:10.5pt !important; } .sig { margin-top:22pt; border-top:1px solid #BFBFBF; padding-top:8pt; font-size:9.5pt; page-break-inside:avoid; break-inside:avoid; } .sig .nm { font-weight:bold; } .sig .k { color:#4C4C89; font-size:8.5pt; } .img-wrap { text-align:center; } .img-wrap img { max-width:100%; max-height:8.4in; } .img-cap { font-size:8.5pt; color:#4C4C89; margin-top:5pt; text-align:center; }</style>";
-v_cover = "<div class='page'> <div class='brand'><img src='" + v_logo + "'></div> <div class='cover-title'>FAX</div> <div class='cover-sub'>Confidential clinical documentation</div> <div class='rule'></div> <div class='meta'> <span><b>Date</b>&nbsp; @@SENT_DATE@@</span> <span><b>Fax ID</b>&nbsp; @@FAX_ID@@</span> </div> <table class='grid'> <tr> <td class='col'> <div class='blk-hd'>To</div> <div class='blk-body'> <div class='ln nm'>@@TO_NAME@@</div> <div class='ln'>@@TO_PARTNER@@</div> <div class='ln'><span class='k'>Fax</span> @@TO_FAX@@</div> <div class='ln'><span class='k'>Attn</span> @@TO_ATTN@@</div> </div> </td> <td class='col right'> <div class='blk-hd'>From</div> <div class='blk-body'> <div class='ln nm'>SOS Mobile Medical Care</div> <div class='ln'>8270 Woodland Center Blvd, Tampa, FL 33614</div> <div class='ln'><span class='k'>Phone</span> (813) 513-1925 &nbsp;&nbsp;&nbsp; <span class='k'>Fax</span> (813) 626-3312</div> </div> </td> </tr> </table> <div class='remarks-hd'>Remarks</div> <div class='remarks'>@@REMARKS@@</div> <div class='notice'> <b>CONFIDENTIALITY NOTICE.</b> This transmission contains protected health information intended only for the individual or entity named above. It is privileged and confidential under federal and state law, including HIPAA. If you are not the intended recipient, any review, disclosure, copying, distribution or action taken in reliance on this information is strictly prohibited. If you received this fax in error, notify SOS Mobile Medical Care immediately at (813) 513-1925 and destroy all copies, electronic and printed. Redisclosure without written patient authorization or as otherwise permitted by law is prohibited. </div> </div>";
-v_note = "<div class='page'> <div class='brand'><img src='" + v_logo + "'></div> <div class='note-title'>Patient Visit Summary</div> @@AMENDMENT_BANNER@@ <table class='hdr'> <tr> <td><span class='k'>Patient Name</span>&nbsp; <b>@@PATIENT_NAME@@</b></td> <td class='r'><span class='k'>Referral ID</span>&nbsp; @@REFERRAL_ID@@</td> </tr> <tr> <td><span class='k'>Date of Birth</span>&nbsp; @@PATIENT_DOB@@</td> <td class='r'><span class='k'>Referral Date</span>&nbsp; @@REFERRAL_DATE@@</td> </tr> <tr> <td><span class='k'>Gender</span>&nbsp; @@PATIENT_GENDER@@</td> <td class='r'><span class='k'>Referral Source</span>&nbsp; @@REFERRAL_SOURCE@@</td> </tr> <tr> <td><span class='k'>Provider</span>&nbsp; @@PROVIDER_NAME@@</td> <td class='r'><span class='k'>Referred By</span>&nbsp; @@REFERRED_BY@@</td> </tr> <tr> <td><span class='k'>Date of Service</span>&nbsp; @@SERVICE_DATE@@</td> <td class='r'><span class='k'>Clinical Team</span>&nbsp; @@CLINICAL_TEAM@@</td> </tr> <tr> <td><span class='k'>Acuity Level</span>&nbsp; @@ACUITY_LEVEL@@</td> <td class='r'><span class='k'>Visit Status</span>&nbsp; @@VISIT_STATUS@@</td> </tr> <tr> <td><span class='k'>PVS ID</span>&nbsp; @@PVS_ID@@</td> <td class='r'><span class='k'>Note Type</span>&nbsp; @@NOTE_TYPE@@</td> </tr> </table> <div class='sec'><h3>Procedures Performed</h3><p>@@TYPE_OF_PROCEDURES@@</p></div> <div class='sec'><h3>Diagnosis Codes</h3><p>@@ICD_CODES@@</p></div> <div class='note'>@@CLINICAL_NOTE@@</div> <div class='sig'> <div class='nm'>@@PROVIDER_NAME@@</div> <div class='k'>Electronically signed @@SIGNED_TIME@@</div> <div class='k'>SOS Mobile Medical Care &nbsp;|&nbsp; PVS @@PVS_ID@@ &nbsp;|&nbsp; Fax @@FAX_ID@@</div> </div> </div>";
+v_pName = ifnull(pToName,"").toString().trim();
+v_pPartner = ifnull(pToPartner,"").toString().trim();
+v_pAttn = ifnull(pToAttn,"").toString().trim();
+v_partnerLine = "";
+if(v_pPartner != "" && v_pPartner != v_pName)
+{
+	v_partnerLine = "<div class='ln'>@@TO_PARTNER@@</div>";
+}
+v_attnLine = "";
+if(v_pAttn != "" && v_pAttn != v_pName && v_pAttn != v_pPartner)
+{
+	v_attnLine = "<div class='ln'><span class='k'>Attn</span> @@TO_ATTN@@</div>";
+}
+v_cover = "<div class='page'> <div class='brand'><img src='" + v_logo + "'></div> <div class='cover-title'>FAX</div> <div class='cover-sub'>Confidential clinical documentation</div> <div class='rule'></div> <div class='meta'> <span><b>Date:</b>&nbsp; @@SENT_DATE@@</span> <span><b>Patient:</b>&nbsp; @@PATIENT_NAME@@</span> <span><b>MRN:</b>&nbsp; @@PATIENT_MRN@@</span> </div> <table class='grid'> <tr> <td class='col'> <div class='blk-hd'>To</div> <div class='blk-body'> <div class='ln nm'>@@TO_NAME@@</div> " + v_partnerLine + " <div class='ln'><span class='k'>Fax</span> @@TO_FAX@@</div> " + v_attnLine + " </div> </td> <td class='col right'> <div class='blk-hd'>From</div> <div class='blk-body'> <div class='ln nm'>SOS Mobile Medical Care</div> <div class='ln'>8270 Woodland Center Blvd, Tampa, FL 33614</div> <div class='ln'><span class='k'>Phone</span> (813) 513-1925 &nbsp;&nbsp;&nbsp; <span class='k'>Fax</span> (813) 626-3312</div> </div> </td> </tr> </table> <div class='remarks-hd'>Remarks</div> <div class='remarks'>@@REMARKS@@</div> <div class='notice'> <b>CONFIDENTIALITY NOTICE.</b> This transmission contains protected health information intended only for the individual or entity named above. It is privileged and confidential under federal and state law, including HIPAA. If you are not the intended recipient, any review, disclosure, copying, distribution or action taken in reliance on this information is strictly prohibited. If you received this fax in error, notify SOS Mobile Medical Care immediately at (813) 513-1925 and destroy all copies, electronic and printed. Redisclosure without written patient authorization or as otherwise permitted by law is prohibited. </div> </div>";
+v_note = "<div class='page'> <div class='brand'><img src='" + v_logo + "'></div> <div class='note-title'>Patient Visit Summary</div> @@AMENDMENT_BANNER@@ <table class='hdr'> <tr> <td><span class='k'>Patient Name</span>&nbsp; <b>@@PATIENT_NAME@@</b></td> <td class='r'><span class='k'>Referral ID</span>&nbsp; @@REFERRAL_ID@@</td> </tr> <tr> <td><span class='k'>Date of Birth</span>&nbsp; @@PATIENT_DOB@@</td> <td class='r'><span class='k'>Referral Date</span>&nbsp; @@REFERRAL_DATE@@</td> </tr> <tr> <td><span class='k'>Gender</span>&nbsp; @@PATIENT_GENDER@@</td> <td class='r'><span class='k'>Referral Source</span>&nbsp; @@REFERRAL_SOURCE@@</td> </tr> <tr> <td><span class='k'>Provider</span>&nbsp; @@PROVIDER_NAME@@</td> <td class='r'><span class='k'>Referred By</span>&nbsp; @@REFERRED_BY@@</td> </tr> <tr> <td><span class='k'>Date of Service</span>&nbsp; @@SERVICE_DATE@@</td> <td class='r'><span class='k'>Clinical Team</span>&nbsp; @@CLINICAL_TEAM@@</td> </tr> <tr> <td><span class='k'>Acuity Level</span>&nbsp; @@ACUITY_LEVEL@@</td> <td class='r'><span class='k'>Visit Status</span>&nbsp; @@VISIT_STATUS@@</td> </tr> <tr> <td><span class='k'>PVS ID</span>&nbsp; @@PVS_ID@@</td> <td class='r'><span class='k'>Note Type</span>&nbsp; @@NOTE_TYPE@@</td> </tr> </table> <div class='sec'><h3>Procedures Performed</h3><p>@@TYPE_OF_PROCEDURES@@</p></div> <div class='sec'><h3>Diagnosis Codes</h3><p>@@ICD_CODES@@</p></div> <div class='note'>@@CLINICAL_NOTE@@</div> <div class='sig'> <div class='nm'>@@PROVIDER_NAME@@</div> <div class='k'>Electronically signed @@SIGNED_TIME@@</div> <div class='k'>SOS Mobile Medical Care &nbsp;|&nbsp; (813) 513-1925 &nbsp;|&nbsp; sosreferrals.com</div> </div> </div>";
 v_html = "<!DOCTYPE html><html><head><meta charset='utf-8'>" + v_css + "</head><body>" + v_cover + v_note + v_imgPages + "</body></html>";
 v_tok = Map();
 v_tok.put("SENT_DATE",zoho.currentdate.toString("MM/dd/yyyy"));
 v_tok.put("FAX_ID",pFaxID);
 v_tok.put("TO_NAME",pToName);
 v_tok.put("TO_PARTNER",pToPartner);
-v_tok.put("TO_FAX",pToFax);
+v_tok.put("TO_FAX",thisapp.fmt_phone_display(pToFax));
 v_tok.put("TO_ATTN",pToAttn);
 v_tok.put("REMARKS",pRemarks);
 v_tok.put("PATIENT_NAME",ifnull(v_pvs.Patient_Full_Name_1,""));
+v_tok.put("PATIENT_MRN",v_mrn);
 v_tok.put("PATIENT_DOB",v_dob);
 v_tok.put("PATIENT_GENDER",ifnull(v_pvs.Patient_Gender,""));
 v_tok.put("PROVIDER_NAME",ifnull(v_pvs.Employee_Name_Title,""));

@@ -24,7 +24,7 @@ if(!v_ok)
 	input.Gate_Message = v_gate;
 	input.Result_Message = "";
 	disable Gate_Message;
-	disable Result_Message;
+	hide Result_Message;
 	hide Patient_Name;
 	hide Referral_ID;
 	hide Note_Preview;
@@ -127,7 +127,7 @@ else
 	disable Destination_Name;
 	disable Destination_Fax;
 	disable Gate_Message;
-	disable Result_Message;
+	hide Result_Message;
 	disable Note_Preview;
 	hide Override_Fax;
 	hide Override_Fax_Confirm;

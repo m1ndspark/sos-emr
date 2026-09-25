@@ -1,10 +1,9 @@
-v_floor = '22-Sep-2026'.toDate();
 v_cut = zoho.currenttime.subHour(24);
 v_missed = "";
 v_nMissed = 0;
 v_prelim = "";
 v_nPrelim = 0;
-for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && Added_Time < v_cut && Added_Time >= v_floor]
+for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit"] sort by Added_Time
 {
 	v_fs = ifnull(v_p.Fax_Status,"").toString();
 	v_nt = ifnull(v_p.Clinical_Note_Type,"").toString();
@@ -16,13 +15,13 @@ for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit" && Adde
 			if(v_fs == "" || v_fs == "Not Sent")
 			{
 				v_nMissed = v_nMissed + 1;
-				v_missed = v_missed + "<tr><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + ifnull(v_p.Patient_Full_Name_1,"") + "</td><td>" + ifnull(v_p.Partner_Location_Label,"") + "</td><td>" + v_nt + "</td></tr>";
+				v_missed = v_missed + "<tr><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + ifnull(v_p.Patient_Full_Name_1,"") + "</td><td>" + ifnull(v_p.Partner_Location_Label,"") + "</td><td>" + v_nt + "</td><td>" + ifnull(v_p.Added_Time,"").toString("MM/dd/yyyy") + "</td></tr>";
 			}
 		}
 		else if(v_nt == "Preliminary")
 		{
 			v_nPrelim = v_nPrelim + 1;
-			v_prelim = v_prelim + "<tr><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + ifnull(v_p.Patient_Full_Name_1,"") + "</td><td>" + ifnull(v_p.Partner_Location_Label,"") + "</td></tr>";
+			v_prelim = v_prelim + "<tr><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + ifnull(v_p.Patient_Full_Name_1,"") + "</td><td>" + ifnull(v_p.Partner_Location_Label,"") + "</td><td>" + ifnull(v_p.Added_Time,"").toString("MM/dd/yyyy") + "</td></tr>";
 		}
 	}
 }
@@ -73,19 +72,19 @@ if(v_token == "")
 }
 v_css = "<style>body{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111;} h2{color:#0B0B5B;font-size:15px;margin:18px 0 6px 0;} table{border-collapse:collapse;width:100%;margin-bottom:8px;} th{background:#0B0B5B;color:#fff;text-align:left;padding:5px 7px;font-size:11px;letter-spacing:.6px;} td{border:1px solid #BFBFBF;padding:5px 7px;} .none{color:#4C4C89;}</style>";
 v_body = "<h1 style='font-size:17px;color:#0B0B5B;'>SOS Fax Digest - " + zoho.currentdate.toString("MM/dd/yyyy") + "</h1>";
-v_body = v_body + "<h2>Unfaxed final notes past 24 hours (" + v_nMissed + ")</h2>";
+v_body = v_body + "<h2>Unfaxed final notes, all outstanding (" + v_nMissed + ")</h2>";
 if(v_nMissed > 0)
 {
-	v_body = v_body + "<table><tr><th>PVS</th><th>Patient</th><th>Branch</th><th>Note Type</th></tr>" + v_missed + "</table>";
+	v_body = v_body + "<table><tr><th>PVS</th><th>Patient</th><th>Branch</th><th>Note Type</th><th>Added</th></tr>" + v_missed + "</table>";
 }
 else
 {
 	v_body = v_body + "<p class='none'>None.</p>";
 }
-v_body = v_body + "<h2>Preliminary notes past 24 hours (" + v_nPrelim + ")</h2>";
+v_body = v_body + "<h2>Preliminary notes, all outstanding (" + v_nPrelim + ")</h2>";
 if(v_nPrelim > 0)
 {
-	v_body = v_body + "<table><tr><th>PVS</th><th>Patient</th><th>Branch</th></tr>" + v_prelim + "</table>";
+	v_body = v_body + "<table><tr><th>PVS</th><th>Patient</th><th>Branch</th><th>Added</th></tr>" + v_prelim + "</table>";
 }
 else
 {

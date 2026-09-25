@@ -70,13 +70,20 @@ if(v_block == "" && !v_override)
 	}
 	else
 	{
-		v_bcCount = Partner_Billing_Contacts[Partner_Location_Link == v_branch && Partner_Billing_POC_Status == "Active" && Partner_PVS_Fax != ""].count();
+		v_bcCount = 0;
 		v_faxRaw = "";
-		for each  v_bc in Partner_Billing_Contacts[Partner_Location_Link == v_branch && Partner_Billing_POC_Status == "Active" && Partner_PVS_Fax != ""]
+		for each  v_bc in Partner_Billing_Contacts[Partner_Location_Link == v_branch && Partner_Billing_POC_Status == "Active"]
 		{
-			v_faxRaw = ifnull(v_bc.Partner_PVS_Fax,"").toString().trim();
-			v_toName = (ifnull(v_bc.Partner_Billing_POC_First_Name,"").toString() + " " + ifnull(v_bc.Partner_Billing_POC_Last_Name,"").toString()).trim();
-			break;
+			v_thisFax = ifnull(v_bc.Partner_PVS_Fax,"").toString().trim();
+			if(v_thisFax != "")
+			{
+				v_bcCount = v_bcCount + 1;
+				if(v_bcCount == 1)
+				{
+					v_faxRaw = v_thisFax;
+					v_toName = (ifnull(v_bc.Partner_Billing_POC_First_Name,"").toString() + " " + ifnull(v_bc.Partner_Billing_POC_Last_Name,"").toString()).trim();
+				}
+			}
 		}
 		v_digits = v_faxRaw.replaceAll("[^0-9]","");
 		if(v_digits.length() == 11 && v_digits.startsWith("1"))

@@ -1,0 +1,45 @@
+v_t = null;
+for each  p in Encounter_PatientVisit[PVS_ID == p_pvsId]
+{
+	v_t = p;
+	break;
+}
+if(v_t == null)
+{
+	return "No PVS found with PVS_ID " + p_pvsId + ".";
+}
+v_out = "PVS " + p_pvsId + "\n";
+v_lbl = ifnull(v_t.Partner_Location_Label,"").toString();
+v_out = v_out + "Partner_Location_Label [" + v_lbl + "] len=" + v_lbl.length() + "\n";
+v_out = v_out + "Partner_Organization [" + ifnull(v_t.Partner_Organization,"").toString() + "]\n";
+v_out = v_out + "Partner_Branch [" + ifnull(v_t.Partner_Branch,"").toString() + "]\n";
+v_branch = 0;
+if(v_t.Billing_Branch != null)
+{
+	v_branch = v_t.Billing_Branch.toLong();
+}
+v_out = v_out + "Billing_Branch ID [" + v_branch + "]\n";
+if(v_branch > 0)
+{
+	for each  v_loc in Partner_Locations[ID == v_branch]
+	{
+		v_out = v_out + "Location label [" + ifnull(v_loc.Partner_Location_Label,"").toString() + "]\n";
+		break;
+	}
+	v_n = 0;
+	for each  v_bc in Partner_Billing_Contacts[Partner_Location_Link == v_branch && Partner_Billing_POC_Status == "Active"]
+	{
+		v_n = v_n + 1;
+		v_fn = ifnull(v_bc.Partner_Billing_POC_First_Name,"").toString();
+		v_ln = ifnull(v_bc.Partner_Billing_POC_Last_Name,"").toString();
+		v_fx = ifnull(v_bc.Partner_PVS_Fax,"").toString().trim();
+		v_out = v_out + "Contact " + v_n + " ID=" + v_bc.ID + " first[" + v_fn + "] last[" + v_ln + "] fax[" + v_fx + "]\n";
+	}
+	v_out = v_out + "Active contacts found: " + v_n + "\n";
+}
+v_r = thisapp.resolve_pvs_fax_target(v_t.ID);
+v_out = v_out + "resolver to_name [" + v_r.get("to_name").toString() + "]\n";
+v_out = v_out + "resolver to_partner [" + v_r.get("to_partner").toString() + "]\n";
+v_out = v_out + "resolver fax_display [" + v_r.get("fax_display").toString() + "]\n";
+v_out = v_out + "resolver gate [" + v_r.get("gate").toString() + "]\n";
+return v_out;

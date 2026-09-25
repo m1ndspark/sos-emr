@@ -21,6 +21,7 @@ v_cDupFax = 0;
 v_cPrelim = 0;
 v_cEmpty = 0;
 v_cReady = 0;
+v_cCancelled = 0;
 v_cTotal = 0;
 v_sNoBranch = List();
 v_sNoFax = List();
@@ -33,71 +34,86 @@ for each  v_id in v_ids
 	for each  v_r in Encounter_PatientVisit[ID == v_id]
 	{
 		v_fx = ifnull(v_r.Fax_Status,"").toString();
+		v_vs = ifnull(v_r.Visit_Status,"").toString();
 		if(v_fx != "Sent" && v_fx != "Queued")
 		{
-			v_cTotal = v_cTotal + 1;
-			v_pid = ifnull(v_r.PVS_ID,"").toString();
-			if(v_pid == "")
+			if(v_vs == "Cancelled")
 			{
-				v_pid = "ID-" + v_r.ID.toString();
-			}
-			v_nt = ifnull(v_r.Clinical_Note_Type,"").toString().trim();
-			if(v_nt != "Final" && v_nt != "Addendum")
-			{
-				v_cPrelim = v_cPrelim + 1;
-				if(v_sPrelim.size() < 25)
-				{
-					v_sPrelim.add(v_pid);
-				}
-			}
-			else if(ifnull(v_r.Final_Clinical_Note,"").toString().trim() == "")
-			{
-				v_cEmpty = v_cEmpty + 1;
-				if(v_sEmpty.size() < 25)
-				{
-					v_sEmpty.add(v_pid);
-				}
+				v_cCancelled = v_cCancelled + 1;
 			}
 			else
 			{
-				v_b = 0;
-				if(v_r.Billing_Branch != null)
+				v_cTotal = v_cTotal + 1;
+				v_pid = ifnull(v_r.PVS_ID,"").toString();
+				if(v_pid == "")
 				{
-					v_b = v_r.Billing_Branch.toLong();
+					v_pid = "ID-" + v_r.ID.toString();
 				}
-				if(v_b == 0)
+				v_nt = ifnull(v_r.Clinical_Note_Type,"").toString().trim();
+				if(v_nt != "Final" && v_nt != "Addendum")
 				{
-					v_cNoBranch = v_cNoBranch + 1;
-					if(v_sNoBranch.size() < 25)
+					v_cPrelim = v_cPrelim + 1;
+					if(v_sPrelim.size() < 25)
 					{
-						v_sNoBranch.add(v_pid);
+						v_sPrelim.add(v_pid);
+					}
+				}
+				else if(ifnull(v_r.Final_Clinical_Note,"").toString().trim() == "")
+				{
+					v_cEmpty = v_cEmpty + 1;
+					if(v_sEmpty.size() < 25)
+					{
+						v_sEmpty.add(v_pid);
 					}
 				}
 				else
 				{
-					v_c = Partner_Billing_Contacts[Partner_Location_Link == v_b && Partner_Billing_POC_Status == "Active" && Partner_PVS_Fax != ""].count();
-					if(v_c == 0)
+					v_b = 0;
+					if(v_r.Billing_Branch != null)
 					{
-						v_cNoFax = v_cNoFax + 1;
-						if(v_sNoFax.size() < 25)
-						{
-							v_sNoFax.add(v_pid);
-						}
+						v_b = v_r.Billing_Branch.toLong();
 					}
-					else if(v_c > 1)
+					if(v_b == 0)
 					{
-						v_cDupFax = v_cDupFax + 1;
-						if(v_sDupFax.size() < 25)
+						v_cNoBranch = v_cNoBranch + 1;
+						if(v_sNoBranch.size() < 25)
 						{
-							v_sDupFax.add(v_pid);
+							v_sNoBranch.add(v_pid);
 						}
 					}
 					else
 					{
-						v_cReady = v_cReady + 1;
-						if(v_sReady.size() < 25)
+						v_c = 0;
+						for each  v_bc in Partner_Billing_Contacts[Partner_Location_Link == v_b && Partner_Billing_POC_Status == "Active"]
 						{
-							v_sReady.add(v_pid);
+							if(ifnull(v_bc.Partner_PVS_Fax,"").toString().trim() != "")
+							{
+								v_c = v_c + 1;
+							}
+						}
+						if(v_c == 0)
+						{
+							v_cNoFax = v_cNoFax + 1;
+							if(v_sNoFax.size() < 25)
+							{
+								v_sNoFax.add(v_pid);
+							}
+						}
+						else if(v_c > 1)
+						{
+							v_cDupFax = v_cDupFax + 1;
+							if(v_sDupFax.size() < 25)
+							{
+								v_sDupFax.add(v_pid);
+							}
+						}
+						else
+						{
+							v_cReady = v_cReady + 1;
+							if(v_sReady.size() < 25)
+							{
+								v_sReady.add(v_pid);
+							}
 						}
 					}
 				}
@@ -136,6 +152,7 @@ else
 }
 v_out.put("window_days",p_days);
 v_out.put("unfaxed_patient_visits",v_cTotal);
+v_out.put("excluded_cancelled",v_cCancelled);
 v_out.put("ready_to_fax",v_cReady);
 v_out.put("blocked_no_billing_branch",v_cNoBranch);
 v_out.put("blocked_no_fax_number",v_cNoFax);

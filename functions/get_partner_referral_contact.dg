@@ -36,19 +36,19 @@ if(v_MatchId != 0)
 	v_Org = "";
 	if(v_Con.Partner_Locations_Link != null)
 	{
-		v_Branch = ifnull(v_Con.Partner_Locations_Link.Partner_Location_Name,"");
+		v_Branch = ifnull(v_Con.Partner_Locations_Link.Partner_Location_Label,"").toString().trim();
 	}
 	if(v_Branch == "")
 	{
-		v_Branch = ifnull(v_Con.Partner_Branch,"");
+		v_Branch = ifnull(v_Con.Partner_Branch,"").toString().trim();
 	}
 	if(v_Con.Partner_Link != null)
 	{
-		v_Org = ifnull(v_Con.Partner_Link.Partner_Display_Name,"");
+		v_Org = ifnull(v_Con.Partner_Link.Partner_Display_Name,"").toString().trim();
 	}
 	if(v_Org == "")
 	{
-		v_Org = ifnull(v_Con.Partner_Organization,"");
+		v_Org = ifnull(v_Con.Partner_Organization,"").toString().trim();
 	}
 	v_Phone = ifnull(v_Con.Partner_POC_Phone,"").toString().replaceAll("[^0-9]","");
 	if(v_Phone.length() == 11 && v_Phone.startsWith("1"))

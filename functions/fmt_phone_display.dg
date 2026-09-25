@@ -1,0 +1,13 @@
+v_d = ifnull(pRaw,"").toString().replaceAll("[^0-9]","");
+if(v_d.length() == 11)
+{
+	if(v_d.subString(0,1) == "1")
+	{
+		v_d = v_d.subString(1,11);
+	}
+}
+if(v_d.length() != 10)
+{
+	return ifnull(pRaw,"").toString().trim();
+}
+return "(" + v_d.subString(0,3) + ") " + v_d.subString(3,6) + "-" + v_d.subString(6,10);

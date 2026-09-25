@@ -1,0 +1,21 @@
+v_raw = ifnull(input.Override_Fax_Confirm,"").toString().trim();
+if(v_raw != "")
+{
+	v_d = v_raw.replaceAll("[^0-9]","");
+	if(v_d.length() == 11)
+	{
+		if(v_d.subString(0,1) == "1")
+		{
+			v_d = v_d.subString(1,11);
+		}
+	}
+	if(v_d.length() == 10)
+	{
+		input.Override_Fax_Confirm = thisapp.fmt_phone_display(v_d);
+	}
+	else
+	{
+		input.Override_Fax_Confirm = "";
+		alert "Enter a 10 digit US fax number.";
+	}
+}

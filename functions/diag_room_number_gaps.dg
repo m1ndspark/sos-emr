@@ -1,0 +1,41 @@
+v_ids = {"PVS-1528-JK","PVS-1534-AS","PVS-1535-AS","PVS-1539-AS","PVS-1544-JK","PVS-1754-JK"};
+v_out = "ROOM NUMBER GAPS";
+for each  v_pid in v_ids
+{
+	v_found = false;
+	for each  p in Encounter_PatientVisit[PVS_ID == v_pid]
+	{
+		v_found = true;
+		v_out = v_out + "\n\n" + v_pid;
+		v_out = v_out + "\n  Patient: " + ifnull(p.Patient_Full_Name_1,"");
+		v_out = v_out + "\n  PVS Facility: " + ifnull(p.Facility_Name,"") + " | Phone: " + ifnull(p.Facility_Phone,"") + " | Room: [" + ifnull(p.Facility_Room_Number,"") + "]";
+		if(p.Referral_Link != null)
+		{
+			for each  r in Referrals_Main[ID == p.Referral_Link]
+			{
+				v_rroom = ifnull(r.Facility_Room_Number,"").toString().trim();
+				v_out = v_out + "\n  REF " + ifnull(r.Referral_ID,"");
+				v_out = v_out + "\n  REF Facility: " + ifnull(r.Facility_Name,"") + " | Phone: " + ifnull(r.Facility_Phone,"") + " | Room: [" + v_rroom + "]";
+				if(v_rroom != "")
+				{
+					v_out = v_out + "\n  >>> COPY FAILURE - referral has the room number";
+				}
+				else
+				{
+					v_out = v_out + "\n  >>> REAL GAP - call the facility";
+				}
+				break;
+			}
+		}
+		else
+		{
+			v_out = v_out + "\n  >>> NO REFERRAL LINK";
+		}
+		break;
+	}
+	if(!v_found)
+	{
+		v_out = v_out + "\n\n" + v_pid + " - not found";
+	}
+}
+return v_out;

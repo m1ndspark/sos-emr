@@ -3,6 +3,7 @@ v_out.put("ok",false);
 v_out.put("gate","");
 v_out.put("to_name","");
 v_out.put("to_partner","");
+v_out.put("location_label","");
 v_out.put("fax_display","");
 v_out.put("fax_digits","");
 v_out.put("attn","");
@@ -24,22 +25,34 @@ if(v_pvs.Billing_Branch != null)
 v_faxRaw = "";
 v_toName = "";
 v_partner = "";
+v_locLabel = "";
 v_cid = "";
 v_bcCount = 0;
 if(v_branch > 0)
 {
-	v_bcCount = Partner_Billing_Contacts[Partner_Location_Link == v_branch && Partner_Billing_POC_Status == "Active" && Partner_PVS_Fax != ""].count();
-	for each  v_bc in Partner_Billing_Contacts[Partner_Location_Link == v_branch && Partner_Billing_POC_Status == "Active" && Partner_PVS_Fax != ""]
+	for each  v_loc in Partner_Locations[ID == v_branch]
 	{
-		v_faxRaw = ifnull(v_bc.Partner_PVS_Fax,"").toString().trim();
-		v_toName = (ifnull(v_bc.Partner_Billing_POC_First_Name,"").toString() + " " + ifnull(v_bc.Partner_Billing_POC_Last_Name,"").toString()).trim();
-		v_cid = v_bc.ID.toString();
-		for each  v_p in Partners[ID == v_bc.Partner_Link]
-		{
-			v_partner = ifnull(v_p.Partner_Display_Name,"").toString();
-			break;
-		}
+		v_locLabel = ifnull(v_loc.Partner_Location_Label,"").toString().trim();
 		break;
+	}
+	for each  v_bc in Partner_Billing_Contacts[Partner_Location_Link == v_branch && Partner_Billing_POC_Status == "Active"]
+	{
+		v_thisFax = ifnull(v_bc.Partner_PVS_Fax,"").toString().trim();
+		if(v_thisFax != "")
+		{
+			v_bcCount = v_bcCount + 1;
+			if(v_bcCount == 1)
+			{
+				v_faxRaw = v_thisFax;
+				v_toName = (ifnull(v_bc.Partner_Billing_POC_First_Name,"").toString() + " " + ifnull(v_bc.Partner_Billing_POC_Last_Name,"").toString()).trim();
+				v_cid = v_bc.ID.toString();
+				for each  v_p in Partners[ID == v_bc.Partner_Link]
+				{
+					v_partner = ifnull(v_p.Partner_Display_Name,"").toString();
+					break;
+				}
+			}
+		}
 	}
 }
 v_digits = v_faxRaw.replaceAll("[^0-9]","");
@@ -52,9 +65,17 @@ if(v_digits.length() == 10)
 {
 	v_disp = "(" + v_digits.subString(0,3) + ") " + v_digits.subString(3,6) + "-" + v_digits.subString(6,10);
 }
+if(v_locLabel == "")
+{
+	v_locLabel = ifnull(v_pvs.Partner_Location_Label,"").toString().trim();
+}
+if(v_locLabel == "")
+{
+	v_locLabel = ifnull(v_pvs.Partner_Branch,"").toString().trim();
+}
 if(v_toName == "")
 {
-	v_toName = ifnull(v_pvs.Partner_Location_Label,"").toString();
+	v_toName = v_locLabel;
 }
 v_gate = "";
 if(v_visit == "Cancelled")
@@ -88,6 +109,7 @@ else if(v_disp == "")
 v_out.put("gate",v_gate);
 v_out.put("to_name",v_toName);
 v_out.put("to_partner",v_partner);
+v_out.put("location_label",v_locLabel);
 v_out.put("fax_display",v_disp);
 v_out.put("fax_digits",v_digits);
 v_out.put("attn",v_toName);

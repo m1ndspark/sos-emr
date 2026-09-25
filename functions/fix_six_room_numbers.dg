@@ -1,0 +1,32 @@
+v_ids = {"PVS-1528-JK","PVS-1534-AS","PVS-1535-AS","PVS-1539-AS","PVS-1544-JK","PVS-1754-JK"};
+v_done = 0;
+v_skip = 0;
+v_miss = 0;
+v_out = "";
+for each  v_pid in v_ids
+{
+	v_found = false;
+	for each  p in Encounter_PatientVisit[PVS_ID == v_pid]
+	{
+		v_found = true;
+		v_cur = ifnull(p.Facility_Room_Number,"").toString().trim();
+		if(v_cur == "")
+		{
+			p.Facility_Room_Number="Unknown";
+			v_done = v_done + 1;
+			v_out = v_out + "\n" + v_pid + " - set to Unknown";
+		}
+		else
+		{
+			v_skip = v_skip + 1;
+			v_out = v_out + "\n" + v_pid + " - already had [" + v_cur + "], left alone";
+		}
+		break;
+	}
+	if(!v_found)
+	{
+		v_miss = v_miss + 1;
+		v_out = v_out + "\n" + v_pid + " - NOT FOUND";
+	}
+}
+return "Updated " + v_done + " | skipped " + v_skip + " | not found " + v_miss + v_out;
