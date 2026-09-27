@@ -1,0 +1,57 @@
+for each  v_P in Encounter_PatientVisit[ID == input.ID]
+{
+	v_NoDate = v_P.Referral_Date == null;
+	v_NoSrc = ifnull(v_P.Referral_Source,"").toString().trim() == "";
+	if(v_P.Referral_Link != null && (v_NoDate || v_NoSrc))
+	{
+		for each  v_R in Referrals_Main[ID == v_P.Referral_Link]
+		{
+			if(v_NoDate && v_R.Referral_Date != null)
+			{
+				v_P.Referral_Date = v_R.Referral_Date;
+			}
+			v_Src = ifnull(v_R.Referral_Source,"").toString().trim();
+			if(v_NoSrc && v_Src != "")
+			{
+				v_P.Referral_Source = v_Src;
+			}
+			break;
+		}
+	}
+	if(ifnull(v_P.Row_Status,"").toString().trim() == "")
+	{
+		if(ifnull(v_P.Visit_Status,"").toString() == "Cancelled")
+		{
+			v_P.Row_Status = "Cancelled";
+		}
+		else
+		{
+			v_P.Row_Status = "Counted";
+		}
+	}
+	if(v_P.Employee_Link == null)
+	{
+		v_Em = ifnull(v_P.Employee_Email,"").toString().trim().toLowerCase();
+		if(v_Em != "")
+		{
+			v_Hits = List();
+			for each  v_E in Employees[ID != 0]
+			{
+				v_Work = ifnull(v_E.Employee_Email,"").toString().trim().toLowerCase();
+				v_Portal = ifnull(v_E.Employee_Portal_Email,"").toString().trim().toLowerCase();
+				if(v_Work == v_Em || v_Portal == v_Em)
+				{
+					if(!v_Hits.contains(v_E.ID))
+					{
+						v_Hits.add(v_E.ID);
+					}
+				}
+			}
+			if(v_Hits.size() == 1)
+			{
+				v_P.Employee_Link = v_Hits.get(0);
+			}
+		}
+	}
+	break;
+}
