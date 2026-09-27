@@ -458,6 +458,12 @@ referral's routed site, not the completion log's site.** The two disagree on 4 o
 is being reported on. Using the completion log's site moves those four records to
 whichever site happened to finish them and silently changes both counts.
 
+August 2026 onward (Neil, 2026-09-27): completions come from Creator 3008 PVS, not the completion log.
+Duplicate referrals for one patient fold to one referral before counting.
+A referral not evaluated in the month is reported with its circumstance (for example, received late in the month and carried into the next), never as a missing record.
+Circumstances live in the payload JSON `circ` map, keyed by referral ID, so the generator stays PHI-free.
+August result: 81 referrals, 79 evaluations completed, 97.5%, 2 carried into September.
+
 **(c) Low volume.** VITAS and Chapters. Three pages, no charts, every visit on one
 line. Chart furniture on three visits reads as padding, so it is dropped. A
 partner moves off this template when its volume makes a chart honest, which is a
