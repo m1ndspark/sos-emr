@@ -399,15 +399,19 @@ next to correct figures invites someone to test against the wrong row.
 
 ### 8.6 Year to date
 
-Both partners restated on the current model:
+Empath, as shipped in the July FINAL and carried into August (Neil ruled 2026-09-26 that July is $233,810):
 
-| Month | Empath visits | Empath qual | Empath savings | AccentCare visits | AccentCare qual | AccentCare savings |
-|---|---|---|---|---|---|---|
-| April 2026 | 89 | 36 | $200,831.96 | 23 | 7 | $20,278.62 |
-| May 2026 | 117 | 41 | $227,126.16 | 31 | 12 | $51,429.16 |
-| June 2026 | 133 | 47 | $247,494.94 | 44 | 11 | $77,394.82 |
-| July 2026 | 118 | 52 | $357,735.06 | 49 | 20 | $127,275.64 |
-| **YTD** | **457** | **176** | **$1,033,188.12** | **147** | **50** | **$276,378.24** |
+| Month | Empath visits | Empath qual | Empath savings |
+|---|---|---|---|
+| April 2026 | 91 | 38 | $161,169 |
+| May 2026 | 119 | 43 | $202,522 |
+| June 2026 | 144 | 52 | $263,312 |
+| July 2026 | 118 | 54 | $233,810 |
+| August 2026 | 120 | 45 | $203,957 |
+| **YTD** | **592** | **232** | **$1,064,770** |
+
+The prior 8.6 table (July $357,735.06, YTD $1,033,188.12) predates the PSPS correction and is withdrawn.
+AccentCare YTD must be restated from its July FINAL before its August build.
 
 Historical month quirks, already handled:
 - No `Visit Cancelled` acuity value exists before July. Use the note regex.
