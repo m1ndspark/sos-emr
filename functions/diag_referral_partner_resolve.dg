@@ -1,0 +1,43 @@
+v_Out = Map();
+v_Key = ifnull(pRefId,"").toString().trim();
+v_Out.put("Referral_ID",v_Key);
+v_R = Referrals_Main[Referral_ID == v_Key];
+if(v_R.count() == 0)
+{
+	v_Out.put("Status","REFERRAL NOT FOUND");
+	return v_Out;
+}
+v_Link = "";
+if(v_R.Partner_Branch_Link != null)
+{
+	v_Link = v_R.Partner_Branch_Link.toString();
+}
+v_Email = "";
+if(v_R.Partner_POC_Email != null)
+{
+	v_Email = v_R.Partner_POC_Email.toString();
+}
+v_Label = "";
+if(v_R.Partner_Location_Label != null)
+{
+	v_Label = v_R.Partner_Location_Label.toString();
+}
+v_Org = "";
+if(v_R.Partner_Organization != null)
+{
+	v_Org = v_R.Partner_Organization.toString();
+}
+v_Out.put("Stored_Partner_Branch_Link",v_Link);
+v_Out.put("Stored_Partner_POC_Email",v_Email);
+v_Out.put("Stored_Partner_Location_Label",v_Label);
+v_Out.put("Stored_Partner_Organization",v_Org);
+v_Out.put("Stored_Partner_Branch",ifnull(v_R.Partner_Branch,"").toString());
+v_Out.put("Stored_Partner_Branch_Submitted",ifnull(v_R.Partner_Branch_Submitted,"").toString());
+v_Code = thisapp.resolve_branch_id(v_Link,v_Email,v_Label,v_Org);
+v_Out.put("Resolved_Code",v_Code);
+if(v_Code != "")
+{
+	v_Out.put("Values",thisapp.partner_branch_values(v_Code));
+}
+v_Out.put("Status","OK");
+return v_Out;

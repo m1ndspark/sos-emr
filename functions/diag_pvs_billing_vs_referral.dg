@@ -29,6 +29,6 @@ for each  v_R in v_Batch
 	}
 }
 v_Out = "READ-ONLY | referral rows " + v_From + "-" + v_To + " | referrals checked=" + v_Refs + " | PVS billed to a different branch than their referral=" + v_Mismatch;
-v_Out = v_Out + " || NEXT: p_from=" + (v_To + 1) + " p_to=" + (v_To + 1 + (v_To - v_From));
+v_Out = v_Out + " || NEXT: p_from=" + (v_To + 1) + " p_to=" + (v_To + 1 + v_To - v_From);
 v_Out = v_Out + " || MISMATCHES: " + v_List.toString();
 return v_Out;

@@ -1,0 +1,56 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "SKIP-NOMODE";
+}
+v_Cap = p_limit;
+if(v_Cap == null || v_Cap < 1)
+{
+	v_Cap = 100;
+}
+v_Scanned = 0;
+v_Already = 0;
+v_Counted = 0;
+v_Cancelled = 0;
+v_Attempted = 0;
+v_Remaining = 0;
+v_Sample = List();
+for each  v_P in Encounter_PatientVisit[ID != 0]
+{
+	v_Scanned = v_Scanned + 1;
+	if(ifnull(v_P.Row_Status,"").toString().trim() != "")
+	{
+		v_Already = v_Already + 1;
+		continue;
+	}
+	if(v_Counted + v_Cancelled >= v_Cap)
+	{
+		v_Remaining = v_Remaining + 1;
+		continue;
+	}
+	v_Vs = ifnull(v_P.Visit_Status,"").toString();
+	v_New = "Counted";
+	if(v_Vs == "Cancelled")
+	{
+		v_New = "Cancelled";
+		v_Cancelled = v_Cancelled + 1;
+	}
+	else
+	{
+		v_Counted = v_Counted + 1;
+		if(v_Vs == "Attempted (Not Completed)")
+		{
+			v_Attempted = v_Attempted + 1;
+		}
+	}
+	if(v_Sample.size() < 10)
+	{
+		v_Sample.add(ifnull(v_P.PVS_ID,v_P.ID.toString()).toString() + " = " + v_New);
+	}
+	if(v_Mode == "COMMIT")
+	{
+		v_P.Row_Status=v_New;
+	}
+}
+v_Out = "BACKFILL PVS ROW STATUS | mode=" + v_Mode + " | scanned=" + v_Scanned + " | already set=" + v_Already + " | to Counted=" + v_Counted + " (of which Attempted=" + v_Attempted + ") | to Cancelled=" + v_Cancelled + " | remaining=" + v_Remaining;
+return v_Out + "\n" + v_Sample.toString("\n");

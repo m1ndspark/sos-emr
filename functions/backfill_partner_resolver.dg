@@ -258,7 +258,7 @@ if(v_Target == "REFERRALS")
 	}
 	else
 	{
-		v_Out = v_Out + " || NEXT: p_from=" + (v_To + 1) + " p_to=" + (v_To + 1 + (v_To - v_From));
+		v_Out = v_Out + " || NEXT: p_from=" + (v_To + 1) + " p_to=" + (v_To + 1 + v_To - v_From);
 	}
 }
 v_Out = v_Out + " || CHANGES: " + v_Msgs.toString();

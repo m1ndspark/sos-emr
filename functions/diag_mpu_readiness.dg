@@ -1,0 +1,208 @@
+v_M = if(p_month < 10,"0" + p_month.toString(),p_month.toString());
+v_Start = toDate(p_year.toString() + "-" + v_M + "-01","yyyy-MM-dd");
+v_End = v_Start.addMonth(1);
+v_Part = ifnull(p_part,"PVS").toUpperCase().trim();
+v_Out = "READ-ONLY | month " + p_year.toString() + "-" + v_M + " | part " + v_Part;
+if(v_Part == "PVS")
+{
+	v_Keys = {"Referral_ID","Referral_Date","Partner_Organization","Partner_Branch","Billing_Branch","Reason_for_Referral","Patient_First_Name","Patient_Last_Name","Patient_DOB","Complexity_Level","Patient_Hospice_ID","Employee_Link","Type_of_Procedures","Diversion_Tracking","Referral_Source","Row_Status","Equipment_Charge_Amount"};
+	v_Blank = Map();
+	for each  v_K in v_Keys
+	{
+		v_Blank.put(v_K,0);
+	}
+	v_Status = Map();
+	v_Entry = Map();
+	v_Source = Map();
+	v_Row = Map();
+	v_Total = 0;
+	v_Prelim = 0;
+	v_NoProv = List();
+	v_NoProc = List();
+	v_NoDiv = List();
+	v_NoHosp = List();
+	v_NoRefId = List();
+	v_NoRefDate = List();
+	v_NoAcuity = List();
+	for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= v_Start && Visit_Completion_Date < v_End]
+	{
+		v_Total = v_Total + 1;
+		v_Te = ifnull(v_P.Type_of_Entry,"").toString();
+		if(v_Te == "")
+		{
+			v_Te = "(blank)";
+		}
+		v_Entry.put(v_Te,ifnull(v_Entry.get(v_Te),0) + 1);
+		v_Id = ifnull(v_P.PVS_ID,"").toString() + " (" + v_Te + ")";
+		if(ifnull(v_P.Referral_ID,"").toString().trim() == "")
+		{
+			v_Blank.put("Referral_ID",v_Blank.get("Referral_ID") + 1);
+			v_NoRefId.add(v_Id);
+		}
+		if(v_P.Referral_Date == null)
+		{
+			v_Blank.put("Referral_Date",v_Blank.get("Referral_Date") + 1);
+			v_NoRefDate.add(v_Id);
+		}
+		if(ifnull(v_P.Partner_Organization,"").toString().trim() == "")
+		{
+			v_Blank.put("Partner_Organization",v_Blank.get("Partner_Organization") + 1);
+		}
+		if(ifnull(v_P.Partner_Branch,"").toString().trim() == "")
+		{
+			v_Blank.put("Partner_Branch",v_Blank.get("Partner_Branch") + 1);
+		}
+		if(ifnull(v_P.Billing_Branch,"").toString() == "")
+		{
+			v_Blank.put("Billing_Branch",v_Blank.get("Billing_Branch") + 1);
+		}
+		if(ifnull(v_P.Reason_for_Referral,"").toString().trim() == "")
+		{
+			v_Blank.put("Reason_for_Referral",v_Blank.get("Reason_for_Referral") + 1);
+		}
+		if(ifnull(v_P.Patient_First_Name,"").toString().trim() == "")
+		{
+			v_Blank.put("Patient_First_Name",v_Blank.get("Patient_First_Name") + 1);
+		}
+		if(ifnull(v_P.Patient_Last_Name,"").toString().trim() == "")
+		{
+			v_Blank.put("Patient_Last_Name",v_Blank.get("Patient_Last_Name") + 1);
+		}
+		if(v_P.Patient_DOB == null)
+		{
+			v_Blank.put("Patient_DOB",v_Blank.get("Patient_DOB") + 1);
+		}
+		if(ifnull(v_P.Complexity_Level,"").toString() == "")
+		{
+			v_Blank.put("Complexity_Level",v_Blank.get("Complexity_Level") + 1);
+			v_NoAcuity.add(v_Id);
+		}
+		if(ifnull(v_P.Patient_Hospice_ID,"").toString().trim() == "")
+		{
+			v_Blank.put("Patient_Hospice_ID",v_Blank.get("Patient_Hospice_ID") + 1);
+			if(v_NoHosp.size() < 40)
+			{
+				v_NoHosp.add(v_Id);
+			}
+		}
+		if(ifnull(v_P.Employee_Link,"").toString() == "")
+		{
+			v_Blank.put("Employee_Link",v_Blank.get("Employee_Link") + 1);
+			if(v_NoProv.size() < 40)
+			{
+				v_NoProv.add(v_Id);
+			}
+		}
+		v_Procs = ifnull(v_P.Type_of_Procedures,"").toString().trim();
+		if(v_Procs == "" || v_Procs == "[]")
+		{
+			v_Blank.put("Type_of_Procedures",v_Blank.get("Type_of_Procedures") + 1);
+			if(v_NoProc.size() < 40)
+			{
+				v_NoProc.add(v_Id);
+			}
+		}
+		if(ifnull(v_P.Diversion_Tracking,"").toString() == "")
+		{
+			v_Blank.put("Diversion_Tracking",v_Blank.get("Diversion_Tracking") + 1);
+			if(v_NoDiv.size() < 40)
+			{
+				v_NoDiv.add(v_Id);
+			}
+		}
+		v_Src = ifnull(v_P.Referral_Source,"").toString().trim();
+		if(v_Src == "")
+		{
+			v_Blank.put("Referral_Source",v_Blank.get("Referral_Source") + 1);
+			v_Src = "(blank)";
+		}
+		v_Source.put(v_Src,ifnull(v_Source.get(v_Src),0) + 1);
+		v_Rs = ifnull(v_P.Row_Status,"").toString();
+		if(v_Rs == "")
+		{
+			v_Blank.put("Row_Status",v_Blank.get("Row_Status") + 1);
+			v_Rs = "(blank)";
+		}
+		v_Row.put(v_Rs,ifnull(v_Row.get(v_Rs),0) + 1);
+		if(ifnull(v_P.Additional_Charges,"").toString().contains("Equipment Charge") && v_P.Equipment_Charge_Amount == null)
+		{
+			v_Blank.put("Equipment_Charge_Amount",v_Blank.get("Equipment_Charge_Amount") + 1);
+		}
+		v_Vs = ifnull(v_P.Visit_Status,"").toString();
+		if(v_Vs == "")
+		{
+			v_Vs = "(blank)";
+		}
+		v_Status.put(v_Vs,ifnull(v_Status.get(v_Vs),0) + 1);
+		if(ifnull(v_P.Clinical_Note_Type,"").toString() == "Preliminary")
+		{
+			v_Prelim = v_Prelim + 1;
+		}
+	}
+	v_Out = v_Out + " | PVS in month=" + v_Total + " | preliminary notes=" + v_Prelim;
+	v_Out = v_Out + " || BLANKS: " + v_Blank.toString();
+	v_Out = v_Out + " || VISIT STATUS: " + v_Status.toString();
+	v_Out = v_Out + " || ENTRY TYPE: " + v_Entry.toString();
+	v_Out = v_Out + " || REFERRAL SOURCE: " + v_Source.toString();
+	v_Out = v_Out + " || ROW STATUS: " + v_Row.toString();
+	v_Out = v_Out + " || NO REFERRAL ID: " + v_NoRefId.toString();
+	v_Out = v_Out + " || NO REFERRAL DATE: " + v_NoRefDate.toString();
+	v_Out = v_Out + " || NO ACUITY: " + v_NoAcuity.toString();
+	v_Out = v_Out + " || NO PROVIDER: " + v_NoProv.toString();
+	v_Out = v_Out + " || NO PROCEDURE: " + v_NoProc.toString();
+	v_Out = v_Out + " || NO DIVERSION: " + v_NoDiv.toString();
+	v_Out = v_Out + " || NO HOSPICE ID: " + v_NoHosp.toString();
+}
+else if(v_Part == "REF")
+{
+	v_Total = 0;
+	v_NoBranch = 0;
+	v_Multi = 0;
+	v_Type = Map();
+	v_Source = Map();
+	v_NoPvsType = Map();
+	v_NoPvs = List();
+	for each  v_R in Referrals_Main[Referral_Date >= v_Start && Referral_Date < v_End]
+	{
+		v_Total = v_Total + 1;
+		v_Ty = ifnull(v_R.Referral_Type,"").toString();
+		if(v_Ty == "")
+		{
+			v_Ty = "(blank)";
+		}
+		v_Type.put(v_Ty,ifnull(v_Type.get(v_Ty),0) + 1);
+		v_Src = ifnull(v_R.Referral_Source,"").toString();
+		if(v_Src == "")
+		{
+			v_Src = "(blank)";
+		}
+		v_Source.put(v_Src,ifnull(v_Source.get(v_Src),0) + 1);
+		if(ifnull(v_R.Partner_Branch_Link,"").toString() == "")
+		{
+			v_NoBranch = v_NoBranch + 1;
+		}
+		v_Cnt = Encounter_PatientVisit[Referral_Link == v_R.ID].count();
+		if(v_Cnt == 0)
+		{
+			v_NoPvsType.put(v_Ty,ifnull(v_NoPvsType.get(v_Ty),0) + 1);
+			if(v_NoPvs.size() < 60)
+			{
+				v_NoPvs.add(ifnull(v_R.Referral_ID,"").toString() + " (" + v_Ty + ")");
+			}
+		}
+		else if(v_Cnt > 1)
+		{
+			v_Multi = v_Multi + 1;
+		}
+	}
+	v_Out = v_Out + " | referrals in month=" + v_Total + " | no branch link=" + v_NoBranch + " | more than one PVS=" + v_Multi;
+	v_Out = v_Out + " || SERVICE: " + v_Type.toString();
+	v_Out = v_Out + " || REFERRAL SOURCE: " + v_Source.toString();
+	v_Out = v_Out + " || NO PVS BY SERVICE: " + v_NoPvsType.toString();
+	v_Out = v_Out + " || NO PVS: " + v_NoPvs.toString();
+}
+else
+{
+	v_Out = v_Out + " | p_part must be PVS or REF";
+}
+return v_Out;

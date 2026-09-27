@@ -102,7 +102,7 @@ for each  v_Job in v_Jobs
 		{
 			v_Title = "New Visit Assignment";
 			v_Subject = "New Visit Assignment: " + v_AsgId;
-			v_Msg = "You have been assigned to a new patient. Sign in to the <a href=\"" + v_Portal + "\" style=\"" + v_LinkStyle + "\">SOS portal</a> to view details.";
+			v_Msg = "You have been assigned a new visit. Sign in to the <a href=\"" + v_Portal + "\" style=\"" + v_LinkStyle + "\">SOS portal</a> to view the full details.";
 		}
 		else
 		{
@@ -167,8 +167,7 @@ for each  v_Job in v_Jobs
 				body:v_Payload.toString()
 				headers:v_Hdr
 			];
-		}
-		catch (e)
+		}			catch (e)
 		{
 			v_Err = e.message.toString();
 		}
