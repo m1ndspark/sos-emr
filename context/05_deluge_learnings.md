@@ -846,3 +846,9 @@ REPO / GIT
 Run git read commands from Cowork with GIT_OPTIONAL_LOCKS=0 (e.g.
 GIT_OPTIONAL_LOCKS=0 git status) so they never leave .git/index.lock behind;
 Cowork cannot delete files without an explicit permission grant. Session 54.
+
+FOR EACH OVER AN EXPRESSION (2026-09-26, Session 55)
+"for each v_X in ifnull(p_arg,"").toList(",")" fails to save with "Improper
+Statement" at that line. Assign the collection to a variable first, then iterate
+the variable. Criteria fetches (for each v_R in Form[criteria]) are the exception
+and stay inline.
