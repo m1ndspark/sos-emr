@@ -411,7 +411,8 @@ Empath, as shipped in the July FINAL and carried into August (Neil ruled 2026-09
 | **YTD** | **592** | **232** | **$1,064,770** |
 
 The prior 8.6 table (July $357,735.06, YTD $1,033,188.12) predates the PSPS correction and is withdrawn.
-AccentCare YTD must be restated from its July FINAL before its August build.
+AccentCare, from its July FINAL: April 23/9/$34,165, May 33/12/$56,596, June 53/11/$50,337, July 51/19/$76,566, August 25/10/$37,524, YTD 185/61/$255,188.
+A month with no recurring patients drops the Recurring Patients page (Neil, 2026-09-26).
 
 Historical month quirks, already handled:
 - No `Visit Cancelled` acuity value exists before July. Use the note regex.
