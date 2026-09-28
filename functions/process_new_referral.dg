@@ -24,9 +24,14 @@ v_RecId = v_Ref.ID;
 v_R = Referrals_Main[ID == v_RecId];
 v_Steps = List();
 v_WasUnnotified = false;
-if(v_R.Referral_Date == null)
+if(v_R.Notified_Time == null)
 {
 	v_WasUnnotified = true;
+}
+v_HadDate = false;
+if(v_R.Referral_Date != null)
+{
+	v_HadDate = true;
 }
 v_FromForm = false;
 if(ifnull(v_R.Form_Token,"").toString().trim() != "")
@@ -34,7 +39,11 @@ if(ifnull(v_R.Form_Token,"").toString().trim() != "")
 	v_FromForm = true;
 }
 v_RefDate = null;
-if(v_R.Added_Time != null)
+if(v_HadDate)
+{
+	v_RefDate = v_R.Referral_Date;
+}
+else if(v_R.Added_Time != null)
 {
 	if(v_FromForm)
 	{
@@ -527,9 +536,15 @@ else if(v_WasUnnotified && v_Notify == "YES")
 		{
 			update v_Revert
 			[
-				Referral_Date=null
 				Notified_Time=null
 			];
+			if(!v_HadDate)
+			{
+				update v_Revert
+				[
+					Referral_Date=null
+				];
+			}
 		}
 		v_Steps.add("NOT NOTIFIED, still queued [referral=" + v_NotifyRef + "] [3008=" + v_Notify3008 + "] [imaging=" + v_NotifyImg + "]");
 	}

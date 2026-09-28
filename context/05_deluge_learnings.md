@@ -852,3 +852,7 @@ FOR EACH OVER AN EXPRESSION (2026-09-26, Session 55)
 Statement" at that line. Assign the collection to a variable first, then iterate
 the variable. Criteria fetches (for each v_R in Form[criteria]) are the exception
 and stay inline.
+
+DATE-TIME DAY OFFSET IS subDay, NOT subDays (2026-09-27, Session 55)
+zoho.currenttime.subDays(n) fails with "Not able to find 'subDays' function".
+Use subDay(n) / addDay(n). Minute offsets are plural: subMinutes(n) works.
