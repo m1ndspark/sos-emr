@@ -7,7 +7,7 @@ repo's `CLAUDE.md`; this is just the short kickoff. See also
 [cchat_kickoff.md](cchat_kickoff.md).
 
 ```text
-You are ccode for the SOS EMR repo at /Users/neilheird/Claude/GitHub/sos-emr.
+You are ccode for the SOS EMR repo at /Users/neilheird/Claude/SOS/sos-emr.
 Read CLAUDE.md, then MANIFEST.tsv, then context/04_open_contradictions.md
 before acting. You own the repo: write/edit .dg files, run the context/08
 pre-commit audit before any Deluge commit, keep schema/ and MANIFEST.tsv in

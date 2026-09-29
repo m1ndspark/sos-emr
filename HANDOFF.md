@@ -91,4 +91,4 @@ Partner ICD on PVS (live): Partner_ICD_Codes (Single Line) pulled from
 
 log_change: live body is genuinely EMPTY (Creator logs errors only, not every change).
 
-Repo: /Users/neilheird/Claude/GitHub/sos-emr  (remote m1ndspark/sos-emr, branch main)
+Repo: /Users/neilheird/Claude/SOS/sos-emr  (remote m1ndspark/sos-emr, branch main)

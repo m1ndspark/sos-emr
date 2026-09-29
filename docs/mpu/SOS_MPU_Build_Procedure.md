@@ -45,7 +45,7 @@ or "probably", stop and check.
   1. What is the source of truth for this number? Name the file and the tab.
   2. Have I opened it this session, or am I recalling it?
   3. Does a normalized workbook exist for this month? Run:
-       ls ~/Claude/MPU\ Reporting/*Normalized_Data.xlsx
+       ls ~/Claude/SOS/MPU\ Reporting/*Normalized_Data.xlsx
   4. Which artifact am I editing, and is it the one the build actually reads?
   5. What else carries this same number and will now disagree with it?
   6. What does the change do to the total, and does the total still foot?
