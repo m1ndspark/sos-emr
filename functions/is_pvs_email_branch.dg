@@ -1,0 +1,9 @@
+if(pBranchId == null || pBranchId == 0)
+{
+	return false;
+}
+if(Partner_Billing_Contacts[Partner_Location_Link == pBranchId && Partner_Billing_POC_Status == "Active" && Partner_PVS_Delivery == "Email"].count() > 0)
+{
+	return true;
+}
+return false;

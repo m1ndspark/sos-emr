@@ -1,0 +1,60 @@
+v_Key = ifnull(p_refId,"").toString().trim();
+v_R = Referrals_Main[Referral_ID == v_Key];
+if(v_R.ID == null)
+{
+	return "No referral found with Referral ID " + v_Key + ".";
+}
+v_Out = List();
+v_Out.add("Referral " + v_Key);
+v_Texts = List();
+v_Cands = List();
+v_Cands.add(ifnull(v_R.Partner_Branch,"").toString().trim());
+v_Cands.add(ifnull(v_R.Partner_Branch_Submitted,"").toString().trim());
+v_Cands.add(ifnull(v_R.Partner_Organization,"").toString().trim());
+for each  v_C in v_Cands
+{
+	if(v_C != "" && !v_Texts.contains(v_C))
+	{
+		v_Texts.add(v_C);
+	}
+}
+for each  v_T in v_Texts
+{
+	v_N = 0;
+	for each  v_L in Partner_Locations[Partner_Location_Label == v_T]
+	{
+		v_N = v_N + 1;
+		v_Out.add("LABEL match [" + v_T + "] -> location ID " + v_L.ID + " code [" + ifnull(v_L.Partner_Location_ID,"").toString() + "] status [" + ifnull(v_L.Partner_Location_Status,"").toString() + "]");
+	}
+	for each  v_L2 in Partner_Locations[Partner_Location_Name == v_T]
+	{
+		v_N = v_N + 1;
+		v_Out.add("NAME match [" + v_T + "] -> location ID " + v_L2.ID + " label [" + ifnull(v_L2.Partner_Location_Label,"").toString() + "] status [" + ifnull(v_L2.Partner_Location_Status,"").toString() + "]");
+	}
+	if(v_N == 0)
+	{
+		v_Out.add("No location label or name equals [" + v_T + "]");
+	}
+}
+v_Email = ifnull(v_R.Partner_POC_Email,"").toString().trim().toLowerCase();
+if(v_Email == "")
+{
+	v_Out.add("POC email is blank");
+}
+else
+{
+	v_E = 0;
+	for each  v_S in Partner_Referral_Contacts[ID != null]
+	{
+		if(ifnull(v_S.Partner_POC_Email,"").toString().trim().toLowerCase() == v_Email)
+		{
+			v_E = v_E + 1;
+			v_Out.add("CONTACT ID " + v_S.ID + " email [" + ifnull(v_S.Partner_POC_Email,"").toString() + "] location link [" + ifnull(v_S.Partner_Locations_Link,"").toString() + "]");
+		}
+	}
+	if(v_E == 0)
+	{
+		v_Out.add("No Partner_Referral_Contacts record for [" + v_Email + "]");
+	}
+}
+return v_Out.toString("\n");

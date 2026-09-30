@@ -22,6 +22,7 @@ v_cPrelim = 0;
 v_cEmpty = 0;
 v_cReady = 0;
 v_cCancelled = 0;
+v_cEmail = 0;
 v_cTotal = 0;
 v_sNoBranch = List();
 v_sNoFax = List();
@@ -37,9 +38,18 @@ for each  v_id in v_ids
 		v_vs = ifnull(v_r.Visit_Status,"").toString();
 		if(v_fx != "Sent" && v_fx != "Queued")
 		{
+			v_isEmail = false;
+			if(v_r.Billing_Branch != null)
+			{
+				v_isEmail = thisapp.is_pvs_email_branch(v_r.Billing_Branch.toLong());
+			}
 			if(v_vs == "Cancelled")
 			{
 				v_cCancelled = v_cCancelled + 1;
+			}
+			else if(v_isEmail)
+			{
+				v_cEmail = v_cEmail + 1;
 			}
 			else
 			{
@@ -153,6 +163,7 @@ else
 v_out.put("window_days",p_days);
 v_out.put("unfaxed_patient_visits",v_cTotal);
 v_out.put("excluded_cancelled",v_cCancelled);
+v_out.put("excluded_email_delivery",v_cEmail);
 v_out.put("ready_to_fax",v_cReady);
 v_out.put("blocked_no_billing_branch",v_cNoBranch);
 v_out.put("blocked_no_fax_number",v_cNoFax);

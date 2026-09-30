@@ -3,6 +3,7 @@ v_missed = "";
 v_nMissed = 0;
 v_prelim = "";
 v_nPrelim = 0;
+v_emailCache = Map();
 for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit"] sort by Added_Time
 {
 	v_fs = ifnull(v_p.Fax_Status,"").toString();
@@ -12,10 +13,31 @@ for each  v_p in Encounter_PatientVisit[Type_of_Entry == "Patient Visit"] sort b
 	{
 		if(v_nt == "Final" || v_nt == "Addendum")
 		{
-			if(v_fs == "" || v_fs == "Not Sent")
+			v_isEmail = false;
+			if(v_p.Billing_Branch != null)
 			{
-				v_nMissed = v_nMissed + 1;
-				v_missed = v_missed + "<tr><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + ifnull(v_p.Patient_Full_Name_1,"") + "</td><td>" + ifnull(v_p.Partner_Location_Label,"") + "</td><td>" + v_nt + "</td><td>" + ifnull(v_p.Added_Time,"").toString("MM/dd/yyyy") + "</td></tr>";
+				v_bKey = v_p.Billing_Branch.toString();
+				if(!v_emailCache.containKey(v_bKey))
+				{
+					v_flag = "N";
+					if(thisapp.is_pvs_email_branch(v_p.Billing_Branch.toLong()))
+					{
+						v_flag = "Y";
+					}
+					v_emailCache.put(v_bKey,v_flag);
+				}
+				if(v_emailCache.get(v_bKey) == "Y")
+				{
+					v_isEmail = true;
+				}
+			}
+			if(!v_isEmail)
+			{
+				if(v_fs == "" || v_fs == "Not Sent")
+				{
+					v_nMissed = v_nMissed + 1;
+					v_missed = v_missed + "<tr><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + ifnull(v_p.Patient_Full_Name_1,"") + "</td><td>" + ifnull(v_p.Partner_Location_Label,"") + "</td><td>" + v_nt + "</td><td>" + ifnull(v_p.Added_Time,"").toString("MM/dd/yyyy") + "</td></tr>";
+				}
 			}
 		}
 		else if(v_nt == "Preliminary")

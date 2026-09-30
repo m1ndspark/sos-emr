@@ -1,0 +1,25 @@
+v_Out = List();
+v_N = 0;
+for each  v_L in Partner_Locations[ID != null]
+{
+	if(thisapp.is_pvs_email_branch(v_L.ID))
+	{
+		v_N = v_N + 1;
+		v_Out.add("EMAIL BRANCH: " + ifnull(v_L.Partner_Location_Label,"").toString() + " (ID " + v_L.ID + ")");
+	}
+}
+v_Out.add("Email branches found: " + v_N);
+v_C = 0;
+for each  v_bc in Partner_Billing_Contacts[Partner_Billing_POC_Status == "Active" && Partner_PVS_Delivery == "Email"]
+{
+	v_C = v_C + 1;
+	v_lbl = "";
+	for each  v_L2 in Partner_Locations[ID == v_bc.Partner_Location_Link]
+	{
+		v_lbl = ifnull(v_L2.Partner_Location_Label,"").toString();
+		break;
+	}
+	v_Out.add("CONTACT ID " + v_bc.ID + " branch [" + v_lbl + "] email [" + ifnull(v_bc.Partner_Billing_POC_Email,"").toString() + "]");
+}
+v_Out.add("Active Email-delivery contacts: " + v_C);
+return v_Out.toString("\n");

@@ -1,17 +1,18 @@
-v_raw = ifnull(input.Override_Fax,"").toString().trim();
-if(v_raw != "")
+v_raw = ifnull(input.Override_Fax,"").toString();
+if(v_raw.trim() != "")
 {
 	v_d = v_raw.replaceAll("[^0-9]","");
-	if(v_d.length() == 11)
+	if(v_d.length() == 11 && v_d.startsWith("1"))
 	{
-		if(v_d.subString(0,1) == "1")
-		{
-			v_d = v_d.subString(1,11);
-		}
+		v_d = v_d.subString(1,11);
 	}
 	if(v_d.length() == 10)
 	{
-		input.Override_Fax = thisapp.fmt_phone_display(v_d);
+		v_new = thisapp.fmt_phone_display(v_d);
+		if(v_new != v_raw)
+		{
+			input.Override_Fax = v_new;
+		}
 	}
 	else
 	{

@@ -1,0 +1,56 @@
+v_Out = "READ-ONLY";
+v_Ids = ifnull(p_refIds,"").toList(",");
+for each  v_Raw in v_Ids
+{
+	v_Rid = v_Raw.trim();
+	if(v_Rid != "")
+	{
+		v_Hits = List();
+		for each  v_R in Referrals_Main[Referral_ID == v_Rid]
+		{
+			for each  v_P in Encounter_PatientVisit[Referral_Link == v_R.ID]
+			{
+				if(!v_Hits.contains(v_P.ID))
+				{
+					v_Hits.add(v_P.ID);
+				}
+			}
+		}
+		for each  v_P in Encounter_PatientVisit[Referral_ID == v_Rid || PVS_Referral_ID == v_Rid || Referral_ID_Stamp == v_Rid]
+		{
+			if(!v_Hits.contains(v_P.ID))
+			{
+				v_Hits.add(v_P.ID);
+			}
+		}
+		v_Line = "";
+		for each  v_Id in v_Hits
+		{
+			for each  v_P in Encounter_PatientVisit[ID == v_Id]
+			{
+				v_C3008 = "";
+				if(v_P.Cares_3008_Completion_Date != null)
+				{
+					v_C3008 = v_P.Cares_3008_Completion_Date.toString("MM-dd-yyyy");
+				}
+				v_CVis = "";
+				if(v_P.Visit_Completion_Date != null)
+				{
+					v_CVis = v_P.Visit_Completion_Date.toString("MM-dd-yyyy");
+				}
+				v_Added = "";
+				if(v_P.Added_Time != null)
+				{
+					v_Added = v_P.Added_Time.toString("MM-dd-yyyy");
+				}
+				v_Line = v_Line + "~" + ifnull(v_P.PVS_ID,"") + "," + ifnull(v_P.Type_of_Entry,"").toString() + "," + ifnull(v_P.Visit_Status,"").toString() + "," + ifnull(v_P.Row_Status,"").toString() + ",3008:" + v_C3008 + ",visit:" + v_CVis + ",added:" + v_Added;
+			}
+		}
+		if(v_Line == "")
+		{
+			v_Line = "no PVS";
+		}
+		v_Out = v_Out + " || " + v_Rid + ": " + v_Line;
+	}
+}
+return v_Out;

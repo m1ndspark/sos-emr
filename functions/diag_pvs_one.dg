@@ -1,0 +1,17 @@
+v_Key = ifnull(p_pvsId,"").trim();
+v_Out = "READ-ONLY | " + v_Key + " | NOT FOUND";
+for each  v_P in Encounter_PatientVisit[PVS_ID == v_Key]
+{
+	v_Out = "READ-ONLY | " + v_Key;
+	v_Out = v_Out + " | Added_User=" + ifnull(v_P.Added_User,"(blank)");
+	v_Out = v_Out + " | Added_Time=" + ifnull(v_P.Added_Time,"(blank)");
+	v_Out = v_Out + " | Visit_Completion_Date=" + ifnull(v_P.Visit_Completion_Date,"(blank)");
+	v_Out = v_Out + " | Referral_Link=" + ifnull(v_P.Referral_Link,"(blank)");
+	v_Out = v_Out + " | Referral_Date=" + ifnull(v_P.Referral_Date,"(blank)");
+	v_Out = v_Out + " | Referral_Source=" + ifnull(v_P.Referral_Source,"(blank)");
+	v_Out = v_Out + " | Row_Status=" + ifnull(v_P.Row_Status,"(blank)");
+	v_Out = v_Out + " | Employee_Email=" + ifnull(v_P.Employee_Email,"(blank)");
+	v_Out = v_Out + " | Employee_Link=" + ifnull(v_P.Employee_Link,"(blank)");
+	break;
+}
+return v_Out;

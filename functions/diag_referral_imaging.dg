@@ -1,0 +1,40 @@
+v_Out = "READ-ONLY";
+v_Ids = ifnull(p_refIds,"").toList(",");
+for each  v_Raw in v_Ids
+{
+	v_Rid = v_Raw.trim();
+	if(v_Rid != "")
+	{
+		v_Found = false;
+		for each  v_R in Referrals_Main[Referral_ID == v_Rid]
+		{
+			v_Found = true;
+			v_Nt = "";
+			if(v_R.Notified_Time != null)
+			{
+				v_Nt = v_R.Notified_Time.toString("MM-dd-yyyy HH:mm");
+			}
+			v_Rd = "";
+			if(v_R.Referral_Date != null)
+			{
+				v_Rd = v_R.Referral_Date.toString("MM-dd-yyyy");
+			}
+			v_Urls = "no";
+			if(ifnull(v_R.Imaging_Orders_URLs,"").toString().trim() != "")
+			{
+				v_Urls = "yes";
+			}
+			v_Files = "";
+			for each  v_F in Referral_Files[Referrals_Main == v_R.ID]
+			{
+				v_Files = v_Files + ifnull(v_F.File_Category,"").toString() + ":" + ifnull(v_F.File_Name,"") + "; ";
+			}
+			v_Out = v_Out + " || " + v_Rid + " | type:" + ifnull(v_R.Referral_Type,"").toString() + " | test:" + ifnull(v_R.Imaging_Type_Order,"") + " | site:" + ifnull(v_R.Imaging_Body_Site,"") + " | indication:" + ifnull(v_R.Imaging_Order_Indication,"") + " | token:" + ifnull(v_R.Form_Token,"").toString() + " | refdate:" + v_Rd + " | notified:" + v_Nt + " | imgURLs:" + v_Urls + " | files:" + v_Files;
+		}
+		if(!v_Found)
+		{
+			v_Out = v_Out + " || " + v_Rid + " | NOT FOUND";
+		}
+	}
+}
+return v_Out;

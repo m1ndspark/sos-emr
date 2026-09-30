@@ -1,0 +1,28 @@
+v_Out = "READ-ONLY || REFERRALS last " + p_days + " days:";
+v_Since = zoho.currenttime.subDay(p_days);
+for each  v_R in Referrals_Main[Added_Time >= v_Since] sort by Added_Time desc
+{
+	v_Nt = "";
+	if(v_R.Notified_Time != null)
+	{
+		v_Nt = v_R.Notified_Time.toString("MM-dd-yyyy HH:mm");
+	}
+	v_Rd = "";
+	if(v_R.Referral_Date != null)
+	{
+		v_Rd = v_R.Referral_Date.toString("MM-dd-yyyy");
+	}
+	v_Src = "manual";
+	if(ifnull(v_R.Form_Token,"").toString().trim() != "")
+	{
+		v_Src = "form";
+	}
+	v_Out = v_Out + " ; " + ifnull(v_R.Referral_ID,"NOID") + "|" + ifnull(v_R.Referral_Type,"").toString() + "|refdate:" + v_Rd + "|notified:" + v_Nt + "|added:" + v_R.Added_Time.toString("MM-dd-yyyy HH:mm") + "|" + v_Src;
+}
+v_Out = v_Out + " || IMAGING RECIPIENTS: " + thisapp.get_notification_recipients("Imaging Orders").toString(", ");
+v_Out = v_Out + " || EMPLOYEES:";
+for each  v_E in Employees[ID != 0]
+{
+	v_Out = v_Out + " ; " + ifnull(v_E.Employee_First_Name,"") + " " + ifnull(v_E.Employee_Last_Name,"") + "|" + ifnull(v_E.Employee_Status,"").toString() + "|" + ifnull(v_E.Employee_Email,"").toString() + "|" + ifnull(v_E.Email_Notification_Types,"").toString();
+}
+return v_Out;

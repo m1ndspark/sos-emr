@@ -4,6 +4,7 @@ v_noFax = List();
 v_inactive = List();
 v_dupes = List();
 v_haveFax = List();
+v_email = List();
 for each  v_Loc in Partner_Locations[ID != 0] sort by Partner_Location_Label
 {
 	v_label = ifnull(v_Loc.Partner_Location_Label,"").toString();
@@ -40,6 +41,11 @@ for each  v_Loc in Partner_Locations[ID != 0] sort by Partner_Location_Label
 		v_inactive.add(v_label + " [" + v_status + "] - " + v_total + " contact(s), none Active");
 		continue;
 	}
+	if(thisapp.is_pvs_email_branch(v_Loc.ID))
+	{
+		v_email.add(v_label + " [" + v_status + "] - PVS delivered by email");
+		continue;
+	}
 	if(v_withFax == 0)
 	{
 		v_noFax.add(v_label + " [" + v_status + "] - " + v_active + " Active contact(s), no PVS fax");
@@ -52,11 +58,12 @@ for each  v_Loc in Partner_Locations[ID != 0] sort by Partner_Location_Label
 	}
 	v_haveFax.add(v_label + " -> " + v_fax);
 }
-v_out.put("locations_total",v_noContact.size() + v_noFax.size() + v_inactive.size() + v_dupes.size() + v_haveFax.size());
+v_out.put("locations_total",v_noContact.size() + v_noFax.size() + v_inactive.size() + v_dupes.size() + v_haveFax.size() + v_email.size());
 v_out.put("ok_count",v_haveFax.size());
 v_out.put("no_billing_contact",v_noContact);
 v_out.put("no_active_contact",v_inactive);
 v_out.put("active_but_no_fax",v_noFax);
 v_out.put("more_than_one_fax",v_dupes);
+v_out.put("email_delivery",v_email);
 v_out.put("ok",v_haveFax);
 return v_out;

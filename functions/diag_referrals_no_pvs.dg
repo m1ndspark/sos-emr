@@ -1,0 +1,46 @@
+v_M = if(p_month < 10,"0" + p_month.toString(),p_month.toString());
+v_Start = toDate(p_year.toString() + "-" + v_M + "-01","yyyy-MM-dd");
+v_End = v_Start.addMonth(1);
+v_Count = 0;
+v_Rows = List();
+for each  v_R in Referrals_Main[Referral_Date >= v_Start && Referral_Date < v_End && Referral_Type == "Patient Visit"]
+{
+	v_Cnt = Encounter_PatientVisit[Referral_Link == v_R.ID].count();
+	if(v_Cnt > 0)
+	{
+		continue;
+	}
+	v_Count = v_Count + 1;
+	v_RefProv = "none";
+	if(v_R.Employee_Link != null)
+	{
+		for each  v_E in Employees[ID == v_R.Employee_Link]
+		{
+			v_RefProv = ifnull(v_E.Employee_Name_Title,"(no name)").toString();
+			break;
+		}
+	}
+	v_AsgStatus = "(no assignment)";
+	v_AsgProv = "none";
+	for each  v_A in Assignments[Referral_Link == v_R.ID]
+	{
+		v_AsgStatus = ifnull(v_A.Visit_Status,"(blank)").toString();
+		if(v_A.Employee_Link != null)
+		{
+			for each  v_E2 in Employees[ID == v_A.Employee_Link]
+			{
+				v_AsgProv = ifnull(v_E2.Employee_Name_Title,"(no name)").toString();
+				break;
+			}
+		}
+		break;
+	}
+	v_Reason = ifnull(v_R.Referral_Reason,"(blank)").toString().replaceAll("\n"," ").trim();
+	if(v_Reason.length() > 120)
+	{
+		v_Reason = v_Reason.subString(0,120) + "...";
+	}
+	v_Name = ifnull(v_R.Patient_First_Name,"").toString().trim() + " " + ifnull(v_R.Patient_Last_Name,"").toString().trim();
+	v_Rows.add(ifnull(v_R.Referral_ID,"").toString() + " | " + v_Name.trim() + " | " + v_R.Referral_Date.toString("MM-dd") + " | " + ifnull(v_R.Partner_Location_Label,"(no branch)").toString() + " | asg status=" + v_AsgStatus + " | referral provider=" + v_RefProv + " | assignment provider=" + v_AsgProv + " | reason=" + v_Reason);
+}
+return "READ-ONLY | month " + p_year.toString() + "-" + v_M + " | Patient Visit referrals with no PVS=" + v_Count + " || " + v_Rows.toString(" || ");

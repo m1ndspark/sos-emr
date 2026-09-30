@@ -1,0 +1,29 @@
+v_M = if(p_month < 10,"0" + p_month.toString(),p_month.toString());
+v_Start = toDate(p_year.toString() + "-" + v_M + "-01","yyyy-MM-dd");
+v_End = v_Start.addMonth(1);
+v_ByUser = Map();
+v_ByDay = Map();
+v_Total = 0;
+v_Before = 0;
+v_List = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= v_Start && Visit_Completion_Date < v_End]
+{
+	v_Total = v_Total + 1;
+	v_U = ifnull(v_P.Added_User,"(blank)").toString();
+	v_ByUser.put(v_U,ifnull(v_ByUser.get(v_U),0) + 1);
+	v_D = v_P.Added_Time.toString("MM-dd-yyyy");
+	v_ByDay.put(v_D,ifnull(v_ByDay.get(v_D),0) + 1);
+	if(v_P.Added_Time.toDate() < v_Start)
+	{
+		v_Before = v_Before + 1;
+	}
+	if(v_List.size() < 30)
+	{
+		v_List.add(ifnull(v_P.PVS_ID,"").toString() + " " + v_U + " " + v_P.Added_Time.toString("MM-dd HH:mm"));
+	}
+}
+v_Out = "READ-ONLY | month " + p_year.toString() + "-" + v_M + " | PVS=" + v_Total + " | created before month start=" + v_Before;
+v_Out = v_Out + " || BY USER: " + v_ByUser.toString();
+v_Out = v_Out + " || BY ADDED DATE: " + v_ByDay.toString();
+v_Out = v_Out + " || FIRST 30: " + v_List.toString();
+return v_Out;

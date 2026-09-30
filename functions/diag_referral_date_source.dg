@@ -1,0 +1,21 @@
+v_Out = "READ-ONLY";
+v_Keys = ifnull(p_refIds,"").toList(",");
+for each  v_Part in v_Keys
+{
+	v_Key = v_Part.trim();
+	if(v_Key == "")
+	{
+		continue;
+	}
+	v_Hit = false;
+	for each  v_R in Referrals_Main[Referral_ID == v_Key]
+	{
+		v_Hit = true;
+		v_Out = v_Out + " || " + v_Key + " | Referral_Date=" + ifnull(v_R.Referral_Date,"(blank)") + " | Referral_Date1=" + ifnull(v_R.Referral_Date1,"(blank)") + " | Referral_Added_Time=" + ifnull(v_R.Referral_Added_Time,"(blank)") + " | Added_Time=" + ifnull(v_R.Added_Time,"(blank)") + " | Added_User=" + ifnull(v_R.Added_User,"(blank)") + " | Cognito_Referral_ID=" + ifnull(v_R.Cognito_Referral_ID,"(blank)") + " | Notified_Time=" + ifnull(v_R.Notified_Time,"(blank)");
+	}
+	if(!v_Hit)
+	{
+		v_Out = v_Out + " || " + v_Key + " | NOT FOUND";
+	}
+}
+return v_Out;

@@ -34,6 +34,17 @@ if(v_Found == 0 && v_Org != "")
 		break;
 	}
 }
+if(v_Found == 0 && v_Org != "")
+{
+	if(Partner_Locations[Partner_Location_Name == v_Org && Partner_Location_Status == "Active"].count() == 1)
+	{
+		for each  v_LN in Partner_Locations[Partner_Location_Name == v_Org && Partner_Location_Status == "Active"]
+		{
+			v_Found = v_LN.ID;
+			break;
+		}
+	}
+}
 v_Email = ifnull(pContactEmail,"").toString().trim();
 if(v_Found == 0 && v_Email != "")
 {

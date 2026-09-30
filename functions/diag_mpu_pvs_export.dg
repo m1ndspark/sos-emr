@@ -1,0 +1,19 @@
+v_M = if(p_month < 10,"0" + p_month.toString(),p_month.toString());
+v_Start = toDate(p_year.toString() + "-" + v_M + "-01","yyyy-MM-dd");
+v_End = v_Start.addMonth(1);
+v_Rows = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= v_Start && Visit_Completion_Date < v_End && Type_of_Entry == "Patient Visit"]
+{
+	v_Eq = "N";
+	if(ifnull(v_P.Additional_Charges,"").toString().contains("Equipment Charge"))
+	{
+		v_Eq = "Y";
+	}
+	v_Amt = "";
+	if(v_P.Equipment_Charge_Amount != null)
+	{
+		v_Amt = v_P.Equipment_Charge_Amount.toString();
+	}
+	v_Rows.add(ifnull(v_P.Referral_ID,"").toString() + "|" + ifnull(v_P.PVS_ID,"").toString() + "|" + v_P.Visit_Completion_Date.toString("MM-dd") + "|" + ifnull(v_P.Visit_Status,"").toString() + "|" + ifnull(v_P.Row_Status,"").toString() + "|" + ifnull(v_P.Patient_Last_Name,"").toString().trim() + "|" + v_Eq + "|" + v_Amt);
+}
+return "READ-ONLY | rows=" + v_Rows.size() + " || " + v_Rows.toString(";");
