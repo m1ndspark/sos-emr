@@ -865,3 +865,13 @@ version, which had less work per row, ran under the limit, so the ceiling sits j
 that. Rule: never scan full history in a report or digest. Narrow both fetches with criteria
 (a date floor or lookback window) before the loop, keep per-row work minimal, and check
 05 for an existing limit pattern before writing any full-table loop.
+
+CREATOR STRIPS PARENTHESES IN SCRIPT CONDITIONS (2026-10-02, Session 56)
+Creator removes grouping parentheses from boolean expressions in script when it
+saves (if conditions and assignments), e.g. A && (B || C) is stored as
+A && B || C, which changes the meaning. Parentheses inside record criteria
+(Form[...]) are kept. Found via v57: the Note Finalized Stamp workflow re-stamped
+every Addendum save, and send_activity_digest admitted rows it should have
+excluded. Rule: never mix && and || in one script expression. Compute each
+or-group into its own variable (v_visitOk = a || b;) and combine with && only,
+or use nested ifs.
