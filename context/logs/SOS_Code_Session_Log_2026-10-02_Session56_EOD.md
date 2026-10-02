@@ -46,14 +46,14 @@ Built daily and weekly activity digest emails (referrals, PVS, compliance scorec
 
 6. REPO
 - v57 export committed. Checkpoint e319cc4, ds_sync c9868ca, workflow + MANIFEST b0b098d (pushed by ccode).
-- This EOD log + task list + learnings edits committed; push pending (ccode).
+- EOD c6c4b9c and cleanup d50fec9 pushed; origin/main clean.
 
 7. OPEN / NEXT SESSION
 - September 3008 catch-up list from Neil (ask Mon 10/05).
 - Decide reporting for pre-09/22 and desktop-app faxes.
 - Fresh .ds export to capture post-v57 changes (schedules, stamp workflow, digest, poll v3, send_pvs_fax).
 - Watch the first daily emails (10/03) and the first weekly (10/09).
-- ccode open questions: diag_referrals_no_pvs deleted in Creator (remove from repo?); stale MANIFEST hashes for poll_fax_status and send_fax_digest (full refresh?).
+- CLOSED (d50fec9): diag_referrals_no_pvs removed from repo; MANIFEST hashes for poll_fax_status and send_fax_digest refreshed; MANIFEST matches full v57 regeneration; ds_sync EMPTY=4 MATCH=336.
 
 8. MISSES THIS SESSION
 - Didn't read 05 learnings before full-history loops.
