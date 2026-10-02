@@ -156,7 +156,6 @@ functions/diag_referral_imaging.dg	diag_referral_imaging		function					Referrals
 functions/diag_referral_intake.dg	diag_referral_intake		function					Referrals_Main		ec1d7756
 functions/diag_referral_origin.dg	diag_referral_origin		function					Referrals_Main		b4777b41
 functions/diag_referral_partner_resolve.dg	diag_referral_partner_resolve		function		partner_branch_values;resolve_branch_id			Referrals_Main	AppFunc	4e3bc525
-functions/diag_referrals_no_pvs.dg	diag_referrals_no_pvs		function					Assignments;Employees;Encounter_PatientVisit;Referrals_Main		7deadbc1
 functions/diag_room_number_gaps.dg	diag_room_number_gaps		function					Encounter_PatientVisit;Referrals_Main		572dd19f
 functions/diag_safe_test_referrals.dg	diag_safe_test_referrals		function					Assignments;Referrals_Main		b64b9788
 functions/diag_sept_pvs_completeness.dg	diag_sept_pvs_completeness		function					Encounter_PatientVisit		e9f5eca6
@@ -189,7 +188,7 @@ functions/mint_referral_id.dg	mint_referral_id		function					Referrals_Main;Sequ
 functions/normalize_pvs_phones.dg	normalize_pvs_phones		function					Encounter_PatientVisit		c9f56edd
 functions/parse_patient_dob.dg	parse_patient_dob		function							f2fb1840
 functions/partner_branch_values.dg	partner_branch_values		function					Partner_Locations;Partners		fb8b8277
-functions/poll_fax_status.dg	poll_fax_status		function		get_rc_token			Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	ffccd848
+functions/poll_fax_status.dg	poll_fax_status		function		get_rc_token			Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	cb5e5bcd
 functions/prepare_month_for_billing.dg	prepare_month_for_billing		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates;Referrals_Main		195183eb
 functions/process_new_referral.dg	process_new_referral		function		mint_assignment_id;mint_referral_id;parse_patient_dob;partner_branch_values;resolve_branch_id;send_3008_notification;send_imaging_notification;send_referral_confirmation;send_referral_notification			Assignments;Partner_Locations;Partner_Referral_Contacts;Referrals_Main	AppFunc;HTTP	a1669334
 functions/relink_pvs_to_referral.dg	relink_pvs_to_referral		function					Encounter_PatientVisit;Referrals_Main		028ccd4f
@@ -220,7 +219,7 @@ functions/seed_schema_to_github.dg	seed_schema_to_github		function						Email;HT
 functions/send_3008_notification.dg	send_3008_notification		function		build_3008_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	82aa2b0f
 functions/send_activity_digest.dg	send_activity_digest		function					Encounter_PatientVisit;Fax_Log;Referrals_Main	HTTP	da9ee368
 functions/send_assignment_notification.dg	send_assignment_notification		function		mint_assignment_id			Assignments;Employees	AppFunc;HTTP	ee1c729d
-functions/send_fax_digest.dg	send_fax_digest		function		is_pvs_email_branch			Employees;Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	b64786db
+functions/send_fax_digest.dg	send_fax_digest		function		is_pvs_email_branch			Employees;Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	e58d4b2f
 functions/send_imaging_notification.dg	send_imaging_notification		function		build_imaging_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	9dc9be8e
 functions/send_pvs_fax.dg	send_pvs_fax		function		build_pvs_fax_html;get_rc_token			Employees;Encounter_PatientVisit;Fax_Log;Sequence_Tracker	AppFunc;HTTP	8eb6878c
 functions/send_referral_confirmation.dg	send_referral_confirmation		function		build_referral_confirmation_html			Referrals_Main	AppFunc;HTTP	0a0f7f71
