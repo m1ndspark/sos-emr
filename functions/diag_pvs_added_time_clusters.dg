@@ -1,0 +1,34 @@
+v_counts = Map();
+v_keys = List();
+v_total = 0;
+for each  v_p in Encounter_PatientVisit[Note_Finalized_Time == null && Clinical_Note_Type == "Final" || Clinical_Note_Type == "Addendum"] sort by Added_Time
+{
+	v_total = v_total + 1;
+	v_k = "NO ADDED TIME";
+	if(v_p.Added_Time != null)
+	{
+		v_k = v_p.Added_Time.toString("yyyy-MM-dd HH:mm");
+	}
+	if(v_counts.containKey(v_k))
+	{
+		v_counts.put(v_k,v_counts.get(v_k).toLong() + 1);
+	}
+	else
+	{
+		v_counts.put(v_k,1);
+		v_keys.add(v_k);
+	}
+}
+v_out = "TOTAL " + v_total + " | CLUSTERS (3+ in same minute): ";
+v_clustered = 0;
+for each  v_k in v_keys
+{
+	v_c = v_counts.get(v_k).toLong();
+	if(v_c >= 3)
+	{
+		v_out = v_out + v_k + " = " + v_c + " ; ";
+		v_clustered = v_clustered + v_c;
+	}
+}
+v_out = v_out + "| IN CLUSTERS " + v_clustered + " | NOT CLUSTERED " + (v_total - v_clustered);
+return v_out;

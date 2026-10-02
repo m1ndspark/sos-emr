@@ -1,0 +1,98 @@
+v_today = zoho.currentdate;
+v_floorD = v_today.subDay(31);
+v_byRid = Map();
+v_byLink = Map();
+for each  v_p in Encounter_PatientVisit[Type_of_Entry == "3008"]
+{
+	v_rs = ifnull(v_p.Row_Status,"").toString();
+	v_vs = ifnull(v_p.Visit_Status,"").toString();
+	v_was = ifnull(v_p.Was_3008_Completed,"").toString();
+	v_reason = "DONE";
+	if(v_rs == "Duplicate" || v_rs == "Cancelled" || v_rs == "Folded")
+	{
+		v_reason = "Row Status excluded";
+	}
+	else if(v_vs == "Attempted (Not Completed)" || v_vs == "Cancelled")
+	{
+		v_reason = "Visit Attempted/Cancelled";
+	}
+	else if(v_was != "Yes")
+	{
+		v_reason = "Was 3008 Completed = " + ifnull(v_was,"").toString();
+		if(v_was == "")
+		{
+			v_reason = "Was 3008 Completed blank";
+		}
+	}
+	else if(v_p.Cares_3008_Completion_Date == null)
+	{
+		v_reason = "3008 Completion Date blank";
+	}
+	v_rid = ifnull(v_p.Referral_ID,"").toString().trim();
+	if(v_rid != "")
+	{
+		if(!v_byRid.containKey(v_rid) || v_reason == "DONE")
+		{
+			v_byRid.put(v_rid,v_reason);
+		}
+	}
+	if(v_p.Referral_Link != null)
+	{
+		v_lk = v_p.Referral_Link.toString();
+		if(!v_byLink.containKey(v_lk) || v_reason == "DONE")
+		{
+			v_byLink.put(v_lk,v_reason);
+		}
+	}
+}
+v_counts = Map();
+v_samples = Map();
+v_total = 0;
+v_gap = 0;
+for each  v_r in Referrals_Main[Referral_Type == "3008" && Referral_Date >= v_floorD]
+{
+	v_total = v_total + 1;
+	v_rid = ifnull(v_r.Referral_ID,"").toString().trim();
+	v_bucket = "";
+	if(v_rid == "")
+	{
+		v_bucket = "No Referral ID";
+	}
+	else if(v_byRid.containKey(v_rid))
+	{
+		v_bucket = v_byRid.get(v_rid).toString();
+	}
+	else if(v_byLink.containKey(v_r.ID.toString()))
+	{
+		v_bucket = "PVS linked by Referral Link only (Referral_ID mismatch)";
+	}
+	else
+	{
+		v_bucket = "No 3008 PVS";
+	}
+	if(v_bucket != "DONE")
+	{
+		v_gap = v_gap + 1;
+		if(v_counts.containKey(v_bucket))
+		{
+			v_counts.put(v_bucket,v_counts.get(v_bucket).toLong() + 1);
+		}
+		else
+		{
+			v_counts.put(v_bucket,1);
+			v_samples.put(v_bucket,List());
+		}
+		v_sl = v_samples.get(v_bucket);
+		if(v_sl.size() < 3)
+		{
+			v_sl.add(ifnull(v_rid,"(blank)"));
+			v_samples.put(v_bucket,v_sl);
+		}
+	}
+}
+v_out = "3008 REFERRALS since " + v_floorD.toString("MM/dd/yyyy") + ": " + v_total + " | NOT DONE: " + v_gap;
+for each  v_b in v_counts.keys()
+{
+	v_out = v_out + "\n" + v_b + " = " + v_counts.get(v_b) + " | e.g. " + v_samples.get(v_b).toString(", ");
+}
+return v_out;

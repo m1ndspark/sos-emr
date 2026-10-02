@@ -1,0 +1,29 @@
+v_sent = Map();
+for each  v_f in Fax_Log[Fax_Status == "Sent"]
+{
+	v_sent.put(v_f.ID.toString(),1);
+}
+v_rows = 0;
+v_pvsNote = 0;
+v_inSent = 0;
+v_distinct = Map();
+v_logs = Map();
+for each  v_a in Fax_Attachments[ID != 0]
+{
+	v_rows = v_rows + 1;
+	if(ifnull(v_a.Attachment_Type,"").toString() == "PVS Note")
+	{
+		v_pvsNote = v_pvsNote + 1;
+		if(v_a.Fax_Log != null)
+		{
+			v_lk = v_a.Fax_Log.toString();
+			v_logs.put(v_lk,1);
+			if(v_sent.containKey(v_lk) && v_a.Source_PVS_Link != null)
+			{
+				v_inSent = v_inSent + 1;
+				v_distinct.put(v_a.Source_PVS_Link.toString(),1);
+			}
+		}
+	}
+}
+return "Fax_Log Sent " + v_sent.size() + " | Fax_Attachments rows " + v_rows + " | PVS Note rows " + v_pvsNote + " | on Sent faxes " + v_inSent + " | distinct PVS on Sent faxes " + v_distinct.size() + " | distinct faxes with attachments " + v_logs.size();

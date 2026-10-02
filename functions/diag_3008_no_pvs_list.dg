@@ -1,0 +1,36 @@
+v_floorD = zoho.currentdate.subDay(31);
+v_has = Map();
+for each  v_p in Encounter_PatientVisit[Type_of_Entry == "3008"]
+{
+	v_rid = ifnull(v_p.Referral_ID,"").toString().trim();
+	if(v_rid != "")
+	{
+		v_has.put(v_rid,1);
+	}
+}
+v_lines = List();
+v_cognito = 0;
+v_native = 0;
+for each  v_r in Referrals_Main[Referral_Type == "3008" && Referral_Date >= v_floorD] sort by Referral_Date desc
+{
+	v_rid = ifnull(v_r.Referral_ID,"").toString().trim();
+	if(v_rid != "" && !v_has.containKey(v_rid))
+	{
+		v_cog = ifnull(v_r.Cognito_Referral_ID,"").toString().trim();
+		if(v_cog != "")
+		{
+			v_cognito = v_cognito + 1;
+		}
+		else
+		{
+			v_native = v_native + 1;
+		}
+		v_added = "";
+		if(v_r.Added_Time != null)
+		{
+			v_added = v_r.Added_Time.toString("MM/dd/yyyy HH:mm");
+		}
+		v_lines.add(v_rid + " | ref " + v_r.Referral_Date.toString("MM/dd/yyyy") + " | added " + v_added + " | cognito " + v_cog + " | asg " + ifnull(v_r.Assignment_Status,"").toString());
+	}
+}
+return "NO 3008 PVS: " + v_lines.size() + " (Cognito " + v_cognito + ", native " + v_native + ")\n" + v_lines.toString("\n");

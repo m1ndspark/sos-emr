@@ -1,0 +1,986 @@
+v_type = ifnull(p_type,"").trim().toLowerCase();
+if(v_type != "referrals" && v_type != "pvs" && v_type != "weekly")
+{
+	return "aborted: invalid type " + v_type;
+}
+v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+if(v_cfg.count() == 0)
+{
+	return "aborted: no ZEPTOMAIL config";
+}
+v_token = ifnull(v_cfg.Zepto_Send_Token,"").trim();
+if(v_token == "")
+{
+	return "aborted: no Zepto send token";
+}
+v_today = zoho.currentdate;
+v_fromStr = ifnull(p_from,"").trim();
+v_toStr = ifnull(p_to,"").trim();
+v_custom = v_fromStr != "" && v_toStr != "";
+if(v_custom)
+{
+	v_refFrom = v_fromStr.toDate();
+	v_refTo = v_toStr.toDate();
+	v_cut = (v_refFrom.toString("MM/dd/yyyy") + " 00:00:00").toTime("MM/dd/yyyy HH:mm:ss");
+	v_cutEnd = (v_refTo.toString("MM/dd/yyyy") + " 23:59:59").toTime("MM/dd/yyyy HH:mm:ss");
+	v_label = v_refFrom.toString("MM/dd/yyyy") + " to " + v_refTo.toString("MM/dd/yyyy");
+}
+else if(v_type == "weekly")
+{
+	v_refFrom = v_today.subDay(7);
+	v_refTo = v_today.subDay(1);
+	v_cut = zoho.currenttime.subDay(7);
+	v_cutEnd = zoho.currenttime;
+	v_label = v_refFrom.toString("MM/dd/yyyy") + " to " + v_refTo.toString("MM/dd/yyyy");
+}
+else
+{
+	v_refFrom = v_today.subDay(1);
+	v_refTo = v_today.subDay(1);
+	v_cut = zoho.currenttime.subHour(24);
+	v_cutEnd = zoho.currenttime;
+	v_label = "Last 24 Hours";
+}
+v_floorD = v_refTo.subDay(30);
+if(v_floorD > v_refFrom)
+{
+	v_floorD = v_refFrom;
+}
+v_floorT = (v_floorD.toString("MM/dd/yyyy") + " 00:00:00").toTime("MM/dd/yyyy HH:mm:ss");
+v_cutDateKey = v_cut.toString("yyyyMMdd").toLong();
+v_cutEndKey = v_cutEnd.toString("yyyyMMdd").toLong();
+v_cls = {"On Time":"ok","Late":"bad","Overdue":"bad","Visit Overdue":"bad","Pending":"wait","Visit Pending":"wait","Check":"wait"};
+v_keys = List();
+v_refCount = Map();
+v_cmpCount = Map();
+v_typeOrder = List();
+v_typeOrder.add("Patient Visit");
+v_typeOrder.add("3008");
+v_typeOrder.add("Imaging Order (only)");
+v_typeCount = Map();
+v_typeCount.put("Patient Visit",0);
+v_typeCount.put("3008",0);
+v_typeCount.put("Imaging Order (only)",0);
+v_refRows = "";
+v_nRef = 0;
+if(v_type == "referrals" || v_type == "weekly")
+{
+	for each  v_r in Referrals_Main[Referral_Date >= v_refFrom && Referral_Date <= v_refTo] sort by Referral_Date desc
+	{
+		v_svc = ifnull(v_r.Referral_Type,"").toString().trim();
+		v_nRef = v_nRef + 1;
+		if(v_type == "referrals")
+		{
+			v_refDate = v_r.Referral_Date.toString("MM/dd/yyyy");
+			v_refId = ifnull(v_r.Referral_ID,"").toString().trim();
+			if(v_refId == "")
+			{
+				v_refId = "No Referral ID";
+			}
+			v_pat = ifnull(v_r.Patient_Full_Name,"").toString().trim().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+			v_reason = ifnull(v_r.Referral_Reason,"").toString().trim().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+			v_refRows = v_refRows + "<tr><td>" + v_refDate + "</td><td>" + v_refId + "</td><td>" + v_pat + "</td><td>" + v_svc + "</td><td class='wrap'>" + v_reason + "</td></tr>";
+		}
+		v_tKey = v_svc;
+		if(v_tKey == "")
+		{
+			v_tKey = "Unspecified";
+		}
+		if(!v_typeOrder.contains(v_tKey))
+		{
+			v_typeOrder.add(v_tKey);
+		}
+		if(v_typeCount.containKey(v_tKey))
+		{
+			v_typeCount.put(v_tKey,v_typeCount.get(v_tKey).toLong() + 1);
+		}
+		else
+		{
+			v_typeCount.put(v_tKey,1);
+		}
+		if(v_type == "weekly")
+		{
+			v_partner = ifnull(v_r.Partner_Organization,"").toString().trim();
+			if(v_partner == "")
+			{
+				v_partner = ifnull(v_r.Referral_Source,"").toString().trim();
+			}
+			if(v_partner == "")
+			{
+				v_partner = "Unspecified";
+			}
+			v_svcKey = v_svc;
+			if(v_svcKey == "Imaging Order (only)")
+			{
+				v_svcKey = "Imaging Order";
+			}
+			if(v_svcKey == "")
+			{
+				v_svcKey = "Unspecified";
+			}
+			v_key = v_partner + "~~" + v_svcKey;
+			if(!v_keys.contains(v_key))
+			{
+				v_keys.add(v_key);
+			}
+			if(v_refCount.containKey(v_key))
+			{
+				v_refCount.put(v_key,v_refCount.get(v_key).toLong() + 1);
+			}
+			else
+			{
+				v_refCount.put(v_key,1);
+			}
+		}
+	}
+}
+v_cmpRows = "";
+v_nCmp = 0;
+v_prgRows = "";
+v_nPrg = 0;
+if(v_type == "pvs")
+{
+	for each  v_p in Encounter_PatientVisit[Note_Finalized_Time >= v_cut && Note_Finalized_Time <= v_cutEnd] sort by Note_Finalized_Time desc
+	{
+		v_rs = ifnull(v_p.Row_Status,"").toString();
+		v_vs = ifnull(v_p.Visit_Status,"").toString();
+		v_nt = ifnull(v_p.Clinical_Note_Type,"").toString();
+		if(v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded" && v_vs == "Completed" || v_vs == "" && v_nt == "Final" || v_nt == "Addendum")
+		{
+			v_finStr = v_p.Note_Finalized_Time.toString("MM/dd/yyyy hh:mm a");
+			v_finD = v_p.Note_Finalized_Time.toString("MM/dd/yyyy").toDate();
+			v_vdStr = "";
+			v_days = "";
+			v_st = "Check";
+			if(v_p.Visit_Completion_Date != null)
+			{
+				v_vdStr = v_p.Visit_Completion_Date.toString("MM/dd/yyyy");
+				v_d = v_p.Visit_Completion_Date.daysBetween(v_finD);
+				v_days = v_d.toString();
+				if(v_d >= 0 && v_d <= 1)
+				{
+					v_st = "On Time";
+				}
+				else if(v_d > 1)
+				{
+					v_st = "Late";
+				}
+			}
+			v_pRefId = ifnull(v_p.Referral_ID,"").toString().trim();
+			if(v_pRefId == "")
+			{
+				v_pRefId = "No Referral ID";
+			}
+			v_pPat = ifnull(v_p.Patient_Full_Name_1,"").toString().trim().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+			v_pPartner = ifnull(v_p.Partner_Organization,"").toString().trim();
+			if(v_pPartner == "")
+			{
+				v_pPartner = ifnull(v_p.Referral_Source,"").toString().trim();
+			}
+			v_nCmp = v_nCmp + 1;
+			v_cmpRows = v_cmpRows + "<tr><td>" + v_finStr + "</td><td>" + v_vdStr + "</td><td class='num'>" + v_days + "</td><td class='" + ifnull(v_cls.get(v_st),"") + "'>" + v_st + "</td><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + v_pRefId + "</td><td>" + v_pPat + "</td><td>" + v_pPartner + "</td><td>" + ifnull(v_p.Type_of_Entry,"") + "</td><td>" + ifnull(v_p.Employee_Name_Title,"") + "</td></tr>";
+		}
+	}
+	for each  v_p in Encounter_PatientVisit[Added_Time >= v_cut && Added_Time <= v_cutEnd && Clinical_Note_Type == "Preliminary"] sort by Added_Time desc
+	{
+		v_rs = ifnull(v_p.Row_Status,"").toString();
+		v_vs = ifnull(v_p.Visit_Status,"").toString();
+		if(v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded" && v_vs == "Completed" || v_vs == "")
+		{
+			v_vdStr = "";
+			if(v_p.Visit_Completion_Date != null)
+			{
+				v_vdStr = v_p.Visit_Completion_Date.toString("MM/dd/yyyy");
+			}
+			v_pRefId = ifnull(v_p.Referral_ID,"").toString().trim();
+			if(v_pRefId == "")
+			{
+				v_pRefId = "No Referral ID";
+			}
+			v_pPat = ifnull(v_p.Patient_Full_Name_1,"").toString().trim().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+			v_pPartner = ifnull(v_p.Partner_Organization,"").toString().trim();
+			if(v_pPartner == "")
+			{
+				v_pPartner = ifnull(v_p.Referral_Source,"").toString().trim();
+			}
+			v_nPrg = v_nPrg + 1;
+			v_prgRows = v_prgRows + "<tr><td>" + v_p.Added_Time.toString("MM/dd/yyyy hh:mm a") + "</td><td>" + v_vdStr + "</td><td>" + ifnull(v_p.PVS_ID,"") + "</td><td>" + v_pRefId + "</td><td>" + v_pPat + "</td><td>" + v_pPartner + "</td><td>" + ifnull(v_p.Type_of_Entry,"") + "</td><td>" + ifnull(v_p.Employee_Name_Title,"") + "</td></tr>";
+		}
+	}
+}
+v_cRows = "";
+v_nRows = 0;
+v_nOld = 0;
+v_nCmpWeek = 0;
+v_rvOn = 0;
+v_rvLate = 0;
+v_rvOver = 0;
+v_rvPend = 0;
+v_rvChk = 0;
+v_t3On = 0;
+v_t3Late = 0;
+v_t3Over = 0;
+v_t3Pend = 0;
+v_t3Chk = 0;
+v_pvOn = 0;
+v_pvLate = 0;
+v_pvOver = 0;
+v_pvPend = 0;
+v_pvImp = 0;
+v_pvChk = 0;
+v_fxOn = 0;
+v_fxLate = 0;
+v_fxOver = 0;
+v_fxPend = 0;
+v_fxY = 0;
+v_fxN = 0;
+if(v_type == "weekly")
+{
+	v_fax = Map();
+	v_sentLog = Map();
+	for each  v_f in Fax_Log[Fax_Status == "Sent" && Submitted_Time >= v_floorT]
+	{
+		v_fdt = v_f.Completed_Time;
+		if(v_fdt == null)
+		{
+			v_fdt = v_f.Submitted_Time;
+		}
+		if(v_fdt != null)
+		{
+			v_fk = v_fdt.toString("yyyyMMdd");
+			v_sentLog.put(v_f.ID.toString(),v_fk);
+			if(v_f.PVS_Link != null)
+			{
+				v_pk = v_f.PVS_Link.toString();
+				if(!v_fax.containKey(v_pk))
+				{
+					v_fax.put(v_pk,v_fk);
+				}
+				else if(v_fk.toLong() < v_fax.get(v_pk).toLong())
+				{
+					v_fax.put(v_pk,v_fk);
+				}
+			}
+		}
+	}
+	for each  v_a in Fax_Attachments[Attachment_Type == "PVS Note" && Added_Time >= v_floorT]
+	{
+		if(v_a.Fax_Log != null && v_a.Source_PVS_Link != null)
+		{
+			v_lk = v_a.Fax_Log.toString();
+			if(v_sentLog.containKey(v_lk))
+			{
+				v_pk = v_a.Source_PVS_Link.toString();
+				v_fk = v_sentLog.get(v_lk).toString();
+				if(!v_fax.containKey(v_pk))
+				{
+					v_fax.put(v_pk,v_fk);
+				}
+				else if(v_fk.toLong() < v_fax.get(v_pk).toLong())
+				{
+					v_fax.put(v_pk,v_fk);
+				}
+			}
+		}
+	}
+	v_best = Map();
+	v_best3008 = Map();
+	v_att = Map();
+	v_cxl = Map();
+	for each  v_p in Encounter_PatientVisit[Visit_Completion_Date >= v_floorD || Cares_3008_Completion_Date >= v_floorD || Added_Time >= v_floorT || Note_Finalized_Time >= v_cut]
+	{
+		v_rs = ifnull(v_p.Row_Status,"").toString();
+		if(v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded")
+		{
+			v_vs = ifnull(v_p.Visit_Status,"").toString();
+			v_nt = ifnull(v_p.Clinical_Note_Type,"").toString();
+			v_te = ifnull(v_p.Type_of_Entry,"").toString();
+			v_isFinal = v_nt == "Final" || v_nt == "Addendum";
+			v_isVisitDone = v_te != "3008" && v_vs == "Completed" || v_vs == "" && v_isFinal;
+			v_is3008Done = v_te == "3008" && v_vs != "Attempted (Not Completed)" && v_vs != "Cancelled" && ifnull(v_p.Was_3008_Completed,"").toString() == "Yes" && v_p.Cares_3008_Completion_Date != null;
+			v_pPartner = ifnull(v_p.Partner_Organization,"").toString().trim();
+			if(v_pPartner == "")
+			{
+				v_pPartner = ifnull(v_p.Referral_Source,"").toString().trim();
+			}
+			if(v_pPartner == "")
+			{
+				v_pPartner = "Unspecified";
+			}
+			v_proc = "";
+			if(v_p.Type_of_Procedures != null)
+			{
+				v_procList = v_p.Type_of_Procedures;
+				if(v_procList.size() > 0)
+				{
+					v_proc = v_procList.toString(", ");
+				}
+			}
+			v_wkHit = false;
+			if(v_isVisitDone && v_isFinal && v_p.Note_Finalized_Time != null)
+			{
+				if(v_p.Note_Finalized_Time >= v_cut && v_p.Note_Finalized_Time <= v_cutEnd)
+				{
+					v_wkHit = true;
+				}
+			}
+			if(v_is3008Done)
+			{
+				v_c3k = v_p.Cares_3008_Completion_Date.toString("yyyyMMdd").toLong();
+				if(v_c3k >= v_cutDateKey && v_c3k <= v_cutEndKey)
+				{
+					v_wkHit = true;
+				}
+			}
+			if(v_wkHit)
+			{
+				v_nCmpWeek = v_nCmpWeek + 1;
+				v_pSvcKey = v_te;
+				if(v_pSvcKey == "")
+				{
+					v_pSvcKey = "Unspecified";
+				}
+				v_key = v_pPartner + "~~" + v_pSvcKey;
+				if(!v_keys.contains(v_key))
+				{
+					v_keys.add(v_key);
+				}
+				if(v_cmpCount.containKey(v_key))
+				{
+					v_cmpCount.put(v_key,v_cmpCount.get(v_key).toLong() + 1);
+				}
+				else
+				{
+					v_cmpCount.put(v_key,1);
+				}
+			}
+			v_rid = ifnull(v_p.Referral_ID,"").toString().trim();
+			if(v_rid != "")
+			{
+				if(v_vs == "Attempted (Not Completed)")
+				{
+					if(v_att.containKey(v_rid))
+					{
+						v_att.put(v_rid,v_att.get(v_rid).toLong() + 1);
+					}
+					else
+					{
+						v_att.put(v_rid,1);
+					}
+				}
+				else if(v_vs == "Cancelled")
+				{
+					if(v_cxl.containKey(v_rid))
+					{
+						v_cxl.put(v_rid,v_cxl.get(v_rid).toLong() + 1);
+					}
+					else
+					{
+						v_cxl.put(v_rid,1);
+					}
+				}
+				if(v_is3008Done)
+				{
+					v_ck = v_p.Cares_3008_Completion_Date.toString("yyyyMMdd").toLong();
+					v_take = false;
+					if(!v_best3008.containKey(v_rid))
+					{
+						v_take = true;
+					}
+					else
+					{
+						v_old3 = v_best3008.get(v_rid);
+						if(v_ck < v_old3.get("ck").toLong())
+						{
+							v_take = true;
+						}
+					}
+					if(v_take)
+					{
+						v_info = Map();
+						v_info.put("pvs",ifnull(v_p.PVS_ID,"").toString());
+						v_info.put("pid",v_p.ID.toString());
+						v_info.put("proc",v_proc);
+						v_info.put("cd",v_p.Cares_3008_Completion_Date.toString("MM/dd/yyyy"));
+						v_info.put("ck",v_ck.toString());
+						v_best3008.put(v_rid,v_info);
+					}
+				}
+				if(v_isVisitDone)
+				{
+					v_take = false;
+					if(!v_best.containKey(v_rid))
+					{
+						v_take = true;
+					}
+					else if(v_p.Visit_Completion_Date != null)
+					{
+						v_old = v_best.get(v_rid);
+						if(!v_old.containKey("vdk"))
+						{
+							v_take = true;
+						}
+						else if(v_p.Visit_Completion_Date.toString("yyyyMMdd").toLong() < v_old.get("vdk").toLong())
+						{
+							v_take = true;
+						}
+					}
+					if(v_take)
+					{
+						v_info = Map();
+						v_info.put("pvs",ifnull(v_p.PVS_ID,"").toString());
+						v_info.put("pid",v_p.ID.toString());
+						v_info.put("proc",v_proc);
+						v_info.put("nt",v_nt);
+						if(v_p.Visit_Completion_Date != null)
+						{
+							v_info.put("vd",v_p.Visit_Completion_Date.toString("MM/dd/yyyy"));
+							v_info.put("vdk",v_p.Visit_Completion_Date.toString("yyyyMMdd"));
+						}
+						if(v_p.Note_Finalized_Time != null)
+						{
+							v_info.put("fin",v_p.Note_Finalized_Time.toString("MM/dd/yyyy"));
+						}
+						v_best.put(v_rid,v_info);
+					}
+				}
+			}
+		}
+	}
+	for each  v_r in Referrals_Main[Referral_Date >= v_floorD && Referral_Date <= v_refTo] sort by Referral_Date desc
+	{
+		v_isNew = false;
+		if(v_r.Referral_Date >= v_refFrom && v_r.Referral_Date <= v_refTo)
+		{
+			v_isNew = true;
+		}
+		v_rid = ifnull(v_r.Referral_ID,"").toString().trim();
+		v_rt = ifnull(v_r.Referral_Type,"").toString().trim();
+		v_rdStr = v_r.Referral_Date.toString("MM/dd/yyyy");
+		v_vdStr = "";
+		v_rvDays = "";
+		v_rvSt = "Check";
+		v_pvsId = "";
+		v_pid = "";
+		v_procOut = "";
+		v_finStr = "";
+		v_pvDays = "";
+		v_pvSt = "Check";
+		v_fxSt = "";
+		v_faxed = "N";
+		v_notes = List();
+		if(v_rt == "3008")
+		{
+			v_pvSt = "N/A";
+			v_endStr = "";
+			v_done3008 = false;
+			if(v_rid != "" && v_best3008.containKey(v_rid))
+			{
+				v_info = v_best3008.get(v_rid);
+				v_pvsId = v_info.get("pvs").toString();
+				v_pid = v_info.get("pid").toString();
+				v_procOut = v_info.get("proc").toString();
+				v_endStr = v_info.get("cd").toString();
+				v_vdStr = v_endStr;
+				v_done3008 = true;
+			}
+			else
+			{
+				v_endStr = v_today.toString("MM/dd/yyyy");
+			}
+			v_sD = v_rdStr.toDate();
+			v_n = v_sD.daysBetween(v_endStr.toDate());
+			if(v_n >= 0)
+			{
+				v_rem = v_n % 7;
+				v_bd = ((v_n - v_rem) / 7).toLong() * 5;
+				v_dow = v_sD.getDayOfWeek();
+				for each  v_i in {1,2,3,4,5,6}
+				{
+					if(v_i <= v_rem)
+					{
+						v_day = (v_dow - 1 + v_i) % 7 + 1;
+						if(v_day != 1 && v_day != 7)
+						{
+							v_bd = v_bd + 1;
+						}
+					}
+				}
+				if(v_done3008)
+				{
+					v_rvDays = v_bd + " bd";
+					if(v_bd <= 3)
+					{
+						v_rvSt = "On Time";
+					}
+					else
+					{
+						v_rvSt = "Late";
+					}
+				}
+				else if(v_bd > 3)
+				{
+					v_rvSt = "Visit Overdue";
+				}
+				else
+				{
+					v_rvSt = "Visit Pending";
+				}
+			}
+		}
+		else
+		{
+			if(v_rid != "" && v_best.containKey(v_rid))
+			{
+				v_info = v_best.get(v_rid);
+				v_pvsId = v_info.get("pvs").toString();
+				v_pid = v_info.get("pid").toString();
+				v_procOut = v_info.get("proc").toString();
+				if(v_info.containKey("vd"))
+				{
+					v_vdStr = v_info.get("vd").toString();
+					v_vdD = v_vdStr.toDate();
+					v_d1 = v_rdStr.toDate().daysBetween(v_vdD);
+					v_rvDays = v_d1.toString();
+					if(v_d1 >= 0 && v_d1 <= 1)
+					{
+						v_rvSt = "On Time";
+					}
+					else if(v_d1 > 1)
+					{
+						v_rvSt = "Late";
+					}
+					v_nt = v_info.get("nt").toString();
+					if(v_nt == "Final" || v_nt == "Addendum")
+					{
+						if(v_info.containKey("fin"))
+						{
+							v_finStr = v_info.get("fin").toString();
+							v_d2 = v_vdD.daysBetween(v_finStr.toDate());
+							v_pvDays = v_d2.toString();
+							if(v_d2 >= 0 && v_d2 <= 1)
+							{
+								v_pvSt = "On Time";
+							}
+							else if(v_d2 > 1)
+							{
+								v_pvSt = "Late";
+							}
+						}
+						else
+						{
+							v_pvSt = "Imported";
+						}
+					}
+					else
+					{
+						if(v_vdD.daysBetween(v_today) > 1)
+						{
+							v_pvSt = "Overdue";
+						}
+						else
+						{
+							v_pvSt = "Pending";
+						}
+					}
+				}
+				else
+				{
+					v_notes.add("PVS has no visit date");
+				}
+			}
+			else
+			{
+				if(v_rdStr.toDate().daysBetween(v_today) > 1)
+				{
+					v_rvSt = "Visit Overdue";
+				}
+				else
+				{
+					v_rvSt = "Visit Pending";
+				}
+				v_pvSt = "No Visit";
+			}
+		}
+		if(v_pid != "" && v_vdStr != "")
+		{
+			v_baseD = v_vdStr.toDate();
+			if(v_fax.containKey(v_pid))
+			{
+				v_faxed = "Y";
+				v_fkStr = v_fax.get(v_pid).toString();
+				v_faxD = (v_fkStr.subString(4,6) + "/" + v_fkStr.subString(6,8) + "/" + v_fkStr.subString(0,4)).toDate();
+				v_d3 = v_baseD.daysBetween(v_faxD);
+				if(v_d3 <= 2)
+				{
+					v_fxSt = "On Time";
+				}
+				else
+				{
+					v_fxSt = "Late";
+				}
+			}
+			else if(v_baseD.daysBetween(v_today) > 2)
+			{
+				v_fxSt = "Overdue";
+			}
+			else
+			{
+				v_fxSt = "Pending";
+			}
+		}
+		v_open = v_rvSt == "Visit Overdue" || v_rvSt == "Visit Pending" || v_pvSt == "Overdue" || v_pvSt == "Pending" || v_fxSt == "Overdue" || v_fxSt == "Pending";
+		if(v_isNew || v_open)
+		{
+			v_nRows = v_nRows + 1;
+			if(!v_isNew)
+			{
+				v_nOld = v_nOld + 1;
+				v_notes.add("Open from prior period");
+			}
+			if(v_rid == "")
+			{
+				v_notes.add("No Referral ID");
+			}
+			else
+			{
+				if(v_att.containKey(v_rid))
+				{
+					v_notes.add(v_att.get(v_rid) + " attempt(s)");
+				}
+				if(v_cxl.containKey(v_rid))
+				{
+					v_notes.add(v_cxl.get(v_rid) + " cancelled visit(s)");
+				}
+			}
+			if(v_rt == "3008")
+			{
+				if(v_rvSt == "On Time")
+				{
+					v_t3On = v_t3On + 1;
+				}
+				else if(v_rvSt == "Late")
+				{
+					v_t3Late = v_t3Late + 1;
+				}
+				else if(v_rvSt == "Visit Overdue")
+				{
+					v_t3Over = v_t3Over + 1;
+				}
+				else if(v_rvSt == "Visit Pending")
+				{
+					v_t3Pend = v_t3Pend + 1;
+				}
+				else
+				{
+					v_t3Chk = v_t3Chk + 1;
+				}
+			}
+			else
+			{
+				if(v_rvSt == "On Time")
+				{
+					v_rvOn = v_rvOn + 1;
+				}
+				else if(v_rvSt == "Late")
+				{
+					v_rvLate = v_rvLate + 1;
+				}
+				else if(v_rvSt == "Visit Overdue")
+				{
+					v_rvOver = v_rvOver + 1;
+				}
+				else if(v_rvSt == "Visit Pending")
+				{
+					v_rvPend = v_rvPend + 1;
+				}
+				else
+				{
+					v_rvChk = v_rvChk + 1;
+				}
+				if(v_pvSt == "On Time")
+				{
+					v_pvOn = v_pvOn + 1;
+				}
+				else if(v_pvSt == "Late")
+				{
+					v_pvLate = v_pvLate + 1;
+				}
+				else if(v_pvSt == "Overdue")
+				{
+					v_pvOver = v_pvOver + 1;
+				}
+				else if(v_pvSt == "Pending")
+				{
+					v_pvPend = v_pvPend + 1;
+				}
+				else if(v_pvSt == "Imported")
+				{
+					v_pvImp = v_pvImp + 1;
+				}
+				else if(v_pvSt == "Check")
+				{
+					v_pvChk = v_pvChk + 1;
+				}
+			}
+			if(v_fxSt == "On Time")
+			{
+				v_fxOn = v_fxOn + 1;
+			}
+			else if(v_fxSt == "Late")
+			{
+				v_fxLate = v_fxLate + 1;
+			}
+			else if(v_fxSt == "Overdue")
+			{
+				v_fxOver = v_fxOver + 1;
+			}
+			else if(v_fxSt == "Pending")
+			{
+				v_fxPend = v_fxPend + 1;
+			}
+			if(v_pid != "")
+			{
+				if(v_faxed == "Y")
+				{
+					v_fxY = v_fxY + 1;
+				}
+				else
+				{
+					v_fxN = v_fxN + 1;
+				}
+			}
+			v_refIdOut = v_rid;
+			if(v_refIdOut == "")
+			{
+				v_refIdOut = "No Referral ID";
+			}
+			v_pat = ifnull(v_r.Patient_Full_Name,"").toString().trim().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+			v_reasonOut = v_procOut.trim();
+			if(v_reasonOut == "")
+			{
+				v_reasonOut = ifnull(v_r.Referral_Reason,"").toString().trim();
+				if(v_reasonOut.length() > 40)
+				{
+					v_reasonOut = v_reasonOut.left(40).trim() + "...";
+				}
+			}
+			v_reasonOut = v_reasonOut.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+			v_partner = ifnull(v_r.Partner_Organization,"").toString().trim();
+			if(v_partner == "")
+			{
+				v_partner = ifnull(v_r.Referral_Source,"").toString().trim();
+			}
+			v_fxCls = "";
+			if(v_faxed == "N" && v_fxSt == "Overdue")
+			{
+				v_fxCls = "bad";
+			}
+			v_cRows = v_cRows + "<tr><td>" + v_rdStr + "</td><td>" + v_refIdOut + "</td><td>" + v_pvsId + "</td><td class='" + v_fxCls + "'>" + v_faxed + "</td><td>" + v_pat + "</td><td>" + v_partner + "</td><td>" + v_rt + "</td><td class='wrap'>" + v_reasonOut + "</td><td>" + v_vdStr + "</td><td class='num'>" + v_rvDays + "</td><td class='" + ifnull(v_cls.get(v_rvSt),"") + "'>" + v_rvSt + "</td><td>" + v_finStr + "</td><td class='num'>" + v_pvDays + "</td><td class='" + ifnull(v_cls.get(v_pvSt),"") + "'>" + v_pvSt + "</td><td>" + v_notes.toString("; ") + "</td></tr>";
+		}
+	}
+}
+v_css = "<style>body{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111;} h1{font-size:17px;color:#0B0B5B;} h2{color:#0B0B5B;font-size:15px;margin:18px 0 6px 0;} table{border-collapse:collapse;width:auto;margin-bottom:8px;} table.cmp td{font-size:12px;} th{background:#0B0B5B;color:#fff;text-align:left;padding:5px 7px;font-size:11px;letter-spacing:.6px;white-space:nowrap;} td{border:1px solid #BFBFBF;padding:5px 7px;vertical-align:top;white-space:nowrap;} td.wrap{white-space:pre-wrap;width:250px;min-width:250px;max-width:250px;} td.num{text-align:right;} td.ok{color:#027A23;font-weight:bold;} td.bad{color:#C00000;font-weight:bold;} td.wait{color:#B26B00;font-weight:bold;} tr.tot td{font-weight:bold;background:#EFEFF7;} .none{color:#4C4C89;} p.line{margin:4px 0 8px 0;}</style>";
+v_body = "";
+if(v_type == "referrals")
+{
+	v_rangeTxt = v_refFrom.toString("MM/dd/yyyy");
+	if(v_refTo != v_refFrom)
+	{
+		v_rangeTxt = v_rangeTxt + " to " + v_refTo.toString("MM/dd/yyyy");
+	}
+	v_subject = "SOS Referrals - Referral Date " + v_rangeTxt;
+	v_body = "<h1>SOS Referrals - Referral Date " + v_rangeTxt + "</h1>";
+}
+else if(v_type == "pvs")
+{
+	v_subject = "SOS Completed PVS - " + v_label;
+	v_body = "<h1>SOS Completed PVS - " + v_label + "</h1>";
+}
+else
+{
+	v_subject = "SOS Weekly Recap - " + v_label;
+	v_body = "<h1>SOS Weekly Recap - " + v_label + "</h1>";
+	v_body = v_body + "<h2>Summary by Partner and Service</h2>";
+	if(v_keys.size() > 0)
+	{
+		v_sortList = List();
+		for each  v_k in v_keys
+		{
+			v_cRef = 0;
+			if(v_refCount.containKey(v_k))
+			{
+				v_cRef = v_refCount.get(v_k).toLong();
+			}
+			v_cCmp = 0;
+			if(v_cmpCount.containKey(v_k))
+			{
+				v_cCmp = v_cmpCount.get(v_k).toLong();
+			}
+			v_sortList.add((1000000 + v_cRef).toString() + (1000000 + v_cCmp).toString() + "~|~" + v_k);
+		}
+		v_sortList.sort(false);
+		v_sum = "";
+		v_totRef = 0;
+		v_totCmp = 0;
+		for each  v_s in v_sortList
+		{
+			v_k = v_s.getSuffix("~|~");
+			v_cRef = 0;
+			if(v_refCount.containKey(v_k))
+			{
+				v_cRef = v_refCount.get(v_k).toLong();
+			}
+			v_cCmp = 0;
+			if(v_cmpCount.containKey(v_k))
+			{
+				v_cCmp = v_cmpCount.get(v_k).toLong();
+			}
+			v_totRef = v_totRef + v_cRef;
+			v_totCmp = v_totCmp + v_cCmp;
+			v_sum = v_sum + "<tr><td>" + v_k.getPrefix("~~") + "</td><td>" + v_k.getSuffix("~~") + "</td><td class='num'>" + v_cRef + "</td><td class='num'>" + v_cCmp + "</td></tr>";
+		}
+		v_sum = v_sum + "<tr class='tot'><td>Total</td><td></td><td class='num'>" + v_totRef + "</td><td class='num'>" + v_totCmp + "</td></tr>";
+		v_body = v_body + "<table><tr><th>Partner</th><th>Service</th><th>Referrals</th><th>Comp PVS</th></tr>" + v_sum + "</table>";
+	}
+	else
+	{
+		v_body = v_body + "<p class='none'>No activity.</p>";
+	}
+}
+if(v_type == "referrals" || v_type == "weekly")
+{
+	v_tSort = List();
+	for each  v_t in v_typeOrder
+	{
+		v_tSort.add((1000000 + v_typeCount.get(v_t).toLong()).toString() + "~|~" + v_t);
+	}
+	v_tSort.sort(false);
+	v_tRows = "";
+	for each  v_s in v_tSort
+	{
+		v_t = v_s.getSuffix("~|~");
+		v_tRows = v_tRows + "<tr><td>" + v_t + "</td><td class='num'>" + v_typeCount.get(v_t) + "</td></tr>";
+	}
+	v_tRows = v_tRows + "<tr class='tot'><td>Total</td><td class='num'>" + v_nRef + "</td></tr>";
+	v_body = v_body + "<h2>Referrals by Visit Type</h2>";
+	v_body = v_body + "<table><tr><th>Visit Type</th><th>Referrals</th></tr>" + v_tRows + "</table>";
+}
+if(v_type == "referrals")
+{
+	v_body = v_body + "<h2>Referrals (" + v_nRef + ")</h2>";
+	if(v_nRef > 0)
+	{
+		v_body = v_body + "<table><tr><th>Date</th><th>Ref ID</th><th>Patient</th><th>Service</th><th>Reason for Referral</th></tr>" + v_refRows + "</table>";
+	}
+	else
+	{
+		v_body = v_body + "<p class='none'>None.</p>";
+	}
+}
+if(v_type == "pvs")
+{
+	v_body = v_body + "<h2>Completed PVS (" + v_nCmp + ")</h2>";
+	if(v_nCmp > 0)
+	{
+		v_body = v_body + "<table><tr><th>Finalized</th><th>PVS Date</th><th>V to PVS</th><th>Status</th><th>PVS ID</th><th>Referral ID</th><th>Patient</th><th>Partner</th><th>Service</th><th>Provider</th></tr>" + v_cmpRows + "</table>";
+	}
+	else
+	{
+		v_body = v_body + "<p class='none'>None.</p>";
+	}
+	v_body = v_body + "<h2>In Progress - Preliminary Notes (" + v_nPrg + ")</h2>";
+	if(v_nPrg > 0)
+	{
+		v_body = v_body + "<table><tr><th>Submitted</th><th>PVS Date</th><th>PVS ID</th><th>Referral ID</th><th>Patient</th><th>Partner</th><th>Service</th><th>Provider</th></tr>" + v_prgRows + "</table>";
+	}
+	else
+	{
+		v_body = v_body + "<p class='none'>None.</p>";
+	}
+}
+if(v_type == "weekly")
+{
+	v_rvDen = v_rvOn + v_rvLate + v_rvOver;
+	v_rvPct = "n/a";
+	if(v_rvDen > 0)
+	{
+		v_rvPct = (v_rvOn.toDecimal() * 100 / v_rvDen).round(0).toLong() + "%";
+	}
+	v_t3Den = v_t3On + v_t3Late + v_t3Over;
+	v_t3Pct = "n/a";
+	if(v_t3Den > 0)
+	{
+		v_t3Pct = (v_t3On.toDecimal() * 100 / v_t3Den).round(0).toLong() + "%";
+	}
+	v_pvDen = v_pvOn + v_pvLate + v_pvOver;
+	v_pvPct = "n/a";
+	if(v_pvDen > 0)
+	{
+		v_pvPct = (v_pvOn.toDecimal() * 100 / v_pvDen).round(0).toLong() + "%";
+	}
+	v_fxDen = v_fxOn + v_fxLate + v_fxOver;
+	v_fxPct = "n/a";
+	if(v_fxDen > 0)
+	{
+		v_fxPct = (v_fxOn.toDecimal() * 100 / v_fxDen).round(0).toLong() + "%";
+	}
+	v_body = v_body + "<h2>Goal Scorecard</h2>";
+	v_body = v_body + "<table><tr><th>Goal</th><th>On Time</th><th>Late</th><th>Overdue</th><th>Pending</th><th>Imported ?</th><th>On-Time %</th></tr>";
+	v_body = v_body + "<tr><td>Referral to Visit (1 day)</td><td class='num'>" + v_rvOn + "</td><td class='num'>" + v_rvLate + "</td><td class='num'>" + v_rvOver + "</td><td class='num'>" + v_rvPend + "</td><td class='num'>" + v_rvChk + "</td><td class='num'>" + v_rvPct + "</td></tr>";
+	v_body = v_body + "<tr><td>Referral to 3008 (3 business days)</td><td class='num'>" + v_t3On + "</td><td class='num'>" + v_t3Late + "</td><td class='num'>" + v_t3Over + "</td><td class='num'>" + v_t3Pend + "</td><td class='num'>" + v_t3Chk + "</td><td class='num'>" + v_t3Pct + "</td></tr>";
+	v_body = v_body + "<tr><td>Visit to PVS (1 day)</td><td class='num'>" + v_pvOn + "</td><td class='num'>" + v_pvLate + "</td><td class='num'>" + v_pvOver + "</td><td class='num'>" + v_pvPend + "</td><td class='num'>" + (v_pvImp + v_pvChk) + "</td><td class='num'>" + v_pvPct + "</td></tr>";
+	v_body = v_body + "<tr><td>Visit to Fax (2 days)</td><td class='num'>" + v_fxOn + "</td><td class='num'>" + v_fxLate + "</td><td class='num'>" + v_fxOver + "</td><td class='num'>" + v_fxPend + "</td><td class='num'></td><td class='num'>" + v_fxPct + "</td></tr></table>";
+	v_body = v_body + "<p class='line'><b>PVS Faxed:</b> Y " + v_fxY + " | N " + v_fxN + "</p>";
+	v_body = v_body + "<h2>Referral Compliance (" + v_nRows + " referrals, " + v_nOld + " open from before " + v_refFrom.toString("MM/dd/yyyy") + ")</h2>";
+	if(v_nRows > 0)
+	{
+		v_body = v_body + "<table class='cmp'><tr><th>Date</th><th>Ref ID</th><th>PVS ID</th><th>Faxed ?</th><th>Patient</th><th>Partner</th><th>Service</th><th>Reason</th><th>PVS Date</th><th>R to V</th><th>Status</th><th>Finalized</th><th>V to PVS</th><th>PVS Status</th><th>Notes</th></tr>" + v_cRows + "</table>";
+	}
+	else
+	{
+		v_body = v_body + "<p class='none'>None.</p>";
+	}
+}
+v_html = "<html><head><meta charset='utf-8'>" + v_css + "</head><body>" + v_body + "</body></html>";
+v_fromMap = Map();
+v_fromMap.put("address","notifications@sosreferrals.com");
+v_fromMap.put("name","SOS Mobile Medical Care");
+v_addrMap = Map();
+v_addrMap.put("address","neil.heird@sosmmc.com");
+v_entry = Map();
+v_entry.put("email_address",v_addrMap);
+v_toList = List();
+v_toList.add(v_entry);
+v_payload = Map();
+v_payload.put("from",v_fromMap);
+v_payload.put("to",v_toList);
+v_payload.put("subject",v_subject);
+v_payload.put("htmlbody",v_html);
+v_hdr = Map();
+v_hdr.put("Accept","application/json");
+v_hdr.put("Content-Type","application/json");
+v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+v_thrown = "";
+try 
+{
+	v_resp = invokeurl
+	[
+		url :"https://api.zeptomail.com/v1.1/email"
+		type :POST
+		body:v_payload.toString()
+		headers:v_hdr
+	];
+}	catch (e)
+{
+	v_thrown = e.message.toString();
+}
+if(v_thrown != "")
+{
+	return "send failed: " + v_thrown;
+}
+if(v_type == "weekly")
+{
+	return "sent weekly " + v_label + ": new referrals " + v_nRef + ", compliance rows " + v_nRows + " (open from before range " + v_nOld + "), completed " + v_nCmpWeek + ", R-V on/late/overdue " + v_rvOn + "/" + v_rvLate + "/" + v_rvOver + ", 3008 on/late/overdue " + v_t3On + "/" + v_t3Late + "/" + v_t3Over + ", V-PVS on/late/overdue/imported " + v_pvOn + "/" + v_pvLate + "/" + v_pvOver + "/" + v_pvImp + ", fax on/late/overdue/pending " + v_fxOn + "/" + v_fxLate + "/" + v_fxOver + "/" + v_fxPend + ", faxed Y/N " + v_fxY + "/" + v_fxN;
+}
+return "sent " + v_type + " " + v_label + ": referrals " + v_nRef + ", completed " + v_nCmp + ", in progress " + v_nPrg;

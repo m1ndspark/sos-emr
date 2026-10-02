@@ -1,0 +1,52 @@
+v_importMinutes = {"2026-08-05 11:28","2026-09-09 22:47"};
+v_counts = Map();
+v_keys = List();
+v_total = 0;
+for each  v_p in Encounter_PatientVisit[ID != 0]
+{
+	v_rs = ifnull(v_p.Row_Status,"").toString();
+	if(v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded")
+	{
+		v_total = v_total + 1;
+		v_src = "NATIVE";
+		if(v_p.Added_Time != null)
+		{
+			if(v_importMinutes.contains(v_p.Added_Time.toString("yyyy-MM-dd HH:mm")))
+			{
+				v_src = "IMPORT";
+			}
+		}
+		v_vs = ifnull(v_p.Visit_Status,"").toString();
+		if(v_vs == "")
+		{
+			v_vs = "(blank)";
+		}
+		v_nt = ifnull(v_p.Clinical_Note_Type,"").toString();
+		if(v_nt == "")
+		{
+			v_nt = "(blank)";
+		}
+		v_te = ifnull(v_p.Type_of_Entry,"").toString();
+		if(v_te == "")
+		{
+			v_te = "(blank)";
+		}
+		v_k = v_src + " | VS=" + v_vs + " | NOTE=" + v_nt + " | ENTRY=" + v_te;
+		if(v_counts.containKey(v_k))
+		{
+			v_counts.put(v_k,v_counts.get(v_k).toLong() + 1);
+		}
+		else
+		{
+			v_counts.put(v_k,1);
+			v_keys.add(v_k);
+		}
+	}
+}
+v_keys.sort(true);
+v_out = "PVS (excl Duplicate/Cancelled/Folded) " + v_total;
+for each  v_k in v_keys
+{
+	v_out = v_out + "\n" + v_k + " = " + v_counts.get(v_k);
+}
+return v_out;

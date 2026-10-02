@@ -1,0 +1,33 @@
+v_token = thisapp.get_rc_token();
+if(v_token == "")
+{
+	return "aborted: no RingCentral access token";
+}
+v_since = zoho.currenttime.subHour(12);
+v_lines = List();
+for each  v_row in Fax_Log[Fax_Status == "Stuck" || (Fax_Status == "Sent" && Completed_Time >= v_since)] sort by Submitted_Time
+{
+	v_fid = ifnull(v_row.Fax_ID,"(no Fax ID)").toString();
+	v_mid = ifnull(v_row.RC_Message_ID,"").toString();
+	v_resp = Map();
+	v_thrown = "";
+	try 
+	{
+		v_resp = invokeurl
+		[
+			url :"https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/message-store/" + v_mid
+			type :GET
+			headers:{"Authorization":"Bearer " + v_token,"Accept":"application/json"}
+		];
+	}		catch (e)
+	{
+		v_thrown = e.message.toString();
+	}
+	v_raw = v_resp.toString();
+	if(v_raw.length() > 300)
+	{
+		v_raw = v_raw.left(300);
+	}
+	v_lines.add(v_fid + " | FL status " + ifnull(v_row.Fax_Status,"") + " | msgId [" + v_mid + "] | thrown [" + v_thrown + "] | status [" + ifnull(v_resp.get("messageStatus"),"") + "] | lastModified [" + ifnull(v_resp.get("lastModifiedTime"),"") + "] | raw " + v_raw);
+}
+return "ROWS " + v_lines.size() + "\n" + v_lines.toString("\n");

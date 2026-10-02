@@ -1,0 +1,96 @@
+v_token = thisapp.get_rc_token();
+if(v_token == "")
+{
+	return "aborted: no RingCentral access token";
+}
+v_creatorIds = Map();
+for each  v_f in Fax_Log[ID != 0]
+{
+	v_mid = ifnull(v_f.RC_Message_ID,"").toString().trim();
+	if(v_mid != "")
+	{
+		v_creatorIds.put(v_mid,1);
+	}
+}
+v_resp = Map();
+v_thrown = "";
+try 
+{
+	v_resp = invokeurl
+	[
+		url :"https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/message-store?messageType=Fax&direction=Outbound&dateFrom=2026-09-01T00:00:00.000Z&perPage=100"
+		type :GET
+		headers:{"Authorization":"Bearer " + v_token,"Accept":"application/json"}
+	];
+}	catch (e)
+{
+	v_thrown = e.message.toString();
+}
+if(v_thrown != "")
+{
+	return "ERROR " + v_thrown;
+}
+if(v_resp.get("records") == null)
+{
+	v_raw = v_resp.toString();
+	if(v_raw.length() > 400)
+	{
+		v_raw = v_raw.left(400);
+	}
+	return "NO RECORDS | raw " + v_raw;
+}
+v_recs = v_resp.get("records").toJSONList();
+v_total = 0;
+v_creator = 0;
+v_desktop = 0;
+v_lines = List();
+for each  v_rec in v_recs
+{
+	v_m = v_rec.toMap();
+	v_total = v_total + 1;
+	v_id = ifnull(v_m.get("id"),"").toString();
+	v_src = "Desktop";
+	if(v_creatorIds.containKey(v_id))
+	{
+		v_src = "Creator";
+		v_creator = v_creator + 1;
+	}
+	else
+	{
+		v_desktop = v_desktop + 1;
+	}
+	if(v_src == "Desktop" && v_lines.size() < 40)
+	{
+		v_to = "";
+		if(v_m.get("to") != null)
+		{
+			v_toList = v_m.get("to").toJSONList();
+			for each  v_t in v_toList
+			{
+				v_tm = v_t.toMap();
+				v_to = v_to + ifnull(v_tm.get("phoneNumber"),"").toString() + " ";
+			}
+		}
+		v_att = "";
+		if(v_m.get("attachments") != null)
+		{
+			v_attList = v_m.get("attachments").toJSONList();
+			for each  v_a in v_attList
+			{
+				v_am = v_a.toMap();
+				v_att = v_att + "[" + ifnull(v_am.get("type"),"").toString() + " " + ifnull(v_am.get("contentType"),"").toString() + " name=" + ifnull(v_am.get("fileName"),"").toString() + "]";
+			}
+		}
+		v_lines.add(ifnull(v_m.get("creationTime"),"").toString() + " | to " + v_to.trim() + " | pages " + ifnull(v_m.get("faxPageCount"),"").toString() + " | " + ifnull(v_m.get("messageStatus"),"").toString() + " | " + v_att);
+	}
+}
+v_more = "no";
+if(v_resp.get("navigation") != null)
+{
+	v_nav = v_resp.get("navigation").toMap();
+	if(v_nav.get("nextPage") != null)
+	{
+		v_more = "yes";
+	}
+}
+return "RC OUTBOUND FAXES since 09/01 (this page): " + v_total + " | Creator " + v_creator + " | Desktop " + v_desktop + " | more pages: " + v_more + "\n" + v_lines.toString("\n");

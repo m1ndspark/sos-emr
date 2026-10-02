@@ -1,0 +1,53 @@
+v_token = thisapp.get_rc_token();
+if(v_token == "")
+{
+	return "aborted: no RingCentral access token";
+}
+v_lines = List();
+v_n = 0;
+for each  v_row in Fax_Log[Fax_Status == "Stuck"] sort by Submitted_Time desc
+{
+	v_n = v_n + 1;
+	v_fid = ifnull(v_row.Fax_ID,"(no Fax ID)").toString();
+	v_mid = ifnull(v_row.RC_Message_ID,"").toString();
+	if(v_mid == "")
+	{
+		v_lines.add(v_fid + " | no RC_Message_ID");
+	}
+	else
+	{
+		v_resp = Map();
+		v_thrown = "";
+		try 
+		{
+			v_resp = invokeurl
+			[
+				url :"https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/message-store/" + v_mid
+				type :GET
+				headers:{"Authorization":"Bearer " + v_token,"Accept":"application/json"}
+			];
+		}			catch (e)
+		{
+			v_thrown = e.message.toString();
+		}
+		if(v_thrown != "")
+		{
+			v_lines.add(v_fid + " | ERROR " + v_thrown);
+		}
+		else
+		{
+			v_to = "";
+			if(v_resp.get("to") != null)
+			{
+				v_toList = v_resp.get("to").toJSONList();
+				for each  v_t in v_toList
+				{
+					v_tm = v_t.toMap();
+					v_to = v_to + "[" + ifnull(v_tm.get("messageStatus"),"") + " " + ifnull(v_tm.get("faxErrorCode"),"") + "]";
+				}
+			}
+			v_lines.add(v_fid + " | status " + ifnull(v_resp.get("messageStatus"),"(none)") + " | to " + v_to + " | created " + ifnull(v_resp.get("creationTime"),"") + " | modified " + ifnull(v_resp.get("lastModifiedTime"),""));
+		}
+	}
+}
+return "STUCK " + v_n + "\n" + v_lines.toString("\n");

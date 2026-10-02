@@ -1,0 +1,78 @@
+v_floorD = zoho.currentdate.subDay(30);
+v_pvsFs = Map();
+v_pvsTotal = 0;
+v_pvsIds = Map();
+for each  v_p in Encounter_PatientVisit[Visit_Completion_Date >= v_floorD]
+{
+	v_rs = ifnull(v_p.Row_Status,"").toString();
+	if(v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded")
+	{
+		v_pvsTotal = v_pvsTotal + 1;
+		v_pvsIds.put(v_p.ID.toString(),1);
+		v_fs = ifnull(v_p.Fax_Status,"").toString();
+		if(v_fs == "")
+		{
+			v_fs = "(blank)";
+		}
+		if(v_pvsFs.containKey(v_fs))
+		{
+			v_pvsFs.put(v_fs,v_pvsFs.get(v_fs).toLong() + 1);
+		}
+		else
+		{
+			v_pvsFs.put(v_fs,1);
+		}
+	}
+}
+v_logFs = Map();
+v_logTotal = 0;
+v_sentNoLink = 0;
+v_sentNoSub = 0;
+v_sentNoComp = 0;
+v_sentLinkedInWindow = Map();
+v_minSub = "";
+for each  v_f in Fax_Log[ID != 0] sort by Added_Time
+{
+	v_logTotal = v_logTotal + 1;
+	if(v_minSub == "" && v_f.Added_Time != null)
+	{
+		v_minSub = v_f.Added_Time.toString("MM/dd/yyyy");
+	}
+	v_fs = ifnull(v_f.Fax_Status,"").toString();
+	if(v_fs == "")
+	{
+		v_fs = "(blank)";
+	}
+	if(v_logFs.containKey(v_fs))
+	{
+		v_logFs.put(v_fs,v_logFs.get(v_fs).toLong() + 1);
+	}
+	else
+	{
+		v_logFs.put(v_fs,1);
+	}
+	if(v_fs == "Sent")
+	{
+		if(v_f.PVS_Link == null)
+		{
+			v_sentNoLink = v_sentNoLink + 1;
+		}
+		else if(v_pvsIds.containKey(v_f.PVS_Link.toString()))
+		{
+			v_sentLinkedInWindow.put(v_f.PVS_Link.toString(),1);
+		}
+		if(v_f.Submitted_Time == null)
+		{
+			v_sentNoSub = v_sentNoSub + 1;
+		}
+		if(v_f.Completed_Time == null)
+		{
+			v_sentNoComp = v_sentNoComp + 1;
+		}
+	}
+}
+v_out = "PVS LAST 30 DAYS (by visit date) " + v_pvsTotal + " | PVS Fax_Status: " + v_pvsFs.toString();
+v_out = v_out + "\nFAX_LOG TOTAL " + v_logTotal + " (first record " + v_minSub + ") | by status: " + v_logFs.toString();
+v_out = v_out + "\nSENT rows: no PVS_Link " + v_sentNoLink + " | no Submitted_Time " + v_sentNoSub + " | no Completed_Time " + v_sentNoComp;
+v_out = v_out + "\nDISTINCT PVS in window with a Sent Fax_Log row: " + v_sentLinkedInWindow.size();
+return v_out;

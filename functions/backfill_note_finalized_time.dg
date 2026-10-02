@@ -1,0 +1,35 @@
+v_importMinutes = {"2026-08-05 11:28","2026-09-09 22:47"};
+v_native = 0;
+v_imported = 0;
+v_done = 0;
+v_sample = List();
+for each  v_p in Encounter_PatientVisit[Note_Finalized_Time == null && Clinical_Note_Type == "Final" || Clinical_Note_Type == "Addendum"] sort by Added_Time
+{
+	v_min = "";
+	if(v_p.Added_Time != null)
+	{
+		v_min = v_p.Added_Time.toString("yyyy-MM-dd HH:mm");
+	}
+	if(v_importMinutes.contains(v_min))
+	{
+		v_imported = v_imported + 1;
+	}
+	else if(v_p.Added_Time != null)
+	{
+		v_native = v_native + 1;
+		if(v_sample.size() < 10)
+		{
+			v_sample.add(ifnull(v_p.PVS_ID,"No PVS ID") + " | " + v_p.Added_Time.toString("MM/dd/yyyy hh:mm a") + " | " + ifnull(v_p.Clinical_Note_Type,""));
+		}
+		if(p_commit == true && v_done < 500)
+		{
+			v_p.Note_Finalized_Time=v_p.Added_Time;
+			v_done = v_done + 1;
+		}
+	}
+}
+if(p_commit == true)
+{
+	return "COMMIT: filled " + v_done + " of " + v_native + " native. Imported skipped: " + v_imported + ". Remaining native: " + (v_native - v_done) + ". Sample: " + v_sample.toString(" ; ");
+}
+return "DRY RUN: " + v_native + " native eligible, " + v_imported + " imported skipped, nothing written. Sample: " + v_sample.toString(" ; ");
