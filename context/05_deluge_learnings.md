@@ -856,3 +856,12 @@ and stay inline.
 DATE-TIME DAY OFFSET IS subDay, NOT subDays (2026-09-27, Session 55)
 zoho.currenttime.subDays(n) fails with "Not able to find 'subDays' function".
 Use subDay(n) / addDay(n). Minute offsets are plural: subMinutes(n) works.
+
+STATEMENT LIMIT, SECOND INSTANCE: FULL-HISTORY REPORT LOOPS (2026-10-01, Session 56)
+send_activity_digest("weekly") looped every Encounter_PatientVisit (694) into a map,
+then every Referrals_Main record (837) with per-row status math (3008 business days),
+and failed with "Number of statement execution limit exceed" (Line 373). The previous
+version, which had less work per row, ran under the limit, so the ceiling sits just above
+that. Rule: never scan full history in a report or digest. Narrow both fetches with criteria
+(a date floor or lookback window) before the loop, keep per-row work minimal, and check
+05 for an existing limit pattern before writing any full-table loop.
