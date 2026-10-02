@@ -1,5 +1,7 @@
 SOS Code - CHECKPOINT - 2026-10-02 (Session 56, started 2026-10-01)
 Source of truth: SOS_Referrals_App_2026-10-02_v57.ds (committed this checkpoint)
+Checkpoint commit: e319cc4. ds_sync v57 committed c9868ca.
+Workflow Note Finalized Stamp | Form Encounter_PatientVisit | Created or Edited | On Validate | Added 2026-10-01, Session 56 (saved from v57 .ds).
 
 1. ACTIVITY DIGEST EMAILS (send_activity_digest)
 - New function send_activity_digest(p_type, p_from, p_to). Types: referrals, pvs, weekly. Blank dates = rolling defaults; MM/dd/yyyy dates = custom range with hard cutoff at To. LIVE in v57.

@@ -1,0 +1,4 @@
+if(input.Note_Finalized_Time == null && input.Clinical_Note_Type == "Final" || input.Clinical_Note_Type == "Addendum")
+{
+	input.Note_Finalized_Time = zoho.currenttime;
+}
