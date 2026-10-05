@@ -1,0 +1,31 @@
+v_lines = List();
+v_n = 0;
+v_suspect = 0;
+for each  v_p in Encounter_PatientVisit[Clinical_Note_Type == "Addendum"] sort by Added_Time desc
+{
+	if(v_p.Note_Finalized_Time != null)
+	{
+		v_n = v_n + 1;
+		v_added = "";
+		if(v_p.Added_Time != null)
+		{
+			v_added = v_p.Added_Time.toString("MM/dd/yyyy hh:mm a");
+		}
+		v_mod = "";
+		if(v_p.Modified_Time != null)
+		{
+			v_mod = v_p.Modified_Time.toString("MM/dd/yyyy hh:mm a");
+		}
+		v_flag = "";
+		if(v_p.Added_Time != null)
+		{
+			if(v_p.Note_Finalized_Time > v_p.Added_Time.addHour(1))
+			{
+				v_flag = " <- stamped after creation";
+				v_suspect = v_suspect + 1;
+			}
+		}
+		v_lines.add(ifnull(v_p.PVS_ID,"(no PVS ID)").toString() + " | added " + v_added + " | finalized " + v_p.Note_Finalized_Time.toString("MM/dd/yyyy hh:mm a") + " | modified " + v_mod + v_flag);
+	}
+}
+return "ADDENDUM PVS WITH FINALIZED TIME: " + v_n + " | stamped >1h after creation: " + v_suspect + "\n" + v_lines.toString("\n");

@@ -141,6 +141,8 @@ Owner legend:
 | v44 is behind live by one change: the Referral_Link_Pre_Fill update that adds input.Referral_Date. Verified live by Neil on a new PVS; next export captures it. | Neil | OPEN | N | none |
 | ccode must pull and push commits 2adcd70 (data intake verification protocol) and e48c6dd (v44 export). Committed locally by cchat 2026-09-10; the VM cannot reach the remote. | ccode | OPEN | N | none |
 | REF-082626-1725 needs clarification: two records existed, Kolanko 8/26 and Smith 8/27. Neil ruled 2026-09-10 to count the Smith entry, drop Kolanko, and scope the visit Low Complexity. Applied to the August data set. The Cognito export records the provider only as "Smith"; Neil gave the name as Maddison Smith, which is not a provider seen elsewhere in the data. | Neil | OPEN | N | none |
+| Resolve REF-1621 PVS-1802-JK / PVS-1803-JK patient mismatch (1803 probably the wrong patient; both under the same patient record, AccentCare - Hillsborough, DOS 09-30). Blocks the AccentCare batch. Session 57. | Neil / Josh | OPEN | Y | ASAP |
+| Rerun AccentCare - Hillsborough invoice batch. Blocked by REF-1621. Session 57. | Neil | OPEN | Y | After REF-1621 |
 
 --------------------------------------------------------------------------------
 ## OPEN, NOT BLOCKING
@@ -320,6 +322,9 @@ Owner legend:
 | SESSION 40: Provider portal landing page (Provider_Dashboard) - 3 buttons (My Referrals, My PVS Notes, My Details) as a responsive HTML snippet, with cards under col 1 (referrals assigned to the logged-in provider, from Assignments via Current_Assignee, excluding Completed) and col 2 (last 10 PVS by the logged-in provider). Not built; blocked on Current_Assignee. Portal landing page per permission set: believed to be the first component in the Providers permission set's enabled-components order (unverified). | cchat / Neil | OPEN | N | none |
 | SESSION 40: CLAUDE.md rules added: any .ds supplied in chat is saved to the repo root immediately (dated + canonical), synced and committed; read schema/ and the newest .ds before asking field questions and say so if the repo is unreachable; repo .md edits are Claude's job, Neil only changes things inside Creator. | ccode | DONE | N | 2026-09-03 |
 | SESSION 40: repo synced to v33 (SOS_Referrals_App_2026-09-03_v33.ds), commit d8e4239, rebased and pushed as 24f5c49. Session 40 function edits (build_zepto_attachments, both notification functions, master with intake block) are in the repo AHEAD of live and will show DRIFT until the next export. | ccode | DONE | N | 2026-09-03 |
+| Verify PVS-1508-JK retired (diag_pvs_for_refs REF-1445). Session 57. | Neil | OPEN | N | Next session |
+| Fresh .ds export to capture post-v58 changes (send_referral_notification, resend_referral_notifications, diag_pvs_note_compare). Session 57. | Neil | OPEN | N | Next session |
+| Watch the first activity digest emails: daily from 10/03, first weekly 10/09. Session 56. | Neil | OPEN | N | 2026-10-09 |
 
 --------------------------------------------------------------------------------
 ## PRE-EXISTING CLEANUPS (from context/16, still open)
@@ -536,3 +541,4 @@ END
 | RESOLVED 2026-10-01 (Session 56): poll_fax_status stalled - crashed on Fax_Log with deleted PVS; fixed with guard, 76 faxes repaired to Sent with RC delivery times via repair_fax_log_status. | cchat / Neil | CLOSED | N | 2026-10-01 |
 | Note Finalized Stamp + send_activity_digest rewritten without mixed &&/|| (Creator strips parentheses). Saved 2026-10-02; diag_addendum_restamp found 0 affected records. Session 56. | cchat / Neil | CLOSED | N | 2026-10-02 |
 | Older Sent faxes (pre 10/02 repair) have blank Page Count; backfill declined 2026-10-02. | Neil | CLOSED | N | 2026-10-02 |
+| Decide whether to restore the type skip in send_referral_notification (new imaging-only and 3008 referrals get the REF Visit email plus their type email). Session 57. | Neil | DEFERRED | N | TBD |

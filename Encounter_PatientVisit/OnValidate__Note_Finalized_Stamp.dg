@@ -1,4 +1,11 @@
-if(input.Note_Finalized_Time == null && input.Clinical_Note_Type == "Final" || input.Clinical_Note_Type == "Addendum")
+if(input.Note_Finalized_Time == null)
 {
-	input.Note_Finalized_Time = zoho.currenttime;
+	if(input.Clinical_Note_Type == "Final")
+	{
+		input.Note_Finalized_Time = zoho.currenttime;
+	}
+	else if(input.Clinical_Note_Type == "Addendum")
+	{
+		input.Note_Finalized_Time = zoho.currenttime;
+	}
 }

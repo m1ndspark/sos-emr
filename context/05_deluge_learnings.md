@@ -875,3 +875,6 @@ every Addendum save, and send_activity_digest admitted rows it should have
 excluded. Rule: never mix && and || in one script expression. Compute each
 or-group into its own variable (v_visitOk = a || b;) and combine with && only,
 or use nested ifs.
+
+BEFORE CHANGING A SEND/NOTIFY FUNCTION, READ EVERY CALLER (2026-10-04, Session 57)
+Before changing a send/notify function, read every caller in the .ds; the intake flow calls send_referral_notification, send_3008_notification and send_imaging_notification together, so removing a type skip in one sender causes duplicate emails.

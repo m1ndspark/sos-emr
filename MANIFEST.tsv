@@ -78,6 +78,7 @@ functions/diag_3008_missing_reason.dg	diag_3008_missing_reason		function					Enc
 functions/diag_3008_no_pvs_list.dg	diag_3008_no_pvs_list		function					Encounter_PatientVisit;Referrals_Main		faf7c407
 functions/diag_3008_overdue.dg	diag_3008_overdue		function					Encounter_PatientVisit;Referrals_Main		aa371510
 functions/diag_accentcare_rates.dg	diag_accentcare_rates		function					Partner_Locations;Partner_Rates		83952d0a
+functions/diag_addendum_restamp.dg	diag_addendum_restamp		function					Encounter_PatientVisit		afc07213
 functions/diag_august_pvs_gap.dg	diag_august_pvs_gap		function					Encounter_PatientVisit;Referrals_Main		12c1c4e1
 functions/diag_august_pvs_state.dg	diag_august_pvs_state		function					Encounter_PatientVisit;Partner_Locations		da70741a
 functions/diag_bad_remarks_faxes.dg	diag_bad_remarks_faxes		function					Fax_Log		acd73ff1
@@ -188,7 +189,7 @@ functions/mint_referral_id.dg	mint_referral_id		function					Referrals_Main;Sequ
 functions/normalize_pvs_phones.dg	normalize_pvs_phones		function					Encounter_PatientVisit		c9f56edd
 functions/parse_patient_dob.dg	parse_patient_dob		function							f2fb1840
 functions/partner_branch_values.dg	partner_branch_values		function					Partner_Locations;Partners		fb8b8277
-functions/poll_fax_status.dg	poll_fax_status		function		get_rc_token			Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	cb5e5bcd
+functions/poll_fax_status.dg	poll_fax_status		function		get_rc_token			Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	267ffc33
 functions/prepare_month_for_billing.dg	prepare_month_for_billing		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates;Referrals_Main		195183eb
 functions/process_new_referral.dg	process_new_referral		function		mint_assignment_id;mint_referral_id;parse_patient_dob;partner_branch_values;resolve_branch_id;send_3008_notification;send_imaging_notification;send_referral_confirmation;send_referral_notification			Assignments;Partner_Locations;Partner_Referral_Contacts;Referrals_Main	AppFunc;HTTP	a1669334
 functions/relink_pvs_to_referral.dg	relink_pvs_to_referral		function					Encounter_PatientVisit;Referrals_Main		028ccd4f
@@ -217,11 +218,11 @@ functions/run_pvs_exclusion_monitor.dg	run_pvs_exclusion_monitor		function		send
 functions/run_schema_monitor.dg	run_schema_monitor		function		send_via_sendgrid				AppFunc;HTTP	f14c8c36
 functions/seed_schema_to_github.dg	seed_schema_to_github		function						Email;HTTP	aac9159a
 functions/send_3008_notification.dg	send_3008_notification		function		build_3008_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	82aa2b0f
-functions/send_activity_digest.dg	send_activity_digest		function					Encounter_PatientVisit;Fax_Log;Referrals_Main	HTTP	da9ee368
+functions/send_activity_digest.dg	send_activity_digest		function					Encounter_PatientVisit;Fax_Log;Referrals_Main	HTTP	1e5bbb9c
 functions/send_assignment_notification.dg	send_assignment_notification		function		mint_assignment_id			Assignments;Employees	AppFunc;HTTP	ee1c729d
 functions/send_fax_digest.dg	send_fax_digest		function		is_pvs_email_branch			Employees;Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	e58d4b2f
 functions/send_imaging_notification.dg	send_imaging_notification		function		build_imaging_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	9dc9be8e
-functions/send_pvs_fax.dg	send_pvs_fax		function		build_pvs_fax_html;get_rc_token			Employees;Encounter_PatientVisit;Fax_Log;Sequence_Tracker	AppFunc;HTTP	8eb6878c
+functions/send_pvs_fax.dg	send_pvs_fax		function		build_pvs_fax_html;get_rc_token			Employees;Encounter_PatientVisit;Fax_Log;Sequence_Tracker	AppFunc;HTTP	93c1b24c
 functions/send_referral_confirmation.dg	send_referral_confirmation		function		build_referral_confirmation_html			Referrals_Main	AppFunc;HTTP	0a0f7f71
 functions/send_referral_notification.dg	send_referral_notification		function		build_referral_email_html;build_zepto_attachments			Referrals_Main	AppFunc;HTTP	efdae114
 functions/send_via_sendgrid.dg	send_via_sendgrid		function						HTTP	a593170f
@@ -280,7 +281,7 @@ Encounter_PatientVisit/OnUserInput__Referral_Link__Referral_Sets_Billing_Branch.
 Encounter_PatientVisit/OnUserInput__Type_of_Entry__Section_Visibility.dg	Entry_Type_Section_Visibi	Encounter_PatientVisit	OnUserInput	Type_of_Entry		Cares_3008_Completion_Section;Charges_Section;Diversion_Tracking_Section;Files_Upload_Section;Final_Clinical_Note_Section;Imaging_Orders_Section;Lab_Orders_Section;Referral_Details_Section;Type_of_Procedure_Section;Visit_Cost_Drivers_Section	Type_of_Entry			277e8d20
 Encounter_PatientVisit/OnValidate__Billing_Branch_Required.dg	Billing_Branch_Required	Encounter_PatientVisit	OnValidate				Billing_Branch;Has_Referral_ID			cef4d0fb
 Encounter_PatientVisit/OnValidate__Complexity_Charge_Required.dg	Complexity_Charge_Require	Encounter_PatientVisit	OnValidate				Billing_Branch;Complexity_Charge;Complexity_Level	Partner_Locations		6f15ef26
-Encounter_PatientVisit/OnValidate__Note_Finalized_Stamp.dg	Note_Finalized_Stamp	Encounter_PatientVisit	OnValidate			Note_Finalized_Time	Clinical_Note_Type			a59fe717
+Encounter_PatientVisit/OnValidate__Note_Finalized_Stamp.dg	Note_Finalized_Stamp	Encounter_PatientVisit	OnValidate			Note_Finalized_Time	Clinical_Note_Type			6be7df37
 Encounter_PatientVisit/OnValidate__PVS_3008_Billing_Stamp.dg	PVS_3008_Billing_Stamp	Encounter_PatientVisit	OnValidate			Cares_3008_Completion_Date;Complexity_Charge;Complexity_Level;Invoice_Status;Visit_Completion_Date	Billing_Branch;Type_of_Entry	Partner_Rates		90de7ec5
 Encounter_PatientVisit/OnValidate__PVS_Required_Fields.dg	PVS_Required_Fields	Encounter_PatientVisit	OnValidate		parse_patient_dob	Patient_DOB;Reason_for_Referral	Patient_DOB1;Type_of_Entry		AppFunc	c96d9ccd
 Encounter_PatientVisit/OnValidate__PVS_Sets_Billing_Branch_On_Save.dg	PVS_Sets_Billing_Branch_O	Encounter_PatientVisit	OnValidate		partner_branch_values;resolve_branch_id	Billing_Branch;Complexity_Charge;Partner_Branch;Partner_Location_Label;Partner_Organization	Complexity_Level;Referral_Link	Partner_Locations;Partner_Rates;Referrals_Main	AppFunc	2bed0db1

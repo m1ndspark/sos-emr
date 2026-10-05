@@ -12,6 +12,7 @@ v_stuck = 0;
 v_errs = 0;
 v_noPvs = 0;
 v_deferred = 0;
+v_bundle = 0;
 for each  v_row in Fax_Log[Fax_Status == "Queued"] sort by Submitted_Time
 {
 	if(v_row.RC_Message_ID != null && v_row.RC_Message_ID != "")
@@ -62,27 +63,12 @@ for each  v_row in Fax_Log[Fax_Status == "Queued"] sort by Submitted_Time
 					v_rcTime = v_iso.subString(0,19).replaceAll("T"," ").toTime("yyyy-MM-dd HH:mm:ss","UTC");
 				}
 			}
-			v_hasPvs = false;
-			if(v_row.PVS_Link != null)
-			{
-				v_pvs = Encounter_PatientVisit[ID == v_row.PVS_Link];
-				if(v_pvs.count() > 0)
-				{
-					v_hasPvs = true;
-				}
-			}
+			v_pvsStatus = "";
 			if(v_status == "Sent")
 			{
 				v_row.Fax_Status="Sent";
 				v_row.Completed_Time=v_rcTime;
-				if(v_hasPvs)
-				{
-					v_pvs.Fax_Status="Sent";
-				}
-				else
-				{
-					v_noPvs = v_noPvs + 1;
-				}
+				v_pvsStatus = "Sent";
 				v_sent = v_sent + 1;
 			}
 			else if(v_status == "SendingFailed")
@@ -100,14 +86,7 @@ for each  v_row in Fax_Log[Fax_Status == "Queued"] sort by Submitted_Time
 				v_row.Fax_Error_Code=v_code;
 				v_row.Fax_Error_Reason=v_reason;
 				v_row.Completed_Time=v_rcTime;
-				if(v_hasPvs)
-				{
-					v_pvs.Fax_Status="Failed";
-				}
-				else
-				{
-					v_noPvs = v_noPvs + 1;
-				}
+				v_pvsStatus = "Failed";
 				if(v_noRetry.contains(v_code))
 				{
 					v_row.Fax_Status="Permanent Fail";
@@ -132,7 +111,45 @@ for each  v_row in Fax_Log[Fax_Status == "Queued"] sort by Submitted_Time
 					v_stuck = v_stuck + 1;
 				}
 			}
+			if(v_pvsStatus != "")
+			{
+				v_done = Map();
+				if(v_row.PVS_Link != null)
+				{
+					v_pvs = Encounter_PatientVisit[ID == v_row.PVS_Link];
+					if(v_pvs.count() > 0)
+					{
+						v_pvs.Fax_Status=v_pvsStatus;
+						v_done.put(v_row.PVS_Link.toString(),1);
+					}
+					else
+					{
+						v_noPvs = v_noPvs + 1;
+					}
+				}
+				for each  v_at in Fax_Attachments[Fax_Log == v_row.ID]
+				{
+					if(v_at.Source_PVS_Link != null)
+					{
+						v_ak = v_at.Source_PVS_Link.toString();
+						if(!v_done.containKey(v_ak))
+						{
+							v_p2 = Encounter_PatientVisit[ID == v_at.Source_PVS_Link];
+							if(v_p2.count() > 0)
+							{
+								v_p2.Fax_Status=v_pvsStatus;
+								v_bundle = v_bundle + 1;
+							}
+							else
+							{
+								v_noPvs = v_noPvs + 1;
+							}
+							v_done.put(v_ak,1);
+						}
+					}
+				}
+			}
 		}
 	}
 }
-return "polled " + v_polled + ", sent " + v_sent + ", retry pending " + v_retry + ", permanent fail " + v_perm + ", stuck " + v_stuck + ", poll errors " + v_errs + ", no PVS link " + v_noPvs + ", deferred to next run " + v_deferred;
+return "polled " + v_polled + ", sent " + v_sent + ", retry pending " + v_retry + ", permanent fail " + v_perm + ", stuck " + v_stuck + ", poll errors " + v_errs + ", missing PVS " + v_noPvs + ", bundle PVS updated " + v_bundle + ", deferred to next run " + v_deferred;

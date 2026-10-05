@@ -145,7 +145,10 @@ if(v_type == "pvs")
 		v_rs = ifnull(v_p.Row_Status,"").toString();
 		v_vs = ifnull(v_p.Visit_Status,"").toString();
 		v_nt = ifnull(v_p.Clinical_Note_Type,"").toString();
-		if(v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded" && v_vs == "Completed" || v_vs == "" && v_nt == "Final" || v_nt == "Addendum")
+		v_rowOk = v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded";
+		v_visitOk = v_vs == "Completed" || v_vs == "";
+		v_noteOk = v_nt == "Final" || v_nt == "Addendum";
+		if(v_rowOk && v_visitOk && v_noteOk)
 		{
 			v_finStr = v_p.Note_Finalized_Time.toString("MM/dd/yyyy hh:mm a");
 			v_finD = v_p.Note_Finalized_Time.toString("MM/dd/yyyy").toDate();
@@ -185,7 +188,9 @@ if(v_type == "pvs")
 	{
 		v_rs = ifnull(v_p.Row_Status,"").toString();
 		v_vs = ifnull(v_p.Visit_Status,"").toString();
-		if(v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded" && v_vs == "Completed" || v_vs == "")
+		v_rowOk = v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded";
+		v_visitOk = v_vs == "Completed" || v_vs == "";
+		if(v_rowOk && v_visitOk)
 		{
 			v_vdStr = "";
 			if(v_p.Visit_Completion_Date != null)
@@ -290,13 +295,16 @@ if(v_type == "weekly")
 	for each  v_p in Encounter_PatientVisit[Visit_Completion_Date >= v_floorD || Cares_3008_Completion_Date >= v_floorD || Added_Time >= v_floorT || Note_Finalized_Time >= v_cut]
 	{
 		v_rs = ifnull(v_p.Row_Status,"").toString();
-		if(v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded")
+		v_rowOk = v_rs != "Duplicate" && v_rs != "Cancelled" && v_rs != "Folded";
+		if(v_rowOk)
 		{
 			v_vs = ifnull(v_p.Visit_Status,"").toString();
 			v_nt = ifnull(v_p.Clinical_Note_Type,"").toString();
 			v_te = ifnull(v_p.Type_of_Entry,"").toString();
 			v_isFinal = v_nt == "Final" || v_nt == "Addendum";
-			v_isVisitDone = v_te != "3008" && v_vs == "Completed" || v_vs == "" && v_isFinal;
+			v_blankFinal = v_vs == "" && v_isFinal;
+			v_visitOk = v_vs == "Completed" || v_blankFinal;
+			v_isVisitDone = v_te != "3008" && v_visitOk;
 			v_is3008Done = v_te == "3008" && v_vs != "Attempted (Not Completed)" && v_vs != "Cancelled" && ifnull(v_p.Was_3008_Completed,"").toString() == "Yes" && v_p.Cares_3008_Completion_Date != null;
 			v_pPartner = ifnull(v_p.Partner_Organization,"").toString().trim();
 			if(v_pPartner == "")

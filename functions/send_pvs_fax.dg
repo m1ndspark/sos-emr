@@ -48,6 +48,44 @@ v_html = thisapp.build_pvs_fax_html(pPvsID,v_faxId,pToName,pToPartner,pToFax,pTo
 v_pdf = zoho.file.convertToPDF(v_html);
 v_pdf.setFileName(v_faxId + ".pdf");
 v_row.Fax_PDF=v_pdf;
+v_seq = 1;
+v_pvsIdTxt = ifnull(v_pvs.PVS_ID,"").toString();
+v_att = insert into Fax_Attachments
+[
+	Fax_Log=v_logId.toLong()
+	Attachment_Type="PVS Note"
+	Attachment_Name=v_faxId + ".pdf"
+	Source_PVS_Link=pPvsID
+	Sequence_Number=v_seq
+	Added_User=zoho.loginuser
+];
+v_attRow = Fax_Attachments[ID == v_att];
+v_attRow.Attachment_File=v_pdf;
+v_manifest = v_seq + ". " + ifnull(v_pvs.Patient_Full_Name_1,"").toString() + " | " + v_pvsIdTxt;
+if(pAttachFiles != null)
+{
+	for each  v_af in pAttachFiles
+	{
+		v_seq = v_seq + 1;
+		v_afName = ifnull(v_af.getFileName(),"").toString();
+		if(v_afName == "")
+		{
+			v_afName = v_faxId + "-upload-" + v_seq;
+		}
+		v_att2 = insert into Fax_Attachments
+		[
+			Fax_Log=v_logId.toLong()
+			Attachment_Type="Upload"
+			Attachment_Name=v_afName
+			Sequence_Number=v_seq
+			Added_User=zoho.loginuser
+		];
+		v_attRow2 = Fax_Attachments[ID == v_att2];
+		v_attRow2.Attachment_File=v_af;
+		v_manifest = v_manifest + "\n" + v_seq + ". " + v_afName;
+	}
+}
+v_row.Attachments_Included=v_manifest;
 v_token = thisapp.get_rc_token();
 if(v_token == "")
 {
