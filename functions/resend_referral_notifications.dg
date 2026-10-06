@@ -81,6 +81,10 @@ for each  v_k0 in v_normKeys.toList(",")
 			{
 				v_tpl = thisapp.build_3008_email_html(v_ref.ID);
 			}
+			else if(v_type == "Imaging Order (only)")
+			{
+				v_tpl = thisapp.build_imaging_email_html(v_ref.ID);
+			}
 			if(v_tpl.isEmpty())
 			{
 				v_skipped = v_skipped + 1;

@@ -1,0 +1,86 @@
+v_Raw = ifnull(p_pvsIds,"").toString().trim();
+if(v_Raw == "")
+{
+	return "ERROR: p_pvsIds is required.";
+}
+v_Out = "READ-ONLY";
+v_Notes = List();
+v_Found = 0;
+for each  v_K0 in v_Raw.toList(",")
+{
+	v_Key = v_K0.trim();
+	if(v_Key != "")
+	{
+		v_Hit = false;
+		for each  v_P in Encounter_PatientVisit[PVS_ID == v_Key]
+		{
+			v_Hit = true;
+			v_Found = v_Found + 1;
+			v_Fin = "(blank)";
+			if(v_P.Note_Finalized_Time != null)
+			{
+				v_Fin = v_P.Note_Finalized_Time.toString("MM-dd-yyyy hh:mm a");
+			}
+			v_NoteFile = "no";
+			if(ifnull(v_P.Clinical_Note_File_Upload,"").toString().trim() != "")
+			{
+				v_NoteFile = "yes";
+			}
+			v_PvsFile = "no";
+			if(ifnull(v_P.PVS_File_Upload,"").toString().trim() != "")
+			{
+				v_PvsFile = "yes";
+			}
+			v_Html = ifnull(v_P.Final_Clinical_Note,"").toString();
+			v_Txt = v_Html.replaceAll("<[^>]*>"," ");
+			v_Txt = v_Txt.replaceAll("&nbsp;"," ");
+			v_Txt = v_Txt.replaceAll("\\s+"," ").trim();
+			v_Notes.add(v_Txt);
+			v_Show = v_Txt;
+			if(v_Show.length() > 1500)
+			{
+				v_Show = v_Show.subString(0,1500) + " ...[TRUNCATED]";
+			}
+			if(v_Show == "")
+			{
+				v_Show = "(no clinical note text)";
+			}
+			v_Out = v_Out + "\n\n==== " + v_Key + " ====";
+			v_Out = v_Out + "\nClinical_Note_Type: " + ifnull(v_P.Clinical_Note_Type,"(blank)");
+			v_Out = v_Out + "\nNote_Finalized_Time: " + v_Fin;
+			v_Out = v_Out + "\nComplexity_Level: " + ifnull(v_P.Complexity_Level,"(blank)");
+			v_Out = v_Out + "\nType_of_Procedures: " + ifnull(v_P.Type_of_Procedures,"").toString();
+			v_Out = v_Out + "\nProvider_ICD_Print: " + ifnull(v_P.Provider_ICD_Print,"(blank)");
+			v_Out = v_Out + "\nFax_Status: " + ifnull(v_P.Fax_Status,"(blank)");
+			v_Out = v_Out + "\nNote file attached: " + v_NoteFile + " | PVS file attached: " + v_PvsFile;
+			v_Out = v_Out + "\nNote length: " + v_Txt.length() + " chars";
+			v_Out = v_Out + "\nNOTE: " + v_Show;
+			break;
+		}
+		if(!v_Hit)
+		{
+			v_Out = v_Out + "\n\n==== " + v_Key + " ==== NOT FOUND";
+		}
+	}
+}
+if(v_Notes.size() > 1)
+{
+	v_Same = true;
+	v_First = v_Notes.get(0);
+	for each  v_N in v_Notes
+	{
+		if(v_N != v_First)
+		{
+			v_Same = false;
+		}
+	}
+	if(v_Same)
+	{
+		v_Out = v_Out + "\n\nRESULT: note text is IDENTICAL across all " + v_Notes.size() + " records.";
+	}
+	else
+	{
+		v_Out = v_Out + "\n\nRESULT: note text DIFFERS between records.";
+	}
+}
+return v_Out;

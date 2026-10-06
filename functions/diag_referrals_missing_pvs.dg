@@ -1,0 +1,118 @@
+if(p_from == null || p_to == null)
+{
+	return "ERROR: Enter both dates.";
+}
+v_need = Map();
+v_need.put("Patient Visit","Patient Visit");
+v_need.put("3008","3008");
+v_need.put("Imaging Order (only)","Imaging Order");
+v_types = {"Patient Visit","3008","Imaging Order (only)"};
+v_tot = Map();
+v_found = Map();
+v_miss = Map();
+for each  t in v_types
+{
+	v_tot.put(t,0);
+	v_found.put(t,0);
+	v_miss.put(t,0);
+}
+v_missLines = List();
+v_oddLines = List();
+for each  r in Referrals_Main[Referral_Date >= p_from && Referral_Date <= p_to] sort by Referral_Date
+{
+	v_rid = ifnull(r.Referral_ID,"").toString().trim();
+	v_type = ifnull(r.Referral_Type,"").toString().trim();
+	v_rd = r.Referral_Date.toString("MM-dd-yyyy");
+	v_br = ifnull(r.Partner_Location_Label,"").toString();
+	v_asg = ifnull(r.Assignment_Status,"").toString();
+	if(!v_need.containKey(v_type))
+	{
+		v_oddLines.add(ifnull(v_rid,"(no REF ID)") + " | Service [" + v_type + "] | Ref Date " + v_rd + " | " + v_br);
+		continue;
+	}
+	v_tot.put(v_type,v_tot.get(v_type) + 1);
+	v_entry = v_need.get(v_type);
+	v_has = false;
+	for each  p in Encounter_PatientVisit[Referral_Link == r.ID && Type_of_Entry == v_entry]
+	{
+		v_rs = ifnull(p.Row_Status,"").toString();
+		v_ok = true;
+		if(v_rs == "Duplicate")
+		{
+			v_ok = false;
+		}
+		if(v_rs == "Cancelled")
+		{
+			v_ok = false;
+		}
+		if(v_rs == "Folded")
+		{
+			v_ok = false;
+		}
+		if(v_ok)
+		{
+			v_has = true;
+		}
+	}
+	if(!v_has)
+	{
+		if(v_rid != "")
+		{
+			for each  p2 in Encounter_PatientVisit[Referral_ID == v_rid && Type_of_Entry == v_entry]
+			{
+				v_rs2 = ifnull(p2.Row_Status,"").toString();
+				v_ok2 = true;
+				if(v_rs2 == "Duplicate")
+				{
+					v_ok2 = false;
+				}
+				if(v_rs2 == "Cancelled")
+				{
+					v_ok2 = false;
+				}
+				if(v_rs2 == "Folded")
+				{
+					v_ok2 = false;
+				}
+				if(v_ok2)
+				{
+					v_has = true;
+				}
+			}
+		}
+	}
+	if(v_has)
+	{
+		v_found.put(v_type,v_found.get(v_type) + 1);
+	}
+	else
+	{
+		v_miss.put(v_type,v_miss.get(v_type) + 1);
+		if(v_rid == "")
+		{
+			v_rid = "(no REF ID)";
+		}
+		v_missLines.add(v_rid + " | " + v_type + " | Ref Date " + v_rd + " | " + v_br + " | Assignment [" + v_asg + "]");
+	}
+}
+v_out = List();
+v_out.add("READ-ONLY | REFERRALS MISSING PVS | Ref Date " + p_from.toString("MM-dd-yyyy") + " to " + p_to.toString("MM-dd-yyyy"));
+v_allMiss = 0;
+for each  t in v_types
+{
+	v_out.add(t + " | referrals " + v_tot.get(t) + " | PVS found " + v_found.get(t) + " | missing " + v_miss.get(t));
+	v_allMiss = v_allMiss + v_miss.get(t);
+}
+v_out.add("TOTAL MISSING " + v_allMiss + " | unknown or blank Service " + v_oddLines.size());
+v_out.add("");
+v_out.add("MISSING PVS");
+v_out.addAll(v_missLines);
+if(v_oddLines.size() > 0)
+{
+	v_out.add("");
+	v_out.add("UNKNOWN OR BLANK SERVICE");
+	v_out.addAll(v_oddLines);
+}
+v_res = v_out.toString("\n");
+info v_res;
+return v_res;

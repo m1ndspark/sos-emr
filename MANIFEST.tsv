@@ -69,6 +69,7 @@ functions/build_referral_email_html.dg	build_referral_email_html		function					R
 functions/build_zepto_attachments.dg	build_zepto_attachments		function					Referrals_Main	HTTP	ce2e8095
 functions/compute_data_issues.dg	compute_data_issues		function		parse_patient_dob			Referrals_Main	AppFunc	23602929
 functions/create_3008_pvs_july.dg	create_3008_pvs_july		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		efb09763
+functions/create_3008_pvs_sept.dg	create_3008_pvs_sept		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		0a9493b1
 functions/create_books_customers.dg	create_books_customers		function					Partner_Billing_Contacts;Partner_Locations	HTTP	9fc3b29b
 functions/create_invoice_from_selection.dg	create_invoice_from_selection		function					Encounter_PatientVisit;Partner_Locations;Referrals_Main	Books;HTTP	406bc6bc
 functions/diag_3008_batch_eligibility.dg	diag_3008_batch_eligibility		function					Encounter_PatientVisit;Partner_Locations		ead136bd
@@ -108,6 +109,7 @@ functions/diag_invoice_batch.dg	diag_invoice_batch		function					Encounter_Patie
 functions/diag_invoice_patient_gaps.dg	diag_invoice_patient_gaps		function					Encounter_PatientVisit;Referrals_Main		4a10fb5d
 functions/diag_invoice_record.dg	diag_invoice_record		function					Encounter_PatientVisit		cecfea58
 functions/diag_invoice_same_patient_dos.dg	diag_invoice_same_patient_dos		function					Encounter_PatientVisit		5e8fe2db
+functions/diag_match_3008_refs.dg	diag_match_3008_refs		function					Encounter_PatientVisit;Referrals_Main		3b5a04a4
 functions/diag_missing_dob.dg	diag_missing_dob		function					Encounter_PatientVisit;Referrals_Main		6e9a34da
 functions/diag_missing_pvs_fax.dg	diag_missing_pvs_fax		function		is_pvs_email_branch			Partner_Billing_Contacts;Partner_Locations	AppFunc	c5e3a768
 functions/diag_mpu_3008_export.dg	diag_mpu_3008_export		function					Encounter_PatientVisit;Referrals_Main		2238a51d
@@ -134,6 +136,7 @@ functions/diag_pvs_for_refs.dg	diag_pvs_for_refs		function					Encounter_Patient
 functions/diag_pvs_hospice_ids.dg	diag_pvs_hospice_ids		function					Encounter_PatientVisit;Referrals_Main		fc32b427
 functions/diag_pvs_ids.dg	diag_pvs_ids		function					Encounter_PatientVisit		11fe2f47
 functions/diag_pvs_login_email_gaps.dg	diag_pvs_login_email_gaps		function					Employees;Encounter_PatientVisit		2909ae31
+functions/diag_pvs_note_compare.dg	diag_pvs_note_compare		function					Encounter_PatientVisit		2ff9fe10
 functions/diag_pvs_note_placement.dg	diag_pvs_note_placement		function					Encounter_PatientVisit		79e0fc4c
 functions/diag_pvs_one.dg	diag_pvs_one		function					Encounter_PatientVisit		a3560efd
 functions/diag_pvs_premium_mismatches.dg	diag_pvs_premium_mismatches		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		a012e075
@@ -157,6 +160,7 @@ functions/diag_referral_imaging.dg	diag_referral_imaging		function					Referrals
 functions/diag_referral_intake.dg	diag_referral_intake		function					Referrals_Main		ec1d7756
 functions/diag_referral_origin.dg	diag_referral_origin		function					Referrals_Main		b4777b41
 functions/diag_referral_partner_resolve.dg	diag_referral_partner_resolve		function		partner_branch_values;resolve_branch_id			Referrals_Main	AppFunc	4e3bc525
+functions/diag_referrals_missing_pvs.dg	diag_referrals_missing_pvs		function					Encounter_PatientVisit;Referrals_Main		523562d6
 functions/diag_room_number_gaps.dg	diag_room_number_gaps		function					Encounter_PatientVisit;Referrals_Main		572dd19f
 functions/diag_safe_test_referrals.dg	diag_safe_test_referrals		function					Assignments;Referrals_Main		b64b9788
 functions/diag_sept_pvs_completeness.dg	diag_sept_pvs_completeness		function					Encounter_PatientVisit		e9f5eca6
@@ -199,7 +203,7 @@ functions/repair_pvs_3008_import.dg	repair_pvs_3008_import		function					Encount
 functions/replicate_uniform_rates.dg	replicate_uniform_rates		function					Partner_Locations;Partner_Rates;Partners		c6109783
 functions/report_partner_rate_coverage.dg	report_partner_rate_coverage		function					Partner_Locations;Partner_Rates;Partners		25544b04
 functions/reprice_draft_pvs.dg	reprice_draft_pvs		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		c3adf543
-functions/resend_referral_notifications.dg	resend_referral_notifications		function		build_3008_email_html;build_creator_attachments;build_referral_email_html			Referrals_Main	AppFunc;HTTP	f89ada73
+functions/resend_referral_notifications.dg	resend_referral_notifications		function		build_3008_email_html;build_creator_attachments;build_imaging_email_html;build_referral_email_html			Referrals_Main	AppFunc;HTTP	6114486d
 functions/reset_invoice.dg	reset_invoice		function					Encounter_PatientVisit	HTTP	e2617b20
 functions/reset_invoice_by_id.dg	reset_invoice_by_id		function					Encounter_PatientVisit;Partner_Locations	HTTP	c432d82f
 functions/resolve_branch_id.dg	resolve_branch_id		function					Partner_Locations;Partner_Referral_Contacts		bd31f089

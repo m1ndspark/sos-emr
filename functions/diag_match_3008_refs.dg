@@ -1,0 +1,65 @@
+v_out = "READ-ONLY";
+v_one = 0;
+v_multi = 0;
+v_none = 0;
+v_list = ifnull(p_rows,"").toList(";");
+for each  v_raw in v_list
+{
+	v_parts = v_raw.toList("|");
+	if(v_parts.size() == 3)
+	{
+		v_row = v_parts.get(0).trim();
+		v_last = v_parts.get(1).trim().toLowerCase();
+		v_key = v_last.getPrefix(" ");
+		if(v_key == null)
+		{
+			v_key = v_last;
+		}
+		v_dob = v_parts.get(2).trim().toDate("MM/dd/yyyy");
+		v_hits = List();
+		v_dobCount = 0;
+		for each  v_r in Referrals_Main[Patient_DOB == v_dob]
+		{
+			v_dobCount = v_dobCount + 1;
+			v_rl = ifnull(v_r.Patient_Last_Name,"").toLowerCase();
+			if(v_rl.contains(v_key))
+			{
+				v_has = "No";
+				v_pv = Encounter_PatientVisit[Referral_Link == v_r.ID && Type_of_Entry == "3008"];
+				if(v_pv.count() > 0)
+				{
+					v_has = "Yes";
+				}
+				v_rd = "";
+				if(v_r.Referral_Date != null)
+				{
+					v_rd = v_r.Referral_Date.toString("MM-dd-yyyy");
+				}
+				v_hits.add(ifnull(v_r.Referral_ID,"(no REF ID)") + " | Service " + ifnull(v_r.Referral_Type,"") + " | Ref Date " + v_rd + " | 3008 PVS exists " + v_has);
+			}
+		}
+		if(v_hits.size() == 0)
+		{
+			v_none = v_none + 1;
+			v_out = v_out + "\nRow " + v_row + " | NO MATCH | referrals with same DOB: " + v_dobCount;
+		}
+		else
+		{
+			if(v_hits.size() == 1)
+			{
+				v_one = v_one + 1;
+			}
+			else
+			{
+				v_multi = v_multi + 1;
+			}
+			for each  v_h in v_hits
+			{
+				v_out = v_out + "\nRow " + v_row + " | " + v_h;
+			}
+		}
+	}
+}
+v_out = v_out + "\nTOTALS | single match " + v_one + " | multiple matches " + v_multi + " | no match " + v_none;
+info v_out;
+return v_out;
