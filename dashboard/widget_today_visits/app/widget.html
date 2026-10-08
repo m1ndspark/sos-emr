@@ -9,11 +9,12 @@
 <style>
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-body { margin: 0; overflow: hidden; font-family: Figtree, "Helvetica Neue", Arial, sans-serif; color: #000; background: #fff; }
-.tv { height: 100%; display: flex; flex-direction: column; padding: 14px 18px 10px; }
-.tv-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #6979e2; margin-bottom: 10px; }
+body { margin: 0; overflow: hidden; font-family: Figtree, "Helvetica Neue", Arial, sans-serif; color: #000; background: #f7f7fb; }
+.tv-page { height: 100%; padding: 0 22px 10px; }
+.tv { height: 100%; display: flex; flex-direction: column; background: #fff; padding: 20px 22px 10px; }
+.tv-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #6979e2; margin-bottom: 14px; }
 .tv-head h2 { margin: 0; font-family: "Libre Franklin", Arial, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0b0b5b; }
-.tv-head .cnt { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #5b5b9a; }
+.tv-head .cnt { font-family: "Libre Franklin", Arial, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #5b5b9a; }
 .tv-msg { font-size: 13px; color: #5b5b9a; padding: 8px 0; }
 .tv-msg.err { color: #ff0000; }
 .tv-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
@@ -38,7 +39,7 @@ select.saving { opacity: .5; }
 </style>
 </head>
 <body>
-<div class="tv">
+<div class="tv-page"><div class="tv">
   <div class="tv-head"><h2>Referral Assignment(s)</h2><span class="cnt" id="cnt"></span></div>
   <div class="tv-msg" id="msg">Loading…</div>
   <div class="tv-scroll" id="wrap" style="display:none">
@@ -47,7 +48,7 @@ select.saving { opacity: .5; }
       <tbody id="body"></tbody>
     </table>
   </div>
-</div>
+</div></div>
 <div class="toast" id="toast"></div>
 <script>
 var REPORT = "All_Assignments";

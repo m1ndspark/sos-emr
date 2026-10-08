@@ -1,0 +1,88 @@
+SOS Code - SOS Session Log - October 08, 2026 (Session 60)
+Span: 2026-10-08 11:50 to 19:10 ET. App: SOS Referrals App (sosmmc/sos-referrals-app), Zoho Creator v6.
+Ground truth .ds: v63 (exported 19:09, saved to repo root + canonical; commit and ds_sync pending in ccode). Start-of-session source was v62.
+Checkpoint this session: commit 7fd8a88 (widget v3.3, task list, dashboard README, checkpoint log).
+
+=== 1. REFERRAL ASSIGNMENT(S) WIDGET (Ops Dashboard stage 5) ===
+- Renamed from Today's Visits. Live version v3.4 (card style to match the dashboard).
+- Status saves failed for Completed, Ordered, Report Sent, Pending Info. Cause: Assignments.Visit_Status static choices held only 5 values; API saves are checked against static choices, and the On Load ui.add only changes the form. Fix: Neil added the 4 choices; Assignment_Visit_Status_Choices (Assignments, Edited, On Load) now runs clear Visit_Status before ui.add. Pending Info and Completed verified. Ordered and Report Sent still to test on an imaging row.
+- v3.2: error toast stays up and shows Creator's full response. Chrome cannot read the widget iframe (cross-origin); the toast sat below the visible area of the iframe.
+- v3.3: heading Referral Assignment(s); Service column with PVS_Report colors (Visit #e8eefd, 3008 #fcf2e7, Imaging #d2e9d1); list fills the widget height (page element about 380px).
+- v3.4: white card on #f7f7fb, 22px side padding, violet #6979e2 underline.
+- widget_today_visits: provider list = Active and (Job Title Clinical or Portal Access Types contains Admin). Access gate = thisapp.is_portal_admin().
+- Custom API Widget_Today_Visits user scope changed All -> Portal users. Zoho: scope All "does not include the portal users"; Portal users scope can be invoked only from a widget. The widget no longer loads in the Creator back end (prod is portal only, by decision).
+- Verified from Neil's Admin portal login: widget loads, provider and status save, Visit Assigned and Visit Removed emails arrive.
+
+=== 2. PORTAL ADMIN ===
+- Admin portal profile created (name Admin, matches Portal Access By Status): all forms Access/View/Edit, no Delete; Dashboard Range access only; API_Config no access (holds the Zepto token).
+- Portal Access By Status errored ("Profile : Admin is not valid", line 34) until the profile existed.
+- New function is_portal_admin() bool: Active employee whose Portal Email (else Employee Email) matches zoho.loginuserid and whose Portal Access Types contains Admin.
+- Gates switched from email lists to is_portal_admin: widget_today_visits and Assignment Notify Provider.
+- Each Employees record holds one Portal Email, so only that login passes. Neil has two portal logins (neilheird@gmail.com, neil.heird@sosreferrals.com).
+- Josh: his Employees record needs Portal Access Types = Admin and Portal Email joshua.kolanko@sosreferrals.com before his test.
+
+=== 3. ASSIGNMENT EMAILS (send_assignment_notification) ===
+- Header: patient name and Referral ID, both linked to the portal referral. Referral ID row above Assignment ID; patient row linked. Service pill in header.
+- Portal link: https://portal.sosreferrals.com/#Report:Referrals_Main_Report?Referral_ID=REF-xxxx (verified in incognito).
+- Subjects/titles: Visit Assigned / Visit Removed.
+- Behavior: reassign emails the new provider (Assigned) and the old one (Removed); unassign emails Removed. A failed Assigned email reverts Notified_Employee_ID and retries on the next save; a failed Removed email during a reassignment is not retried.
+- Widget field saves fire Edited workflows (On Validate and On Success) once per change; On Load and On User Input do not run. Documented for the v2.1 API, expected for the widget SDK.
+
+=== 4. EMAIL SUBJECTS (12, all live) ===
+Pattern: [Title]: [Service] - [Full Name]  |  [REF ID] (two spaces around the pipe). Service labels: Visit, 3008, Imaging.
+1-3 New Referral: build_referral_email_html, build_3008_email_html, build_imaging_email_html. send_referral_notification and send_imaging_notification now take the builder's subject.
+4 Referral Confirmation (partner): subject and header title renamed from Referral Received. No pill.
+5-6 Visit Assigned / Visit Removed (send_assignment_notification). Pill.
+7 Data Issue (Referral Data Issues Check workflow): reads values from the saved record; shows "(no Referral ID)" instead of the record ID.
+8-10 Daily Referrals | date, Daily PVS | label, Weekly Recap | range (send_activity_digest; headings match).
+11 Daily Fax Digest | date (send_fax_digest).
+12 Referral Sweep | counts (sweep_unnotified_referrals).
+Service pill (light blue, peach, green) in the header of the referral and assignment emails only.
+
+=== 5. REPORTS PAGE ===
+- Tried splitting the v5.3 snippet in two with the widget between them (Snippet A and B v6). Snippet B failed: "Number of statement execution limit exceed Line:(401)" inside dash_metrics_range. All snippets on a page share one statement budget, so two full metrics runs go over it.
+- Interim (live): single v5.3 snippet with the widget above it. The read-only Today's Visits table is back temporarily.
+- Fix agreed for next session: dash_metrics_range gets a section switch so each snippet computes only its part (about 1 hour; dash_metrics_range plus 2 snippet pastes).
+- New layout (Neil approved): dashboard KPI cards at top; sections Referrals; Visits/Assignments (widget here, Patient Status rolled in, Today's Visits table removed); Estimated Revenue (renamed from Billing).
+- Section pattern for Referrals and Visits/Assignments: 1 Action, 2 Headline tiles, 3 Breakdowns, 4 Detail tables.
+- Estimated Revenue answers "earned so far": tiles Estimated Revenue (vs prior), Invoiced, Ready to Bill, Held; $ bars by partner, service, complexity; by-partner table (PVS, Estimated, Invoiced, Ready to Bill, Held; total; Ready to Bill highest first) plus the bucket table; Outstanding AR tile and Unpaid Invoices table (needs Books AR sync).
+
+=== 6. DECISIONS ===
+- Prod access to the widget and provider emails = portal Admins only; back-end logins are dev only.
+- Admin portal profile: no delete; API_Config excluded.
+- Subject pattern and labels as above; pill only on referral and assignment emails.
+- Patient name in the assignment email links to the referral.
+- Use "Visit Removed" for both unassign and reassign.
+- Patient Status rolls into Visits/Assignments.
+- AR data via nightly Books sync into new Invoices fields (names to approve at build); AR reconciliation stays in SOS Finance.
+
+=== 7. LEARNINGS ===
+- Dropdown static choices gate API and widget saves; ui.add choices only exist on the form. Add static choices, then clear + ui.add on load to filter per type.
+- Custom API scope All excludes portal users ("The specified user does not exist"); use Portal users scope for portal widgets.
+- All HTML snippets on one page share one statement budget; never run a heavy metrics function in more than one snippet.
+- Widget iframe is cross-origin: Chrome tools cannot read its DOM or network; surface errors inside the visible widget area.
+- Widget zip upload: plugin-manifest.json + app/ at zip root; can be packed without zet.
+- unzip in a connected folder fails (no delete permission); overwrite files in place instead.
+
+=== 8. FINDINGS ===
+- Assignment_Status_From_Pr assigns Assignment_Status, which is not a field on Assignments, so it has no effect.
+- Pages snippets and widgets are not in the .ds; dashboard/ in the repo is the source of record.
+
+=== 9. NEW REQUESTS (task list) ===
+- "Assign this visit" button in referral notification emails, landing on an assignment screen.
+- Patients form and report showing all linked records on patient search.
+- Books AR sync for the dashboard.
+
+=== 10. OPEN / NEXT SESSION ===
+1. Reports page reorg + dash_metrics_range section switch (first item).
+2. Josh portal test (set his Employees record to Admin with his portal email first).
+3. Test Ordered and Report Sent on an imaging row.
+4. Verify the 12 new subjects as each email fires (first weekly recap Fri 10/09 6 AM).
+5. Drilldown_Data v5 (stage 4), then Share (stage 6).
+6. Assign-this-visit button; Patients form; Books AR sync; Assignment_Status_From_Pr cleanup.
+Parked (unchanged): fax attachments not sent; Note_Finalized_Time on Ann's portal notes; TEST REF-1493 / REF-1560; old open referrals; Sept 3008 bulk-generate.
+
+=== 11. REPO ===
+- 7fd8a88 S60 checkpoint (pushed).
+- Pending ccode commit: SOS_Referrals_App_2026-10-08_v63.ds + canonical, ds_sync v63, context/23_task_list.md, context/logs/SOS_Code_Session_Log_2026-10-08_Session60_EOD.txt.
+- Widget source dashboard/widget_today_visits = v3.3 in repo; v3.4 written at EOD (see ccode prompt). Reports snippet v5.3 in repo is the live snippet.
