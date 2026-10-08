@@ -58,14 +58,14 @@ functions/backfill_referral_id_stamp.dg	backfill_referral_id_stamp		function				
 functions/backfill_referral_ids.dg	backfill_referral_ids		function		mint_referral_id			Referrals_Main	AppFunc	afc9eb5f
 functions/backfill_referral_partner_fields.dg	backfill_referral_partner_fields		function					Partner_Locations;Referrals_Main		da3df7dc
 functions/backfill_referral_uploads.dg	backfill_referral_uploads		function					Referrals_Main	HTTP	20926bfe
-functions/build_3008_email_html.dg	build_3008_email_html		function					Referrals_Main		cf69bc26
+functions/build_3008_email_html.dg	build_3008_email_html		function					Referrals_Main		6fa6b12a
 functions/build_console_docs.dg	build_console_docs		function					Encounter_PatientVisit;Referrals_Main		91e093c4
 functions/build_creator_attachments.dg	build_creator_attachments		function					Referrals_Main	HTTP	a982159e
-functions/build_imaging_email_html.dg	build_imaging_email_html		function					Referrals_Main		fb82a2fa
+functions/build_imaging_email_html.dg	build_imaging_email_html		function					Referrals_Main		2d5fe06e
 functions/build_pvs_fax_html.dg	build_pvs_fax_html		function		fmt_phone_display			Encounter_PatientVisit;Partner_Locations;Referrals_Main	AppFunc	8d4cebe0
 functions/build_pvs_note_html.dg	build_pvs_note_html		function							93dfc870
-functions/build_referral_confirmation_html.dg	build_referral_confirmation_html		function					Referrals_Main		4fea872d
-functions/build_referral_email_html.dg	build_referral_email_html		function					Referrals_Main		b908e3e0
+functions/build_referral_confirmation_html.dg	build_referral_confirmation_html		function					Referrals_Main		8a8b3af7
+functions/build_referral_email_html.dg	build_referral_email_html		function					Referrals_Main		a8589a4e
 functions/build_zepto_attachments.dg	build_zepto_attachments		function					Referrals_Main	HTTP	ce2e8095
 functions/compute_data_issues.dg	compute_data_issues		function		parse_patient_dob			Referrals_Main	AppFunc	23602929
 functions/create_3008_pvs_july.dg	create_3008_pvs_july		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		efb09763
@@ -190,6 +190,7 @@ functions/get_notification_recipients.dg	get_notification_recipients		function		
 functions/get_partner_referral_contact.dg	get_partner_referral_contact		function					Partner_Referral_Contacts		de3de109
 functions/get_pvs_fax_files.dg	get_pvs_fax_files		function					Encounter_PatientVisit	HTTP	9dd4343d
 functions/get_rc_token.dg	get_rc_token		function						HTTP	77b5c821
+functions/is_portal_admin.dg	is_portal_admin		function					Employees		c087e286
 functions/is_pvs_email_branch.dg	is_pvs_email_branch		function					Partner_Billing_Contacts		988536c6
 functions/link_pvs_to_referral.dg	link_pvs_to_referral		function					Encounter_PatientVisit;Referrals_Main		2cdc90b2
 functions/log_change.dg	log_change		function							da39a3ee
@@ -230,13 +231,13 @@ functions/run_pvs_exclusion_monitor.dg	run_pvs_exclusion_monitor		function		send
 functions/run_schema_monitor.dg	run_schema_monitor		function		send_via_sendgrid				AppFunc;HTTP	f14c8c36
 functions/seed_schema_to_github.dg	seed_schema_to_github		function						Email;HTTP	aac9159a
 functions/send_3008_notification.dg	send_3008_notification		function		build_3008_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	82aa2b0f
-functions/send_activity_digest.dg	send_activity_digest		function					Encounter_PatientVisit;Fax_Log;Referrals_Main	HTTP	1e5bbb9c
-functions/send_assignment_notification.dg	send_assignment_notification		function		mint_assignment_id			Assignments;Employees	AppFunc;HTTP	ee1c729d
-functions/send_fax_digest.dg	send_fax_digest		function		is_pvs_email_branch			Employees;Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	e58d4b2f
-functions/send_imaging_notification.dg	send_imaging_notification		function		build_imaging_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	9dc9be8e
+functions/send_activity_digest.dg	send_activity_digest		function					Encounter_PatientVisit;Fax_Log;Referrals_Main	HTTP	afff7e36
+functions/send_assignment_notification.dg	send_assignment_notification		function		mint_assignment_id			Assignments;Employees;Referrals_Main	AppFunc;HTTP	c5cdb09d
+functions/send_fax_digest.dg	send_fax_digest		function		is_pvs_email_branch			Employees;Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	08736048
+functions/send_imaging_notification.dg	send_imaging_notification		function		build_imaging_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	e732197d
 functions/send_pvs_fax.dg	send_pvs_fax		function		build_pvs_fax_html;get_rc_token			Employees;Encounter_PatientVisit;Fax_Log;Sequence_Tracker	AppFunc;HTTP	16b1a24d
 functions/send_referral_confirmation.dg	send_referral_confirmation		function		build_referral_confirmation_html			Referrals_Main	AppFunc;HTTP	0a0f7f71
-functions/send_referral_notification.dg	send_referral_notification		function		build_referral_email_html;build_zepto_attachments			Referrals_Main	AppFunc;HTTP	efdae114
+functions/send_referral_notification.dg	send_referral_notification		function		build_referral_email_html;build_zepto_attachments			Referrals_Main	AppFunc;HTTP	145e37f9
 functions/send_via_sendgrid.dg	send_via_sendgrid		function						HTTP	a593170f
 functions/set_current_rate.dg	set_current_rate		function					Partner_Rates		584a618b
 functions/set_partner_poc_name_title.dg	set_partner_poc_name_title		function					Referrals_Main		c11204b4
@@ -246,17 +247,17 @@ functions/set_pvs_equipment_charge.dg	set_pvs_equipment_charge		function					Enc
 functions/set_pvs_provider.dg	set_pvs_provider		function					Employees;Encounter_PatientVisit		7c741a74
 functions/set_pvs_referral_link.dg	set_pvs_referral_link		function					Encounter_PatientVisit;Referrals_Main		8b69707c
 functions/sos_referral_health.dg	sos_referral_health		function		parse_patient_dob;process_new_referral			Assignments;Encounter_PatientVisit;Referrals_Main	AppFunc	06196e3c
-functions/sweep_unnotified_referrals.dg	sweep_unnotified_referrals		function		process_new_referral			Referrals_Main	AppFunc;Email	01dea453
+functions/sweep_unnotified_referrals.dg	sweep_unnotified_referrals		function		process_new_referral			Referrals_Main	AppFunc;Email	029093ed
 functions/sync_pvs_branch_from_referral.dg	sync_pvs_branch_from_referral		function		partner_branch_values			Encounter_PatientVisit;Partner_Locations;Partner_Rates;Referrals_Main	AppFunc	36713cbd
 functions/test_github_commit.dg	test_github_commit		function						HTTP	ab2c18d1
 functions/test_schema_connection.dg	test_schema_connection		function						HTTP	2eac0c3e
 functions/test_smtp.dg	test_smtp		function						Email	184fcd49
-functions/widget_today_visits.dg	widget_today_visits		function					Assignments;Employees;Encounter_PatientVisit;Referrals_Main		6128df49
+functions/widget_today_visits.dg	widget_today_visits		function		is_portal_admin			Assignments;Employees;Encounter_PatientVisit;Referrals_Main	AppFunc	4dc9826b
 Assignments/OnLoad__Assignment_Lock_Immutable_Fields.dg	Assignment_Lock_Immutable	Assignments	OnLoad			Patient_DOB;Patient_First_Name;Patient_Last_Name				87339ee6
-Assignments/OnLoad__Assignment_Visit_Status_Choices.dg	Assignment_Visit_Status_C	Assignments	OnLoad			Visit_Status	Referral_Link	Referrals_Main		028af94a
+Assignments/OnLoad__Assignment_Visit_Status_Choices.dg	Assignment_Visit_Status_C	Assignments	OnLoad			Visit_Status	Referral_Link	Referrals_Main		fab451e6
 Assignments/OnLoad__Show_Hide_Facility_Name_P.dg	Show_Hide_Facility_Name_P	Assignments	OnLoad			Facility_Name;Facility_Phone;Facility_Room_Number	Patient_Location			643f2c3e
 Assignments/OnSuccess__Assignment_ID_Generator.dg	Assignment_ID_Generator	Assignments	OnSuccess		mint_assignment_id		ID		AppFunc	3a37234f
-Assignments/OnSuccess__Assignment_Notify_Provider.dg	Assignment_Notify_Provide	Assignments	OnSuccess		send_assignment_notification		ID		AppFunc	964f0c91
+Assignments/OnSuccess__Assignment_Notify_Provider.dg	Assignment_Notify_Provide	Assignments	OnSuccess		is_portal_admin;send_assignment_notification		ID		AppFunc	2a834196
 Assignments/OnSuccess__Assignment_Referral_Emp.dg	Assignment_Referral_Emplo	Assignments	OnSuccess				Employee_Link;Referral_Link	Referrals_Main		05a7f787
 Assignments/OnUserInput__Patient_Location__Show_Hide_Facility_Name_P1.dg	Show_Hide_Facility_Name_P1	Assignments	OnUserInput	Patient_Location		Facility_Name;Facility_Phone;Facility_Room_Number	Patient_Location			643f2c3e
 Assignments/OnUserInput__Referral_Link__Assignment_Pull_From_Referral.dg	Assignment_Pull_From_Refe1	Assignments	OnUserInput	Referral_Link		Facility_Name;Facility_Phone;Facility_Room_Number;Patient_Address;Patient_DOB;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_Phone;Referral_Date;Referral_POC;Referral_Partner	Referral_Link	Referrals_Main		47d32192
@@ -341,7 +342,7 @@ Referrals_Main/OnSuccess__Branch_Sets_Partner_Link.dg	Branch_Sets_Partner_Link	R
 Referrals_Main/OnSuccess__Partner_POC_Name_Title_Generator.dg	Partner_POC_Name_Title_Ge	Referrals_Main	OnSuccess			Partner_POC_Name_Title	Partner_POC_First_Name;Partner_POC_Last_Name;Partner_POC_Title			d2dcfa73
 Referrals_Main/OnSuccess__Patient_Full_Name_Generator.dg	Patient_Full_Name_Generat	Referrals_Main	OnSuccess			Patient_Full_Name	Patient_First_Name;Patient_Last_Name;Patient_MI			8161cbd1
 Referrals_Main/OnSuccess__Referral_DOB_Sync_On_Edit.dg	Referral_DOB_Sync_On_Edit	Referrals_Main	OnSuccess		parse_patient_dob		ID;Patient_DOB1	Referrals_Main	AppFunc	c0bb67f3
-Referrals_Main/OnSuccess__Referral_Data_Issues_Check.dg	Referral_Data_Issues_Chec	Referrals_Main	OnSuccess		compute_data_issues		ID;Partner_Organization;Patient_First_Name;Patient_Last_Name;Referral_ID;Referral_Type	Referrals_Main	AppFunc;Email	8eda014a
+Referrals_Main/OnSuccess__Referral_Data_Issues_Check.dg	Referral_Data_Issues_Chec	Referrals_Main	OnSuccess		compute_data_issues		ID	Referrals_Main	AppFunc;Email	2f6b790d
 Referrals_Main/OnSuccess__Referral_Data_Issues_Sync_On_Edit.dg	Referral_Data_Issues_Sync	Referrals_Main	OnSuccess		compute_data_issues		ID	Referrals_Main	AppFunc	691bfd8b
 Referrals_Main/OnSuccess__Referrals_Main_On_Create_Master.dg	Referrals_Main_On_Create_	Referrals_Main	OnSuccess		process_new_referral		ID		AppFunc	511df513
 Referrals_Main/OnUserInput__AC_Last_Name__DM_Full_Name_Generator.dg	DM_Full_Name_Generator	Referrals_Main	OnUserInput	AC_Last_Name		AC_Full_Name	AC_First_Name;AC_Last_Name			08005713

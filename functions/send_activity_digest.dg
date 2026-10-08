@@ -797,18 +797,18 @@ if(v_type == "referrals")
 	{
 		v_rangeTxt = v_rangeTxt + " to " + v_refTo.toString("MM/dd/yyyy");
 	}
-	v_subject = "SOS Referrals - Referral Date " + v_rangeTxt;
-	v_body = "<h1>SOS Referrals - Referral Date " + v_rangeTxt + "</h1>";
+	v_subject = "Daily Referrals  |  " + v_rangeTxt;
+	v_body = "<h1>Daily Referrals  |  " + v_rangeTxt + "</h1>";
 }
 else if(v_type == "pvs")
 {
-	v_subject = "SOS Completed PVS - " + v_label;
-	v_body = "<h1>SOS Completed PVS - " + v_label + "</h1>";
+	v_subject = "Daily PVS  |  " + v_label;
+	v_body = "<h1>Daily PVS  |  " + v_label + "</h1>";
 }
 else
 {
-	v_subject = "SOS Weekly Recap - " + v_label;
-	v_body = "<h1>SOS Weekly Recap - " + v_label + "</h1>";
+	v_subject = "Weekly Recap  |  " + v_label;
+	v_body = "<h1>Weekly Recap  |  " + v_label + "</h1>";
 	v_body = v_body + "<h2>Summary by Partner and Service</h2>";
 	if(v_keys.size() > 0)
 	{

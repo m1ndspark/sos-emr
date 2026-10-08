@@ -46,8 +46,7 @@ if(v_tpl.isEmpty())
 	return "SKIP-NOHTML";
 }
 v_html = v_tpl.get("html").toString();
-v_patname = v_tpl.get("patname").toString();
-v_subject = "REF Visit: " + v_patname + " - " + v_refid;
+v_subject = v_tpl.get("subject").toString();
 v_from = "notifications@sosreferrals.com";
 v_fromMap = Map();
 v_fromMap.put("address",v_from);

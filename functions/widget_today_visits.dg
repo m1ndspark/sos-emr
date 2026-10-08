@@ -1,6 +1,4 @@
-v_User = ifnull(zoho.loginuserid,"").toString().trim().toLowerCase();
-v_Allowed = {"joshua.kolanko@sosmmc.com","neil.heird@sosmmc.com","joshua.kolanko@sosreferrals.com","neilheird@gmail.com"};
-if(!v_Allowed.contains(v_User))
+if(!thisapp.is_portal_admin())
 {
 	v_Deny = Map();
 	v_Deny.put("rows",List());
@@ -97,12 +95,30 @@ for each  v_K in v_Keys
 	v_Rows.add(v_RowMap.get(v_K));
 }
 v_Provs = List();
-for each  v_E in Employees[Employee_Status == "Active" && Employee_Job_Title == "Clinical"] sort by Employee_Last_Name
+for each  v_E in Employees[Employee_Status == "Active"] sort by Employee_Last_Name
 {
-	v_P = Map();
-	v_P.put("id",v_E.ID.toString());
-	v_P.put("name",(ifnull(v_E.Employee_First_Name,"").toString() + " " + ifnull(v_E.Employee_Last_Name,"").toString()).trim());
-	v_Provs.add(v_P);
+	v_Inc = false;
+	if(ifnull(v_E.Employee_Job_Title,"").toString() == "Clinical")
+	{
+		v_Inc = true;
+	}
+	if(v_Inc == false)
+	{
+		if(v_E.Portal_Access_Types != null)
+		{
+			if(v_E.Portal_Access_Types.contains("Admin"))
+			{
+				v_Inc = true;
+			}
+		}
+	}
+	if(v_Inc)
+	{
+		v_P = Map();
+		v_P.put("id",v_E.ID.toString());
+		v_P.put("name",(ifnull(v_E.Employee_First_Name,"").toString() + " " + ifnull(v_E.Employee_Last_Name,"").toString()).trim());
+		v_Provs.add(v_P);
+	}
 }
 v_StatusMap = Map();
 v_StatusMap.put("Patient Visit",{"Received","Contacted","Scheduled","Awaiting Equipment","Pending Results","Completed"});

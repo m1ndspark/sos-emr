@@ -93,7 +93,7 @@ if(v_token == "")
 	return "aborted: no Zepto send token";
 }
 v_css = "<style>body{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111;} h2{color:#0B0B5B;font-size:15px;margin:18px 0 6px 0;} table{border-collapse:collapse;width:100%;margin-bottom:8px;} th{background:#0B0B5B;color:#fff;text-align:left;padding:5px 7px;font-size:11px;letter-spacing:.6px;} td{border:1px solid #BFBFBF;padding:5px 7px;} .none{color:#4C4C89;}</style>";
-v_body = "<h1 style='font-size:17px;color:#0B0B5B;'>SOS Fax Digest - " + zoho.currentdate.toString("MM/dd/yyyy") + "</h1>";
+v_body = "<h1 style='font-size:17px;color:#0B0B5B;'>Daily Fax Digest  |  " + zoho.currentdate.toString("MM/dd/yyyy") + "</h1>";
 v_body = v_body + "<h2>Unfaxed final notes, all outstanding (" + v_nMissed + ")</h2>";
 if(v_nMissed > 0)
 {
@@ -146,7 +146,7 @@ for each  v_addr in {"joshua.kolanko@sosmmc.com","neil.heird@sosmmc.com"}
 v_payload = Map();
 v_payload.put("from",v_fromMap);
 v_payload.put("to",v_toList);
-v_payload.put("subject","SOS Fax Digest - " + zoho.currentdate.toString("MM/dd/yyyy"));
+v_payload.put("subject","Daily Fax Digest  |  " + zoho.currentdate.toString("MM/dd/yyyy"));
 v_payload.put("htmlbody",v_html);
 v_hdr = Map();
 v_hdr.put("Accept","application/json");

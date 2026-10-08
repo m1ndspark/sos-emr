@@ -24,6 +24,20 @@ for each  v_k in v_keys
 		v_vals.put(v_k,v_dash);
 	}
 }
+v_SvcRaw = ifnull(v_ref.Referral_Type,"").toString().trim();
+v_SvcLbl = v_SvcRaw;
+if(v_SvcRaw == "Patient Visit")
+{
+	v_SvcLbl = "Visit";
+}
+else if(v_SvcRaw == "Imaging Order (only)")
+{
+	v_SvcLbl = "Imaging";
+}
+if(v_SvcLbl == "")
+{
+	v_SvcLbl = "(no service)";
+}
 v_block = List();
 v_block.add("#SEC|Referral");
 v_block.add("Referral ID|" + v_vals.get("REFID") + "|1");
@@ -88,14 +102,14 @@ v_html = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"htt
 v_html = v_html + "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head>";
 v_html = v_html + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />";
 v_html = v_html + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />";
-v_html = v_html + "<title>Referral Received</title>";
+v_html = v_html + "<title>Referral Confirmation</title>";
 v_html = v_html + "<style type=\"text/css\">@media only screen and (max-width:600px){.container{width:100% !important;}.stack{display:block !important;width:100% !important;box-sizing:border-box !important;}.lbl{background:#f0f0ff !important;border-bottom:0 !important;padding-bottom:2px !important;font-size:11px !important;text-transform:uppercase;letter-spacing:.05em;color:#4c4c89 !important;}.val{border-top:0 !important;padding-top:2px !important;font-size:16px !important;}.hero{font-size:19px !important;line-height:25px !important;}}</style>";
 v_html = v_html + "</head><body style=\"margin:0; padding:0; background-color:#eef0f6;\">";
 v_html = v_html + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#eef0f6;\"><tr><td align=\"center\" style=\"padding:20px 10px 32px 10px;\">";
 v_html = v_html + "<table role=\"presentation\" class=\"container\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff;\">";
 v_html = v_html + "<tr><td style=\"background-color:#00003c; padding:20px 24px;\">";
 v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#8d8db8; letter-spacing:.06em; text-transform:uppercase;\">SOS Mobile Medical Care</div>";
-v_html = v_html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">Referral Received</div>";
+v_html = v_html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">Referral Confirmation</div>";
 v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_vals.get("PATNAME") + " &nbsp;&bull;&nbsp; " + v_vals.get("REFID") + "</div>";
 v_html = v_html + "</td></tr>";
 v_html = v_html + "<tr><td style=\"" + v_secStyle + "\">Remarks/Comments</td></tr>";
@@ -108,7 +122,7 @@ v_html = v_html + v_body;
 v_html = v_html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
 v_html = v_html + "</table></td></tr></table></body></html>";
 v_out.put("html",v_html);
-v_out.put("subject","Referral Received: " + v_vals.get("REFID"));
+v_out.put("subject","Referral Confirmation: " + v_SvcLbl + " - " + v_vals.get("PATNAME") + "  |  " + v_vals.get("REFID"));
 v_out.put("refid",v_vals.get("REFID"));
 v_out.put("patname",v_vals.get("PATNAME"));
 return v_out;

@@ -1,0 +1,24 @@
+v_User = ifnull(zoho.loginuserid,"").toString().trim().toLowerCase();
+if(v_User == "")
+{
+	return false;
+}
+for each  v_E in Employees[Employee_Status == "Active"]
+{
+	v_Mail = ifnull(v_E.Employee_Portal_Email,"").toString().trim().toLowerCase();
+	if(v_Mail == "")
+	{
+		v_Mail = ifnull(v_E.Employee_Email,"").toString().trim().toLowerCase();
+	}
+	if(v_Mail == v_User)
+	{
+		if(v_E.Portal_Access_Types != null)
+		{
+			if(v_E.Portal_Access_Types.contains("Admin"))
+			{
+				return true;
+			}
+		}
+	}
+}
+return false;

@@ -58,6 +58,30 @@ if(v_vals.get("FACROOM") == v_dash)
 {
 	v_vals.put("FACROOM","Not Provided");
 }
+v_SvcRaw = ifnull(v_ref.Referral_Type,"").toString().trim();
+v_SvcLbl = v_SvcRaw;
+v_PillBg = "#e8eefd";
+v_PillFg = "#0b0b5b";
+if(v_SvcRaw == "Patient Visit")
+{
+	v_SvcLbl = "Visit";
+}
+else if(v_SvcRaw == "3008")
+{
+	v_SvcLbl = "3008";
+	v_PillBg = "#fcf2e7";
+	v_PillFg = "#000000";
+}
+else if(v_SvcRaw == "Imaging Order (only)")
+{
+	v_SvcLbl = "Imaging";
+	v_PillBg = "#d2e9d1";
+}
+if(v_SvcLbl == "")
+{
+	v_SvcLbl = "(no service)";
+}
+v_Pill = "<span style=\"display:inline-block; background-color:" + v_PillBg + "; color:" + v_PillFg + "; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:16px; font-weight:bold; padding:3px 10px; border-radius:10px;\">" + v_SvcLbl + "</span>";
 v_source = v_vals.get("PARTNER");
 if(v_vals.get("BRANCH") != v_dash)
 {
@@ -217,12 +241,13 @@ v_html = v_html + "<tr><td style=\"background-color:#00003c; padding:20px 24px;\
 v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#8d8db8; letter-spacing:.06em; text-transform:uppercase;\">SOS Mobile Medical Care</div>";
 v_html = v_html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">New Patient Referral</div>";
 v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_vals.get("PATNAME") + " &nbsp;&bull;&nbsp; " + v_vals.get("REFID") + "</div>";
+v_html = v_html + "<div style=\"padding-top:10px;\">" + v_Pill + "</div>";
 v_html = v_html + "</td></tr>";
 v_html = v_html + v_body;
 v_html = v_html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
 v_html = v_html + "</table></td></tr></table></body></html>";
 v_out.put("html",v_html);
-v_out.put("subject","REF Visit: " + v_vals.get("PATNAME") + " - " + v_vals.get("REFID"));
+v_out.put("subject","New Referral: " + v_SvcLbl + " - " + v_vals.get("PATNAME") + "  |  " + v_vals.get("REFID"));
 v_out.put("refid",v_vals.get("REFID"));
 v_out.put("patname",v_vals.get("PATNAME"));
 return v_out;

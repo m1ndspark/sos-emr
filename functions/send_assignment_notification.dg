@@ -60,6 +60,51 @@ if(v_PatName == "")
 {
 	v_PatName = "&mdash;";
 }
+v_Portal = "https://portal.sosreferrals.com";
+v_RefId = "";
+v_SvcRaw = "";
+if(v_A.Referral_Link != null)
+{
+	v_Ref = Referrals_Main[ID == v_A.Referral_Link];
+	if(v_Ref.count() > 0)
+	{
+		v_RefId = ifnull(v_Ref.Referral_ID,"").toString().trim();
+		v_SvcRaw = ifnull(v_Ref.Referral_Type,"").toString().trim();
+	}
+}
+v_SvcLbl = v_SvcRaw;
+v_PillBg = "#e8eefd";
+v_PillFg = "#0b0b5b";
+if(v_SvcRaw == "Patient Visit")
+{
+	v_SvcLbl = "Visit";
+}
+else if(v_SvcRaw == "3008")
+{
+	v_SvcLbl = "3008";
+	v_PillBg = "#fcf2e7";
+	v_PillFg = "#000000";
+}
+else if(v_SvcRaw == "Imaging Order (only)")
+{
+	v_SvcLbl = "Imaging";
+	v_PillBg = "#d2e9d1";
+}
+if(v_SvcLbl == "")
+{
+	v_SvcLbl = "(no service)";
+}
+v_Pill = "<span style=\"display:inline-block; background-color:" + v_PillBg + "; color:" + v_PillFg + "; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:16px; font-weight:bold; padding:3px 10px; border-radius:10px;\">" + v_SvcLbl + "</span>";
+v_RefUrl = "";
+if(v_RefId != "")
+{
+	v_RefUrl = v_Portal + "/#Report:Referrals_Main_Report?Referral_ID=" + zoho.encryption.urlEncode(v_RefId);
+}
+v_RefTxt = v_RefId;
+if(v_RefTxt == "")
+{
+	v_RefTxt = "(no Referral ID)";
+}
 v_Jobs = List();
 if(v_Cur != "")
 {
@@ -73,11 +118,26 @@ for each  v_Stamp in Assignments[ID == v_RecId]
 {
 	v_Stamp.Notified_Employee_ID=v_Cur;
 }
-v_Portal = "https://portal.sosreferrals.com";
 v_SecStyle = "background-color:#0b0b5b; padding:10px 24px; font-family:Arial,Helvetica,sans-serif; font-size:13px; font-weight:bold; color:#ffffff; letter-spacing:.05em; text-transform:uppercase;";
 v_LblStyle = "width:40%; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:20px; color:#4c4c89; padding:11px 0;";
 v_ValStyle = "width:60%; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#000000; padding:11px 0; font-weight:bold;";
 v_LinkStyle = "color:#2634a3; text-decoration:none; font-weight:bold;";
+v_HeadLinkStyle = "color:#cfcfe7; text-decoration:underline;";
+if(v_RefUrl != "")
+{
+	v_HeadPat = "<a href=\"" + v_RefUrl + "\" style=\"" + v_HeadLinkStyle + "\">" + v_PatName + "</a>";
+	v_HeadRef = "<a href=\"" + v_RefUrl + "\" style=\"" + v_HeadLinkStyle + "\">" + v_RefId + "</a>";
+	v_RowRef = "<a href=\"" + v_RefUrl + "\" style=\"" + v_LinkStyle + "\">" + v_RefId + "</a>";
+	v_RowPat = "<a href=\"" + v_RefUrl + "\" style=\"" + v_LinkStyle + "\">" + v_PatName + "</a>";
+}
+else
+{
+	v_HeadPat = v_PatName;
+	v_HeadRef = v_RefTxt;
+	v_RowRef = v_RefTxt;
+	v_RowPat = v_PatName;
+}
+v_SubjTail = v_SvcLbl + " - " + v_PatName + "  |  " + v_RefTxt;
 v_Results = List();
 for each  v_Job in v_Jobs
 {
@@ -100,14 +160,14 @@ for each  v_Job in v_Jobs
 	{
 		if(v_Kind == "ASSIGNED")
 		{
-			v_Title = "New Visit Assignment";
-			v_Subject = "New Visit Assignment: " + v_AsgId;
+			v_Title = "Visit Assigned";
+			v_Subject = "Visit Assigned: " + v_SubjTail;
 			v_Msg = "You have been assigned a new visit. Sign in to the <a href=\"" + v_Portal + "\" style=\"" + v_LinkStyle + "\">SOS portal</a> to view the full details.";
 		}
 		else
 		{
 			v_Title = "Visit Removed";
-			v_Subject = "Visit Removed: " + v_AsgId;
+			v_Subject = "Visit Removed: " + v_SubjTail;
 			v_Msg = "This visit has been removed from your schedule. No action is needed. Questions? Contact SOS at <a href=\"tel:8135131925\" style=\"" + v_LinkStyle + "\">(813) 513-1925</a>.";
 		}
 		v_Html = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
@@ -122,7 +182,8 @@ for each  v_Job in v_Jobs
 		v_Html = v_Html + "<tr><td style=\"background-color:#00003c; padding:20px 24px;\">";
 		v_Html = v_Html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#8d8db8; letter-spacing:.06em; text-transform:uppercase;\">SOS Mobile Medical Care</div>";
 		v_Html = v_Html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">" + v_Title + "</div>";
-		v_Html = v_Html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_PatName + " &nbsp;&bull;&nbsp; " + v_AsgId + "</div>";
+		v_Html = v_Html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_HeadPat + " &nbsp;&bull;&nbsp; " + v_HeadRef + "</div>";
+		v_Html = v_Html + "<div style=\"padding-top:10px;\">" + v_Pill + "</div>";
 		v_Html = v_Html + "</td></tr>";
 		v_Html = v_Html + "<tr><td style=\"" + v_SecStyle + "\">Remarks/Comments</td></tr>";
 		v_Html = v_Html + "<tr><td style=\"padding:11px 24px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#000000;\">";
@@ -134,8 +195,9 @@ for each  v_Job in v_Jobs
 		v_Html = v_Html + "</td></tr>";
 		v_Html = v_Html + "<tr><td style=\"" + v_SecStyle + "\">Assignment</td></tr>";
 		v_Html = v_Html + "<tr><td style=\"padding:0 24px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">";
+		v_Html = v_Html + "<tr><td class=\"stack lbl\" valign=\"top\" style=\"" + v_LblStyle + " border-bottom:1px solid #e6e6ef;\">Referral ID</td><td class=\"stack val\" valign=\"top\" style=\"" + v_ValStyle + " border-bottom:1px solid #e6e6ef;\">" + v_RowRef + "</td></tr>";
 		v_Html = v_Html + "<tr><td class=\"stack lbl\" valign=\"top\" style=\"" + v_LblStyle + " border-bottom:1px solid #e6e6ef;\">Assignment ID</td><td class=\"stack val\" valign=\"top\" style=\"" + v_ValStyle + " border-bottom:1px solid #e6e6ef;\">" + v_AsgId + "</td></tr>";
-		v_Html = v_Html + "<tr><td class=\"stack lbl\" valign=\"top\" style=\"" + v_LblStyle + "\">Patient</td><td class=\"stack val\" valign=\"top\" style=\"" + v_ValStyle + "\">" + v_PatName + "</td></tr>";
+		v_Html = v_Html + "<tr><td class=\"stack lbl\" valign=\"top\" style=\"" + v_LblStyle + "\">Patient</td><td class=\"stack val\" valign=\"top\" style=\"" + v_ValStyle + "\">" + v_RowPat + "</td></tr>";
 		v_Html = v_Html + "</table></td></tr>";
 		v_Html = v_Html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
 		v_Html = v_Html + "</table></td></tr></table></body></html>";

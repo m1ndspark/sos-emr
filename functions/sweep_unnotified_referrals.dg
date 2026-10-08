@@ -198,10 +198,10 @@ if(v_InWindow && !v_AlreadySent)
 	}
 	if(v_Runs > 0)
 	{
-		v_Subj = "SOS referral sweep: " + v_SumRepaired + " repaired, " + v_SumFailed + " failed";
+		v_Subj = "Referral Sweep  |  " + v_SumRepaired + " repaired, " + v_SumFailed + " failed";
 		if(v_SumRepaired == 0 && v_SumFailed == 0)
 		{
-			v_Subj = "SOS referral sweep: nothing found";
+			v_Subj = "Referral Sweep  |  nothing found";
 		}
 		v_Html = "<div style=\"font-family:Arial,Helvetica,sans-serif;font-size:14px\">";
 		v_Html = v_Html + "<p>Sweep digest covering " + v_Runs + " run(s) since the last email.</p>";

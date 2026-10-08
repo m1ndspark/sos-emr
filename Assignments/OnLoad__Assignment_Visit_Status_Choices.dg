@@ -25,6 +25,7 @@ else
 {
 	v_Choices = {"Received","Contacted","Scheduled","Awaiting Equipment","Pending Results","Ordered","Report Sent","Pending Info","Completed"};
 }
+clear Visit_Status;
 input.Visit_Status:ui.add(v_Choices);
 if(v_Cur != null && v_Choices.contains(v_Cur))
 {
