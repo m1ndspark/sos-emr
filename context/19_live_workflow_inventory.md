@@ -511,5 +511,15 @@ them silently. Not yet ruled whether blank is excluded or a data error to
 surface.
 
 --------------------------------------------------------------------------------
+## Session 59 2026-10-08 - Ops Dashboard / Assignments (live, not yet exported)
+--------------------------------------------------------------------------------
+Repo copies in dashboard/ (see dashboard/README.md); arrives in the v61 export.
+- Assignment_Required_Refer (Assignments, On Validate) now requires
+  Employee_Link on create only, so the provider can be cleared later.
+- Assignment_Notify_Provide (Assignments, On Success) allow list adds
+  joshua.kolanko@sosreferrals.com and calls send_assignment_notification on
+  every save, including unassign (Visit Removed).
+
+--------------------------------------------------------------------------------
 END
 --------------------------------------------------------------------------------
