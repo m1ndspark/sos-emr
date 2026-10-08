@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Today's Visits</title>
+<title>Referral Assignment(s)</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://static.zohocdn.com/creator/widgets/version/2.0/widgetsdk-min.js"></script>
 <style>
 * { box-sizing: border-box; }
-body { margin: 0; font-family: Figtree, "Helvetica Neue", Arial, sans-serif; color: #000; background: #fff; }
-.tv { padding: 18px 20px; }
+html, body { height: 100%; }
+body { margin: 0; overflow: hidden; font-family: Figtree, "Helvetica Neue", Arial, sans-serif; color: #000; background: #fff; }
+.tv { height: 100%; display: flex; flex-direction: column; padding: 14px 18px 10px; }
 .tv-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #6979e2; margin-bottom: 10px; }
 .tv-head h2 { margin: 0; font-family: "Libre Franklin", Arial, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0b0b5b; }
 .tv-head .cnt { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #5b5b9a; }
 .tv-msg { font-size: 13px; color: #5b5b9a; padding: 8px 0; }
 .tv-msg.err { color: #ff0000; }
-.tv-scroll { max-height: 420px; overflow-y: auto; }
+.tv-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5b9a; padding: 6px 6px; border-bottom: 1px solid #c4c4dd; background: #fff; position: sticky; top: 0; z-index: 1; }
 th.n, td.n { text-align: right; }
@@ -23,22 +24,26 @@ td { padding: 6px 6px; border-bottom: 1px solid #eeeef5; vertical-align: middle;
 tr.row { cursor: pointer; transition: background .15s; }
 tr.row:hover td { background: #f3efef; }
 td.n { font-weight: 600; }
+.svc { display: inline-block; font-size: 12px; font-weight: 600; color: #0b0b5b; padding: 3px 8px; border-radius: 10px; white-space: nowrap; }
+.svc-pv { background: #e8eefd; }
+.svc-3008 { background: #fcf2e7; color: #000; }
+.svc-img { background: #d2e9d1; }
 select { font-family: inherit; font-size: 13px; color: #0b0b5b; padding: 4px 6px; border: 1px solid #c4c4dd; border-radius: 4px; background: #fff; min-width: 150px; cursor: pointer; }
 select:disabled { color: #b8abaa; background: #f7f7fb; cursor: not-allowed; }
 select.saving { opacity: .5; }
 .ok { color: #5dca52; font-size: 12px; font-weight: 700; margin-left: 6px; }
 .bad { color: #ff0000; font-size: 12px; font-weight: 700; margin-left: 6px; }
-.toast { position: fixed; bottom: 12px; right: 12px; background: #0b0b5b; color: #fff; font-size: 13px; padding: 8px 12px; border-radius: 4px; display: none; }
+.toast { position: fixed; bottom: 12px; right: 12px; left: 12px; max-height: 50vh; overflow-y: auto; background: #0b0b5b; color: #fff; font-size: 13px; padding: 8px 12px; border-radius: 4px; display: none; white-space: pre-wrap; word-break: break-word; cursor: pointer; }
 .toast.err { background: #ff0000; }
 </style>
 </head>
 <body>
 <div class="tv">
-  <div class="tv-head"><h2>Today's Visits</h2><span class="cnt" id="cnt"></span></div>
+  <div class="tv-head"><h2>Referral Assignment(s)</h2><span class="cnt" id="cnt"></span></div>
   <div class="tv-msg" id="msg">Loading…</div>
   <div class="tv-scroll" id="wrap" style="display:none">
     <table>
-      <thead><tr><th>REF ID</th><th>Patient</th><th>Provider</th><th>Status</th><th class="n">Days Open</th></tr></thead>
+      <thead><tr><th>REF ID</th><th>Service</th><th>Patient</th><th>Provider</th><th>Status</th><th class="n">Days Open</th></tr></thead>
       <tbody id="body"></tbody>
     </table>
   </div>
@@ -64,8 +69,21 @@ function toast(text, isErr) {
   t.className = isErr ? "toast err" : "toast";
   t.style.display = "block";
   clearTimeout(t._h);
-  t._h = setTimeout(function () { t.style.display = "none"; }, 3000);
+  if (!isErr) {
+    t._h = setTimeout(function () { t.style.display = "none"; }, 3000);
+  }
 }
+
+function detail(x) {
+  var out = "";
+  try { out = JSON.stringify(x); } catch (ex) { out = String(x); }
+  if (!out || out === "{}") {
+    out = String(x && (x.message || x.responseText) ? (x.message || x.responseText) : x);
+  }
+  return out.substring(0, 2000);
+}
+
+document.getElementById("toast").addEventListener("click", function () { this.style.display = "none"; });
 
 function showMsg(text, isErr) {
   var m = document.getElementById("msg");
@@ -115,12 +133,21 @@ function statusSelect(row) {
   return h + "</select>";
 }
 
+function svcCell(type) {
+  var t = String(type || "");
+  if (t === "Patient Visit") { return '<span class="svc svc-pv">Patient Visit</span>'; }
+  if (t === "3008") { return '<span class="svc svc-3008">3008</span>'; }
+  if (t === "Imaging Order (only)") { return '<span class="svc svc-img">Imaging Order</span>'; }
+  return esc(t);
+}
+
 function render(rows) {
   var body = document.getElementById("body");
   var html = "";
   rows.forEach(function (r) {
     html += '<tr class="row" data-ref="' + esc(r.ref_id) + '">' +
       "<td>" + esc(r.ref_id) + "</td>" +
+      "<td>" + svcCell(r.type) + "</td>" +
       "<td>" + esc(r.patient) + "</td>" +
       "<td>" + providerSelect(r) + "</td>" +
       "<td>" + statusSelect(r) + "</td>" +
@@ -171,15 +198,14 @@ function save(sel) {
     } else {
       sel.value = prev || "";
       mark(sel, false);
-      toast((r && r.message) ? r.message : "Save failed.", true);
+      toast("Save failed (" + kind + " = \"" + val + "\"). Click to close.\n" + detail(r), true);
     }
   }).catch(function (e) {
     sel.classList.remove("saving");
     sel.disabled = false;
     sel.value = prev || "";
     mark(sel, false);
-    var m = (e && (e.message || (e.responseText))) ? (e.message || e.responseText) : "Save failed.";
-    toast(String(m).substring(0, 200), true);
+    toast("Save failed (" + kind + " = \"" + val + "\"). Click to close.\n" + detail(e), true);
   });
 }
 
