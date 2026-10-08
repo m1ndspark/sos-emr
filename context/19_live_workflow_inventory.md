@@ -519,6 +519,10 @@ Repo copies in dashboard/ (see dashboard/README.md); arrives in the v61 export.
 - Assignment_Notify_Provide (Assignments, On Success) allow list adds
   joshua.kolanko@sosreferrals.com and calls send_assignment_notification on
   every save, including unassign (Visit Removed).
+- Portal_Access_By_Status (Employees) now uses Employee_Portal_Email first and
+  assigns profile from Portal_Access_Types; send_pvs_fax looks up employee by
+  Employee_Portal_Email. Changed live outside the S59 cchat thread; source of
+  truth is v62.
 
 --------------------------------------------------------------------------------
 END
