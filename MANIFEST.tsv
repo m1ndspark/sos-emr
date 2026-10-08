@@ -251,7 +251,7 @@ functions/sync_pvs_branch_from_referral.dg	sync_pvs_branch_from_referral		functi
 functions/test_github_commit.dg	test_github_commit		function						HTTP	ab2c18d1
 functions/test_schema_connection.dg	test_schema_connection		function						HTTP	2eac0c3e
 functions/test_smtp.dg	test_smtp		function						Email	184fcd49
-functions/widget_today_visits.dg	widget_today_visits		function					Assignments;Employees;Encounter_PatientVisit;Referrals_Main		5c88fcee
+functions/widget_today_visits.dg	widget_today_visits		function					Assignments;Employees;Encounter_PatientVisit;Referrals_Main		6128df49
 Assignments/OnLoad__Assignment_Lock_Immutable_Fields.dg	Assignment_Lock_Immutable	Assignments	OnLoad			Patient_DOB;Patient_First_Name;Patient_Last_Name				87339ee6
 Assignments/OnLoad__Assignment_Visit_Status_Choices.dg	Assignment_Visit_Status_C	Assignments	OnLoad			Visit_Status	Referral_Link	Referrals_Main		028af94a
 Assignments/OnLoad__Show_Hide_Facility_Name_P.dg	Show_Hide_Facility_Name_P	Assignments	OnLoad			Facility_Name;Facility_Phone;Facility_Room_Number	Patient_Location			643f2c3e
