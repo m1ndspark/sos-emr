@@ -511,14 +511,16 @@ them silently. Not yet ruled whether blank is excluded or a data error to
 surface.
 
 --------------------------------------------------------------------------------
-## Session 59 2026-10-08 - Ops Dashboard / Assignments (live, not yet exported)
+## Session 59 2026-10-08 - Ops Dashboard / Assignments (live, in v62)
 --------------------------------------------------------------------------------
-Repo copies in dashboard/ (see dashboard/README.md); arrives in the v61 export.
+Repo copies in dashboard/ (see dashboard/README.md); captured in v62.
 - Assignment_Required_Refer (Assignments, On Validate) now requires
   Employee_Link on create only, so the provider can be cleared later.
-- Assignment_Notify_Provide (Assignments, On Success) allow list adds
-  joshua.kolanko@sosreferrals.com and calls send_assignment_notification on
-  every save, including unassign (Visit Removed).
+- Assignment_Notify_Provide (Assignments, On Success) allow list is
+  joshua.kolanko@sosmmc.com, neil.heird@sosmmc.com,
+  joshua.kolanko@sosreferrals.com, neilheird@gmail.com; calls
+  send_assignment_notification on every save, including unassign (Visit
+  Removed).
 - Portal_Access_By_Status (Employees) now uses Employee_Portal_Email first and
   assigns profile from Portal_Access_Types; send_pvs_fax looks up employee by
   Employee_Portal_Email. Changed live outside the S59 cchat thread; source of
