@@ -204,6 +204,10 @@ function load() {
     http_method: "GET"
   }).then(function (r) {
     var d = unwrap(r);
+    if (d && d.denied) {
+      showMsg("You don't have access to this list.", true);
+      return;
+    }
     if (!d || !d.rows) {
       showMsg("Could not read assignments. Response: " + JSON.stringify(r).substring(0, 300), true);
       return;
