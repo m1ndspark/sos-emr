@@ -1,0 +1,68 @@
+SOS Code - SOS Session Log - October 08, 2026 (Session 59) - EOD
+Span: 2026-10-06 to 2026-10-08. App: SOS Referrals App (sosmmc/sos-referrals-app), Zoho Creator v6.
+Ground truth .ds: v60 (2026-10-06, commit 0c2ef1f). No new export this session - export v61 next session.
+
+=== 1. EARLY SESSION (10/06) ===
+- Ann (portal): fax section visibility and Fax PVS button on My_PVS_Notes sorted out (My_PVS_Notes is a clone of PVS_Report, custom action "Send" already present).
+- v60 .ds saved and committed (0c2ef1f).
+- Sept EOM 3008 recon: 29 REFs with no PVS reviewed against Ann's list and Kayla's zipped PDFs. Result: 18 patients / 20 REFs truly missing; 9 matched to Ann under other REFs; 4 duplicate-pair REFs. Sheets in Neil's Completed 3008s folder: Sept_2026_3008_No_PVS.xlsx, Kayla_Sept_2026_3008s_vs_29.xlsx. Bulk-generate decision pending.
+- diag_3008_no_pvs_sheet(date p_from, date p_to) built.
+
+=== 2. OPERATIONS DASHBOARD (Reports page) ===
+Custom HTML-snippet dashboard replaces native page builder. Page link names: Reports (dashboard), Drilldown_Data (drill-down).
+v4 was live at session start. v5 requirements (items 1-13) gathered; build order of 6 stages agreed.
+
+Stage 1 DONE: function dash_metrics_range(date p_from, date p_to, string p_mode, string p_key) returns map.
+ - Modes MTD (vs same days last month), LM (vs prior month), CUSTOM (vs same dates last year). QTD/YTD dropped (app rolled out Sept).
+ - Lean rewrite after "statement execution limit": inline tag counts, ids only for p_key, one-row first-PVS queries.
+ - Returns counts, hit, money, c_ref/c_done/c_3008, cmp_label, range_label, range_warn, nf_avg, aging_svcs, partners, provs, asg_rows, m3008_rows, st_rows, from_key, to_key, mode.
+Stage 2 DONE: stateless form Dashboard_Range (duplicated from Fax_Attachments, storage off), fields From_Date / To_Date, Apply button (Form Properties > + Add Button), On Click workflow opens #Page:Reports?r_from&r_to&r_mode=CUSTOM.
+Stage 3 IN PROGRESS: Reports page variables r_from, r_to, r_mode (Text) added. Snippet v5 LIVE (range presets, "vs Sep" deltas, goals note, diversion KPI, count pills, 04 Patient Status section, consistent hover, section colors).
+ - Tile restyle iterated in an HTML preview. Final = "2c": white tile, box shadow (no colored edge), navy titles, royal #29349d values, taupe subtext, small white pill with soft shadow and #6979e2 text, violet #4949be progress bar on #eeeeee track.
+ - Goal tiles (PV, 3008, Imaging, Note Finalized on-time): 90%+ green #5dca52 + check; 75-89% yellow #ffb400 + exclamation circle; <75% red #ff0000 + warning triangle; number colored to match; green/yellow numbers get subtle navy text-shadow. Diversion has a bar, no status.
+ - Section accents: Referrals navy #0b0b5b, Visits #6979e2, Billing #5dca52, Patient Status #4949be (section number + card heading underline only; card top borders removed).
+ - Delivered v5.1 / v5.2 / v5.3 (latest). Neil to paste v5.3 and confirm.
+ - Brand palette (sampled from WP global palette, approximate): #eeeeee, #5dca52, #f3efef, #b8abaa, #6979e2, #4949be, #29349d, #0b0b5b.
+Stage 4 OPEN: Drilldown_Data v5 (dd_from, dd_to, dd_mode, dd_key; uses "hit"). Drill-down links from Reports error until this ships.
+Stage 5 IN PROGRESS: Today's Visits JS widget (Josh mission control).
+ - Function widget_today_visits() returns map: rows (rec_id, asg_id, ref_id, type, patient, emp_id, emp_name, status, days), providers (Active + Clinical), status_map by Referral_Type, statuses, app_url, count. Test run: 93 rows, 4 providers.
+ - Custom API: link name Widget_Today_Visits, GET, OAuth2, user scope All users, workspace sosmmc. Endpoint https://www.zohoapis.com/creator/custom/sosmmc/Widget_Today_Visits
+ - Widget packed with zet (cloud), uploaded Settings > Widgets > Today's Visits, Internal, index /widget.html. v1/v2 load OK (96 open assignments).
+ - Rows click through to Referrals_Main_Report?Referral_ID=. Dropdowns save via ZOHO.CREATOR.DATA.updateRecordById on All_Assignments.
+ - Workflow Assignment_Required_Refer (On Validate): provider now required on CREATE only, so provider can be cleared.
+ - Workflow Assignment_Notify_Provide (On Success): allow list adds joshua.kolanko@sosreferrals.com (Josh portal login); now also notifies on unassign (Visit Removed).
+ - Widget v3 delivered: Unassigned + (blank) options always; status choices by service type (matches Assignment_Visit_Status_Choices); status never locked. Upload + 4-step save test pending.
+Stage 6 OPEN: Share (Dashboard_Snapshots, record template PDF, email, mailto).
+
+=== 3. DECISIONS ===
+- Status thresholds: on track >= 90%, watch 75-89%, alert < 75%.
+- Provider dropdown = Active + Clinical employees only.
+- Widget rows = same as old Today's Visits (open assignments, referral has no PVS, last 90 days).
+- Widget data via Custom API (not direct report reads).
+- Both provider and status can be unset; unassign emails the removed provider.
+- Status choices in widget match the form's per-type lists.
+- Josh uses only his portal account (joshua.kolanko@sosreferrals.com).
+
+=== 4. LEARNINGS (Creator v6) ===
+- No "stateless" option on new forms; duplicate an existing form with "Data will be stored in Zoho Creator" unchecked.
+- Stateless buttons: form builder Form Properties > + Add Button; script in Workflow > Form Workflows (click of button).
+- Page variables are added in the page's Variables UI, not pasted code; pasting a snippet into the page script editor gives "Expected VOID, INT..." error.
+- Custom API link name is case-sensitive (Widget_Today_Visits). Widget call: ZOHO.CREATOR.DATA.invokeCustomApi({api_name, workspace_name, http_method}).
+- Widget index file path: /widget.html. zet CLI can pack in the cloud; Neil does not need to install anything.
+- Visit_Status field static choices = 5; the form adds per-type choices on load (Completed, Ordered, Report Sent, Pending Info). API saves of those values unverified.
+- New design rule: sharpen light text with a subtle drop shadow before changing its color.
+
+=== 5. OPEN / NEXT ===
+1. Paste Reports snippet v5.3, confirm render.
+2. Upload widget v3; test pick provider, pick status, clear status, clear provider. Report Saved / Not saved.
+3. Verify per-type status values save via API.
+4. Josh portal test: give his portal profile edit access to All_Assignments; confirm Custom API reachable.
+5. Stage 4 Drilldown_Data v5.
+6. Stage 6 Share.
+7. Export v61 .ds and commit.
+Later: Financial page, patient map, EOM tracker, revenue forecasting, Books profitability widget.
+Parked: portal Admin profile (Neil, Josh); fax attachments not sent on either fax path; Note_Finalized_Time not stamped on Ann's portal notes (29 "Imported"); TEST REF-1493 / REF-1560; ~40 open referrals 37-71 days old with no PVS; 90+ open assignments all unassigned; email-gated workflows (billing allowlist etc.) don't include Josh's portal login; Sept 3008 bulk-generate decision.
+
+=== 6. REPO ===
+New folder sos-emr/dashboard/ (written this session, commit pending via ccode): README.md, reports_page_snippet_v5.3.txt, dash_metrics_range.dg, dashboard_range_apply.dg, widget_today_visits.dg, widget_today_visits/ (widget source), assignment_required_referral.dg, assignment_notify_provider.dg.
+context/23_task_list.md: 8 Session 59 rows appended.

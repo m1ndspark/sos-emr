@@ -1,0 +1,862 @@
+<%{
+	v_Today = zoho.currentdate;
+	v_MStart = v_Today.subDay(v_Today.getDay() - 1);
+	v_RMode = ifnull(input.r_mode,"").toString().trim().toUpperCase();
+	v_RFrom = ifnull(input.r_from,"").toString().trim();
+	v_RTo = ifnull(input.r_to,"").toString().trim();
+	v_From = v_MStart;
+	v_To = v_Today;
+	v_Mode = "MTD";
+	if(v_RMode == "LM")
+	{
+		v_From = v_MStart.addMonth(-1);
+		v_To = v_MStart.subDay(1);
+		v_Mode = "LM";
+	}
+	else if(v_RMode == "CUSTOM" && v_RFrom != "" && v_RTo != "")
+	{
+		v_From = toDate(v_RFrom,"yyyy-MM-dd");
+		v_To = toDate(v_RTo,"yyyy-MM-dd");
+		v_Mode = "CUSTOM";
+	}
+	v_M = thisapp.dash_metrics_range(v_From,v_To,v_Mode,"");
+	v_N = v_M.get("counts");
+	v_Cmp = v_M.get("cmp_label");
+	v_Warn = ifnull(v_M.get("range_warn"),"").toString();
+	v_App = "https://creatorapp.zoho.com" + zoho.appuri;
+	v_DD = v_App + "#Page:Drilldown_Data?dd_from=" + v_M.get("from_key") + "&dd_to=" + v_M.get("to_key") + "&dd_mode=" + v_M.get("mode") + "&dd_key=";
+	v_RefRpt = v_App + "#Report:Referrals_Main_Report";
+	v_PvsRpt = v_App + "#Report:PVS_Report";
+	v_LnkMTD = v_App + "#Page:Reports?r_mode=MTD";
+	v_LnkLM = v_App + "#Page:Reports?r_mode=LM";
+	v_ClsMTD = "sosx-pre";
+	v_ClsLM = "sosx-pre";
+	v_ClsCU = "sosx-pre off";
+	if(v_Mode == "MTD")
+	{
+		v_ClsMTD = "sosx-pre on";
+	}
+	else if(v_Mode == "LM")
+	{
+		v_ClsLM = "sosx-pre on";
+	}
+	else
+	{
+		v_ClsCU = "sosx-pre on";
+	}
+	v_Money = v_M.get("money");
+	v_DC = v_Money.get("total").toDecimal() - v_Money.get("ccharges").toDecimal();
+	v_DCNeg = false;
+	v_DCAbs = v_DC;
+	if(v_DC < 0)
+	{
+		v_DCNeg = true;
+		v_DCAbs = v_DC * -1;
+	}
+	v_Money.put("dcharges",v_DCAbs);
+	v_Fmt = Map();
+	for each  v_MK in v_Money.keys()
+	{
+		v_S = v_Money.get(v_MK).toDecimal().round(0).toString();
+		if(v_S.contains("."))
+		{
+			v_S = v_S.getPrefix(".");
+		}
+		v_O = "";
+		for each  v_Step in {1,2,3,4,5}
+		{
+			if(v_S.length() > 3)
+			{
+				v_O = "," + v_S.subString(v_S.length() - 3,v_S.length()) + v_O;
+				v_S = v_S.subString(0,v_S.length() - 3);
+			}
+		}
+		v_Fmt.put(v_MK,"$" + v_S + v_O);
+	}
+	v_Ref = ifnull(v_N.get("R|all"),0);
+	v_Done = ifnull(v_N.get("P|done"),0);
+	v_P3008 = ifnull(v_N.get("P|3008"),0);
+	v_Delta = Map();
+	v_DeltaCls = Map();
+	v_DVals = Map();
+	v_DVals.put("ref",v_Ref - v_M.get("c_ref").toLong());
+	v_DVals.put("done",v_Done - v_M.get("c_done").toLong());
+	v_DVals.put("p3008",v_P3008 - v_M.get("c_3008").toLong());
+	for each  v_DK in v_DVals.keys()
+	{
+		v_Dv = v_DVals.get(v_DK).toLong();
+		v_Txt = v_Dv.toString();
+		v_Cls = "ks";
+		if(v_Dv > 0)
+		{
+			v_Txt = "+" + v_Dv;
+		}
+		if(v_Dv < 0)
+		{
+			v_Cls = "ks neg";
+		}
+		v_Delta.put(v_DK,v_Txt + " " + v_Cmp);
+		v_DeltaCls.put(v_DK,v_Cls);
+	}
+	v_ChgTxt = "+" + v_Fmt.get("dcharges") + " " + v_Cmp;
+	v_ChgCls = "ks";
+	if(v_DCNeg)
+	{
+		v_ChgTxt = "-" + v_Fmt.get("dcharges") + " " + v_Cmp;
+		v_ChgCls = "ks neg";
+	}
+	v_Pct = Map();
+	v_Pill = Map();
+	for each  v_C in {"PV","3008","IMG"}
+	{
+		v_On = ifnull(v_N.get("R|tat|" + v_C + "|On Time"),0);
+		v_Den = v_On + ifnull(v_N.get("R|tat|" + v_C + "|Late"),0) + ifnull(v_N.get("R|tat|" + v_C + "|Overdue"),0);
+		v_PctTxt = "n/a";
+		if(v_Den > 0)
+		{
+			v_PctTxt = (v_On.toDecimal() * 100 / v_Den).round(0).toLong() + "%";
+		}
+		v_Pct.put(v_C,v_PctTxt);
+		v_Pill.put(v_C,v_On + " / " + v_Den);
+	}
+	v_NfOn = ifnull(v_N.get("P|nf|On Time"),0);
+	v_NfDen = v_NfOn + ifnull(v_N.get("P|nf|Late"),0) + ifnull(v_N.get("P|nf|Overdue"),0);
+	v_NfPct = "n/a";
+	if(v_NfDen > 0)
+	{
+		v_NfPct = (v_NfOn.toDecimal() * 100 / v_NfDen).round(0).toLong() + "%";
+	}
+	v_NfPill = v_NfOn + " / " + v_NfDen;
+	v_GoalSrc = List();
+	v_GoalSrc.add({"key":"R|tat|PV|miss","label":"Patient Visit On-Time","on":ifnull(v_N.get("R|tat|PV|On Time"),0),"den":ifnull(v_N.get("R|tat|PV|On Time"),0) + ifnull(v_N.get("R|tat|PV|Late"),0) + ifnull(v_N.get("R|tat|PV|Overdue"),0),"sub":"referral to visit, 1 day"});
+	v_GoalSrc.add({"key":"R|tat|3008|miss","label":"3008 On-Time","on":ifnull(v_N.get("R|tat|3008|On Time"),0),"den":ifnull(v_N.get("R|tat|3008|On Time"),0) + ifnull(v_N.get("R|tat|3008|Late"),0) + ifnull(v_N.get("R|tat|3008|Overdue"),0),"sub":"3 business days"});
+	v_GoalSrc.add({"key":"R|tat|IMG|miss","label":"Imaging On-Time","on":ifnull(v_N.get("R|tat|IMG|On Time"),0),"den":ifnull(v_N.get("R|tat|IMG|On Time"),0) + ifnull(v_N.get("R|tat|IMG|Late"),0) + ifnull(v_N.get("R|tat|IMG|Overdue"),0),"sub":"referral to visit, 1 day"});
+	v_GoalSrc.add({"key":"P|nf|miss","label":"Note Finalized On-Time","on":v_NfOn,"den":v_NfDen,"sub":"Patient Visit, 1 day"});
+	v_GoalTiles = List();
+	for each  v_G in v_GoalSrc
+	{
+		v_GOn = v_G.get("on").toLong();
+		v_GDen = v_G.get("den").toLong();
+		v_GTxt = "n/a";
+		v_GW = 0;
+		v_GSt = "";
+		if(v_GDen > 0)
+		{
+			v_GW = (v_GOn.toDecimal() * 100 / v_GDen).round(0).toLong();
+			v_GTxt = v_GW + "%";
+			v_GSt = "off";
+			if(v_GW >= 90)
+			{
+				v_GSt = "on";
+			}
+			else if(v_GW >= 75)
+			{
+				v_GSt = "wa";
+			}
+		}
+		v_GCls = "sosx-kpi";
+		if(v_GSt != "")
+		{
+			v_GCls = "sosx-kpi gs-" + v_GSt;
+		}
+		v_GoalTiles.add({"href":v_DD + zoho.encryption.urlEncode(v_G.get("key")),"label":v_G.get("label"),"val":v_GTxt,"pill":v_GOn + " / " + v_GDen,"w":v_GW,"st":v_GSt,"cls":v_GCls,"sub":v_G.get("sub")});
+	}
+	v_DivYes = ifnull(v_N.get("P|div|yes"),0);
+	v_DivNo = ifnull(v_N.get("P|div|no"),0);
+	v_DivBlank = ifnull(v_N.get("P|div|blank"),0);
+	v_DivDen = v_DivYes + v_DivNo;
+	v_DivPct = "n/a";
+	if(v_DivDen > 0)
+	{
+		v_DivPct = (v_DivYes.toDecimal() * 100 / v_DivDen).round(0).toLong() + "%";
+	}
+	v_DivPill = v_DivYes + " / " + v_DivDen;
+	v_DivW = 0;
+	if(v_DivDen > 0)
+	{
+		v_DivW = (v_DivYes.toDecimal() * 100 / v_DivDen).round(0).toLong();
+	}
+	v_DivSub = v_DivBlank + " blank, excludes 3008";
+	v_BilledPct = "n/a";
+	if(v_Money.get("total").toDecimal() > 0)
+	{
+		v_BilledPct = (v_Money.get("billed").toDecimal() * 100 / v_Money.get("total").toDecimal()).round(0).toLong() + "%";
+	}
+	v_Open8 = ifnull(v_N.get("R|aging|All|2"),0);
+	v_Open8Cls = "kv";
+	if(v_Open8 > 0)
+	{
+		v_Open8Cls = "kv red";
+	}
+	v_DqAny = ifnull(v_N.get("P|dq|any"),0);
+	v_DqCls = "kv";
+	if(v_DqAny > 0)
+	{
+		v_DqCls = "kv red";
+	}
+	v_VoidN = ifnull(v_N.get("P|bill|void"),0);
+	v_VoidCls = "kv";
+	if(v_VoidN > 0)
+	{
+		v_VoidCls = "kv red";
+	}
+	v_Svcs = {"Patient Visit","3008","Imaging Order (only)"};
+	v_SvcRows = List();
+	for each  v_S in v_Svcs
+	{
+		v_C = ifnull(v_N.get("R|svc|" + v_S),0);
+		v_W = 0;
+		if(v_Ref > 0)
+		{
+			v_W = (v_C.toDecimal() * 100 / v_Ref).round(1);
+		}
+		v_SvcRows.add({"name":v_S,"cnt":v_C,"w":v_W,"href":v_DD + zoho.encryption.urlEncode("R|svc|" + v_S)});
+	}
+	v_PMax = 1;
+	for each  v_X in v_M.get("partners")
+	{
+		if(v_X.getPrefix("|").toLong() - 1000000 > v_PMax)
+		{
+			v_PMax = v_X.getPrefix("|").toLong() - 1000000;
+		}
+	}
+	v_PartRows = List();
+	for each  v_X in v_M.get("partners")
+	{
+		v_Nm = v_X.getSuffix("|");
+		v_C = v_X.getPrefix("|").toLong() - 1000000;
+		v_PartRows.add({"name":v_Nm,"cnt":v_C,"w":(v_C.toDecimal() * 100 / v_PMax).round(1),"href":v_DD + zoho.encryption.urlEncode("R|partner|" + v_Nm)});
+	}
+	v_VMax = 1;
+	for each  v_X in v_M.get("provs")
+	{
+		if(v_X.getPrefix("|").toLong() - 1000000 > v_VMax)
+		{
+			v_VMax = v_X.getPrefix("|").toLong() - 1000000;
+		}
+	}
+	v_ProvRows = List();
+	for each  v_X in v_M.get("provs")
+	{
+		v_Nm = v_X.getSuffix("|");
+		v_C = v_X.getPrefix("|").toLong() - 1000000;
+		v_ProvRows.add({"name":v_Nm,"cnt":v_C,"w":(v_C.toDecimal() * 100 / v_VMax).round(1),"href":v_DD + zoho.encryption.urlEncode("P|prov|" + v_Nm)});
+	}
+	v_Lvls = {"High Complexity","Moderate Complexity","Low Complexity","Hospital at Home","Telemedicine","Care Coordination","General Consultation","No Charge","Cares 3008 Assessment","Visit Cancelled","(No Complexity)"};
+	v_LMax = 1;
+	for each  v_L in v_Lvls
+	{
+		if(ifnull(v_N.get("P|lvl|" + v_L),0) > v_LMax)
+		{
+			v_LMax = v_N.get("P|lvl|" + v_L);
+		}
+	}
+	v_LvlRows = List();
+	for each  v_L in v_Lvls
+	{
+		v_C = ifnull(v_N.get("P|lvl|" + v_L),0);
+		if(v_C > 0)
+		{
+			v_LvlRows.add({"name":v_L,"cnt":v_C,"w":(v_C.toDecimal() * 100 / v_LMax).round(1),"href":v_DD + zoho.encryption.urlEncode("P|lvl|" + v_L)});
+		}
+	}
+	v_AsgRows = List();
+	for each  v_X in v_M.get("asg_rows")
+	{
+		v_F = v_X.toList("~~");
+		v_H = "";
+		if(v_F.get(0) != "(no REF ID)")
+		{
+			v_H = v_RefRpt + "?Referral_ID=" + zoho.encryption.urlEncode(v_F.get(0));
+		}
+		v_AsgRows.add({"href":v_H,"c1":v_F.get(0),"c2":v_F.get(1),"c3":v_F.get(2),"c4":v_F.get(3),"c5":v_F.get(4)});
+	}
+	v_MRows = List();
+	for each  v_X in v_M.get("m3008_rows")
+	{
+		v_F = v_X.toList("~~");
+		v_H = "";
+		if(v_F.get(0) != "(no REF ID)")
+		{
+			v_H = v_RefRpt + "?Referral_ID=" + zoho.encryption.urlEncode(v_F.get(0));
+		}
+		v_MRows.add({"href":v_H,"c1":v_F.get(0),"c2":v_F.get(1),"c3":v_F.get(2)});
+	}
+	v_3008Ref = ifnull(v_N.get("R|svc|3008"),0);
+	v_3008Has = ifnull(v_N.get("R|3008pvs"),0);
+	v_3008No = ifnull(v_N.get("R|3008nopvs"),0);
+	v_3008Pct = 0;
+	if(v_3008Ref > 0)
+	{
+		v_3008Pct = (v_3008Has.toDecimal() * 100 / v_3008Ref).round(0).toLong();
+	}
+	v_3008Rest = 100 - v_3008Pct;
+	v_AgeRows = List();
+	for each  v_S in v_M.get("aging_svcs")
+	{
+		v_Cells = List();
+		for each  v_B in {"0","1","2"}
+		{
+			v_C = ifnull(v_N.get("R|aging|" + v_S + "|" + v_B),0);
+			v_Cls = "n";
+			if(v_B == "2" && v_C > 0)
+			{
+				v_Cls = "n red";
+			}
+			v_Cells.add({"cnt":v_C,"cls":v_Cls,"href":v_DD + zoho.encryption.urlEncode("R|aging|" + v_S + "|" + v_B)});
+		}
+		v_AgeRows.add({"name":v_S,"cells":v_Cells});
+	}
+	v_AgeTot = List();
+	for each  v_B in {"0","1","2"}
+	{
+		v_AgeTot.add({"cnt":ifnull(v_N.get("R|aging|All|" + v_B),0),"href":v_DD + zoho.encryption.urlEncode("R|aging|All|" + v_B)});
+	}
+	v_TatRows = List();
+	for each  v_T in {"PV|Patient Visit (1 day)","IMG|Imaging Order (1 day)","3008|3008 (3 business days)"}
+	{
+		v_Code = v_T.getPrefix("|");
+		v_Cells = List();
+		for each  v_St in {"On Time","Late","Overdue","Pending","Check"}
+		{
+			v_C = ifnull(v_N.get("R|tat|" + v_Code + "|" + v_St),0);
+			v_Cls = "n";
+			if(v_St == "Overdue" && v_C > 0)
+			{
+				v_Cls = "n red";
+			}
+			v_Cells.add({"cnt":v_C,"cls":v_Cls,"href":v_DD + zoho.encryption.urlEncode("R|tat|" + v_Code + "|" + v_St)});
+		}
+		v_TatRows.add({"name":v_T.getSuffix("|"),"cells":v_Cells,"pct":v_Pct.get(v_Code)});
+	}
+	v_NfRows = List();
+	for each  v_St in {"On Time","Late","Overdue","Pending","Imported","Check"}
+	{
+		v_C = ifnull(v_N.get("P|nf|" + v_St),0);
+		v_Cls = "n";
+		if(v_St == "Overdue" && v_C > 0)
+		{
+			v_Cls = "n red";
+		}
+		v_NfRows.add({"name":v_St,"cnt":v_C,"cls":v_Cls,"href":v_DD + zoho.encryption.urlEncode("P|nf|" + v_St)});
+	}
+	v_DqRows = List();
+	for each  v_X in {"zero|Billable PVS with $0 charge","nolvl|No complexity level","review|Row Status: Needs Review","blankrs|Row Status blank","noref|No referral link"}
+	{
+		v_C = ifnull(v_N.get("P|dq|" + v_X.getPrefix("|")),0);
+		v_Cls = "n";
+		if(v_C > 0)
+		{
+			v_Cls = "n red";
+		}
+		v_DqRows.add({"name":v_X.getSuffix("|"),"cnt":v_C,"cls":v_Cls,"href":v_DD + zoho.encryption.urlEncode("P|dq|" + v_X.getPrefix("|"))});
+	}
+	v_BillRows = List();
+	for each  v_X in {"billed|Billed","draft|Draft, not invoiced","held|Held from invoicing","void|Linked to void invoice","cxl|Visit cancelled"}
+	{
+		v_Bk = v_X.getPrefix("|");
+		v_C = ifnull(v_N.get("P|bill|" + v_Bk),0);
+		v_Amt = "&ndash;";
+		if(v_Fmt.containKey(v_Bk))
+		{
+			v_Amt = v_Fmt.get(v_Bk);
+		}
+		v_Cls = "n";
+		if(v_Bk == "void" && v_C > 0)
+		{
+			v_Cls = "n red";
+		}
+		v_BillRows.add({"name":v_X.getSuffix("|"),"cnt":v_C,"amt":v_Amt,"cls":v_Cls,"href":v_DD + zoho.encryption.urlEncode("P|bill|" + v_Bk)});
+	}
+	v_StTiles = List();
+	for each  v_St in {"Received","Assigned","Contacted","Scheduled","Awaiting Equipment","Pending Results","Completed"}
+	{
+		v_StTiles.add({"name":v_St,"cnt":ifnull(v_N.get("S|" + v_St),0),"href":v_DD + zoho.encryption.urlEncode("S|" + v_St)});
+	}
+	v_StRows = List();
+	for each  v_X in v_M.get("st_rows")
+	{
+		v_F = v_X.toList("~~");
+		v_H = "";
+		if(v_F.get(0) != "(no REF ID)")
+		{
+			v_H = v_RefRpt + "?Referral_ID=" + zoho.encryption.urlEncode(v_F.get(0));
+		}
+		v_Emp = v_F.get(3);
+		if(v_Emp == "")
+		{
+			v_Emp = "&ndash;";
+		}
+		v_StRows.add({"href":v_H,"c1":v_F.get(0),"c2":v_F.get(1),"c3":v_F.get(2),"c4":v_Emp,"c5":v_F.get(4),"c6":v_F.get(5)});
+	}
+	v_HAll = v_DD + zoho.encryption.urlEncode("P|all");
+	%>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap');
+.sosx { font-family: Figtree, "Helvetica Neue", Arial, sans-serif; color: #000; background: #f7f7fb; padding: 22px; box-sizing: border-box; }
+.sosx * { box-sizing: border-box; }
+.sosx a { color: inherit; text-decoration: none; }
+.sosx h1, .sosx h2, .sosx h3, .sosx .kv { font-family: "Libre Franklin", "Helvetica Neue", Arial, sans-serif; }
+.sosx-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.sosx-eyebrow { font-family: "Libre Franklin", Arial, sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: #5b5b9a; }
+.sosx h1 { margin: 0; font-size: 30px; font-weight: 700; color: #0b0b5b; }
+.sosx-range { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; font-size: 13px; }
+.sosx-pre { display: inline-block; padding: 6px 14px; border: 1px solid #c4c4dd; background: #fff; color: #0b0b5b; font-weight: 600; cursor: pointer; transition: background .15s; }
+.sosx-pre:hover { background: #f2f2f7; }
+.sosx-pre.on { background: #0b0b5b; border-color: #0b0b5b; color: #fff; }
+.sosx-pre.off { color: #8181b2; cursor: default; }
+.sosx-pre.off:hover { background: #fff; }
+.sosx-warn { color: #ff0000; font-weight: 600; }
+.sosx h3 { margin: 30px 0 8px 0; font-size: 20px; font-weight: 700; color: #0b0b5b; display: flex; align-items: baseline; gap: 10px; }
+.sosx h3 span { font-size: 12px; font-weight: 800; letter-spacing: .2em; color: #5b5b9a; }
+.sosx-goal { font-size: 13px; color: #5b5b9a; margin: 0 0 14px 0; }
+.sosx-sec { margin-bottom: 8px; }
+.sosx-sec .sosx-kpis { margin-top: 14px; }
+.sosx-kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 22px; }
+.sosx-kpis.four { grid-template-columns: repeat(4, 1fr); }
+.sosx-kpis.three { grid-template-columns: repeat(3, 1fr); }
+.sosx-kpis.auto { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.sosx-kpi { display: block; position: relative; background: #fff; box-shadow: 0 1px 3px rgba(11,11,91,.12), 0 2px 8px rgba(11,11,91,.08); padding: 16px 18px; cursor: pointer; transition: background .15s; }
+.sosx-kpi:hover { background: #f3efef; }
+.sosx-kpi .kl { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0b0b5b; padding-right: 28px; }
+.sosx-kpi .kv { font-size: 30px; font-weight: 700; color: #29349d; margin-top: 6px; line-height: 1.1; }
+.sosx-kpi .kv.red { color: #ff0000; }
+.sosx-kpi .ks { font-size: 12px; color: #8a7d7c; margin-top: 4px; }
+.sosx-kpi .ks.neg { color: #ff0000; }
+.sosx-pill { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 0 6px; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(11,11,91,.25); color: #6979e2; font-family: Figtree, Arial, sans-serif; font-size: 11px; font-weight: 600; line-height: 1.5; }
+.sosx-ic { position: absolute; top: 14px; right: 16px; width: 22px; height: 22px; }
+.sosx-trk { height: 6px; background: #eeeeee; margin-top: 10px; }
+.sosx-fil { height: 6px; background: #4949be; }
+.sosx-kpi.gs-on .kv { color: #5dca52; text-shadow: 0 1px 1px rgba(11,11,91,.35); }
+.sosx-kpi.gs-on .sosx-ic { color: #5dca52; }
+.sosx-kpi.gs-wa .kv { color: #ffb400; text-shadow: 0 1px 1px rgba(11,11,91,.35); }
+.sosx-kpi.gs-wa .sosx-ic { color: #ffb400; }
+.sosx-kpi.gs-off .kv { color: #ff0000; }
+.sosx-kpi.gs-off .sosx-ic { color: #ff0000; }
+.sosx-kpi.dark { background: #0b0b5b; }
+.sosx-kpi.dark:hover { background: #29349d; }
+.sosx-kpi.dark .kl, .sosx-kpi.dark .ks { color: #c4c4dd; }
+.sosx-kpi.dark .ks.neg { color: #ff8a8a; }
+.sosx-kpi.dark .kv { color: #5dca52; }
+.s-vis h3 span { color: #6979e2; }
+.s-bill h3 span { color: #5dca52; }
+.s-st h3 span { color: #4949be; }
+.s-vis .sosx-card h2 { border-bottom-color: #6979e2; }
+.s-bill .sosx-card h2 { border-bottom-color: #5dca52; }
+.s-st .sosx-card h2 { border-bottom-color: #4949be; }
+.sosx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.sosx-card { background: #fff; padding: 20px 22px; }
+.sosx-card.wide { grid-column: 1 / -1; }
+.sosx h2 { margin: 0 0 14px 0; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0b0b5b; padding-bottom: 8px; border-bottom: 2px solid #0b0b5b; display: flex; justify-content: space-between; }
+.sosx h2 em { font-style: normal; color: #5b5b9a; }
+.sosx h2 em a:hover { text-decoration: underline; }
+.sosx-bar { display: grid; grid-template-columns: 170px 1fr 48px; align-items: center; gap: 10px; padding: 4px 6px; font-size: 13px; cursor: pointer; transition: background .15s; }
+.sosx-bar:hover { background: #f2f2f7; }
+.sosx-bar .tr { background: #eeeef5; height: 14px; }
+.sosx-bar .fl { background: #0b0b5b; height: 14px; }
+.sosx-bar .fl.p { background: #5b5b9a; }
+.sosx-bar .vl { text-align: right; font-weight: 600; color: #0b0b5b; }
+.sosx-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sosx-tbl th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5b9a; padding: 6px 4px; border-bottom: 1px solid #c4c4dd; background: #fff; position: sticky; top: 0; }
+.sosx-tbl th.n { text-align: right; }
+.sosx-tbl td { padding: 0; border-bottom: 1px solid #eeeef5; vertical-align: top; transition: background .15s; }
+.sosx-tbl td > a, .sosx-tbl td > span { display: block; padding: 7px 4px; }
+.sosx-tbl td > a { cursor: pointer; }
+.sosx-tbl tr:hover td { background: #f2f2f7; }
+.sosx-tbl td.n { text-align: right; font-weight: 600; }
+.sosx-tbl td.red { color: #ff0000; }
+.sosx-tbl tr.tot td { border-top: 2px solid #0b0b5b; border-bottom: none; font-weight: 700; color: #0b0b5b; }
+.sosx-scroll { max-height: 220px; overflow-y: auto; }
+.sosx-scroll.short { max-height: 160px; }
+.sosx-scroll.tall { max-height: 320px; }
+.sosx-split { display: flex; height: 10px; margin: 8px 0 12px 0; background: #eeeef5; }
+.sosx-split .a { background: #0b0b5b; }
+.sosx-split .b { background: #ff0000; }
+.sosx-legend { display: flex; gap: 18px; font-size: 13px; flex-wrap: wrap; }
+.sosx-legend span { display: inline-block; width: 10px; height: 10px; margin-right: 6px; }
+.sosx-legend a { cursor: pointer; padding: 2px 4px; transition: background .15s; }
+.sosx-legend a:hover { background: #f2f2f7; }
+.sosx-empty { font-size: 13px; color: #5b5b9a; }
+.zc-menu-icon:before { visibility:hidden !important;}
+@media (max-width: 900px) { .sosx-kpis, .sosx-kpis.four, .sosx-kpis.three { grid-template-columns: repeat(2, 1fr); } .sosx-grid { grid-template-columns: 1fr; } .sosx-bar { grid-template-columns: 120px 1fr 40px; } }
+</style>
+<div class="sosx">
+	<div class="sosx-head">
+		<h1>Operations Dashboard</h1>
+		<div class="sosx-eyebrow"><%=v_M.get("range_label")%></div>
+	</div>
+	<div class="sosx-range">
+		<a class="<%=v_ClsMTD%>" href="<%=v_LnkMTD%>" target="_blank">Month to Date</a>
+		<a class="<%=v_ClsLM%>" href="<%=v_LnkLM%>" target="_blank">Last Month</a>
+		<span class="<%=v_ClsCU%>">Custom</span>
+<%
+	if(v_Warn != "")
+	{
+		%>
+<span class="sosx-warn"><%=v_Warn%></span>
+<%
+	}
+	%>
+</div>
+	<div class="sosx-kpis">
+		<a class="sosx-kpi a-ref" href="<%=v_RefRpt%>" target="_blank"><div class="kl">Referrals</div><div class="kv"><%=v_Ref%></div><div class="<%=v_DeltaCls.get("ref")%>"><%=v_Delta.get("ref")%></div></a>
+		<a class="sosx-kpi a-vis" href="<%=v_PvsRpt%>" target="_blank"><div class="kl">Completed</div><div class="kv"><%=v_Done%></div><div class="<%=v_DeltaCls.get("done")%>"><%=v_Delta.get("done")%></div></a>
+		<a class="sosx-kpi a-vis" href="<%=v_PvsRpt + "?Type_of_Entry=3008"%>" target="_blank"><div class="kl">3008 PVS</div><div class="kv"><%=v_P3008%></div><div class="<%=v_DeltaCls.get("p3008")%>"><%=v_Delta.get("p3008")%></div></a>
+		<a class="sosx-kpi a-bill" href="<%=v_DD + zoho.encryption.urlEncode("P|bill|draft")%>" target="_blank"><div class="kl">Unbilled Drafts</div><div class="kv"><%=ifnull(v_N.get("P|bill|draft"),0)%></div><div class="ks"><%=v_Fmt.get("draft")%></div></a>
+		<a class="sosx-kpi a-bill" href="<%=v_DD + zoho.encryption.urlEncode("P|bill|held")%>" target="_blank"><div class="kl">Held</div><div class="kv"><%=ifnull(v_N.get("P|bill|held"),0)%></div><div class="ks"><%=v_Fmt.get("held")%></div></a>
+		<a class="sosx-kpi dark" href="<%=v_HAll%>" target="_blank"><div class="kl">Charges</div><div class="kv"><%=v_Fmt.get("total")%></div><div class="<%=v_ChgCls%>"><%=v_ChgTxt%></div></a>
+	</div>
+
+	<div class="sosx-sec s-ref">
+	<h3><span>01</span>Referrals</h3>
+	<div class="sosx-kpis three">
+<%
+	for each  v_X in v_SvcRows
+	{
+		%>
+<a class="sosx-kpi" href="<%=v_X.get("href")%>" target="_blank"><div class="kl"><%=v_X.get("name")%></div><div class="kv"><%=v_X.get("cnt")%></div><div class="ks">referrals in range</div></a>
+<%
+	}
+	%>
+</div>
+	<div class="sosx-grid">
+		<div class="sosx-card">
+			<h2>Referrals by Service</h2>
+<%
+	for each  v_X in v_SvcRows
+	{
+		%>
+<a class="sosx-bar" href="<%=v_X.get("href")%>" target="_blank"><div><%=v_X.get("name")%></div><div class="tr"><div class="fl" style="width:<%=v_X.get("w")%>%"></div></div><div class="vl"><%=v_X.get("cnt")%></div></a>
+<%
+	}
+	%>
+</div>
+		<div class="sosx-card">
+			<h2>Referrals by Partner</h2>
+<%
+	if(v_PartRows.size() == 0)
+	{
+		%>
+<div class="sosx-empty">No referrals in range.</div>
+<%
+	}
+	for each  v_X in v_PartRows
+	{
+		%>
+<a class="sosx-bar" href="<%=v_X.get("href")%>" target="_blank"><div><%=v_X.get("name")%></div><div class="tr"><div class="fl p" style="width:<%=v_X.get("w")%>%"></div></div><div class="vl"><%=v_X.get("cnt")%></div></a>
+<%
+	}
+	%>
+</div>
+	</div>
+	</div>
+
+	<div class="sosx-sec s-vis">
+	<h3><span>02</span>Visits</h3>
+	<div class="sosx-goal">Goals: Patient Visit and Imaging seen within 1 day of referral. 3008 completed within 3 business days. Patient Visit notes finalized within 1 day of the visit.</div>
+	<div class="sosx-kpis three">
+<%
+	for each  v_X in v_GoalTiles
+	{
+		%>
+<a class="<%=v_X.get("cls")%>" href="<%=v_X.get("href")%>" target="_blank">
+<%
+		if(v_X.get("st") == "off")
+		{
+			%>
+<svg class="sosx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18.5A2 2 0 0 0 3.5 21.5h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13.5"/><line x1="12" y1="17.2" x2="12.01" y2="17.2"/></svg>
+<%
+		}
+		if(v_X.get("st") == "wa")
+		{
+			%>
+<svg class="sosx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="7.5" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12.01" y2="16.5"/></svg>
+<%
+		}
+		if(v_X.get("st") == "on")
+		{
+			%>
+<svg class="sosx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="7.5 12.5 10.5 15.5 16.5 9"/></svg>
+<%
+		}
+		%>
+<div class="kl"><%=v_X.get("label")%></div><div class="kv"><%=v_X.get("val")%><span class="sosx-pill"><%=v_X.get("pill")%></span></div><div class="sosx-trk"><div class="sosx-fil" style="width:<%=v_X.get("w")%>%"></div></div><div class="ks"><%=v_X.get("sub")%></div></a>
+<%
+	}
+	%>
+		<a class="sosx-kpi" href="<%=v_DD + zoho.encryption.urlEncode("P|div|yes")%>" target="_blank"><div class="kl">Diversion</div><div class="kv"><%=v_DivPct%><span class="sosx-pill"><%=v_DivPill%></span></div><div class="sosx-trk"><div class="sosx-fil" style="width:<%=v_DivW%>%"></div></div><div class="ks"><%=v_DivSub%></div></a>
+		<a class="sosx-kpi" href="<%=v_DD + zoho.encryption.urlEncode("P|nf|Late")%>" target="_blank"><div class="kl">Avg Days to Finalize</div><div class="kv"><%=v_M.get("nf_avg")%></div><div class="ks">visit to note finalized</div></a>
+		<a class="sosx-kpi" href="<%=v_DD + zoho.encryption.urlEncode("R|aging|All|2")%>" target="_blank"><div class="kl">Open 8+ Days</div><div class="<%=v_Open8Cls%>"><%=v_Open8%></div><div class="ks">referrals with no PVS</div></a>
+		<a class="sosx-kpi" href="<%=v_HAll%>" target="_blank"><div class="kl">PVS Counted</div><div class="kv"><%=ifnull(v_N.get("P|all"),0)%></div><div class="ks">all note types</div></a>
+		<a class="sosx-kpi" href="<%=v_DD + zoho.encryption.urlEncode("P|dq|any")%>" target="_blank"><div class="kl">Data Quality Issues</div><div class="<%=v_DqCls%>"><%=v_DqAny%></div><div class="ks">PVS needing a fix</div></a>
+	</div>
+	<div class="sosx-grid">
+		<div class="sosx-card wide">
+			<h2>Today's Visits <em><a href="<%=v_DD + zoho.encryption.urlEncode("A|open")%>" target="_blank"><%=ifnull(v_N.get("A|open"),0)%> open assignments</a></em></h2>
+<%
+	if(v_AsgRows.size() == 0)
+	{
+		%>
+<div class="sosx-empty">No open assignments.</div>
+<%
+	}
+	else
+	{
+		%>
+<div class="sosx-scroll">
+				<table class="sosx-tbl">
+					<tr><th>REF ID</th><th>Patient</th><th>Provider</th><th>Status</th><th class="n">Days Open</th></tr>
+<%
+		for each  v_X in v_AsgRows
+		{
+			v_H = v_X.get("href");
+			if(v_H != "")
+			{
+				%>
+<tr><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c1")%></a></td><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c2")%></a></td><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c3")%></a></td><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c4")%></a></td><td class="n"><a href="<%=v_H%>" target="_blank"><%=v_X.get("c5")%></a></td></tr>
+<%
+			}
+			else
+			{
+				%>
+<tr><td><span><%=v_X.get("c1")%></span></td><td><span><%=v_X.get("c2")%></span></td><td><span><%=v_X.get("c3")%></span></td><td><span><%=v_X.get("c4")%></span></td><td class="n"><span><%=v_X.get("c5")%></span></td></tr>
+<%
+			}
+		}
+		%>
+</table>
+			</div>
+<%
+	}
+	%>
+</div>
+		<div class="sosx-card">
+			<h2>Referral to Visit Turnaround <em>in range</em></h2>
+			<table class="sosx-tbl">
+				<tr><th>Goal</th><th class="n">On Time</th><th class="n">Late</th><th class="n">Overdue</th><th class="n">Pending</th><th class="n">Check</th><th class="n">On-Time</th></tr>
+<%
+	for each  v_R in v_TatRows
+	{
+		%>
+<tr><td><span><%=v_R.get("name")%></span></td>
+<%
+		for each  v_Cl in v_R.get("cells")
+		{
+			%>
+<td class="<%=v_Cl.get("cls")%>"><a href="<%=v_Cl.get("href")%>" target="_blank"><%=v_Cl.get("cnt")%></a></td>
+<%
+		}
+		%>
+<td class="n"><span><%=v_R.get("pct")%></span></td></tr>
+<%
+	}
+	%>
+</table>
+		</div>
+		<div class="sosx-card">
+			<h2>3008 Status <em><%=v_3008Pct%>% have a PVS</em></h2>
+			<div class="sosx-legend"><a href="<%=v_DD + zoho.encryption.urlEncode("R|3008pvs")%>" target="_blank"><span style="background:#0b0b5b"></span>Has PVS <b><%=v_3008Has%></b></a><a href="<%=v_DD + zoho.encryption.urlEncode("R|3008nopvs")%>" target="_blank"><span style="background:#ff0000"></span>No PVS <b><%=v_3008No%></b></a><div>of <b><%=v_3008Ref%></b></div></div>
+			<div class="sosx-split"><div class="a" style="width:<%=v_3008Pct%>%"></div><div class="b" style="width:<%=v_3008Rest%>%"></div></div>
+<%
+	if(v_MRows.size() > 0)
+	{
+		%>
+<div class="sosx-scroll short">
+				<table class="sosx-tbl">
+					<tr><th>REF ID</th><th>Patient</th><th class="n">Referred</th></tr>
+<%
+		for each  v_X in v_MRows
+		{
+			v_H = v_X.get("href");
+			if(v_H != "")
+			{
+				%>
+<tr><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c1")%></a></td><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c2")%></a></td><td class="n"><a href="<%=v_H%>" target="_blank"><%=v_X.get("c3")%></a></td></tr>
+<%
+			}
+			else
+			{
+				%>
+<tr><td><span><%=v_X.get("c1")%></span></td><td><span><%=v_X.get("c2")%></span></td><td class="n"><span><%=v_X.get("c3")%></span></td></tr>
+<%
+			}
+		}
+		%>
+</table>
+			</div>
+<%
+	}
+	%>
+</div>
+		<div class="sosx-card">
+			<h2>Open Referral Aging <em>no PVS, last 90 days</em></h2>
+			<table class="sosx-tbl">
+				<tr><th>Service</th><th class="n">0-2 days</th><th class="n">3-7 days</th><th class="n">8+ days</th></tr>
+<%
+	for each  v_R in v_AgeRows
+	{
+		%>
+<tr><td><span><%=v_R.get("name")%></span></td>
+<%
+		for each  v_Cl in v_R.get("cells")
+		{
+			%>
+<td class="<%=v_Cl.get("cls")%>"><a href="<%=v_Cl.get("href")%>" target="_blank"><%=v_Cl.get("cnt")%></a></td>
+<%
+		}
+		%>
+</tr>
+<%
+	}
+	%>
+<tr class="tot"><td><span>Total</span></td>
+<%
+	for each  v_Cl in v_AgeTot
+	{
+		%>
+<td class="n"><a href="<%=v_Cl.get("href")%>" target="_blank"><%=v_Cl.get("cnt")%></a></td>
+<%
+	}
+	%>
+</tr>
+			</table>
+		</div>
+		<div class="sosx-card">
+			<h2>Visit to Note Finalized <em>Patient Visit, 1 day</em></h2>
+			<table class="sosx-tbl">
+				<tr><th>Status</th><th class="n">PVS</th></tr>
+<%
+	for each  v_R in v_NfRows
+	{
+		%>
+<tr><td><a href="<%=v_R.get("href")%>" target="_blank"><%=v_R.get("name")%></a></td><td class="<%=v_R.get("cls")%>"><a href="<%=v_R.get("href")%>" target="_blank"><%=v_R.get("cnt")%></a></td></tr>
+<%
+	}
+	%>
+</table>
+		</div>
+		<div class="sosx-card">
+			<h2>PVS by Complexity</h2>
+<%
+	for each  v_X in v_LvlRows
+	{
+		%>
+<a class="sosx-bar" href="<%=v_X.get("href")%>" target="_blank"><div><%=v_X.get("name")%></div><div class="tr"><div class="fl" style="width:<%=v_X.get("w")%>%"></div></div><div class="vl"><%=v_X.get("cnt")%></div></a>
+<%
+	}
+	%>
+</div>
+		<div class="sosx-card">
+			<h2>PVS by Provider</h2>
+<%
+	for each  v_X in v_ProvRows
+	{
+		%>
+<a class="sosx-bar" href="<%=v_X.get("href")%>" target="_blank"><div><%=v_X.get("name")%></div><div class="tr"><div class="fl p" style="width:<%=v_X.get("w")%>%"></div></div><div class="vl"><%=v_X.get("cnt")%></div></a>
+<%
+	}
+	%>
+</div>
+		<div class="sosx-card wide">
+			<h2>Data Quality <em>counted PVS in range</em></h2>
+			<table class="sosx-tbl">
+				<tr><th>Check</th><th class="n">PVS</th></tr>
+<%
+	for each  v_R in v_DqRows
+	{
+		%>
+<tr><td><a href="<%=v_R.get("href")%>" target="_blank"><%=v_R.get("name")%></a></td><td class="<%=v_R.get("cls")%>"><a href="<%=v_R.get("href")%>" target="_blank"><%=v_R.get("cnt")%></a></td></tr>
+<%
+	}
+	%>
+</table>
+		</div>
+	</div>
+	</div>
+
+	<div class="sosx-sec s-bill">
+	<h3><span>03</span>Billing</h3>
+	<div class="sosx-kpis four">
+		<a class="sosx-kpi" href="<%=v_DD + zoho.encryption.urlEncode("P|bill|billed")%>" target="_blank"><div class="kl">Billed</div><div class="kv"><%=v_BilledPct%></div><div class="ks"><%=v_Fmt.get("billed")%> of charges</div></a>
+		<a class="sosx-kpi" href="<%=v_DD + zoho.encryption.urlEncode("P|bill|draft")%>" target="_blank"><div class="kl">Unbilled</div><div class="kv"><%=v_Fmt.get("draft")%></div><div class="ks"><%=ifnull(v_N.get("P|bill|draft"),0)%> PVS</div></a>
+		<a class="sosx-kpi" href="<%=v_DD + zoho.encryption.urlEncode("P|bill|held")%>" target="_blank"><div class="kl">Held $</div><div class="kv"><%=v_Fmt.get("held")%></div><div class="ks"><%=ifnull(v_N.get("P|bill|held"),0)%> PVS</div></a>
+		<a class="sosx-kpi" href="<%=v_DD + zoho.encryption.urlEncode("P|bill|void")%>" target="_blank"><div class="kl">Void-Linked</div><div class="<%=v_VoidCls%>"><%=v_VoidN%></div><div class="ks">PVS on a void invoice</div></a>
+	</div>
+	<div class="sosx-grid">
+		<div class="sosx-card wide">
+			<h2>Billing Status <em>by visit date</em></h2>
+			<table class="sosx-tbl">
+				<tr><th>Bucket</th><th class="n">PVS</th><th class="n">Charges</th></tr>
+<%
+	for each  v_R in v_BillRows
+	{
+		%>
+<tr><td><a href="<%=v_R.get("href")%>" target="_blank"><%=v_R.get("name")%></a></td><td class="<%=v_R.get("cls")%>"><a href="<%=v_R.get("href")%>" target="_blank"><%=v_R.get("cnt")%></a></td><td class="n"><a href="<%=v_R.get("href")%>" target="_blank"><%=v_R.get("amt")%></a></td></tr>
+<%
+	}
+	%>
+<tr class="tot"><td><a href="<%=v_HAll%>" target="_blank">Total</a></td><td class="n"><a href="<%=v_HAll%>" target="_blank"><%=ifnull(v_N.get("P|all"),0)%></a></td><td class="n"><a href="<%=v_HAll%>" target="_blank"><%=v_Fmt.get("total")%></a></td></tr>
+			</table>
+		</div>
+	</div>
+	</div>
+
+	<div class="sosx-sec s-st">
+	<h3><span>04</span>Patient Status</h3>
+	<div class="sosx-goal">Referrals received in range. Completed means a PVS exists; otherwise the assignment's visit status.</div>
+	<div class="sosx-kpis auto">
+<%
+	for each  v_X in v_StTiles
+	{
+		%>
+<a class="sosx-kpi" href="<%=v_X.get("href")%>" target="_blank"><div class="kl"><%=v_X.get("name")%></div><div class="kv"><%=v_X.get("cnt")%></div></a>
+<%
+	}
+	%>
+</div>
+	<div class="sosx-grid">
+		<div class="sosx-card wide">
+			<h2>Referral Status <em><%=v_StRows.size()%> referrals</em></h2>
+<%
+	if(v_StRows.size() == 0)
+	{
+		%>
+<div class="sosx-empty">No referrals in range.</div>
+<%
+	}
+	else
+	{
+		%>
+<div class="sosx-scroll tall">
+				<table class="sosx-tbl">
+					<tr><th>REF ID</th><th>Patient</th><th>Partner</th><th>Provider</th><th>Status</th><th class="n">Days</th></tr>
+<%
+		for each  v_X in v_StRows
+		{
+			v_H = v_X.get("href");
+			if(v_H != "")
+			{
+				%>
+<tr><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c1")%></a></td><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c2")%></a></td><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c3")%></a></td><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c4")%></a></td><td><a href="<%=v_H%>" target="_blank"><%=v_X.get("c5")%></a></td><td class="n"><a href="<%=v_H%>" target="_blank"><%=v_X.get("c6")%></a></td></tr>
+<%
+			}
+			else
+			{
+				%>
+<tr><td><span><%=v_X.get("c1")%></span></td><td><span><%=v_X.get("c2")%></span></td><td><span><%=v_X.get("c3")%></span></td><td><span><%=v_X.get("c4")%></span></td><td><span><%=v_X.get("c5")%></span></td><td class="n"><span><%=v_X.get("c6")%></span></td></tr>
+<%
+			}
+		}
+		%>
+</table>
+			</div>
+<%
+	}
+	%>
+</div>
+	</div>
+	</div>
+</div>
+<%
+
+}%>

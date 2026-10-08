@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Today's Visits</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://static.zohocdn.com/creator/widgets/version/2.0/widgetsdk-min.js"></script>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Figtree, "Helvetica Neue", Arial, sans-serif; color: #000; background: #fff; }
+.tv { padding: 18px 20px; }
+.tv-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #6979e2; margin-bottom: 10px; }
+.tv-head h2 { margin: 0; font-family: "Libre Franklin", Arial, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0b0b5b; }
+.tv-head .cnt { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #5b5b9a; }
+.tv-msg { font-size: 13px; color: #5b5b9a; padding: 8px 0; }
+.tv-msg.err { color: #ff0000; }
+.tv-scroll { max-height: 420px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5b9a; padding: 6px 6px; border-bottom: 1px solid #c4c4dd; background: #fff; position: sticky; top: 0; z-index: 1; }
+th.n, td.n { text-align: right; }
+td { padding: 6px 6px; border-bottom: 1px solid #eeeef5; vertical-align: middle; }
+tr.row { cursor: pointer; transition: background .15s; }
+tr.row:hover td { background: #f3efef; }
+td.n { font-weight: 600; }
+select { font-family: inherit; font-size: 13px; color: #0b0b5b; padding: 4px 6px; border: 1px solid #c4c4dd; border-radius: 4px; background: #fff; min-width: 150px; cursor: pointer; }
+select:disabled { color: #b8abaa; background: #f7f7fb; cursor: not-allowed; }
+select.saving { opacity: .5; }
+.ok { color: #5dca52; font-size: 12px; font-weight: 700; margin-left: 6px; }
+.bad { color: #ff0000; font-size: 12px; font-weight: 700; margin-left: 6px; }
+.toast { position: fixed; bottom: 12px; right: 12px; background: #0b0b5b; color: #fff; font-size: 13px; padding: 8px 12px; border-radius: 4px; display: none; }
+.toast.err { background: #ff0000; }
+</style>
+</head>
+<body>
+<div class="tv">
+  <div class="tv-head"><h2>Today's Visits</h2><span class="cnt" id="cnt"></span></div>
+  <div class="tv-msg" id="msg">Loading…</div>
+  <div class="tv-scroll" id="wrap" style="display:none">
+    <table>
+      <thead><tr><th>REF ID</th><th>Patient</th><th>Provider</th><th>Status</th><th class="n">Days Open</th></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var REPORT = "All_Assignments";
+var API = "Widget_Today_Visits";
+var appUrl = "";
+var providers = [];
+var statuses = [];
+var statusMap = {};
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+function toast(text, isErr) {
+  var t = document.getElementById("toast");
+  t.textContent = text;
+  t.className = isErr ? "toast err" : "toast";
+  t.style.display = "block";
+  clearTimeout(t._h);
+  t._h = setTimeout(function () { t.style.display = "none"; }, 3000);
+}
+
+function showMsg(text, isErr) {
+  var m = document.getElementById("msg");
+  m.textContent = text;
+  m.className = isErr ? "tv-msg err" : "tv-msg";
+  m.style.display = "block";
+}
+
+function unwrap(r) {
+  if (r && r.result) {
+    return typeof r.result === "string" ? JSON.parse(r.result) : r.result;
+  }
+  if (r && r.data) {
+    return typeof r.data === "string" ? JSON.parse(r.data) : r.data;
+  }
+  return r;
+}
+
+function providerSelect(row) {
+  var h = '<select data-kind="emp" data-id="' + esc(row.rec_id) + '">';
+  h += '<option value=""' + (row.emp_id ? "" : " selected") + '>Unassigned</option>';
+  var found = false;
+  providers.forEach(function (p) {
+    var sel = p.id === row.emp_id ? " selected" : "";
+    if (sel) { found = true; }
+    h += '<option value="' + esc(p.id) + '"' + sel + '>' + esc(p.name) + '</option>';
+  });
+  if (row.emp_id && !found) {
+    h += '<option value="' + esc(row.emp_id) + '" selected>' + esc(row.emp_name || "(inactive)") + '</option>';
+  }
+  return h + "</select>";
+}
+
+function statusSelect(row) {
+  var list = statusMap[row.type] || statusMap["_default"] || statuses;
+  var h = '<select data-kind="st" data-id="' + esc(row.rec_id) + '">';
+  h += '<option value=""' + (row.status ? "" : " selected") + '>(blank)</option>';
+  var found = false;
+  list.forEach(function (s) {
+    var sel = s === row.status ? " selected" : "";
+    if (sel) { found = true; }
+    h += '<option value="' + esc(s) + '"' + sel + ">" + esc(s) + "</option>";
+  });
+  if (row.status && !found) {
+    h += '<option value="' + esc(row.status) + '" selected>' + esc(row.status) + "</option>";
+  }
+  return h + "</select>";
+}
+
+function render(rows) {
+  var body = document.getElementById("body");
+  var html = "";
+  rows.forEach(function (r) {
+    html += '<tr class="row" data-ref="' + esc(r.ref_id) + '">' +
+      "<td>" + esc(r.ref_id) + "</td>" +
+      "<td>" + esc(r.patient) + "</td>" +
+      "<td>" + providerSelect(r) + "</td>" +
+      "<td>" + statusSelect(r) + "</td>" +
+      '<td class="n">' + esc(r.days) + "</td></tr>";
+  });
+  body.innerHTML = html;
+  document.getElementById("cnt").textContent = rows.length + " open assignments";
+  document.getElementById("msg").style.display = "none";
+  document.getElementById("wrap").style.display = rows.length ? "block" : "none";
+  if (!rows.length) { showMsg("No open assignments."); }
+}
+
+function openReferral(refId) {
+  if (!refId || refId === "(no REF ID)") { return; }
+  var base = appUrl.replace(/\/+$/, "");
+  window.open(base + "/#Report:Referrals_Main_Report?Referral_ID=" + encodeURIComponent(refId), "_blank");
+}
+
+function mark(sel, ok) {
+  var old = sel.parentNode.querySelector(".ok,.bad");
+  if (old) { old.remove(); }
+  var s = document.createElement("span");
+  s.className = ok ? "ok" : "bad";
+  s.textContent = ok ? "Saved" : "Not saved";
+  sel.parentNode.appendChild(s);
+  setTimeout(function () { if (s.parentNode) { s.remove(); } }, 2500);
+}
+
+function save(sel) {
+  var kind = sel.getAttribute("data-kind");
+  var id = sel.getAttribute("data-id");
+  var val = sel.value;
+  var prev = sel.getAttribute("data-prev");
+  var data = {};
+  if (kind === "emp") { data.Employee_Link = val; } else { data.Visit_Status = val; }
+  sel.classList.add("saving");
+  sel.disabled = true;
+  ZOHO.CREATOR.DATA.updateRecordById({
+    report_name: REPORT,
+    id: id,
+    payload: { data: data }
+  }).then(function (r) {
+    sel.classList.remove("saving");
+    sel.disabled = false;
+    if (r && r.code == 3000) {
+      sel.setAttribute("data-prev", val);
+      mark(sel, true);
+    } else {
+      sel.value = prev || "";
+      mark(sel, false);
+      toast((r && r.message) ? r.message : "Save failed.", true);
+    }
+  }).catch(function (e) {
+    sel.classList.remove("saving");
+    sel.disabled = false;
+    sel.value = prev || "";
+    mark(sel, false);
+    var m = (e && (e.message || (e.responseText))) ? (e.message || e.responseText) : "Save failed.";
+    toast(String(m).substring(0, 200), true);
+  });
+}
+
+document.addEventListener("click", function (ev) {
+  if (ev.target.closest("select")) { return; }
+  var tr = ev.target.closest("tr.row");
+  if (tr) { openReferral(tr.getAttribute("data-ref")); }
+});
+
+document.addEventListener("focusin", function (ev) {
+  if (ev.target.tagName === "SELECT") { ev.target.setAttribute("data-prev", ev.target.value); }
+});
+
+document.addEventListener("change", function (ev) {
+  if (ev.target.tagName === "SELECT") { save(ev.target); }
+});
+
+function load() {
+  ZOHO.CREATOR.DATA.invokeCustomApi({
+    api_name: API,
+    workspace_name: "sosmmc",
+    http_method: "GET"
+  }).then(function (r) {
+    var d = unwrap(r);
+    if (!d || !d.rows) {
+      showMsg("Could not read assignments. Response: " + JSON.stringify(r).substring(0, 300), true);
+      return;
+    }
+    appUrl = d.app_url || "";
+    providers = d.providers || [];
+    statuses = d.statuses || [];
+    statusMap = d.status_map || {};
+    render(d.rows);
+  }).catch(function (e) {
+    var m = (e && (e.message || e.responseText)) ? (e.message || e.responseText) : JSON.stringify(e);
+    showMsg("Could not load assignments: " + String(m).substring(0, 300), true);
+  });
+}
+
+function start() {
+  if (ZOHO.CREATOR.init) {
+    ZOHO.CREATOR.init().then(load).catch(load);
+  } else {
+    load();
+  }
+}
+
+start();
+</script>
+</body>
+</html>

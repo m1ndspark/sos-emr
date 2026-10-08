@@ -1,0 +1,21 @@
+if(input.Referral_Link == null)
+{
+	alert "Select a referral before creating this assignment.";
+	cancel submit;
+}
+else
+{
+	v_IsNew = true;
+	if(input.ID != null)
+	{
+		if(Assignments[ID == input.ID].count() > 0)
+		{
+			v_IsNew = false;
+		}
+	}
+	if(v_IsNew && input.Employee_Link == null)
+	{
+		alert "Select an employee before creating this assignment.";
+		cancel submit;
+	}
+}

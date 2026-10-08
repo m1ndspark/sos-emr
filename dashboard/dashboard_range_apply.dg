@@ -1,0 +1,12 @@
+if(input.From_Date == null || input.To_Date == null)
+{
+	alert "Pick both a From and a To date.";
+}
+else if(input.To_Date < input.From_Date)
+{
+	alert "To date must be on or after the From date.";
+}
+else
+{
+	openUrl("#Page:Reports?r_from=" + input.From_Date.toString("yyyy-MM-dd") + "&r_to=" + input.To_Date.toString("yyyy-MM-dd") + "&r_mode=CUSTOM","parent window");
+}

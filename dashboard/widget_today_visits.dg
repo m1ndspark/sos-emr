@@ -1,0 +1,108 @@
+map widget_today_visits()
+{
+	v_Today = zoho.currentdate;
+	v_AgeWin = v_Today.subDay(90);
+	v_EmpNames = Map();
+	for each  v_E in Employees[ID != 0]
+	{
+		v_EmpNames.put(v_E.ID.toString(),(ifnull(v_E.Employee_First_Name,"").toString() + " " + ifnull(v_E.Employee_Last_Name,"").toString()).trim());
+	}
+	v_OpenIds = List();
+	v_OpenInfo = Map();
+	v_OpenType = Map();
+	for each  v_R in Referrals_Main[Referral_Date >= v_AgeWin && Referral_Date <= v_Today]
+	{
+		v_Rid = ifnull(v_R.Referral_ID,"").toString().trim();
+		v_Has = false;
+		for each  v_Fv in Encounter_PatientVisit[Referral_Link == v_R.ID && Visit_Completion_Date != null] sort by Visit_Completion_Date range from 1 to 5
+		{
+			if(ifnull(v_Fv.Row_Status,"").toString() != "Duplicate")
+			{
+				v_Has = true;
+				break;
+			}
+		}
+		if(v_Has == false && v_Rid != "")
+		{
+			for each  v_Fv in Encounter_PatientVisit[Referral_ID == v_Rid && Visit_Completion_Date != null] sort by Visit_Completion_Date range from 1 to 5
+			{
+				if(ifnull(v_Fv.Row_Status,"").toString() != "Duplicate")
+				{
+					v_Has = true;
+					break;
+				}
+			}
+		}
+		if(v_Has)
+		{
+			continue;
+		}
+		v_RidTxt = v_Rid;
+		if(v_RidTxt == "")
+		{
+			v_RidTxt = "(no REF ID)";
+		}
+		v_OpenIds.add(v_R.ID);
+		v_OpenInfo.put(v_R.ID.toString(),v_RidTxt + "~~" + v_R.Referral_Date.daysBetween(v_Today));
+		v_OpenType.put(v_R.ID.toString(),ifnull(v_R.Referral_Type,"").toString());
+	}
+	v_RowMap = Map();
+	v_Keys = List();
+	if(v_OpenIds.size() > 0)
+	{
+		for each  v_A in Assignments[Referral_Link in v_OpenIds]
+		{
+			v_RefKey = v_A.Referral_Link.toString();
+			v_Info = ifnull(v_OpenInfo.get(v_RefKey),"(no REF ID)~~").toString();
+			v_RefId = v_Info.getPrefix("~~");
+			v_Days = v_Info.getSuffix("~~");
+			v_EmpId = "";
+			v_EmpName = "";
+			if(v_A.Employee_Link != null)
+			{
+				v_EmpId = v_A.Employee_Link.toString();
+				v_EmpName = ifnull(v_EmpNames.get(v_EmpId),"").toString();
+			}
+			v_Row = Map();
+			v_Row.put("rec_id",v_A.ID.toString());
+			v_Row.put("asg_id",ifnull(v_A.Assignment_ID,"").toString());
+			v_Row.put("ref_id",v_RefId);
+			v_Row.put("type",ifnull(v_OpenType.get(v_RefKey),"").toString());
+			v_Row.put("patient",(ifnull(v_A.Patient_First_Name,"").toString() + " " + ifnull(v_A.Patient_Last_Name,"").toString()).trim());
+			v_Row.put("emp_id",v_EmpId);
+			v_Row.put("emp_name",v_EmpName);
+			v_Row.put("status",ifnull(v_A.Visit_Status,"").toString());
+			v_Row.put("days",v_Days);
+			v_SortKey = v_RefId + "|" + v_A.ID.toString();
+			v_RowMap.put(v_SortKey,v_Row);
+			v_Keys.add(v_SortKey);
+		}
+	}
+	v_Keys = v_Keys.sort(false);
+	v_Rows = List();
+	for each  v_K in v_Keys
+	{
+		v_Rows.add(v_RowMap.get(v_K));
+	}
+	v_Provs = List();
+	for each  v_E in Employees[Employee_Status == "Active" && Employee_Job_Title == "Clinical"] sort by Employee_Last_Name
+	{
+		v_P = Map();
+		v_P.put("id",v_E.ID.toString());
+		v_P.put("name",(ifnull(v_E.Employee_First_Name,"").toString() + " " + ifnull(v_E.Employee_Last_Name,"").toString()).trim());
+		v_Provs.add(v_P);
+	}
+	v_StatusMap = Map();
+	v_StatusMap.put("Patient Visit",{"Received","Contacted","Scheduled","Awaiting Equipment","Pending Results","Completed"});
+	v_StatusMap.put("3008",{"Received","Pending Info","Completed"});
+	v_StatusMap.put("Imaging Order (only)",{"Received","Ordered","Pending Results","Report Sent","Completed"});
+	v_StatusMap.put("_default",{"Received","Contacted","Scheduled","Awaiting Equipment","Pending Results","Ordered","Report Sent","Pending Info","Completed"});
+	v_Out = Map();
+	v_Out.put("rows",v_Rows);
+	v_Out.put("providers",v_Provs);
+	v_Out.put("status_map",v_StatusMap);
+	v_Out.put("statuses",v_StatusMap.get("_default"));
+	v_Out.put("app_url","https://creatorapp.zoho.com" + zoho.appuri);
+	v_Out.put("count",v_Rows.size());
+	return v_Out;
+}
