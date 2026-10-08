@@ -1,5 +1,19 @@
 map widget_today_visits()
 {
+	v_User = ifnull(zoho.loginuserid,"").toString().trim().toLowerCase();
+	v_Allowed = {"joshua.kolanko@sosmmc.com","neil.heird@sosmmc.com","joshua.kolanko@sosreferrals.com"};
+	if(!v_Allowed.contains(v_User))
+	{
+		v_Deny = Map();
+		v_Deny.put("rows",List());
+		v_Deny.put("providers",List());
+		v_Deny.put("status_map",Map());
+		v_Deny.put("statuses",List());
+		v_Deny.put("app_url","");
+		v_Deny.put("count",0);
+		v_Deny.put("denied",true);
+		return v_Deny;
+	}
 	v_Today = zoho.currentdate;
 	v_AgeWin = v_Today.subDay(90);
 	v_EmpNames = Map();
@@ -104,5 +118,6 @@ map widget_today_visits()
 	v_Out.put("statuses",v_StatusMap.get("_default"));
 	v_Out.put("app_url","https://creatorapp.zoho.com" + zoho.appuri);
 	v_Out.put("count",v_Rows.size());
+	v_Out.put("denied",false);
 	return v_Out;
 }
