@@ -1,0 +1,42 @@
+v_out = "READ-ONLY";
+v_bid = ifnull(p_booksInvoiceId,"").trim();
+if(v_bid == "")
+{
+	return "ERROR: Books Invoice ID is required.";
+}
+v_found = 0;
+for each  v_inv in Invoices[Books_Invoice_ID == v_bid]
+{
+	v_found = v_found + 1;
+	v_out = v_out + "\nINVOICE " + ifnull(v_inv.Books_Invoice_Number,"") + " | Creator ID " + v_inv.ID + " | Total " + ifnull(v_inv.Invoice_Total,"") + " | Visits " + ifnull(v_inv.Visit_Count,"");
+	v_n = 0;
+	for each  v_p in Encounter_PatientVisit[Invoice_Link == v_inv.ID] sort by Visit_Completion_Date
+	{
+		v_n = v_n + 1;
+		v_svc = "";
+		if(v_p.Referral_Link != null)
+		{
+			v_ref = Referrals_Main[ID == v_p.Referral_Link];
+			if(v_ref.ID != null)
+			{
+				v_svc = ifnull(v_ref.Referral_Type,"");
+			}
+		}
+		v_dos = "";
+		if(v_p.Visit_Completion_Date != null)
+		{
+			v_dos = v_p.Visit_Completion_Date.toString("MM-dd-yyyy");
+		}
+		v_out = v_out + "\n" + v_n + ". " + ifnull(v_p.PVS_ID,"(no PVS ID)") + " | REF " + ifnull(v_p.Referral_ID,"") + " | Entry " + ifnull(v_p.Type_of_Entry,"") + " | Ref Service " + v_svc + " | Level " + ifnull(v_p.Complexity_Level,"") + " | Charge " + ifnull(v_p.Complexity_Charge,"") + " | DOS " + v_dos + " | Inv Status " + ifnull(v_p.Invoice_Status,"");
+	}
+	if(v_n == 0)
+	{
+		v_out = v_out + "\nNo PVS records linked to this invoice.";
+	}
+}
+if(v_found == 0)
+{
+	v_out = v_out + "\nNo Creator invoice found with Books Invoice ID " + v_bid + ".";
+}
+info v_out;
+return v_out;

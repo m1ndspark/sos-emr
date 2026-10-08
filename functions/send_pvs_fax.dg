@@ -39,7 +39,7 @@ if(pOriginalFaxID > 0)
 		v_row.Original_Fax_Link=pOriginalFaxID;
 	}
 }
-for each  v_emp in Employees[Employee_Email == zoho.loginuserid]
+for each  v_emp in Employees[Employee_Portal_Email == zoho.loginuserid]
 {
 	v_row.Sent_By=v_emp.ID;
 	break;

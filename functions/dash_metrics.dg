@@ -1,0 +1,505 @@
+v_Today = zoho.currentdate;
+v_Start = toDate(p_monthStart.toString("yyyy-MM") + "-01","yyyy-MM-dd");
+v_End = v_Start.addMonth(1);
+v_LStart = v_Start.addMonth(-1);
+v_IsCurrent = false;
+v_LEnd = v_Start;
+if(v_Today >= v_Start && v_Today < v_End)
+{
+	v_IsCurrent = true;
+	v_LEnd = v_Today.addMonth(-1).addDay(1);
+}
+v_AgeWin = v_Today.subDay(90);
+v_Win = v_AgeWin;
+if(v_LStart < v_Win)
+{
+	v_Win = v_LStart;
+}
+v_PartnerNames = Map();
+for each  v_P in Partners[ID != 0]
+{
+	v_PartnerNames.put(v_P.ID.toString(),ifnull(v_P.Partner_Display_Name,"").toString().trim());
+}
+v_EmpNames = Map();
+for each  v_E in Employees[ID != 0]
+{
+	v_EmpNames.put(v_E.ID.toString(),(ifnull(v_E.Employee_First_Name,"").toString() + " " + ifnull(v_E.Employee_Last_Name,"").toString()).trim());
+}
+v_VoidInv = Map();
+for each  v_I in Invoices[Invoice_Record_Status == "Void"]
+{
+	v_VoidInv.put(v_I.ID.toString(),1);
+}
+v_Pairs = List();
+v_FirstByLink = Map();
+v_FirstByRid = Map();
+v_BilledAmt = 0.0;
+v_DraftAmt = 0.0;
+v_HeldAmt = 0.0;
+v_LCharges = 0.0;
+v_LDone = 0;
+v_L3008 = 0;
+v_LRef = 0;
+v_NfSum = 0;
+v_NfCnt = 0;
+for each  v_V in Encounter_PatientVisit[Visit_Completion_Date >= v_Win]
+{
+	v_Rs = ifnull(v_V.Row_Status,"").toString();
+	if(v_Rs == "Duplicate")
+	{
+		continue;
+	}
+	v_Vc = v_V.Visit_Completion_Date;
+	v_VcN = v_Vc.toString("yyyyMMdd").toLong();
+	if(v_V.Referral_Link != null)
+	{
+		v_LK = v_V.Referral_Link.toString();
+		if(v_FirstByLink.containKey(v_LK) == false)
+		{
+			v_FirstByLink.put(v_LK,v_VcN);
+		}
+		else if(v_VcN < v_FirstByLink.get(v_LK).toLong())
+		{
+			v_FirstByLink.put(v_LK,v_VcN);
+		}
+	}
+	v_PRid = ifnull(v_V.Referral_ID,"").toString().trim();
+	if(v_PRid != "")
+	{
+		if(v_FirstByRid.containKey(v_PRid) == false)
+		{
+			v_FirstByRid.put(v_PRid,v_VcN);
+		}
+		else if(v_VcN < v_FirstByRid.get(v_PRid).toLong())
+		{
+			v_FirstByRid.put(v_PRid,v_VcN);
+		}
+	}
+	if(v_Rs == "Cancelled" || v_Rs == "Folded")
+	{
+		continue;
+	}
+	v_Lvl = ifnull(v_V.Complexity_Level,"").toString().trim();
+	if(v_Lvl == "")
+	{
+		v_Lvl = "(No Complexity)";
+	}
+	v_Amt = 0.0;
+	if(v_V.Complexity_Charge != null)
+	{
+		v_Amt = v_Amt + v_V.Complexity_Charge.toDecimal();
+	}
+	if(v_V.After_Hours_Fee != null)
+	{
+		v_Amt = v_Amt + v_V.After_Hours_Fee.toDecimal();
+	}
+	if(v_V.Super_Stat_Fee != null)
+	{
+		v_Amt = v_Amt + v_V.Super_Stat_Fee.toDecimal();
+	}
+	if(v_V.Equipment_Charge_Amount != null)
+	{
+		v_Amt = v_Amt + v_V.Equipment_Charge_Amount.toDecimal();
+	}
+	if(v_V.Other_Charges_Amount != null)
+	{
+		v_Amt = v_Amt + v_V.Other_Charges_Amount.toDecimal();
+	}
+	v_IsVoid = false;
+	if(v_V.Invoice_Link != null)
+	{
+		if(v_VoidInv.containKey(v_V.Invoice_Link.toString()))
+		{
+			v_IsVoid = true;
+		}
+	}
+	v_IsDone = false;
+	if(ifnull(v_V.Visit_Status,"").toString() == "Completed")
+	{
+		v_IsDone = true;
+	}
+	v_Te = ifnull(v_V.Type_of_Entry,"").toString();
+	if(v_Vc >= v_LStart && v_Vc < v_LEnd)
+	{
+		if(v_IsDone)
+		{
+			v_LDone = v_LDone + 1;
+		}
+		if(v_Te == "3008")
+		{
+			v_L3008 = v_L3008 + 1;
+		}
+		if(v_IsVoid == false && v_Lvl != "Visit Cancelled")
+		{
+			v_LCharges = v_LCharges + v_Amt;
+		}
+	}
+	if(v_Vc >= v_Start && v_Vc < v_End)
+	{
+		v_Id = v_V.ID.toString();
+		v_Pairs.add("P|all~~" + v_Id);
+		if(v_IsDone)
+		{
+			v_Pairs.add("P|done~~" + v_Id);
+		}
+		if(v_Te == "3008")
+		{
+			v_Pairs.add("P|3008~~" + v_Id);
+		}
+		v_Pairs.add("P|lvl|" + v_Lvl + "~~" + v_Id);
+		v_Prov = ifnull(v_V.Employee_Full_Name,"").toString().trim();
+		if(v_Prov == "")
+		{
+			v_Prov = "(No Provider)";
+		}
+		v_Pairs.add("P|prov|" + v_Prov + "~~" + v_Id);
+		if(v_V.Invoice_Link != null && v_IsVoid == false)
+		{
+			v_Pairs.add("P|bill|billed~~" + v_Id);
+			v_BilledAmt = v_BilledAmt + v_Amt;
+		}
+		else if(v_IsVoid)
+		{
+			v_Pairs.add("P|bill|void~~" + v_Id);
+		}
+		else if(v_Lvl == "Visit Cancelled")
+		{
+			v_Pairs.add("P|bill|cxl~~" + v_Id);
+		}
+		else if(ifnull(v_V.Hold_From_Invoicing,"").toString() == "Yes")
+		{
+			v_Pairs.add("P|bill|held~~" + v_Id);
+			v_HeldAmt = v_HeldAmt + v_Amt;
+		}
+		else
+		{
+			v_Pairs.add("P|bill|draft~~" + v_Id);
+			v_DraftAmt = v_DraftAmt + v_Amt;
+		}
+		v_Dq = false;
+		if(v_Amt == 0 && v_Lvl != "No Charge" && v_Lvl != "Visit Cancelled")
+		{
+			v_Pairs.add("P|dq|zero~~" + v_Id);
+			v_Dq = true;
+		}
+		if(v_Lvl == "(No Complexity)")
+		{
+			v_Pairs.add("P|dq|nolvl~~" + v_Id);
+			v_Dq = true;
+		}
+		if(v_Rs == "Needs Review")
+		{
+			v_Pairs.add("P|dq|review~~" + v_Id);
+			v_Dq = true;
+		}
+		if(v_Rs == "")
+		{
+			v_Pairs.add("P|dq|blankrs~~" + v_Id);
+			v_Dq = true;
+		}
+		if(v_V.Referral_Link == null)
+		{
+			v_Pairs.add("P|dq|noref~~" + v_Id);
+			v_Dq = true;
+		}
+		if(v_Dq)
+		{
+			v_Pairs.add("P|dq|any~~" + v_Id);
+		}
+		if(v_Te == "Patient Visit" && v_IsDone)
+		{
+			v_Nt = ifnull(v_V.Clinical_Note_Type,"").toString();
+			v_NfSt = "";
+			if(v_V.Note_Finalized_Time != null)
+			{
+				v_FinD = toDate(v_V.Note_Finalized_Time.toString("yyyy-MM-dd"),"yyyy-MM-dd");
+				v_D2 = v_Vc.daysBetween(v_FinD);
+				if(v_D2 < 0)
+				{
+					v_NfSt = "Check";
+				}
+				else
+				{
+					v_NfSum = v_NfSum + v_D2;
+					v_NfCnt = v_NfCnt + 1;
+					if(v_D2 <= 1)
+					{
+						v_NfSt = "On Time";
+					}
+					else
+					{
+						v_NfSt = "Late";
+					}
+				}
+			}
+			else if(v_Nt == "Final" || v_Nt == "Addendum")
+			{
+				v_NfSt = "Imported";
+			}
+			else if(v_Vc.daysBetween(v_Today) > 1)
+			{
+				v_NfSt = "Overdue";
+			}
+			else
+			{
+				v_NfSt = "Pending";
+			}
+			v_Pairs.add("P|nf|" + v_NfSt + "~~" + v_Id);
+			if(v_NfSt == "Late" || v_NfSt == "Overdue")
+			{
+				v_Pairs.add("P|nf|miss~~" + v_Id);
+			}
+		}
+	}
+}
+v_OpenIds = List();
+v_OpenInfo = Map();
+v_AgeSvc = List();
+v_M3008 = List();
+for each  v_R in Referrals_Main[Referral_Date >= v_Win]
+{
+	v_Rd = v_R.Referral_Date;
+	v_T = ifnull(v_R.Referral_Type,"").toString();
+	v_K = v_R.ID.toString();
+	v_Rid = ifnull(v_R.Referral_ID,"").toString().trim();
+	v_FirstN = 0;
+	if(v_FirstByLink.containKey(v_K))
+	{
+		v_FirstN = v_FirstByLink.get(v_K).toLong();
+	}
+	else if(v_Rid != "" && v_FirstByRid.containKey(v_Rid))
+	{
+		v_FirstN = v_FirstByRid.get(v_Rid).toLong();
+	}
+	v_Has = false;
+	if(v_FirstN > 0)
+	{
+		v_Has = true;
+	}
+	v_Name = ifnull(v_R.Patient_Full_Name,"").toString().trim();
+	if(v_Rd >= v_LStart && v_Rd < v_LEnd)
+	{
+		v_LRef = v_LRef + 1;
+	}
+	if(v_Has == false && v_Rd >= v_AgeWin)
+	{
+		v_Days = v_Rd.daysBetween(v_Today);
+		v_OpenIds.add(v_R.ID);
+		v_OpenInfo.put(v_K,if(v_Rid == "","(no REF ID)",v_Rid) + "~~" + v_Days);
+		v_B = "2";
+		if(v_Days <= 2)
+		{
+			v_B = "0";
+		}
+		else if(v_Days <= 7)
+		{
+			v_B = "1";
+		}
+		v_Svc = if(v_T == "","(No Service)",v_T);
+		if(v_AgeSvc.contains(v_Svc) == false)
+		{
+			v_AgeSvc.add(v_Svc);
+		}
+		v_Pairs.add("R|aging|" + v_Svc + "|" + v_B + "~~" + v_K);
+		v_Pairs.add("R|aging|All|" + v_B + "~~" + v_K);
+	}
+	if(v_Rd >= v_Start && v_Rd < v_End)
+	{
+		v_Pairs.add("R|all~~" + v_K);
+		v_Pairs.add("R|svc|" + if(v_T == "","(No Service)",v_T) + "~~" + v_K);
+		v_Pn = "";
+		if(v_R.Partner_Link != null)
+		{
+			v_Pn = ifnull(v_PartnerNames.get(v_R.Partner_Link.toString()),"").toString();
+		}
+		if(v_Pn == "")
+		{
+			v_Pn = "No Partner";
+		}
+		v_Pairs.add("R|partner|" + v_Pn + "~~" + v_K);
+		v_EndD = v_Today;
+		if(v_Has)
+		{
+			v_EndD = toDate(v_FirstN.toString(),"yyyyMMdd");
+		}
+		v_Code = "PV";
+		if(v_T == "3008")
+		{
+			v_Code = "3008";
+		}
+		else if(v_T == "Imaging Order (only)")
+		{
+			v_Code = "IMG";
+		}
+		v_St = "";
+		if(v_Code == "3008")
+		{
+			if(v_Has)
+			{
+				v_Pairs.add("R|3008pvs~~" + v_K);
+			}
+			else
+			{
+				v_Pairs.add("R|3008nopvs~~" + v_K);
+				v_M3008.add(if(v_Rid == "","(no REF ID)",v_Rid) + "~~" + v_Name + "~~" + v_Rd.toString("MM/dd") + "~~" + v_K);
+			}
+			v_N = v_Rd.daysBetween(v_EndD);
+			if(v_N < 0)
+			{
+				v_St = "Check";
+			}
+			else
+			{
+				v_Rem = v_N % 7;
+				v_Bd = ((v_N - v_Rem) / 7).toLong() * 5;
+				v_Dow = v_Rd.getDayOfWeek();
+				for each  v_Ix in {1,2,3,4,5,6}
+				{
+					if(v_Ix <= v_Rem)
+					{
+						v_Day = (v_Dow - 1 + v_Ix) % 7 + 1;
+						if(v_Day != 1 && v_Day != 7)
+						{
+							v_Bd = v_Bd + 1;
+						}
+					}
+				}
+				if(v_Has)
+				{
+					if(v_Bd <= 3)
+					{
+						v_St = "On Time";
+					}
+					else
+					{
+						v_St = "Late";
+					}
+				}
+				else if(v_Bd > 3)
+				{
+					v_St = "Overdue";
+				}
+				else
+				{
+					v_St = "Pending";
+				}
+			}
+		}
+		else
+		{
+			v_D1 = v_Rd.daysBetween(v_EndD);
+			if(v_Has)
+			{
+				if(v_D1 < 0)
+				{
+					v_St = "Check";
+				}
+				else if(v_D1 <= 1)
+				{
+					v_St = "On Time";
+				}
+				else
+				{
+					v_St = "Late";
+				}
+			}
+			else if(v_D1 > 1)
+			{
+				v_St = "Overdue";
+			}
+			else
+			{
+				v_St = "Pending";
+			}
+		}
+		v_Pairs.add("R|tat|" + v_Code + "|" + v_St + "~~" + v_K);
+		if(v_St == "Late" || v_St == "Overdue")
+		{
+			v_Pairs.add("R|tat|" + v_Code + "|miss~~" + v_K);
+		}
+	}
+}
+v_AsgRows = List();
+if(v_OpenIds.size() > 0)
+{
+	for each  v_A in Assignments[Referral_Link in v_OpenIds]
+	{
+		v_AK = v_A.Referral_Link.toString();
+		v_AInfo = ifnull(v_OpenInfo.get(v_AK),"(no REF ID)~~").toString();
+		v_AName = (ifnull(v_A.Patient_First_Name,"").toString() + " " + ifnull(v_A.Patient_Last_Name,"").toString()).trim();
+		v_AEmp = "";
+		if(v_A.Employee_Link != null)
+		{
+			v_AEmp = ifnull(v_EmpNames.get(v_A.Employee_Link.toString()),"").toString();
+		}
+		if(v_AEmp == "")
+		{
+			v_AEmp = "Unassigned";
+		}
+		v_ASt = ifnull(v_A.Visit_Status,"").toString();
+		if(v_ASt == "")
+		{
+			v_ASt = "(blank)";
+		}
+		v_AsgRows.add(v_AInfo.getPrefix("~~") + "~~" + v_AName + "~~" + v_AEmp + "~~" + v_ASt + "~~" + v_AInfo.getSuffix("~~") + "~~" + v_A.ID.toString());
+		v_Pairs.add("A|open~~" + v_A.ID.toString());
+	}
+}
+v_Ids = Map();
+for each  v_Pr in v_Pairs
+{
+	v_Bk = v_Pr.getPrefix("~~");
+	v_Rec = v_Pr.getSuffix("~~");
+	v_Lst = List();
+	if(v_Ids.containKey(v_Bk))
+	{
+		v_Lst = v_Ids.get(v_Bk);
+	}
+	v_Lst.add(v_Rec);
+	v_Ids.put(v_Bk,v_Lst);
+}
+v_Partners = List();
+v_Provs = List();
+for each  v_Key in v_Ids.keys()
+{
+	v_Sz = v_Ids.get(v_Key).size();
+	if(v_Key.startsWith("R|partner|"))
+	{
+		v_Partners.add((1000000 + v_Sz).toString() + "|" + v_Key.subString(10,v_Key.length()));
+	}
+	else if(v_Key.startsWith("P|prov|"))
+	{
+		v_Provs.add((1000000 + v_Sz).toString() + "|" + v_Key.subString(7,v_Key.length()));
+	}
+}
+v_Partners = v_Partners.sort(false);
+v_Provs = v_Provs.sort(false);
+v_AsgRows = v_AsgRows.sort(true);
+v_M3008 = v_M3008.sort(true);
+v_Money = Map();
+v_Money.put("billed",v_BilledAmt);
+v_Money.put("draft",v_DraftAmt);
+v_Money.put("held",v_HeldAmt);
+v_Money.put("total",v_BilledAmt + v_DraftAmt + v_HeldAmt);
+v_Money.put("lcharges",v_LCharges);
+v_NfAvg = "n/a";
+if(v_NfCnt > 0)
+{
+	v_NfAvg = (v_NfSum.toDecimal() / v_NfCnt).round(1).toString();
+}
+v_Out = Map();
+v_Out.put("ids",v_Ids);
+v_Out.put("money",v_Money);
+v_Out.put("l_ref",v_LRef);
+v_Out.put("l_done",v_LDone);
+v_Out.put("l_3008",v_L3008);
+v_Out.put("nf_avg",v_NfAvg);
+v_Out.put("aging_svcs",v_AgeSvc);
+v_Out.put("partners",v_Partners);
+v_Out.put("provs",v_Provs);
+v_Out.put("asg_rows",v_AsgRows);
+v_Out.put("m3008_rows",v_M3008);
+v_Out.put("month_label",v_Start.toString("MMMM yyyy"));
+v_Out.put("month_key",v_Start.toString("yyyy-MM"));
+v_Out.put("is_current",v_IsCurrent);
+return v_Out;

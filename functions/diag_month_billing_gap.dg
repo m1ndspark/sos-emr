@@ -1,0 +1,254 @@
+v_M = if(p_month < 10,"0" + p_month.toString(),p_month.toString());
+v_Start = toDate(p_year.toString() + "-" + v_M + "-01","yyyy-MM-dd");
+v_End = v_Start.addMonth(1);
+v_PvsByRef = Map();
+v_PvsByLink = Map();
+v_BilledCt = 0;
+v_BilledAmt = 0.0;
+v_HeldCt = 0;
+v_HeldAmt = 0.0;
+v_DraftCt = 0;
+v_DraftAmt = 0.0;
+v_NonBillCt = 0;
+v_VoidLinkCt = 0;
+v_ExcludedCt = 0;
+v_NotCompletedCt = 0;
+v_HeldList = List();
+v_DraftList = List();
+v_VoidList = List();
+for each  v_P in Encounter_PatientVisit[ID != 0]
+{
+	v_Rs = ifnull(v_P.Row_Status,"").toString();
+	v_Vc = v_P.Visit_Completion_Date;
+	v_InMonth = false;
+	if(v_Vc != null)
+	{
+		if(v_Vc >= v_Start && v_Vc < v_End)
+		{
+			v_InMonth = true;
+		}
+	}
+	if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+	{
+		if(v_InMonth)
+		{
+			v_ExcludedCt = v_ExcludedCt + 1;
+		}
+	}
+	else
+	{
+		v_Rid = ifnull(v_P.Referral_ID,"").toString().trim();
+		if(v_Rid != "")
+		{
+			v_PvsByRef.put(v_Rid,1);
+		}
+		if(v_P.Referral_Link != null)
+		{
+			v_PvsByLink.put(v_P.Referral_Link.toString(),1);
+		}
+		if(v_InMonth)
+		{
+			v_Pid = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+			v_RefTxt = if(v_Rid == "","(no referral)",v_Rid);
+			v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+			v_Vs = ifnull(v_P.Visit_Status,"").toString();
+			if(v_Vs != "Completed")
+			{
+				v_NotCompletedCt = v_NotCompletedCt + 1;
+			}
+			v_Amt = 0.0;
+			if(v_P.Complexity_Charge != null)
+			{
+				v_Amt = v_Amt + v_P.Complexity_Charge.toDecimal();
+			}
+			if(v_P.After_Hours_Fee != null)
+			{
+				v_Amt = v_Amt + v_P.After_Hours_Fee.toDecimal();
+			}
+			if(v_P.Super_Stat_Fee != null)
+			{
+				v_Amt = v_Amt + v_P.Super_Stat_Fee.toDecimal();
+			}
+			if(v_P.Equipment_Charge_Amount != null)
+			{
+				v_Amt = v_Amt + v_P.Equipment_Charge_Amount.toDecimal();
+			}
+			if(v_P.Other_Charges_Amount != null)
+			{
+				v_Amt = v_Amt + v_P.Other_Charges_Amount.toDecimal();
+			}
+			v_InvState = "None";
+			v_InvNum = "";
+			if(v_P.Invoice_Link != null)
+			{
+				v_InvState = "Linked";
+				v_Inv = Invoices[ID == v_P.Invoice_Link];
+				if(v_Inv.ID != null)
+				{
+					v_InvNum = ifnull(v_Inv.Books_Invoice_Number,"").toString();
+					if(ifnull(v_Inv.Invoice_Record_Status,"").toString() == "Void")
+					{
+						v_InvState = "Void";
+					}
+				}
+			}
+			v_Line = v_Pid + " | " + v_RefTxt + " | DOS " + v_Vc.toString("MM-dd-yyyy") + " | " + ifnull(v_P.Type_of_Entry,"(blank)").toString() + " | " + if(v_Lvl == "","(no complexity)",v_Lvl) + " | status " + if(v_Vs == "","(blank)",v_Vs) + " | $" + v_Amt.round(2).toString();
+			if(v_InvState == "Linked")
+			{
+				v_BilledCt = v_BilledCt + 1;
+				v_BilledAmt = v_BilledAmt + v_Amt;
+			}
+			else if(v_InvState == "Void")
+			{
+				v_VoidLinkCt = v_VoidLinkCt + 1;
+				if(v_VoidList.size() < 100)
+				{
+					v_VoidList.add(v_Line + " | void invoice " + v_InvNum);
+				}
+			}
+			else if(v_Lvl == "Visit Cancelled")
+			{
+				v_NonBillCt = v_NonBillCt + 1;
+			}
+			else if(ifnull(v_P.Hold_From_Invoicing,"").toString() == "Yes")
+			{
+				v_HeldCt = v_HeldCt + 1;
+				v_HeldAmt = v_HeldAmt + v_Amt;
+				if(v_HeldList.size() < 100)
+				{
+					v_HeldList.add(v_Line);
+				}
+			}
+			else
+			{
+				v_DraftCt = v_DraftCt + 1;
+				v_DraftAmt = v_DraftAmt + v_Amt;
+				if(v_DraftList.size() < 100)
+				{
+					v_DraftList.add(v_Line);
+				}
+			}
+		}
+	}
+}
+v_RefRows = List();
+v_KeyCount = Map();
+v_RefTotal = 0;
+for each  v_R in Referrals_Main[ID != 0]
+{
+	v_Rd = v_R.Referral_Date;
+	if(v_Rd == null && v_R.Referral_Added_Time != null)
+	{
+		v_Rd = toDate(v_R.Referral_Added_Time.toString("yyyy-MM-dd"),"yyyy-MM-dd");
+	}
+	if(v_Rd != null)
+	{
+		if(v_Rd >= v_Start && v_Rd < v_End)
+		{
+			v_RefTotal = v_RefTotal + 1;
+			v_Rid = ifnull(v_R.Referral_ID,"").toString().trim();
+			v_HasPvs = false;
+			if(v_Rid != "" && v_PvsByRef.containKey(v_Rid))
+			{
+				v_HasPvs = true;
+			}
+			if(v_PvsByLink.containKey(v_R.ID.toString()))
+			{
+				v_HasPvs = true;
+			}
+			v_Dob = "";
+			if(v_R.Patient_DOB != null)
+			{
+				v_Dob = v_R.Patient_DOB.toString("yyyy-MM-dd");
+			}
+			v_Type = ifnull(v_R.Referral_Type,"(blank)").toString();
+			v_Key = ifnull(v_R.Patient_First_Name,"").toString().trim().toLowerCase() + "|" + ifnull(v_R.Patient_Last_Name,"").toString().trim().toLowerCase() + "|" + v_Dob + "|" + v_Type;
+			if(v_KeyCount.containKey(v_Key))
+			{
+				v_KeyCount.put(v_Key,v_KeyCount.get(v_Key).toLong() + 1);
+			}
+			else
+			{
+				v_KeyCount.put(v_Key,1);
+			}
+			if(!v_HasPvs)
+			{
+				v_Row = Map();
+				v_Row.put("id",if(v_Rid == "","(blank Referral_ID, record " + v_R.ID.toString() + ")",v_Rid));
+				v_Row.put("date",v_Rd.toString("MM-dd-yyyy"));
+				v_Row.put("type",v_Type);
+				v_Row.put("asg",ifnull(v_R.Assignment_Status,"(blank)").toString());
+				v_Row.put("partner",ifnull(v_R.Partner_Organization,"").toString() + " / " + ifnull(v_R.Partner_Branch,"").toString());
+				v_Row.put("key",v_Key);
+				v_RefRows.add(v_Row);
+			}
+		}
+	}
+}
+v_GapLines = List();
+v_PossDup = 0;
+for each  v_Row in v_RefRows
+{
+	v_Flag = "";
+	if(v_KeyCount.get(v_Row.get("key")).toLong() > 1)
+	{
+		v_Flag = " | POSSIBLE DUPLICATE";
+		v_PossDup = v_PossDup + 1;
+	}
+	if(v_GapLines.size() < 150)
+	{
+		v_GapLines.add(v_Row.get("id") + " | " + v_Row.get("date") + " | " + v_Row.get("type") + " | " + v_Row.get("asg") + " | " + v_Row.get("partner") + v_Flag);
+	}
+}
+v_InvLines = List();
+v_InvSum = 0.0;
+v_InvSumLive = 0.0;
+for each  v_I in Invoices[Invoice_Date >= v_Start && Invoice_Date < v_End] sort by Invoice_Date
+{
+	v_T = 0.0;
+	if(v_I.Invoice_Total != null)
+	{
+		v_T = v_I.Invoice_Total.toDecimal();
+	}
+	v_St = ifnull(v_I.Invoice_Record_Status,"(blank)").toString();
+	v_InvSum = v_InvSum + v_T;
+	if(v_St != "Void")
+	{
+		v_InvSumLive = v_InvSumLive + v_T;
+	}
+	v_From = if(v_I.Service_Date_From == null,"?",v_I.Service_Date_From.toString("MM-dd-yyyy"));
+	v_To = if(v_I.Service_Date_To == null,"?",v_I.Service_Date_To.toString("MM-dd-yyyy"));
+	v_InvLines.add(ifnull(v_I.Books_Invoice_Number,"(no Books #)").toString() + " | " + v_I.Invoice_Date.toString("MM-dd-yyyy") + " | " + v_St + " | service " + v_From + " to " + v_To + " | visits " + ifnull(v_I.Visit_Count,"?").toString() + " | $" + v_T.round(2).toString());
+}
+v_Out = "READ-ONLY | month " + p_year.toString() + "-" + v_M;
+v_Out = v_Out + "\n\nPVS BY VISIT DATE (counted rows only)";
+v_Out = v_Out + "\nBilled: " + v_BilledCt + " | $" + v_BilledAmt.round(2).toString();
+v_Out = v_Out + "\nNot billed, draft: " + v_DraftCt + " | $" + v_DraftAmt.round(2).toString();
+v_Out = v_Out + "\nHeld from invoicing: " + v_HeldCt + " | $" + v_HeldAmt.round(2).toString();
+v_Out = v_Out + "\nVisit Cancelled (non-billable): " + v_NonBillCt;
+v_Out = v_Out + "\nLinked to a VOID invoice: " + v_VoidLinkCt;
+v_Out = v_Out + "\nVisit_Status not Completed (any bucket): " + v_NotCompletedCt;
+v_Out = v_Out + "\nExcluded rows (Duplicate / Cancelled / Folded): " + v_ExcludedCt;
+v_Out = v_Out + "\n\nREFERRALS DATED IN MONTH: " + v_RefTotal + " | with no counted PVS: " + v_RefRows.size() + " | of those, possible duplicates: " + v_PossDup;
+v_Out = v_Out + "\n\nINVOICES DATED IN MONTH: " + v_InvLines.size() + " | total $" + v_InvSum.round(2).toString() + " | excluding Void $" + v_InvSumLive.round(2).toString();
+if(v_InvLines.size() > 0)
+{
+	v_Out = v_Out + "\nBooks # | Invoice Date | Status | Service Period | Visits | Total\n" + v_InvLines.toString("\n");
+}
+if(v_GapLines.size() > 0)
+{
+	v_Out = v_Out + "\n\nREFERRALS WITH NO PVS\nReferral | Ref Date | Type | Assignment | Partner / Branch\n" + v_GapLines.toString("\n");
+}
+if(v_DraftList.size() > 0)
+{
+	v_Out = v_Out + "\n\nNOT BILLED, DRAFT\nPVS | Referral | DOS | Type | Complexity | Status | Charges\n" + v_DraftList.toString("\n");
+}
+if(v_HeldList.size() > 0)
+{
+	v_Out = v_Out + "\n\nHELD FROM INVOICING\nPVS | Referral | DOS | Type | Complexity | Status | Charges\n" + v_HeldList.toString("\n");
+}
+if(v_VoidList.size() > 0)
+{
+	v_Out = v_Out + "\n\nLINKED TO VOID INVOICE\n" + v_VoidList.toString("\n");
+}
+return v_Out;

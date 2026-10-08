@@ -1,0 +1,75 @@
+v_Out = "READ-ONLY";
+v_Ids = ifnull(p_refIds,"").toList(",");
+for each  v_Raw in v_Ids
+{
+	v_Rid = v_Raw.trim();
+	if(v_Rid != "")
+	{
+		v_Out = v_Out + "\n\n=== " + v_Rid + " ===";
+		v_Found = false;
+		for each  v_R in Referrals_Main[Referral_ID == v_Rid]
+		{
+			v_Found = true;
+			v_Rd = if(v_R.Referral_Date == null,"(no date)",v_R.Referral_Date.toString("MM-dd-yyyy"));
+			v_Emp = if(v_R.Employee_Link == null,"no","yes");
+			v_Out = v_Out + "\nReferral: " + v_Rd + " | " + ifnull(v_R.Referral_Type,"(blank)").toString() + " | " + ifnull(v_R.Partner_Organization,"").toString() + " / " + ifnull(v_R.Partner_Branch,"").toString() + " | assignment " + ifnull(v_R.Assignment_Status,"(blank)").toString() + " | employee assigned " + v_Emp;
+			v_Last = ifnull(v_R.Patient_Last_Name,"").toString().trim().toLowerCase();
+			if(v_R.Patient_DOB == null)
+			{
+				v_Out = v_Out + "\nNo DOB on referral. Patient match skipped.";
+			}
+			else
+			{
+				v_PvsLines = List();
+				for each  v_P in Encounter_PatientVisit[Patient_DOB == v_R.Patient_DOB]
+				{
+					if(ifnull(v_P.Patient_Last_Name,"").toString().trim().toLowerCase() == v_Last)
+					{
+						v_Dos = if(v_P.Visit_Completion_Date == null,"(no DOS)",v_P.Visit_Completion_Date.toString("MM-dd-yyyy"));
+						v_PvsLines.add(ifnull(v_P.PVS_ID,"(no PVS ID)").toString() + " | ref " + ifnull(v_P.Referral_ID,"(none)").toString() + " | DOS " + v_Dos + " | " + ifnull(v_P.Type_of_Entry,"(blank)").toString() + " | status " + ifnull(v_P.Visit_Status,"(blank)").toString() + " | row " + ifnull(v_P.Row_Status,"(blank)").toString() + " | invoice " + ifnull(v_P.Invoice_Status,"(blank)").toString());
+					}
+				}
+				if(v_PvsLines.size() > 0)
+				{
+					v_Out = v_Out + "\nSame-patient PVS:\n" + v_PvsLines.toString("\n");
+				}
+				else
+				{
+					v_Out = v_Out + "\nSame-patient PVS: none";
+				}
+				v_RefLines = List();
+				for each  v_O in Referrals_Main[Patient_DOB == v_R.Patient_DOB && ID != v_R.ID]
+				{
+					if(ifnull(v_O.Patient_Last_Name,"").toString().trim().toLowerCase() == v_Last)
+					{
+						v_ORid = ifnull(v_O.Referral_ID,"(blank)").toString();
+						v_Has = "no PVS";
+						if(Encounter_PatientVisit[Referral_Link == v_O.ID].count() > 0)
+						{
+							v_Has = "has PVS";
+						}
+						else if(v_ORid != "(blank)" && Encounter_PatientVisit[Referral_ID == v_ORid].count() > 0)
+						{
+							v_Has = "has PVS";
+						}
+						v_ORd = if(v_O.Referral_Date == null,"(no date)",v_O.Referral_Date.toString("MM-dd-yyyy"));
+						v_RefLines.add(v_ORid + " | " + v_ORd + " | " + ifnull(v_O.Referral_Type,"(blank)").toString() + " | " + v_Has);
+					}
+				}
+				if(v_RefLines.size() > 0)
+				{
+					v_Out = v_Out + "\nOther referrals, same patient:\n" + v_RefLines.toString("\n");
+				}
+				else
+				{
+					v_Out = v_Out + "\nOther referrals, same patient: none";
+				}
+			}
+		}
+		if(!v_Found)
+		{
+			v_Out = v_Out + "\nReferral not found.";
+		}
+	}
+}
+return v_Out;

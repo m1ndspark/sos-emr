@@ -1,0 +1,89 @@
+v_Out = "READ-ONLY | 3008 link check " + p_from.toString("MM-dd-yyyy") + " to " + p_to.toString("MM-dd-yyyy");
+v_RefCount = 0;
+v_NoPvs = 0;
+v_A = List();
+for each  v_R in Referrals_Main[Referral_Type == "3008"]
+{
+	v_Rd = v_R.Referral_Date;
+	if(v_Rd == null && v_R.Referral_Added_Time != null)
+	{
+		v_Rd = toDate(v_R.Referral_Added_Time.toString("yyyy-MM-dd"),"yyyy-MM-dd");
+	}
+	if(v_Rd != null)
+	{
+		if(v_Rd >= p_from && v_Rd <= p_to)
+		{
+			v_RefCount = v_RefCount + 1;
+			v_Rid = ifnull(v_R.Referral_ID,"").toString().trim();
+			v_ByLink = List();
+			for each  v_P in Encounter_PatientVisit[Referral_Link == v_R.ID]
+			{
+				v_ByLink.add(ifnull(v_P.PVS_ID,"(no PVS ID)").toString() + "/" + ifnull(v_P.Row_Status,"(blank)").toString());
+			}
+			v_ById = List();
+			if(v_Rid != "")
+			{
+				for each  v_P in Encounter_PatientVisit[Referral_ID == v_Rid]
+				{
+					v_ById.add(ifnull(v_P.PVS_ID,"(no PVS ID)").toString() + "/" + ifnull(v_P.Row_Status,"(blank)").toString());
+				}
+			}
+			if(v_ByLink.size() == 0 && v_ById.size() == 0)
+			{
+				v_NoPvs = v_NoPvs + 1;
+			}
+			v_A.add(if(v_Rid == "","(blank Referral_ID)",v_Rid) + " | " + v_Rd.toString("MM-dd-yyyy") + " | by link: " + if(v_ByLink.size() == 0,"none",v_ByLink.toString(", ")) + " | by Referral_ID: " + if(v_ById.size() == 0,"none",v_ById.toString(", ")));
+		}
+	}
+}
+v_B = List();
+v_PvsCount = 0;
+for each  v_P in Encounter_PatientVisit[Type_of_Entry == "3008"]
+{
+	if(v_P.Added_Time != null)
+	{
+		v_Ad = toDate(v_P.Added_Time.toString("yyyy-MM-dd"),"yyyy-MM-dd");
+		if(v_Ad >= p_from)
+		{
+			v_PvsCount = v_PvsCount + 1;
+			v_PRid = ifnull(v_P.Referral_ID,"").toString().trim();
+			v_Issue = "";
+			v_LinkedRid = "";
+			if(v_P.Referral_Link == null)
+			{
+				v_Issue = "NO REFERRAL LINK";
+			}
+			else
+			{
+				v_LR = Referrals_Main[ID == v_P.Referral_Link];
+				if(v_LR.ID == null)
+				{
+					v_Issue = "LINK POINTS TO MISSING REFERRAL";
+				}
+				else
+				{
+					v_LinkedRid = ifnull(v_LR.Referral_ID,"").toString().trim();
+					if(v_LinkedRid != v_PRid)
+					{
+						v_Issue = "LINKED REFERRAL ID DIFFERS";
+					}
+				}
+			}
+			if(v_Issue != "")
+			{
+				v_B.add(ifnull(v_P.PVS_ID,"(no PVS ID)").toString() + " | " + v_Issue + " | PVS Referral_ID: " + if(v_PRid == "","(blank)",v_PRid) + " | linked referral: " + if(v_LinkedRid == "","(none)",v_LinkedRid) + " | stamp: " + ifnull(v_P.Referral_ID_Stamp,"(blank)").toString() + " | row " + ifnull(v_P.Row_Status,"(blank)").toString());
+			}
+		}
+	}
+}
+v_Out = v_Out + "\n\nPART A: 3008 REFERRALS IN RANGE: " + v_RefCount + " | with no PVS by link or ID: " + v_NoPvs;
+if(v_A.size() > 0)
+{
+	v_Out = v_Out + "\n" + v_A.toString("\n");
+}
+v_Out = v_Out + "\n\nPART B: 3008 PVS ADDED SINCE " + p_from.toString("MM-dd-yyyy") + ": " + v_PvsCount + " | with a link problem: " + v_B.size();
+if(v_B.size() > 0)
+{
+	v_Out = v_Out + "\n" + v_B.toString("\n");
+}
+return v_Out;

@@ -1,0 +1,56 @@
+v_Rows = List();
+v_Count = 0;
+for each  v_R in Referrals_Main[Referral_Type == "3008"]
+{
+	v_Rd = v_R.Referral_Date;
+	if(v_Rd == null && v_R.Referral_Added_Time != null)
+	{
+		v_Rd = toDate(v_R.Referral_Added_Time.toString("yyyy-MM-dd"),"yyyy-MM-dd");
+	}
+	if(v_Rd != null)
+	{
+		if(v_Rd >= p_from && v_Rd <= p_to)
+		{
+			v_Rid = ifnull(v_R.Referral_ID,"").toString().trim();
+			v_HasPvs = false;
+			if(Encounter_PatientVisit[Referral_Link == v_R.ID].count() > 0)
+			{
+				v_HasPvs = true;
+			}
+			if(v_HasPvs == false && v_Rid != "")
+			{
+				if(Encounter_PatientVisit[Referral_ID == v_Rid].count() > 0)
+				{
+					v_HasPvs = true;
+				}
+			}
+			if(v_HasPvs == false)
+			{
+				v_Count = v_Count + 1;
+				v_Dob = "";
+				if(v_R.Patient_DOB != null)
+				{
+					v_Dob = v_R.Patient_DOB.toString("MM-dd-yyyy");
+				}
+				v_Branch = ifnull(v_R.Partner_Location_Label,"").toString().trim();
+				if(v_Branch == "")
+				{
+					v_Branch = ifnull(v_R.Partner_Branch,"").toString().trim();
+				}
+				v_Name = ifnull(v_R.Patient_Full_Name,"").toString().trim().replaceAll("\"","'");
+				v_Branch = v_Branch.replaceAll("\"","'");
+				v_Line = v_Rd.toString("MM-dd-yyyy") + ",\"" + v_Rid + "\",\"" + v_Name + "\"," + v_Dob + ",\"" + v_Branch + "\"";
+				v_Rows.add(v_Rd.toString("yyyy-MM-dd") + "~~" + v_Line);
+			}
+		}
+	}
+}
+v_Rows = v_Rows.sort(true);
+v_Out = "READ-ONLY | 3008 referrals with no PVS | " + p_from.toString("MM-dd-yyyy") + " to " + p_to.toString("MM-dd-yyyy") + " | count " + v_Count;
+v_Out = v_Out + "\nReferral Date,Referral ID,Patient Name,DOB,Referral Branch";
+for each  v_X in v_Rows
+{
+	v_Out = v_Out + "\n" + v_X.getSuffix("~~");
+}
+info v_Out;
+return v_Out;

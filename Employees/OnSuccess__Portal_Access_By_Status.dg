@@ -1,16 +1,35 @@
-if(input.Employee_Email != null && input.Employee_Email.trim() != "")
+v_Email = ifnull(input.Employee_Portal_Email,"").toString().trim();
+if(v_Email == "")
 {
-	v_Email = input.Employee_Email.trim();
-	v_Existing = thisapp.portal.profileForUser(v_Email);
-	if(v_Existing != null && v_Existing != "")
+	v_Email = ifnull(input.Employee_Email,"").toString().trim();
+}
+if(v_Email == "")
+{
+	return;
+}
+v_Types = List();
+if(input.Portal_Access_Types != null)
+{
+	v_Types = input.Portal_Access_Types;
+}
+v_Target = "Deactivated User";
+if(input.Employee_Status == "Active")
+{
+	if(v_Types.contains("Admin"))
 	{
-		if(input.Employee_Status == "Inactive")
-		{
-			thisapp.portal.assignUserInProfile(v_Email,"Deactivated User");
-		}
-		else if(input.Employee_Status == "Active")
-		{
-			thisapp.portal.assignUserInProfile(v_Email,"Provider");
-		}
+		v_Target = "Admin";
 	}
+	else if(v_Types.contains("Provider"))
+	{
+		v_Target = "Provider";
+	}
+}
+v_Existing = ifnull(thisapp.portal.profileForUser(v_Email),"").toString().trim();
+if(v_Existing == "" && v_Target == "Deactivated User")
+{
+	return;
+}
+if(v_Existing != v_Target)
+{
+	thisapp.portal.assignUserInProfile(v_Email,v_Target);
 }

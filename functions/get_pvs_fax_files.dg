@@ -1,0 +1,101 @@
+v_out = Map();
+v_files = List();
+v_skipped = List();
+v_errors = List();
+if(Encounter_PatientVisit[ID == pPvsID].count() == 0)
+{
+	v_errors.add("PVS record " + pPvsID + " was not found.");
+	v_out.put("files",v_files);
+	v_out.put("skipped",v_skipped);
+	v_out.put("errors",v_errors);
+	return v_out;
+}
+v_pvs = Encounter_PatientVisit[ID == pPvsID];
+v_sel = List();
+if(pSelected != null)
+{
+	for each  v_s in pSelected
+	{
+		v_sel.add(v_s.toString().trim());
+	}
+}
+v_codes = {"CN","PV","P3","GF","LB","IO"};
+v_fields = {"Clinical_Note_File_Upload","PVS_File_Upload","PVS_3008_Upload","General_Files_Upload","Lab_Files_Upload","Upload_Imaging_Order_Files"};
+v_raws = List();
+v_raws.add(ifnull(v_pvs.Clinical_Note_File_Upload,"").toString());
+v_raws.add(ifnull(v_pvs.PVS_File_Upload,"").toString());
+v_raws.add(ifnull(v_pvs.PVS_3008_Upload,"").toString());
+v_raws.add(ifnull(v_pvs.General_Files_Upload,"").toString());
+v_raws.add(ifnull(v_pvs.Lab_Files_Upload,"").toString());
+v_raws.add(ifnull(v_pvs.Upload_Imaging_Order_Files,"").toString());
+v_ok = {"pdf","jpg","jpeg","png","gif","bmp","tif","tiff","doc","docx","xls","xlsx","ppt","pptx","rtf","txt","csv"};
+v_seen = List();
+for each index v_i in v_fields
+{
+	v_fld = v_fields.get(v_i).toString();
+	v_code = v_codes.get(v_i).toString();
+	v_raw = v_raws.get(v_i).toString().trim();
+	if(v_raw != "" && v_raw != "[]" && v_raw != "null")
+	{
+		for each  v_p0 in v_raw.toList(",")
+		{
+			v_path = v_p0.toString().trim();
+			if(v_path != "")
+			{
+				v_take = pAll;
+				if(!v_take)
+				{
+					if(v_sel.contains(v_code + " :: " + v_path))
+					{
+						v_take = true;
+					}
+				}
+				if(v_take)
+				{
+					v_disp = v_path;
+					if(v_path.contains("_"))
+					{
+						v_pre = v_path.subString(0,v_path.indexOf("_"));
+						if(v_pre.matches("^[0-9]+$"))
+						{
+							v_disp = v_path.subString(v_path.indexOf("_") + 1);
+						}
+					}
+					v_ext = "";
+					if(v_disp.contains("."))
+					{
+						v_ext = v_disp.subString(v_disp.lastIndexOf(".") + 1).toLowerCase();
+					}
+					v_key = v_fld + "|" + v_path;
+					if(!v_ok.contains(v_ext))
+					{
+						v_skipped.add(v_disp + " (file type not accepted by fax)");
+					}
+					else if(!v_seen.contains(v_key))
+					{
+						v_seen.add(v_key);
+						try 
+						{
+							v_file = invokeurl
+							[
+								url :"https://www.zohoapis.com/creator/v2.1/data" + zoho.appuri + "report/PVS_Report/" + pPvsID.toString() + "/" + v_fld + "/download?filepath=" + zoho.encryption.urlEncode(v_path)
+								type :GET
+								connection:"sos_file_upload"
+							];
+							v_clean = v_disp.replaceAll("[^A-Za-z0-9._-]","_");
+							v_file.setFileName(v_clean);
+							v_files.add(v_file);
+						}							catch (e)
+						{
+							v_errors.add(v_disp + ": " + e.toString());
+						}
+					}
+				}
+			}
+		}
+	}
+}
+v_out.put("files",v_files);
+v_out.put("skipped",v_skipped);
+v_out.put("errors",v_errors);
+return v_out;
