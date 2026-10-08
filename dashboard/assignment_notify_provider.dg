@@ -1,5 +1,5 @@
 v_User = ifnull(zoho.loginuserid,"").toString().trim().toLowerCase();
-v_Allowed = {"joshua.kolanko@sosmmc.com","neil.heird@sosmmc.com","joshua.kolanko@sosreferrals.com"};
+v_Allowed = {"joshua.kolanko@sosmmc.com","neil.heird@sosmmc.com","joshua.kolanko@sosreferrals.com","neilheird@gmail.com"};
 if(!v_Allowed.contains(v_User))
 {
 	return;
