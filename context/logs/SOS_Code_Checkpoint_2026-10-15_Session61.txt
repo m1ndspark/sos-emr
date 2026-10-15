@@ -1,0 +1,43 @@
+SOS Code - CHECKPOINT - 2026-10-15 (Session 61)
+
+SINCE LAST UPDATE (dbd7de7, v64 + Session 61 task list)
+
+1. September Cognito import - DONE
+- 10 referrals imported to Referrals_Main: 9 Cognito-only (REF-090126-1767/1768/1769, REF-090326-1773/1774/1775, REF-090926-1776, REF-091026-1777, REF-091726-1778) + REF-090226-1770 (missed in first list). Duplicate check (diag_map_cognito_refs, DOB + last name) found none.
+- 19 Cognito PVS imported, minted PVS-1990-JK to PVS-2008-DF, all linked, Hold_From_Invoicing = Yes. Cognito 1176 skipped (already PVS-1382-JK). PVS-1990-JK (REF-1227) DOS 08-24 = August.
+- Import files (PHI, MPU Reporting only, not repo): SOS_Referrals_Cognito_Sep2026_Import.xlsx, _Import_1770.xlsx, SOS_PVS_Cognito_Sep2026_Import.xlsx.
+- Import lessons: Facility_Room_Number held access notes in Cognito -> moved to Additional_Information. Wizard again auto-mapped Partner_Organization onto Partner_Link lookup (all rows failed); map text fields by hand, lookups "Do not import". REF-090226-1770 Referral_Type did not map -> fixed via admin_set_field.
+
+2. run_import_backfills(p_mode, p_limit) - the single post-import function
+- v1 chained the existing global backfills -> statement limit exceeded; Creator rolled back the whole run including Change_Log rows.
+- v3 (current): fills everything inline, scoped to import targets only: referrals with blank Referral_ID_Stamp AND a Cognito_Referral_ID; PVS with blank PVS_ID. Re-reads each matched referral by record ID (an earlier read returned blank Referral_ID). Logs SUMMARY to Change_Log (Source_Form = run_import_backfills). PREVIEW before and after every import.
+
+3. September PVS readiness - CLEAR
+- Gap A: 33 bulk 3008 PVS (PVS-1864..1896-KK) filled Referral_Date, Referral_Source, Visit_Status, Row_Status (backfill_pvs_system_fields_range); Reason = "Cares 3008 Assessment" (fill_3008_reason, Neil ruling).
+- Gap B: 40 PVS Employee_Link set by email (backfill_pvs_employee_link_range).
+- Gap C: Neil ruling 3008s stay blank on Procedure/Diversion. 18 imported PVS procedures from Cognito notes + 8 native from Neil's visit reasons (set_pvs_procedures); 8 diversions (set_pvs_diversion). diag_pv_missing_proc_div = 0.
+- Gap D: 17 3008 Hospice IDs - Neil ruling not applicable.
+- diag_mpu_readiness re-run: only expected blanks remain.
+
+4. Referrals missing PVS (diag_referrals_missing_pvs 09/01-09/30)
+- Neil ruling: imaging-coordination PVS (notes = imaging template, complexity Telemedicine = SOS coordinated the vendor) are Type_of_Entry = Imaging Order. Changed: PVS-1991, 1993, 1994, 1996, 2001 (imported) and PVS-1520, 1517, 1515, 1824 (native) via set_pvs_entry_type. Imaging-only: 9 of 9 now matched.
+- Remaining 28 had no PVS of any type (diag_pvs_for_refs). Test referrals REF-1493 and REF-1560 deleted with their Assignments. 26 remain on MPU Reporting/Sept2026_Referrals_No_PVS_Review.xlsx for Neil (names from Creator; same-patient pairs noted: 1449/1458, 1457/1462, 1539/1601; 1088 vs 1127).
+
+5. Assignment status finding (live .ds re-read)
+- "Assignment Status From Provider" (Assignments, On Validate) wrote Assignment_Status, which does not exist on Assignments - silent no-op. Deleted by Neil.
+- Referrals_Main.Assignment_Status (visit-progress picklist) is written by nothing; always blank. Neil ruling: "assigned" = referral Employee_Link (synced by "Assignment Referral Employee" On Success).
+- Intake creates an Assignment with no employee; the 26 no-PVS referrals were likely never assigned.
+
+6. Standards adopted
+- Function argument order (05_deluge_learnings): p_mode, dates, ID lists, values/pairs, numbers. Run instructions list inputs in declared order.
+
+NEW FUNCTIONS (all saved in Creator)
+run_import_backfills, diag_map_cognito_refs, diag_import_ref_matches, backfill_pvs_system_fields_range, fill_3008_reason, backfill_pvs_employee_link_range, diag_pv_missing_proc_div, set_pvs_procedures, set_pvs_diversion, set_pvs_entry_type, diag_pvs_note_text, diag_ref_names.
+
+OPEN / NEXT
+- Neil: work the 26 on the review sheet (blocking September MPU).
+- Review pattern: native imaging PVS typed Patient Visit in other months.
+- diag_referrals_missing_pvs: print Employee_Link instead of Assignment_Status.
+- Fax attachments build: still paused at step 1 (Fax_Attachments_Select).
+- Repo push still pending from dbd7de7 (HEAD.lock).
+- Then build the September MPU per SOS_MPU_Build_Procedure.md.

@@ -878,3 +878,13 @@ or use nested ifs.
 
 BEFORE CHANGING A SEND/NOTIFY FUNCTION, READ EVERY CALLER (2026-10-04, Session 57)
 Before changing a send/notify function, read every caller in the .ds; the intake flow calls send_referral_notification, send_3008_notification and send_imaging_notification together, so removing a type skip in one sender causes duplicate emails.
+
+## Function argument order standard (NEIL RULING 2026-10-15)
+All NEW functions declare arguments in this order:
+1. p_mode (string) - first whenever the function writes.
+2. Dates - p_from, then p_to.
+3. ID lists / keys (string) - e.g. p_pvsIds, p_refIds.
+4. Values / pairs (string) - e.g. p_type, p_pairs.
+5. Numbers (int) - e.g. p_limit, p_chars - always last.
+Existing functions keep their current order unless Neil says otherwise.
+Every run instruction lists the input boxes in the function's declared order.
