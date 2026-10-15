@@ -34,12 +34,12 @@ organization alone is enough for MPU and the branch stays blank on those.
 Both were assigned to the Direct placeholder partner before the clinical notes
 were read.
 
-REF-1357, Ricilia Dorlizier, 08/11. The note is a completed paracentesis
+REF-1357, 08/11. The note is a completed paracentesis
 performed by Ann Smith APRN and Cognito marks it Partner Referral. This is
 billable partner work, not a direct inquiry. The referring organization is not
 recorded anywhere in Cognito.
 
-REF-1237, Norma Zotolor, 08/21. The note names the partner: "Patient was with
+REF-1237, 08/21. The note names the partner: "Patient was with
 Gentiva Hospice and they placed the order however the patient went to the
 hospital." Gentiva is not among the 22 approved locations and has no Partners
 record.
@@ -52,7 +52,7 @@ cancelled", Elisabeta Bega "unable to reach the patient".
 --------------------------------------------------------------------------------
 ## 3. Billing items with no current mechanism
 --------------------------------------------------------------------------------
-Bennie Benjamin, 08/11, AccentCare, REF-080626-1557. Recorded as Low
+REF-080626-1557, 08/11, AccentCare. Recorded as Low
 Complexity. The note reads: "Visit/procedure not cancelled by staff. Phone call
 to Mayra Marrero, left voicemail. She called back stating procedure was no
 longer needed due to having another physician out there. Bill for travel. 3hr
@@ -60,7 +60,7 @@ each way." The provider drove 1.5 hours each way and saw no patient. Neil's
 position is that SOS does not absorb this and the provider expects to be paid.
 There is no travel charge field and no travel rate in the Partner Rates table.
 
-Ronaldo Martinez, 08/22, Empath, REF-082226-1694. The note reads "False
+REF-082226-1694, 08/22, Empath. The note reads "False
 Patient". Currently No Charge. It should be excluded from referral and visit
 counts entirely, not merely left unbilled.
 
@@ -70,9 +70,9 @@ counts entirely, not merely left unbilled.
 Three PVS carry no employee link, and their PVS IDs end in a bare dash as a
 result. Cognito records no provider on any of them and only one names a
 provider inside the note.
-  PVS-1413- Joseph Wasser 08/14, note reads "Provider: Ann Marie Smith, APRN"
-  PVS-1382- Cherlyn Gould 08/20, no provider anywhere
-  PVS-1332- Abraham Jacobs 08/28, no provider and no acuity anywhere
+  PVS-1413- 08/14, note reads "Provider: Ann Marie Smith, APRN"
+  PVS-1382- 08/20, no provider anywhere
+  PVS-1332- 08/28, no provider and no acuity anywhere
 
 Type of Procedure(s) is blank on 148 of 168 August PVS rows. Cognito carries a
 Type of Procedure value on only 15 rows in the whole month, and none of them
@@ -93,10 +93,10 @@ backfill_pvs_repair does both.
 --------------------------------------------------------------------------------
 ## 6. Duplicates and test rows confirmed by note text
 --------------------------------------------------------------------------------
-Linda Franco 08/31 is one cancellation entered twice, notes "deceased" and
+[patient, no ID recorded] 08/31 is one cancellation entered twice, notes "deceased" and
 "patient passed away".
 
-Patricia Eckhardt has two Cognito rows on one referral, a Madison Smith
+[patient, no ID recorded] has two Cognito rows on one referral, a Madison Smith
 preliminary and a Joshua Kolanko final. Creator holds only the final, which is
 correct. The visit was a supervised blood draw.
 
