@@ -1,6 +1,6 @@
 /*
  * Author       : sosmmc
- * Generated on : 08-Oct-2026 16:09:03
+ * Generated on : 14-Oct-2026 17:48:56
  * Version      : 1.0
  */
  application "SOS Referrals App"
@@ -7476,7 +7476,7 @@
 				PVS_3008_Upload as "PVS 3008 Upload"
 				QC_Reviewed as "QC Reviewed"
 				Provider_Login_Email as "Provider Login Email"
-				Employee_Link as "Employee Link"
+				Employee_Link as "Employee"
 				Row_Status as "Row Status"
 				Duplicate_Of_PVS_ID as "Duplicate Of"
 				Row_Status_Note as "Row Status Note"
@@ -7500,12 +7500,6 @@
 				Fax_Override_Reason as "Override Reason"
 				Note_Finalized_Time as "Note Finalized Time"
 				Clinical_Note_File_Upload as "Clinical Note File Upload"
-				custom action "TEST"
-				(
-	  			workflow = TEST_BUTTON
-				show action in edit record menu = true
-				column header = "TEST"
-				)
 			)
 			sort by
 			(
@@ -19793,6 +19787,71 @@
                  	}
                  	return v_Out;
                  }
+				 string diag_orphan_referral(string p_recId)
+                 {
+                 	v_id = ifnull(p_recId,"").trim();
+                 	if(!v_id.matches("^[0-9]+$"))
+                 	{
+                 		return "ERROR: Enter the numeric record ID.";
+                 	}
+                 	v_r = Referrals_Main[ID == v_id.toLong()];
+                 	if(v_r.count() == 0)
+                 	{
+                 		return "ERROR: No referral with record ID " + v_id + ".";
+                 	}
+                 	v_out = List();
+                 	v_add = "";
+                 	if(v_r.Added_Time != null)
+                 	{
+                 		v_add = v_r.Added_Time.toString("MM-dd-yyyy HH:mm:ss");
+                 	}
+                 	v_out.add("READ-ONLY | ORPHAN rec " + v_id + " | REF [" + ifnull(v_r.Referral_ID,"") + "] | added " + v_add + " | " + ifnull(v_r.Referral_Type,"") + " | " + ifnull(v_r.Partner_Location_Label,""));
+                 	v_pvs = Encounter_PatientVisit[Referral_Link == v_r.ID].count();
+                 	v_asg = Assignments[Referral_Link == v_r.ID].count();
+                 	v_files = Referral_Files[Referrals_Main == v_r.ID].count();
+                 	v_img = Imaging_Orders[Referral_Link == v_r.ID].count();
+                 	v_out.add("Linked: PVS " + v_pvs + " | Assignments " + v_asg + " | Referral Files " + v_files + " | Imaging Orders " + v_img);
+                 	if(v_pvs + v_asg + v_files + v_img == 0)
+                 	{
+                 		v_out.add("RESULT: nothing is linked to the orphan record.");
+                 	}
+                 	else
+                 	{
+                 		v_out.add("RESULT: the orphan has linked records; do not delete until they are moved.");
+                 	}
+                 	v_out.add("");
+                 	v_out.add("Other referrals with the same patient last name and DOB:");
+                 	v_n = 0;
+                 	if(v_r.Patient_DOB != null)
+                 	{
+                 		v_ln = ifnull(v_r.Patient_Last_Name,"").toString().trim().toLowerCase();
+                 		for each  o in Referrals_Main[Patient_DOB == v_r.Patient_DOB && ID != v_r.ID] sort by Added_Time
+                 		{
+                 			if(ifnull(o.Patient_Last_Name,"").toString().trim().toLowerCase() == v_ln)
+                 			{
+                 				v_n = v_n + 1;
+                 				v_oadd = "";
+                 				if(o.Added_Time != null)
+                 				{
+                 					v_oadd = o.Added_Time.toString("MM-dd-yyyy HH:mm:ss");
+                 				}
+                 				v_opvs = Encounter_PatientVisit[Referral_Link == o.ID].count();
+                 				v_out.add(ifnull(o.Referral_ID,"(blank)") + " | rec " + o.ID + " | added " + v_oadd + " | " + ifnull(o.Referral_Type,"") + " | " + ifnull(o.Partner_Location_Label,"") + " | PVS " + v_opvs);
+                 			}
+                 		}
+                 	}
+                 	else
+                 	{
+                 		v_out.add("Orphan has no DOB; match not possible.");
+                 	}
+                 	if(v_n == 0)
+                 	{
+                 		v_out.add("None found.");
+                 	}
+                 	v_res = v_out.toString("\n");
+                 	info v_res;
+                 	return v_res;
+                 }
 				 string diag_partner_location_labels()
                  {
                  	v_Total = 0;
@@ -21657,6 +21716,66 @@
                  	}
                  	v_Out = v_Out + v_Dup;
                  	return v_Out;
+                 }
+				 string diag_referral_collision(date p_date)
+                 {
+                 	if(p_date == null)
+                 	{
+                 		return "ERROR: Enter a date.";
+                 	}
+                 	v_s = (p_date.toString("yyyy-MM-dd") + " 00:00:00").toTime("yyyy-MM-dd HH:mm:ss");
+                 	v_e = (p_date.addDay(1).toString("yyyy-MM-dd") + " 00:00:00").toTime("yyyy-MM-dd HH:mm:ss");
+                 	v_seen = List();
+                 	v_lines = List();
+                 	for each  r in Referrals_Main[Added_Time >= v_s && Added_Time < v_e] sort by Added_Time
+                 	{
+                 		v_seen.add(r.ID);
+                 		v_rid = ifnull(r.Referral_ID,"").toString().trim();
+                 		v_flag = "";
+                 		if(v_rid == "")
+                 		{
+                 			v_flag = " | BLANK REF ID";
+                 		}
+                 		v_lines.add("rec " + r.ID + " | " + ifnull(v_rid,"") + " | added " + r.Added_Time.toString("MM-dd-yyyy HH:mm:ss") + " | " + ifnull(r.Referral_Type,"") + " | " + ifnull(r.Partner_Location_Label,"") + " | token " + ifnull(r.Form_Token,"") + " | stamp " + ifnull(r.Referral_ID_Stamp,"") + v_flag);
+                 	}
+                 	v_extra = List();
+                 	for each  r2 in Referrals_Main[Referral_Date == p_date]
+                 	{
+                 		if(!v_seen.contains(r2.ID))
+                 		{
+                 			v_rid2 = ifnull(r2.Referral_ID,"").toString().trim();
+                 			v_add2 = "";
+                 			if(r2.Added_Time != null)
+                 			{
+                 				v_add2 = r2.Added_Time.toString("MM-dd-yyyy HH:mm:ss");
+                 			}
+                 			v_extra.add("rec " + r2.ID + " | " + v_rid2 + " | added " + v_add2 + " | " + ifnull(r2.Referral_Type,"") + " | " + ifnull(r2.Partner_Location_Label,""));
+                 		}
+                 	}
+                 	v_blank = 0;
+                 	v_blankList = List();
+                 	for each  b in Referrals_Main[Referral_ID == null]
+                 	{
+                 		v_blank = v_blank + 1;
+                 		v_badd = "";
+                 		if(b.Added_Time != null)
+                 		{
+                 			v_badd = b.Added_Time.toString("MM-dd-yyyy HH:mm:ss");
+                 		}
+                 		v_blankList.add("rec " + b.ID + " | added " + v_badd + " | " + ifnull(b.Partner_Location_Label,""));
+                 	}
+                 	v_out = List();
+                 	v_out.add("READ-ONLY | referrals added " + p_date.toString("MM-dd-yyyy") + ": " + v_lines.size());
+                 	v_out.addAll(v_lines);
+                 	v_out.add("");
+                 	v_out.add("Referral Date = " + p_date.toString("MM-dd-yyyy") + " but added another day: " + v_extra.size());
+                 	v_out.addAll(v_extra);
+                 	v_out.add("");
+                 	v_out.add("ALL referrals with blank Referral ID: " + v_blank);
+                 	v_out.addAll(v_blankList);
+                 	v_res = v_out.toString("\n");
+                 	info v_res;
+                 	return v_res;
                  }
 				 string diag_referral_contact_match()
                  {
@@ -23600,20 +23719,62 @@
                  	{
                  		return;
                  	}
-                 	for each  v_TrkUpd in Sequence_Tracker[ID == v_TrkId]
+                 	v_Done = false;
+                 	v_Tries = {1,2,3,4,5,6,7,8,9,10};
+                 	for each  v_T in v_Tries
                  	{
-                 		update v_TrkUpd
-                 		[
-                 			Object_Sequence=v_Seq + 1
-                 		];
+                 		if(!v_Done)
+                 		{
+                 			v_Cand = "REF-" + v_Seq;
+                 			v_Taken = Referrals_Main[Referral_ID == v_Cand].count();
+                 			if(v_Taken > 0)
+                 			{
+                 				v_Seq = v_Seq + 1;
+                 			}
+                 			else
+                 			{
+                 				try 
+                 				{
+                 					for each  v_Rec2 in Referrals_Main[ID == recId]
+                 					{
+                 						update v_Rec2
+                 						[
+                 							Referral_ID=v_Cand
+                 							Referral_ID_Stamp=recId.toString()
+                 						];
+                 					}
+                 				}				catch (e)
+                 				{
+                 					v_Err = e;
+                 				}
+                 				v_Now = "";
+                 				for each  v_Chk in Referrals_Main[ID == recId]
+                 				{
+                 					v_Now = ifnull(v_Chk.Referral_ID,"").toString().trim();
+                 				}
+                 				if(v_Now == v_Cand)
+                 				{
+                 					v_Done = true;
+                 				}
+                 				else
+                 				{
+                 					v_Seq = v_Seq + 1;
+                 				}
+                 			}
+                 		}
                  	}
-                 	for each  v_Rec2 in Referrals_Main[ID == recId]
+                 	if(v_Done)
                  	{
-                 		update v_Rec2
-                 		[
-                 			Referral_ID="REF-" + v_Seq
-                 			Referral_ID_Stamp=recId.toString()
-                 		];
+                 		for each  v_TrkUpd in Sequence_Tracker[ID == v_TrkId]
+                 		{
+                 			if(v_TrkUpd.Object_Sequence <= v_Seq)
+                 			{
+                 				update v_TrkUpd
+                 				[
+                 					Object_Sequence=v_Seq + 1
+                 				];
+                 			}
+                 		}
                  	}
                  }
 				 string normalize_pvs_phones(string p_confirm)
@@ -36971,15 +37132,6 @@
 					}
 				}
 			}
-			TEST_BUTTON as "TEST BUTTON"
-			{
-				type =  functions
-				form = Encounter_PatientVisit
-				execution type = for each record	
-				on start
-				{
-				}
-			}
 			Fax_PVS_Button as "Fax PVS Button"
 			{
 				type =  functions
@@ -39006,6 +39158,7 @@
 								"Fax PVS" as "Send"
 								Referral_ID as "REF ID"
 								PVS_ID as "PVS ID"
+								Employee_Link as "Employee"
 								Visit_Completion_Date as "Visit"
 								Type_of_Entry as "Service"
 								Patient_Full_Name_2 as "Patient"
@@ -39016,7 +39169,6 @@
 								General_Files_Upload as "General Files Upload"
 								Clinical_Note_File_Upload as "Clinical Note File Upload"
 								PVS_3008_Upload as "PVS 3008 Upload"
-								"TEST"
 							)
 						)
 					)
@@ -39152,7 +39304,7 @@
 								PVS_3008_Upload as "PVS 3008 Upload"
 								QC_Reviewed as "QC Reviewed"
 								Provider_Login_Email as "Provider Login Email"
-								Employee_Link as "Employee Link"
+								Employee_Link as "Employee"
 								Row_Status as "Row Status"
 								Duplicate_Of_PVS_ID as "Duplicate Of"
 								Row_Status_Note as "Row Status Note"
