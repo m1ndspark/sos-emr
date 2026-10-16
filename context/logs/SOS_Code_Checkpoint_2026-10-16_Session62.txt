@@ -1,0 +1,60 @@
+SOS Code - CHECKPOINT - 2026-10-16 (Session 62)
+Covers work since Session 61 EOD (commit 0b84566). Scope: September 2026 billing completeness only. IDs only, no patient names.
+
+SEPTEMBER 3008 RECONCILIATION
+- Final September 3008 count: 101 (Kayla 69, Ann 32).
+- Kayla's list (70): 69 found in Creator. 1 patient has no referral and no document; held until Neil approves adding records.
+- Ann's list (32): all present. One DOB mismatch to correct (list vs Creator differ; values not recorded in repo).
+- 18 PVS reassigned from JK to KK via set_pvs_provider_batch. Josh's two 3008-coded PVS were not real 3008s (see duplicates).
+- Cognito September export (today's): all 20 entries confirmed in Creator after a full compare. No further imports needed.
+
+DUPLICATES AND HOLDS
+- PVS retired as duplicates (DUPE>KEEPER): 1802>1803, 1533>1531, 1568>1567, 1744>1572, 1805>1743, 1807>1789, 1815>1906.
+- PVS-1807-JK and PVS-1815-JK were empty placeholders coded 3008 on Empath (Suncoast) referrals; Ann's real visits on the same referrals are PVS-1789-AS (REF-1599) and PVS-1906-AS (REF-1628).
+- Released from hold: PVS-1803 and imported PVS-1991 to PVS-2008 except PVS-1999-MS (Preliminary / No Charge, $0, stays held).
+
+BILLING RULES ADDED
+- 3008s are InnoVage only. Every partner keeps 3008 rate rows for UI consistency; non-InnoVage "Cares 3008 Assessment" rows set Inactive via set_partner_rate_status.
+- run_invoice_batch now STOPS a batch containing any visit whose branch rate type is Inactive with no Active current row.
+- Empath per-invoice cap: Max Invoice Total 2999.99; batches split by cap.
+- Net 30 on API invoices CONFIRMED on today's batch invoices.
+
+VOID AND REBILL (REVISED INVOICES)
+- New fields: Invoice_Batch.Batch_Reason (New Billing / Rebill After Void / Correction / Other, default New Billing), Invoice_Batch.Replaces_Invoice_Number; Invoices.Revision_Date (Date), Invoices.Replaces_Invoice_Number.
+- Rule: a revised invoice keeps the voided invoice's Invoice_Date and due date (no new 30-day window), carries a Revision_Date, and a Books note "REVISED INVOICE ... Replaces X (void) ... original invoice date and due date unchanged".
+- run_invoice_batch: Batch_Reason "Rebill After Void" requires Replaces_Invoice_Number and passes it on.
+- create_invoice_from_selection(list p_pvsIds, string p_replacesInvoice): signature changed; looks up the voided invoice (unique, Void, has Invoice_Date) and uses its date.
+- Email templates saved locally (~/Claude/SOS/Email Templates): Supplemental Invoice; Revised Invoice (Void and Rebill). Books creates invoices only; Neil sends from Books.
+
+SEPTEMBER BALANCE BILLING (created, NOT yet emailed)
+- INV-000116 InnoVage Orlando 14 ($2,450); INV-000117 InnoVage Tampa 4 ($700).
+- INV-000118 to INV-000123 Empath Tidewell 35 visits ($15,038).
+- INV-000124 Trustbridge 5 ($2,643); INV-000125 Suncoast HIL 2 ($826); INV-000126 Marion 1 ($55).
+- INV-000127 AccentCare Pasco 4 ($796); INV-000128 AccentCare Hillsborough 2 ($888); INV-000129 AccentCare Hernando 2 ($110).
+- INV-000110 voided (held 1790, 1792, 1798, 1807, 1815). Rebilled as INV-000130 (8 visits) and INV-000131 (1 visit, PVS-1789-AS, $575, REVISED, invoice date 10/04/2026): 9 visits, $3,207.
+- All pass diag_invoice_patient_gaps (0 blank names, MRNs, links).
+
+DATELESS PVS
+- Root cause: Visit_Completion_Date was not mandatory and no active OnValidate rule checked it.
+- PVS_Required_Fields (OnValidate, add or edit) updated and pasted: 3008 requires Cares_3008_Completion_Date; Patient Visit and Imaging Order require Visit_Completion_Date (imaging uses the coordination date). Existing dateless PVS cannot be edited until dated.
+- Three dateless PVS, all JK, parked to ask Josh: PVS-1758-JK (REF-1556, only PVS for patient); PVS-1759-JK (REF-063026-1213, Ann's PVS-1213-AS dated 07/02 on same referral); PVS-1795-JK (REF-1611, patient has other dated visits on separate referrals). Outcome per record: add DOS or retire.
+
+NEW / UPDATED FUNCTIONS (today)
+- New, read-only: diag_duplicate_patient_referrals, diag_find_patients, diag_held_pvs, diag_pvs_billing_batch, diag_billing_preview, diag_pvs_names.
+- New, write (PREVIEW/COMMIT): retire_pvs_duplicate_pairs, set_pvs_provider_batch, set_pvs_hold_batch, set_partner_rate_status.
+- Updated: diag_match_3008_refs (getPrefix returns "" fix), run_invoice_batch, create_invoice_from_selection.
+- v65 .ds (08:29) lacks: set_partner_rate_status, diag_billing_preview, diag_pvs_names, latest run_invoice_batch, create_invoice_from_selection, the four new fields, the PVS_Required_Fields update. Fresh v66 export needed.
+
+STANDING RULES ADDED
+- Any single-record function proposal also considers a batch version for all applicable records (saved to project memory).
+- No new records added until Neil says ready. Fixes go through functions, not manual retyping.
+- Verify facts (e.g., hospice) from Creator, not from Neil's recollection.
+
+OPEN FROM THIS BLOCK
+- Confirm INV-000130 Books note shows REVISED; load the 2 templates in Books; send INV-000116 to INV-000131.
+- Ask Josh about the 3 dateless PVS.
+- Retire 16 empty duplicate referrals: REF-1069, 1082, 1088, 1119 to 1125, 1129, 1457, 1486, 1539, 1611, 1619 (REF-1611 now pending Josh, do not retire yet).
+- Name/DOB fixes: REF-1517, REF-1606, REF-1520, Ann-list DOB mismatch, REF-072426-1441 (DOB in last-name field).
+- Provider check on 14 referrals with no visit documented (local sheet Sept2026_Referrals_Provider_Check.xlsx).
+- Deferred: PVS OnValidate block on 3008 unless partner is InnoVage.
+- Export v66 .ds.
