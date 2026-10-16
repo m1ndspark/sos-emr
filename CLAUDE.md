@@ -26,7 +26,7 @@ The working loop:
 5. Neil tests in Creator and reports pass or fail.
 6. History lives in git: `git log -- <path>` for one item's deep history. When
    code changed, regenerate the nav index:
-   `python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest`.
+   `python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest --map`.
 
 --------------------------------------------------------------------------------
 HARD RULES (NON-NEGOTIABLE)
@@ -115,7 +115,8 @@ REPO CONVENTIONS
   maintained. It is written by the Deluge function `run_schema_monitor` on a
   daily 06:00 schedule.
 - `MANIFEST.tsv` is generated output, never hand-edited. Regenerate with:
-  `python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest`.
+  `python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest --map`.
+  The pre-commit hook runs this automatically whenever SOS_Referrals_App.ds is committed.
   The `.ds` is a Zoho Creator export from Settings > Application IDE > Export,
   and it IS a committed repo artifact and the versioned source of truth: each
   dated export (`SOS_Referrals_App_YYYY-MM-DD_vNN.ds`) is committed, with
@@ -129,9 +130,11 @@ REPO CONVENTIONS
   being asked: write it as the next dated `SOS_Referrals_App_YYYY-MM-DD_vNN.ds`,
   refresh `SOS_Referrals_App.ds` to match, run ds_sync, and commit. Never ask
   Neil to re-upload a `.ds` he has already supplied.
-- Before asking Neil which fields exist on a form, read `schema/` and the newest
-  `.ds`. If the repo is not reachable in the session, say so up front instead of
-  asking field questions.
+- Before asking Neil which fields exist on a form, read the form's
+  `context/ds_map/forms/<Form>.md` first (the ds_map wins over `schema/`). Use
+  the `.ds` only when the map is STALE or does not cover the question. If the
+  repo is not reachable in the session, say so up front instead of asking field
+  questions.
 - Repo `.md` edits are Claude's job. Only ask Neil to change things inside
   Creator, and name the exact workflow or function.
 - HOW YOU TALK TO NEIL. Short and direct. Never more than 3 sentences unless he
@@ -172,12 +175,17 @@ SECRETS AND PHI (CRITICAL)
 --------------------------------------------------------------------------------
 START HERE EACH SESSION
 --------------------------------------------------------------------------------
-1. Read `MANIFEST.tsv` first. It is the navigation index: one row per workflow or
-   standalone function, with columns file, name, form, trigger, field, calls,
-   writes, reads, fetches, integrations, hash. Use it to locate the ONE `.dg`
-   that matters. For a single item's history, read its `.dg` and
-   `git log -- <path>`. (`_INDEX.md` is frozen at Session 27 and superseded; do
-   not rely on it.)
+1. Orient from the ds_map instead of re-reading the full `.ds`:
+   a. Read `context/ds_map/_index.md` and `context/ds_map/changes.md` first.
+   b. Check that the `_index.md` header shows `STATUS: CURRENT` and that its
+      `.ds SHA-256` matches `shasum -a 256 SOS_Referrals_App.ds`. If either
+      check fails, read the full `.ds` instead.
+   c. Per task, read the affected form's `context/ds_map/forms/<Form>.md` and
+      the relevant `context/ds_map/functions.md` entries.
+   d. Use `MANIFEST.tsv` to locate the `.dg`.
+   e. Before writing any code, read the exact `.dg` and the matching `.ds`
+      section for every item being changed.
+   (`_INDEX.md` is frozen at Session 27 and superseded; do not rely on it.)
 2. Read `context/04_open_contradictions.md`. Three items remain unresolved (4-A,
    4-B, 4-D; 4-C resolved June 25) and must not be silently decided. They affect
    any code that touches those areas.

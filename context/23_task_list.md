@@ -156,7 +156,7 @@ Owner legend:
 
 | Task | Owner | Status | Blocking | Deadline |
 |---|---|---|---|---|
-| ds_map relationship index via ds_sync --map with auto-refresh on .ds commit; built, pending Neil review and session-start rule decision | Claude/ccode | IN REVIEW | N | none |
+| ds_map relationship index via ds_sync --map with auto-refresh on .ds commit; approved 2026-10-15, session-start rule adopted | Claude/ccode | DONE | N | none |
 | Billing contact with PVS fax missing for AccentCare - Pasco, Cornerstone - Main, Direct - Individual (no Partner_Billing_Contacts row). Faxes to these branches block until added. Added Session 55. | Neil | OPEN | N | none |
 | 5 Zoho Forms referrals never reached Creator and were not re-entered (submitted 09/26, 09/23, 09/19, 09/15, 09/02; patient details only in Zoho Forms "Integration - Failed Entries"). Neil's call 2026-09-30: set aside for now. | Neil | OPEN | N | none |
 | REF-1500 and REF-1579: On Create workflow never ran (Referral_Date null, no notification; REF-1500 has no assignment). Found by diag_unnotified_referrals 2026-09-30. | Neil / cchat | OPEN | N | none |
