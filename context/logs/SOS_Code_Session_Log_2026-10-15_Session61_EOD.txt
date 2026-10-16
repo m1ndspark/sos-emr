@@ -1,0 +1,139 @@
+SOS Code - SOS Session Log - October 15, 2026 (Session 61) - EOD
+
+Date: 2026-10-15 (Thursday)
+Session: 61 (daytime block to CHECKPOINT, then evening block)
+Repo: ~/Claude/SOS/sos-emr (main, in sync with origin)
+
+PART 1 - DAYTIME (CHECKPOINT, commit 32f5a3b)
+- v64 .ds export (2026-10-14) committed (9b6f733). Task list added the referral ID collision and fax attachments items.
+- The September Cognito import is DONE. It brought in 10 referrals and 19 PVS (PVS-1990-JK to PVS-2008-DF), all linked, with Hold_From_Invoicing = Yes. REF-090226-1770 was added after being missed in the first list.
+- run_import_backfills(p_mode, p_limit) v3 is now the single post-import function.
+  - It runs inline fills scoped to the import targets only.
+  - Referrals: blank Referral_ID_Stamp and Cognito_Referral_ID.
+  - PVS: blank PVS_ID.
+  - Chaining the global backfills hit the statement limit and rolled back the whole run.
+- September PVS readiness is CLEAR (gaps A to D closed). Rulings:
+  - 3008 reason is "Cares 3008 Assessment".
+  - 3008s may leave Procedure/Diversion and Hospice ID blank.
+- Ruling: an imaging-coordination PVS uses Type_of_Entry = Imaging Order (9 records changed).
+- 26 referrals with no PVS are listed on MPU Reporting/Sept2026_Referrals_No_PVS_Review.xlsx for Neil. Test referrals REF-1493 and REF-1560 were deleted.
+- Assignment finding:
+  - The "Assignment Status From Provider" workflow did nothing when it ran, so it was deleted.
+  - Nothing writes Referrals_Main.Assignment_Status.
+  - Ruling: a referral counts as assigned when Employee_Link is set.
+- New standard for Creator function arguments, in this order: p_mode, then dates, then IDs/keys, then values/pairs, then numbers. Existing functions keep their current order.
+- New functions:
+  - run_import_backfills
+  - diag_map_cognito_refs
+  - diag_import_ref_matches
+  - backfill_pvs_system_fields_range
+  - fill_3008_reason
+  - backfill_pvs_employee_link_range
+  - diag_pv_missing_proc_div
+  - set_pvs_procedures
+  - set_pvs_diversion
+  - set_pvs_entry_type
+  - diag_pvs_note_text
+  - diag_ref_names
+- context/34 was scrubbed of a patient name and now uses IDs only (dcabd74).
+
+PART 2 - EVENING: DS_MAP RELATIONSHIP INDEX
+Problem
+- Getting oriented required reading the full .ds (about 410K tokens) every time.
+
+Graphify findings
+- Graphify works on local folders; it is not limited to GitHub.
+- It was run on ~/Claude/GitHub, where the sos-emr folder is EMPTY, so it built a 2-node graph.
+- It does not parse Deluge (.ds/.dg).
+- The real repo is ~/Claude/SOS/sos-emr.
+
+Existing tool
+- tools/ds_sync.py --manifest already built MANIFEST.tsv, which has relationship columns for workflows and functions.
+
+Decision
+- Extend ds_sync.py with a new --map flag rather than writing a second parser.
+
+Built (commit 7ecf9f6)
+- context/ds_map/ contains:
+  - _index.md: header with the .ds SHA-256 and STATUS, every form, lookups, functions, reports/pages, schedules
+  - forms/<Form>.md, one per form: fields, workflows (ENABLED/DISABLED), and a per-field reverse index
+  - functions.md: fetch/insert/update/delete targets, calls, callers, integrations
+  - unresolved.md
+  - changes.md: delta against the prior map
+  - map.json
+- The MANIFEST.tsv format is unchanged. The dry run and the MANIFEST output are byte-identical to the original code's output.
+- Output is deterministic: a rerun on an unchanged .ds gives zero diff.
+
+Verified counts (.ds = map)
+- 39 forms
+- 517 fields
+- 103 workflows, 7 of them disabled
+- 256 functions
+- 6 schedules
+- 40 reports
+- 2 report custom actions
+- 7 pages
+- 0 subforms
+- 0 batch or approval workflows
+
+Unresolved references: 62
+- 56 invokeUrl calls
+- 4 thisapp.portal built-ins
+- 2 "update v_target" in set_pvs_equipment_charge
+
+Auto-refresh
+- A block was appended to .githooks/pre-commit, just before the final exit.
+- It runs only when SOS_Referrals_App.ds is staged.
+- It regenerates MANIFEST.tsv and ds_map and stages both into the same commit.
+- It never blocks the commit. On failure it leaves the map untouched, marks _index.md STATUS: STALE, and prints a WARN.
+- The CI workflow has a new warn-only check for a header SHA mismatch or a STALE status.
+- Tests passed: normal commit, forced failure, and a commit without the .ds.
+
+Paths that bypass the hook
+- GitHub web edits and the GitHub API, including sos_github_sync (schema/ only today)
+- git commit --no-verify
+- Clones without core.hooksPath set
+- Pulls and merges
+- GitHub Desktop needs python3 on its PATH; without it, the map goes STALE.
+
+Sizes (estimated tokens)
+- .ds: about 410K
+- _index.md: about 6.5K
+- Largest form file (Encounter_PatientVisit.md): about 25K
+- functions.md: about 33K
+
+API_Config.md triggered a WARN at commit. It matched field names only, not credentials.
+
+New reading rule (approved; commits 6228873 and fa75743)
+- START HERE step 1 in CLAUDE.md now says:
+  1. Read _index.md and changes.md.
+  2. Confirm the header shows STATUS: CURRENT and that its SHA matches the .ds. If not, read the full .ds.
+  3. Per task, read that form's ds_map file and the relevant functions.md entries.
+  4. Use MANIFEST.tsv to locate the .dg.
+  5. Before writing any code, read the exact .dg and the matching .ds section.
+- Field questions: read the form's ds_map file first; it wins over schema/.
+- The regenerate command is now: python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest --map
+- The CLAUDE.md intro now points to START HERE.
+- The rule is saved in project memory preferences.
+
+Graphify cleanup
+- The two hook-guard entries were removed from sos-emr/.claude/settings.local.json. The file is untracked, so there was no commit.
+- Graphify is still installed.
+- ~/Claude/GitHub/graphify-out and the graphify section in GitHub/CLAUDE.md were left as is.
+
+Claude Code in Terminal
+- The "organization has disabled subscription access" error cleared after logging out and back in (now Claude Max).
+- The Code tab in the desktop app is an alternative to Terminal.
+
+.ds status
+- No Creator changes since the v64 export (Oct 14, 5:48 PM), so no new .ds is needed.
+
+TASK LIST
+- ds_map relationship index: DONE (approved 2026-10-15, session-start rule adopted).
+- The checkpoint's "repo push pending" is resolved: all commits are pushed.
+
+NEXT SESSION
+1. First live use of ds_map orientation at session start; confirm it holds up.
+2. Neil works the 26 referrals-with-no-PVS list.
+3. September MPU build.
+4. Open task list items: referral ID collision, fax attachments.
