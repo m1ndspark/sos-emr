@@ -40,5 +40,44 @@ if [ "$rc" -ne 0 ]; then
   exit 1
 fi
 
+# --- ds_map auto-refresh (never blocks the commit) ---
+# Runs only when SOS_Referrals_App.ds is staged. Regenerates MANIFEST.tsv and
+# context/ds_map/ with ds_sync --manifest --map and stages them into this
+# commit. On any failure the map files are left as committed, the _index.md
+# header is set to STATUS: STALE with the reason and the new .ds SHA-256, that
+# header change is staged, one WARN line is printed, and the commit proceeds.
+if printf '%s\n' "$staged" | grep -qx 'SOS_Referrals_App.ds'; then
+  top=$(git rev-parse --show-toplevel)
+  idx="context/ds_map/_index.md"
+  if ! (cd "$top" && git diff --quiet -- SOS_Referrals_App.ds); then
+    dsrc=9; dsout="MAP: working-tree SOS_Referrals_App.ds differs from the staged copy"
+  elif ! command -v python3 >/dev/null 2>&1; then
+    dsrc=9; dsout="MAP: python3 not found"
+  else
+    dsout=$(cd "$top" && python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest --map 2>&1)
+    dsrc=$?
+  fi
+  if [ "$dsrc" -eq 0 ]; then
+    (cd "$top" && git add MANIFEST.tsv context/ds_map)
+    echo "INFO   ds_map: regenerated and staged MANIFEST.tsv and context/ds_map/ from the staged .ds."
+  else
+    reason=$(printf '%s\n' "$dsout" | grep -E '^MAP:' | tail -n1 | tr -d '\r|' | cut -c1-200)
+    [ -z "$reason" ] && reason=$(printf '%s\n' "$dsout" | grep -v '^[[:space:]]*$' | tail -n1 | tr -d '\r|' | cut -c1-200)
+    [ -z "$reason" ] && reason="ds_sync exited $dsrc"
+    if command -v shasum >/dev/null 2>&1; then
+      sha=$(cd "$top" && git show :SOS_Referrals_App.ds | shasum -a 256 | cut -d' ' -f1)
+    else
+      sha=$(cd "$top" && git show :SOS_Referrals_App.ds | sha256sum | cut -d' ' -f1)
+    fi
+    (cd "$top" && git checkout -q -- MANIFEST.tsv context/ds_map 2>/dev/null)
+    if [ -f "$top/$idx" ]; then
+      REASON="$reason" SHA="$sha" perl -pi -e 's/^- STATUS: .*$/- STATUS: STALE ($ENV{REASON}; new .ds SHA-256: $ENV{SHA}; map content below reflects the earlier .ds)/' "$top/$idx"
+      (cd "$top" && git add "$idx")
+    fi
+    echo "WARN   ds_map NOT refreshed ($reason); _index.md marked STALE, commit allowed."
+    warn=1
+  fi
+fi
+
 [ "$warn" -ne 0 ] && printf '\nWarnings only - commit allowed.\n'
 exit 0

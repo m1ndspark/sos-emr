@@ -1,0 +1,5878 @@
+{
+ "ds_sha256": "f1f3c3ba9ecc5226c196bef3ee107b16c7185b3cf892856cf905a9d2ddc89919",
+ "forms": {
+  "API_Config": {
+   "display": "API Config",
+   "fields": {
+    "Config_Name": [
+     "text",
+     "Config Name",
+     ""
+    ],
+    "RC_Access_Token": [
+     "textarea",
+     "RC Access Token",
+     ""
+    ],
+    "RC_Client_ID": [
+     "text",
+     "RC Client ID",
+     ""
+    ],
+    "RC_Client_Secret": [
+     "text",
+     "RC Client Secret",
+     ""
+    ],
+    "RC_JWT_Assertion": [
+     "textarea",
+     "RC JWT Assertion",
+     ""
+    ],
+    "RC_Token_Expiry": [
+     "datetime",
+     "RC Token Expiry",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Zepto_Send_Token": [
+     "textarea",
+     "",
+     ""
+    ]
+   }
+  },
+  "Assignments": {
+   "display": "",
+   "fields": {
+    "Assignment_Details": [
+     "section",
+     "Assignment Details",
+     ""
+    ],
+    "Assignment_ID": [
+     "text",
+     "Assignment ID",
+     ""
+    ],
+    "Assignment_ID_Stamp": [
+     "text",
+     "Assignment ID Stamp",
+     ""
+    ],
+    "Assignment_Notes": [
+     "textarea",
+     "Assignment Notes",
+     ""
+    ],
+    "Employee_Details": [
+     "section",
+     "Assigned Provider",
+     ""
+    ],
+    "Employee_Link": [
+     "picklist",
+     "Employee Link",
+     "Employees"
+    ],
+    "Facility_Name": [
+     "text",
+     "Facility Name",
+     ""
+    ],
+    "Facility_Phone": [
+     "text",
+     "Facility Phone",
+     ""
+    ],
+    "Facility_Room_Number": [
+     "text",
+     "Facility Room Number",
+     ""
+    ],
+    "Notified_Employee_ID": [
+     "text",
+     "Notified Employee ID",
+     ""
+    ],
+    "Patient_Address": [
+     "address",
+     "Patient Address",
+     ""
+    ],
+    "Patient_DOB": [
+     "text",
+     "Patient DOB",
+     ""
+    ],
+    "Patient_Details_Section": [
+     "section",
+     "Patient Details Section",
+     ""
+    ],
+    "Patient_First_Name": [
+     "text",
+     "Patient First Name",
+     ""
+    ],
+    "Patient_Last_Name": [
+     "text",
+     "Patient Last Name",
+     ""
+    ],
+    "Patient_Location": [
+     "radiobuttons",
+     "Patient Location",
+     ""
+    ],
+    "Patient_Phone": [
+     "text",
+     "Patient Phone",
+     ""
+    ],
+    "Referral_Date": [
+     "text",
+     "Referral Date",
+     ""
+    ],
+    "Referral_Details_Section": [
+     "section",
+     "Referral Details Section",
+     ""
+    ],
+    "Referral_Link": [
+     "picklist",
+     "Referral Link",
+     "Referrals_Main"
+    ],
+    "Referral_POC": [
+     "text",
+     "Referral POC",
+     ""
+    ],
+    "Referral_Partner": [
+     "text",
+     "Referral Partner",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ],
+    "Visit_Status": [
+     "picklist",
+     "Status",
+     ""
+    ],
+    "Visit_Status_Section": [
+     "section",
+     "Visit Status Section",
+     ""
+    ]
+   }
+  },
+  "Change_Log": {
+   "display": "Change Log",
+   "fields": {
+    "Change_Log_ID_Stamp": [
+     "text",
+     "Change Log ID Stamp",
+     ""
+    ],
+    "Changed_By": [
+     "text",
+     "Changed By",
+     ""
+    ],
+    "Field_Changed": [
+     "text",
+     "Field Changed",
+     ""
+    ],
+    "New_Value": [
+     "textarea",
+     "New Value",
+     ""
+    ],
+    "Old_Value": [
+     "textarea",
+     "Old Value",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Source_Display_ID": [
+     "text",
+     "Source Display ID",
+     ""
+    ],
+    "Source_Form": [
+     "text",
+     "Source Form",
+     ""
+    ],
+    "Source_Record_ID": [
+     "text",
+     "Source Record ID",
+     ""
+    ]
+   }
+  },
+  "Dashboard_Range": {
+   "display": "Dashboard Range",
+   "fields": {
+    "From_Date": [
+     "date",
+     "From",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "To_Date": [
+     "date",
+     "To",
+     ""
+    ]
+   }
+  },
+  "Employees": {
+   "display": "",
+   "fields": {
+    "Compensation_Section": [
+     "section",
+     "Compensation Section",
+     ""
+    ],
+    "Email_Notification_Types": [
+     "list",
+     "Email Notification Types",
+     ""
+    ],
+    "Emergency_Contact_Details": [
+     "section",
+     "Emergency Contact Details",
+     ""
+    ],
+    "Emergency_Contact_Name": [
+     "text",
+     "Emergency Contact Name",
+     ""
+    ],
+    "Emergency_Contact_Phone": [
+     "phonenumber",
+     "Emergency Contact Phone",
+     ""
+    ],
+    "Employee_Address": [
+     "address",
+     "Employee Address",
+     ""
+    ],
+    "Employee_Address_Contact": [
+     "section",
+     "Employee Address & Contact",
+     ""
+    ],
+    "Employee_Email": [
+     "email",
+     "Employee Email",
+     ""
+    ],
+    "Employee_First_Name": [
+     "text",
+     "Employee First Name",
+     ""
+    ],
+    "Employee_ID": [
+     "text",
+     "Employee ID",
+     ""
+    ],
+    "Employee_ID_Stamp": [
+     "text",
+     "Employee ID Stamp",
+     ""
+    ],
+    "Employee_Identity_Section": [
+     "section",
+     "Employee Identity Section",
+     ""
+    ],
+    "Employee_Initials": [
+     "text",
+     "Employee Initials",
+     ""
+    ],
+    "Employee_Job_Title": [
+     "picklist",
+     "Job Title",
+     ""
+    ],
+    "Employee_Last_Name": [
+     "text",
+     "Employee Last Name",
+     ""
+    ],
+    "Employee_Name_Title": [
+     "text",
+     "Employee Name & Title",
+     ""
+    ],
+    "Employee_Notifications_Section": [
+     "section",
+     "Employee Notifications Section",
+     ""
+    ],
+    "Employee_Phone": [
+     "text",
+     "Employee Phone",
+     ""
+    ],
+    "Employee_Portal_Email": [
+     "email",
+     "Portal Email",
+     ""
+    ],
+    "Employee_SSN": [
+     "text",
+     "Employee SSN",
+     ""
+    ],
+    "Employee_Start_Date": [
+     "date",
+     "Employee Start Date",
+     ""
+    ],
+    "Employee_Status": [
+     "radiobuttons",
+     "Employee Status",
+     ""
+    ],
+    "Employee_Term_Date": [
+     "date",
+     "Employee Term Date",
+     ""
+    ],
+    "Employee_Term_Reason": [
+     "picklist",
+     "Employee Term Reason",
+     ""
+    ],
+    "Employee_Title": [
+     "picklist",
+     "Employee Title",
+     ""
+    ],
+    "Employment_Details_Section": [
+     "section",
+     "Employment Details Section",
+     ""
+    ],
+    "Employment_Type": [
+     "picklist",
+     "Employment Type",
+     ""
+    ],
+    "License_Expiration_Date": [
+     "date",
+     "License Expiration Date",
+     ""
+    ],
+    "License_File_Upload": [
+     "upload file",
+     "License File Upload",
+     ""
+    ],
+    "License_Information": [
+     "section",
+     "License Information Section",
+     ""
+    ],
+    "License_Issued_Date": [
+     "date",
+     "License Issued Date",
+     ""
+    ],
+    "License_Number": [
+     "text",
+     "License Number ",
+     ""
+    ],
+    "License_State": [
+     "picklist",
+     "License State",
+     ""
+    ],
+    "License_Type": [
+     "picklist",
+     "License Type ",
+     ""
+    ],
+    "Pay_Rate": [
+     "USD",
+     "Pay Rate",
+     ""
+    ],
+    "Pay_Type": [
+     "picklist",
+     "Pay Type",
+     ""
+    ],
+    "Portal_Access_Types": [
+     "list",
+     "Portal Access Types",
+     ""
+    ],
+    "Provider_NPI": [
+     "text",
+     "Provider NPI",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ]
+   }
+  },
+  "Encounter_ClinicHours": {
+   "display": "Clinic Hours",
+   "fields": {}
+  },
+  "Encounter_LabRequest": {
+   "display": "Lab Request",
+   "fields": {}
+  },
+  "Encounter_PatientVisit": {
+   "display": "",
+   "fields": {
+    "Additional_Charges": [
+     "checkboxes",
+     "Additional Charges",
+     ""
+    ],
+    "Additional_Information": [
+     "textarea",
+     "Additional Information",
+     ""
+    ],
+    "Advanced_Directives_Details": [
+     "textarea",
+     "Advanced Directives Details",
+     ""
+    ],
+    "After_Hours_Fee": [
+     "USD",
+     "After Hours ($)",
+     ""
+    ],
+    "Billing_Branch": [
+     "picklist",
+     "Billing Branch",
+     "Partner_Locations"
+    ],
+    "Cares_3008_Completion_Date": [
+     "date",
+     "3008 Completion Date",
+     ""
+    ],
+    "Cares_3008_Completion_Section": [
+     "section",
+     "Cares 3008 Completion Section",
+     ""
+    ],
+    "Charges_Section": [
+     "section",
+     "Charges Section",
+     ""
+    ],
+    "Clinical_Note_File_Upload": [
+     "upload file",
+     "Clinical Note File Upload",
+     ""
+    ],
+    "Clinical_Note_Type": [
+     "picklist",
+     "Clinical Note Type",
+     ""
+    ],
+    "Complexity_Charge": [
+     "USD",
+     "Complexity Charge",
+     ""
+    ],
+    "Complexity_Level": [
+     "picklist",
+     "Complexity Level",
+     ""
+    ],
+    "Diversion_Tracking": [
+     "radiobuttons",
+     "Did this visit result in a Diversion?",
+     ""
+    ],
+    "Diversion_Tracking_Section": [
+     "section",
+     "Diversion Tracking Section",
+     ""
+    ],
+    "Duplicate_Of_PVS_ID": [
+     "text",
+     "Duplicate Of",
+     ""
+    ],
+    "Edit_Needed": [
+     "radiobuttons",
+     "Edit Needed",
+     ""
+    ],
+    "Employee_Email": [
+     "email",
+     "Employee Email",
+     ""
+    ],
+    "Employee_First_Name": [
+     "text",
+     "Employee First Name",
+     ""
+    ],
+    "Employee_Full_Name": [
+     "text",
+     "Employee Full Name",
+     ""
+    ],
+    "Employee_Initials": [
+     "text",
+     "Employee Initials",
+     ""
+    ],
+    "Employee_Last_Name": [
+     "text",
+     "Employee Last Name",
+     ""
+    ],
+    "Employee_Link": [
+     "picklist",
+     "Employee Link",
+     "Employees"
+    ],
+    "Employee_Name_Title": [
+     "text",
+     "Employee Name & Title",
+     ""
+    ],
+    "Employee_Title": [
+     "picklist",
+     "Employee Title",
+     ""
+    ],
+    "Equipment_Charge_Amount": [
+     "USD",
+     "Equipment Charge Amount ($)",
+     ""
+    ],
+    "Equipment_Charge_Details": [
+     "textarea",
+     "Equipment Charge Details",
+     ""
+    ],
+    "Facility_Name": [
+     "text",
+     "Facility Name",
+     ""
+    ],
+    "Facility_Phone": [
+     "phonenumber",
+     "Facility Phone",
+     ""
+    ],
+    "Facility_Room_Number": [
+     "text",
+     "Facility Room Number",
+     ""
+    ],
+    "Fax_Override_Number": [
+     "text",
+     "Fax Number",
+     ""
+    ],
+    "Fax_Override_Reason": [
+     "textarea",
+     "Override Reason",
+     ""
+    ],
+    "Fax_Override_Unlock": [
+     "checkbox",
+     "Override Fax?",
+     ""
+    ],
+    "Fax_Preview_Section": [
+     "section",
+     "Fax Preview Section",
+     ""
+    ],
+    "Fax_Status": [
+     "radiobuttons",
+     "Fax Status",
+     ""
+    ],
+    "Fax_This_Note": [
+     "checkbox",
+     "Fax This Note",
+     ""
+    ],
+    "Files_Upload_Section": [
+     "section",
+     "Files Upload Section",
+     ""
+    ],
+    "Final_Clinical_Note": [
+     "richtext",
+     "Clinical Note",
+     ""
+    ],
+    "Final_Clinical_Note_Section": [
+     "section",
+     "Clinical Note Section",
+     ""
+    ],
+    "General_Files_Upload": [
+     "upload file",
+     "General Files Upload",
+     ""
+    ],
+    "Goals_of_Care": [
+     "textarea",
+     "Goals of Care",
+     ""
+    ],
+    "Has_Referral_ID": [
+     "radiobuttons",
+     "Do you have a Referral ID?",
+     ""
+    ],
+    "Hold_From_Invoicing": [
+     "radiobuttons",
+     "Hold From Invoicing",
+     ""
+    ],
+    "Imaging_Order_Indication": [
+     "textarea",
+     "Imaging Order Indication",
+     ""
+    ],
+    "Imaging_Ordered_Date": [
+     "date",
+     "Imaging Ordered Date",
+     ""
+    ],
+    "Imaging_Orders": [
+     "text",
+     "Imaging Order(s)",
+     ""
+    ],
+    "Imaging_Orders_Section": [
+     "section",
+     "Imaging Orders Section",
+     ""
+    ],
+    "Invoice_Link": [
+     "picklist",
+     "Invoice Connection",
+     "Invoices"
+    ],
+    "Invoice_Status": [
+     "radiobuttons",
+     "Invoice Status",
+     ""
+    ],
+    "Lab_Files_Upload": [
+     "upload file",
+     "Lab Files Upload",
+     ""
+    ],
+    "Lab_Order_Date": [
+     "date",
+     "Lab Order Date",
+     ""
+    ],
+    "Lab_Order_Indication": [
+     "textarea",
+     "Lab Order Indication",
+     ""
+    ],
+    "Lab_Orders_Section": [
+     "section",
+     "Lab Orders Section",
+     ""
+    ],
+    "Lab_Type_Orders": [
+     "text",
+     "What labs are being ordered?",
+     ""
+    ],
+    "List_Patient_Allergies": [
+     "textarea",
+     "List Patient Allergies",
+     ""
+    ],
+    "List_Patient_Anticoagulants": [
+     "textarea",
+     "List Patient Anticoagulants",
+     ""
+    ],
+    "Note_Finalized_Time": [
+     "datetime",
+     "Note Finalized Time",
+     ""
+    ],
+    "Notes_3008": [
+     "textarea",
+     "3008 Notes",
+     ""
+    ],
+    "Other_Charges_Amount": [
+     "USD",
+     "Other Charges Amount ($)",
+     ""
+    ],
+    "Other_Charges_Details": [
+     "textarea",
+     "Other Charges Details",
+     ""
+    ],
+    "PVS_3008_Upload": [
+     "upload file",
+     "PVS 3008 Upload",
+     ""
+    ],
+    "PVS_File_Upload": [
+     "upload file",
+     "PVS File Upload",
+     ""
+    ],
+    "PVS_ID": [
+     "text",
+     "PVS ID",
+     ""
+    ],
+    "PVS_Referral_ID": [
+     "text",
+     "PVS Referral ID",
+     ""
+    ],
+    "Partner_Branch": [
+     "text",
+     "Partner Branch/Location",
+     ""
+    ],
+    "Partner_ICD_Codes": [
+     "text",
+     "Partner ICD 10 Codes",
+     ""
+    ],
+    "Partner_ID": [
+     "text",
+     "Partner ID",
+     ""
+    ],
+    "Partner_ID_Stamp": [
+     "text",
+     "Partner ID Stamp",
+     ""
+    ],
+    "Partner_Location_Label": [
+     "text",
+     "Partner Location Label",
+     ""
+    ],
+    "Partner_Organization": [
+     "text",
+     "Referral Partner",
+     ""
+    ],
+    "Partner_POC_Email": [
+     "email",
+     "PR POC Email",
+     ""
+    ],
+    "Partner_POC_First_Name": [
+     "text",
+     "PR POC First Name",
+     ""
+    ],
+    "Partner_POC_Last_Name": [
+     "text",
+     "PR POC Last Name",
+     ""
+    ],
+    "Partner_POC_Name_Title": [
+     "text",
+     "Partner POC",
+     ""
+    ],
+    "Partner_POC_Phone": [
+     "phonenumber",
+     "PR POC Phone",
+     ""
+    ],
+    "Partner_POC_Team": [
+     "text",
+     "Partner POC Team",
+     ""
+    ],
+    "Partner_POC_Title": [
+     "picklist",
+     "PR POC Title",
+     ""
+    ],
+    "Patient_Address": [
+     "address",
+     "Patient Address",
+     ""
+    ],
+    "Patient_DOB": [
+     "date",
+     "Patient DOB",
+     ""
+    ],
+    "Patient_DOB1": [
+     "text",
+     "Patient DOB",
+     ""
+    ],
+    "Patient_Details_Section": [
+     "section",
+     "Patient Details Section",
+     ""
+    ],
+    "Patient_Email": [
+     "email",
+     "Patient Email",
+     ""
+    ],
+    "Patient_First_Name": [
+     "text",
+     "Patient First Name",
+     ""
+    ],
+    "Patient_Full_Address": [
+     "text",
+     "Patient Full Address",
+     ""
+    ],
+    "Patient_Full_Name_1": [
+     "text",
+     "Patient Full Name",
+     ""
+    ],
+    "Patient_Full_Name_2": [
+     "text",
+     "Patient Full Name",
+     ""
+    ],
+    "Patient_Gender": [
+     "picklist",
+     "Biological Sex",
+     ""
+    ],
+    "Patient_Hospice_ID": [
+     "text",
+     "Patient Hospice ID",
+     ""
+    ],
+    "Patient_Last_Name": [
+     "text",
+     "Patient Last Name",
+     ""
+    ],
+    "Patient_Location": [
+     "radiobuttons",
+     "Patient Location",
+     ""
+    ],
+    "Patient_Location_Section": [
+     "section",
+     "Patient Location Section",
+     ""
+    ],
+    "Patient_MI": [
+     "text",
+     "Patient MI",
+     ""
+    ],
+    "Patient_Phone": [
+     "phonenumber",
+     "Patient Phone",
+     ""
+    ],
+    "Patient_SSN": [
+     "text",
+     "Patient SSN",
+     ""
+    ],
+    "Print_Preview": [
+     "richtext",
+     "Print Preview",
+     ""
+    ],
+    "Provider_ICD10_Codes_Link": [
+     "list",
+     "ICD-10 Codes Lookup (Optional)",
+     "ICD10_Codes"
+    ],
+    "Provider_ICD_Print": [
+     "text",
+     " Provider ICD Codes",
+     ""
+    ],
+    "Provider_Login_Email": [
+     "text",
+     "Provider Login Email",
+     ""
+    ],
+    "Provider_Signature_Section": [
+     "section",
+     "Provider Signature Section",
+     ""
+    ],
+    "QC_Reviewed": [
+     "radiobuttons",
+     "QC Reviewed",
+     ""
+    ],
+    "Reason_for_Referral": [
+     "textarea",
+     "Reason for Referral",
+     ""
+    ],
+    "Referral_Date": [
+     "date",
+     "Referral Date",
+     ""
+    ],
+    "Referral_Details_Section": [
+     "section",
+     "Referral Details Section",
+     ""
+    ],
+    "Referral_ID": [
+     "text",
+     "Referral ID",
+     ""
+    ],
+    "Referral_ID_Stamp": [
+     "text",
+     "Referral ID Stamp",
+     ""
+    ],
+    "Referral_Link": [
+     "picklist",
+     "Referral Link",
+     "Referrals_Main"
+    ],
+    "Referral_Lookup_Section": [
+     "section",
+     "Referral Lookup Section",
+     ""
+    ],
+    "Referral_Partner_Section": [
+     "section",
+     "Referral Partner Section",
+     ""
+    ],
+    "Referral_Source": [
+     "text",
+     "Referral Source",
+     ""
+    ],
+    "Requested_Lab_Vendor": [
+     "text",
+     "Requested Lab Vendor",
+     ""
+    ],
+    "Row_Status": [
+     "picklist",
+     "Row Status",
+     ""
+    ],
+    "Row_Status_Note": [
+     "textarea",
+     "Row Status Note",
+     ""
+    ],
+    "Super_Stat_Fee": [
+     "USD",
+     "Super STAT ($)",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ],
+    "Type_of_Diversion": [
+     "picklist",
+     "Type of Diversion",
+     ""
+    ],
+    "Type_of_Entry": [
+     "picklist",
+     "Type of Entry",
+     ""
+    ],
+    "Type_of_Procedure_Section": [
+     "section",
+     "Type of Procedure Section",
+     ""
+    ],
+    "Type_of_Procedures": [
+     "list",
+     "Type of Procedure(s)",
+     ""
+    ],
+    "Upload_Imaging_Order_Files": [
+     "upload file",
+     "Imaging Order Files",
+     ""
+    ],
+    "Visit_Completion_Date": [
+     "date",
+     "Visit Completion Date",
+     ""
+    ],
+    "Visit_Cost_Drivers_Section": [
+     "section",
+     "Visit Cost Drivers Section",
+     ""
+    ],
+    "Visit_Status": [
+     "picklist",
+     "Visit Status",
+     ""
+    ],
+    "Was_3008_Completed": [
+     "radiobuttons",
+     "Was the 3008 Completed?",
+     ""
+    ],
+    "spacer1": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer10": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer11": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer2": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer3": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer4": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer5": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer6": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer7": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer8": [
+     "plaintext",
+     "",
+     ""
+    ],
+    "spacer9": [
+     "plaintext",
+     "",
+     ""
+    ]
+   }
+  },
+  "Encounters_PVSAddendum": {
+   "display": "PVS Addendum",
+   "fields": {
+    "Addendum_ID": [
+     "text",
+     "Addendum ID",
+     ""
+    ],
+    "Addendum_ID_Stamp": [
+     "text",
+     "Addendum ID Stamp",
+     ""
+    ],
+    "Addendum_Note": [
+     "richtext",
+     "Addendum Note",
+     ""
+    ],
+    "Addendum_Note_Section": [
+     "section",
+     "Addendum Note Section",
+     ""
+    ],
+    "Addendum_Number": [
+     "number",
+     "Addendum Number",
+     ""
+    ],
+    "Addendum_Reference_Section": [
+     "section",
+     "Addendum Reference Section",
+     ""
+    ],
+    "Addendum_Type": [
+     "radiobuttons",
+     "Addendum Type",
+     ""
+    ],
+    "Data_Correction_Section": [
+     "section",
+     "Data Correction Section",
+     ""
+    ],
+    "Date_of_Service": [
+     "date",
+     "Date of Service",
+     ""
+    ],
+    "Diversion_Override": [
+     "radiobuttons",
+     "Diversion Override",
+     ""
+    ],
+    "Encounter_Link": [
+     "picklist",
+     "Encounter Link",
+     "Encounter_PatientVisit"
+    ],
+    "Equipment_Charge_Amount": [
+     "USD",
+     "Equipment Charge Amount ($)",
+     ""
+    ],
+    "Equipment_Charge_Description": [
+     "text",
+     "Equipment Charge Description",
+     ""
+    ],
+    "PVS_Charge_Type": [
+     "picklist",
+     "PVS Charge Type",
+     ""
+    ],
+    "Parent_PVS_Timestamp": [
+     "datetime",
+     "Parent PVS Timestamp",
+     ""
+    ],
+    "Submission_Timestamp": [
+     "datetime",
+     "Submission Timestamp",
+     ""
+    ],
+    "Submitted_By": [
+     "text",
+     "Submitted By",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ],
+    "Type_of_Procedure": [
+     "checkboxes",
+     "Type of Procedure(s)",
+     ""
+    ]
+   }
+  },
+  "Exam_Catalog": {
+   "display": "Exam Catalog",
+   "fields": {
+    "Body_Region": [
+     "text",
+     "Body Region",
+     ""
+    ],
+    "CPT_Code": [
+     "text",
+     "CPT Code",
+     ""
+    ],
+    "Exam_Code": [
+     "text",
+     "Exam Code",
+     ""
+    ],
+    "Exam_Description": [
+     "text",
+     "Exam Description",
+     ""
+    ],
+    "Exam_Display": [
+     "text",
+     "Exam Display",
+     ""
+    ],
+    "Laterality_Applicable": [
+     "radiobuttons",
+     "Laterality Applicable",
+     ""
+    ],
+    "Modality": [
+     "radiobuttons",
+     "",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Status": [
+     "radiobuttons",
+     "",
+     ""
+    ]
+   }
+  },
+  "Fax_Address_Book": {
+   "display": "Fax Address Book",
+   "fields": {
+    "Recipient_Category": [
+     "picklist",
+     "Recipient Category",
+     ""
+    ],
+    "Recipient_Details_Section": [
+     "section",
+     "Recipient Details Section",
+     ""
+    ],
+    "Recipient_Fax": [
+     "text",
+     "Recipient Fax",
+     ""
+    ],
+    "Recipient_Name": [
+     "text",
+     "Recipient Name",
+     ""
+    ],
+    "Recipient_Notes": [
+     "textarea",
+     "Recipient Notes",
+     ""
+    ],
+    "Recipient_Status": [
+     "radiobuttons",
+     "Recipient Status",
+     ""
+    ]
+   }
+  },
+  "Fax_Attachments": {
+   "display": "Fax Attachments",
+   "fields": {
+    "Attachment_File": [
+     "upload file",
+     "Attachment File",
+     ""
+    ],
+    "Attachment_Name": [
+     "text",
+     "Attachment Name",
+     ""
+    ],
+    "Attachment_Type": [
+     "radiobuttons",
+     "Attachment Type",
+     ""
+    ],
+    "Fax_Log": [
+     "picklist",
+     "Fax Log Lookup",
+     "Fax_Log"
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Sequence_Number": [
+     "number",
+     "Sequence Number",
+     ""
+    ],
+    "Source_PVS_Link": [
+     "picklist",
+     "Source PVS",
+     "Encounter_PatientVisit"
+    ]
+   }
+  },
+  "Fax_Log": {
+   "display": "Fax Log",
+   "fields": {
+    "Attachments_Included": [
+     "textarea",
+     "Attachments Included",
+     ""
+    ],
+    "Attempt_Number": [
+     "number",
+     "Attempt Number",
+     ""
+    ],
+    "Completed_Time": [
+     "datetime",
+     "Completed Time",
+     ""
+    ],
+    "Cover_Remarks": [
+     "textarea",
+     "Cover Remarks",
+     ""
+    ],
+    "Destination_Fax": [
+     "text",
+     "Destination Fax",
+     ""
+    ],
+    "Destination_Name": [
+     "text",
+     "Destination Name",
+     ""
+    ],
+    "Fax_Error_Code": [
+     "text",
+     "Fax Error Code",
+     ""
+    ],
+    "Fax_Error_Reason": [
+     "textarea",
+     "Fax Error Reason",
+     ""
+    ],
+    "Fax_ID": [
+     "text",
+     "Fax ID",
+     ""
+    ],
+    "Fax_Log_ID_Stamp": [
+     "text",
+     "Fax Log ID Stamp",
+     ""
+    ],
+    "Fax_PDF": [
+     "upload file",
+     "Fax PDF",
+     ""
+    ],
+    "Fax_Status": [
+     "radiobuttons",
+     "Fax Status",
+     ""
+    ],
+    "Last_Polled_Time": [
+     "datetime",
+     "Last Polled Time",
+     ""
+    ],
+    "Number_Source": [
+     "radiobuttons",
+     "Number Source",
+     ""
+    ],
+    "Original_Fax_Link": [
+     "picklist",
+     "Original Fax Lookup",
+     "Fax_Log"
+    ],
+    "Override_Reason": [
+     "textarea",
+     "Override Reason",
+     ""
+    ],
+    "PVS_Link": [
+     "picklist",
+     "PVS Link",
+     "Encounter_PatientVisit"
+    ],
+    "Page_Count": [
+     "number",
+     "Page Count",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Lookup",
+     "Partners"
+    ],
+    "Partner_Location_Link": [
+     "picklist",
+     "Partner Location Lookup",
+     "Partner_Locations"
+    ],
+    "RC_Conversation_ID": [
+     "text",
+     "RC Conversation ID",
+     ""
+    ],
+    "RC_Message_ID": [
+     "text",
+     "RC Message ID",
+     ""
+    ],
+    "Referral_Link": [
+     "picklist",
+     "Referral Link",
+     "Referrals_Main"
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Sent_By": [
+     "picklist",
+     "Sent By",
+     "Employees"
+    ],
+    "Submitted_Time": [
+     "datetime",
+     "Submitted Time",
+     ""
+    ]
+   }
+  },
+  "ICD10_Codes": {
+   "display": "ICD-10 Codes",
+   "fields": {
+    "Category": [
+     "text",
+     "",
+     ""
+    ],
+    "Chapter": [
+     "text",
+     "",
+     ""
+    ],
+    "FY_Last": [
+     "number",
+     "FY Last",
+     ""
+    ],
+    "ICD_Code": [
+     "text",
+     "ICD Code",
+     ""
+    ],
+    "ICD_Description": [
+     "text",
+     "ICD Description",
+     ""
+    ],
+    "ICD_Display": [
+     "text",
+     "ICD Display",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Source_FY": [
+     "number",
+     "",
+     ""
+    ],
+    "Status": [
+     "radiobuttons",
+     "",
+     ""
+    ]
+   }
+  },
+  "Imaging_Order": {
+   "display": "Imaging Order",
+   "fields": {}
+  },
+  "Imaging_Orders": {
+   "display": "Imaging Orders",
+   "fields": {
+    "Billing_Insurance_Section": [
+     "section",
+     "Billing/Insurance Section",
+     ""
+    ],
+    "DM_Full_Name": [
+     "text",
+     "DM Full Name",
+     ""
+    ],
+    "Employee_Phone": [
+     "text",
+     "Employee Phone",
+     ""
+    ],
+    "Exam_Catalog": [
+     "list",
+     "Exam Catalog",
+     "Exam_Catalog"
+    ],
+    "Exam_Clinical_Section": [
+     "section",
+     "Exam & Clinical Section",
+     ""
+    ],
+    "Facility_Name": [
+     "text",
+     "Facility Name",
+     ""
+    ],
+    "Facility_Phone": [
+     "text",
+     "Facility Phone",
+     ""
+    ],
+    "Facility_Room_Number": [
+     "text",
+     "Facility Room Number",
+     ""
+    ],
+    "Is_Self_Responsible": [
+     "radiobuttons",
+     "Is the patient self responsible?",
+     ""
+    ],
+    "Last_Transmit_Attempt": [
+     "text",
+     "Last Transmit Attempt",
+     ""
+    ],
+    "Order_Details_Section": [
+     "section",
+     "Order Details Section",
+     ""
+    ],
+    "Order_Priority": [
+     "radiobuttons",
+     "Order Priority",
+     ""
+    ],
+    "Order_Sent_Time": [
+     "datetime",
+     "Order Sent Time",
+     ""
+    ],
+    "Order_Status": [
+     "radiobuttons",
+     "Order Status",
+     ""
+    ],
+    "Patient_Address": [
+     "address",
+     "Patient Address",
+     ""
+    ],
+    "Patient_DOB": [
+     "date",
+     "Patient DOB",
+     ""
+    ],
+    "Patient_Details_Section": [
+     "section",
+     "Patient Details Section",
+     ""
+    ],
+    "Patient_Full_Name": [
+     "text",
+     "Patient Full Name",
+     ""
+    ],
+    "Patient_Gender": [
+     "radiobuttons",
+     "Patient Gender",
+     ""
+    ],
+    "Patient_Hospice_ID": [
+     "text",
+     "Patient Hospice ID",
+     ""
+    ],
+    "Patient_Location": [
+     "radiobuttons",
+     "Patient Location",
+     ""
+    ],
+    "Patient_MBI": [
+     "text",
+     "Patient MBI",
+     ""
+    ],
+    "Patient_Phone": [
+     "text",
+     "Patient Phone",
+     ""
+    ],
+    "Primary_Insurance_ID": [
+     "text",
+     "Primary Insurance ID",
+     ""
+    ],
+    "Primary_Insurance_Name": [
+     "text",
+     "Primary Insurance Name",
+     ""
+    ],
+    "Provider_Details_Section": [
+     "section",
+     "Provider Details Section",
+     ""
+    ],
+    "Provider_NPI": [
+     "text",
+     "Provider NPI",
+     ""
+    ],
+    "Provider_Signature_Link": [
+     "picklist",
+     "Provider Signature Link",
+     "Employees"
+    ],
+    "Referral_Link": [
+     "picklist",
+     "Referral Link",
+     "Referrals_Main"
+    ],
+    "Secondary_Insurance_ID": [
+     "text",
+     "Secondary Insurance ID",
+     ""
+    ],
+    "Secondary_Insurance_Name": [
+     "text",
+     "Secondary Insurance Name",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Send_X_Ray_Results": [
+     "text",
+     "Where to Send X-Ray Results",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ],
+    "Transmit_Error": [
+     "text",
+     "Transmit Error",
+     ""
+    ],
+    "X_Ray_Order": [
+     "textarea",
+     "X-Ray Order",
+     ""
+    ],
+    "X_Ray_Order_ID": [
+     "text",
+     "X-Ray Order ID",
+     ""
+    ],
+    "X_Ray_Order_ID_Stamp": [
+     "text",
+     "X-Ray Order ID Stamp",
+     ""
+    ],
+    "X_Ray_Results_Email": [
+     "email",
+     "Email",
+     ""
+    ],
+    "X_Ray_Results_Fax": [
+     "phonenumber",
+     "Fax",
+     ""
+    ]
+   }
+  },
+  "Invoice_Batch": {
+   "display": "Invoice Batch",
+   "fields": {
+    "Batch_Status": [
+     "radiobuttons",
+     "Batch Status",
+     ""
+    ],
+    "Date_From": [
+     "date",
+     "Date From",
+     ""
+    ],
+    "Date_To": [
+     "date",
+     "Date To",
+     ""
+    ],
+    "Invoice_Link": [
+     "picklist",
+     "Invoice Lookup",
+     "Invoices"
+    ],
+    "Max_Invoice_Total": [
+     "decimal",
+     "Max Invoice Total",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Lookup",
+     "Partners"
+    ],
+    "Partner_Location_Link": [
+     "picklist",
+     "Partner Location Lookup",
+     ""
+    ],
+    "Result_Message": [
+     "textarea",
+     "Result Message",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Invoices": {
+   "display": "",
+   "fields": {
+    "Books_Customer_ID": [
+     "text",
+     "Books Customer ID",
+     ""
+    ],
+    "Books_Invoice_ID": [
+     "text",
+     "Books Invoice ID",
+     ""
+    ],
+    "Books_Invoice_Number": [
+     "text",
+     "Books Invoice Number",
+     ""
+    ],
+    "Books_Sync_Message": [
+     "textarea",
+     "Books Sync Message",
+     ""
+    ],
+    "Books_Sync_Status": [
+     "radiobuttons",
+     "Books Sync Status",
+     ""
+    ],
+    "Books_Sync_Timestamp": [
+     "datetime",
+     "Books Sync Timestamp",
+     ""
+    ],
+    "Created_By": [
+     "text",
+     "Created By",
+     ""
+    ],
+    "Invoice_Date": [
+     "date",
+     "Invoice Date",
+     ""
+    ],
+    "Invoice_ID": [
+     "text",
+     "Invoice ID",
+     ""
+    ],
+    "Invoice_ID_Stamp": [
+     "text",
+     "Invoice ID Stamp",
+     ""
+    ],
+    "Invoice_Record_Status": [
+     "radiobuttons",
+     "Invoice Record Status",
+     ""
+    ],
+    "Invoice_Total": [
+     "USD",
+     "Invoice Total",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Lookup",
+     "Partners"
+    ],
+    "Partner_Location_Link": [
+     "picklist",
+     "Partner Location Lookup",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Section1": [
+     "section",
+     "Section",
+     ""
+    ],
+    "Section2": [
+     "section",
+     "Section",
+     ""
+    ],
+    "Service_Date_From": [
+     "date",
+     "Service Date From",
+     ""
+    ],
+    "Service_Date_To": [
+     "date",
+     "Service Date To",
+     ""
+    ],
+    "Visit_Count": [
+     "text",
+     "Visit Count",
+     ""
+    ]
+   }
+  },
+  "MPU_Reporting": {
+   "display": "MPU Reporting",
+   "fields": {
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Messaging_Hub": {
+   "display": "Messaging Hub",
+   "fields": {}
+  },
+  "PVS_Fax_Review": {
+   "display": "PVS Fax Review",
+   "fields": {
+    "Attachments_Select": [
+     "list",
+     "Attachments Select",
+     ""
+    ],
+    "Cover_Remarks": [
+     "textarea",
+     "Cover Remarks",
+     ""
+    ],
+    "Destination_Fax": [
+     "text",
+     "Destination Fax",
+     ""
+    ],
+    "Destination_Name": [
+     "text",
+     "Destination Name",
+     ""
+    ],
+    "Gate_Message": [
+     "text",
+     "Gate Message",
+     ""
+    ],
+    "Note_Preview": [
+     "richtext",
+     "Note Preview",
+     ""
+    ],
+    "Override_Fax": [
+     "text",
+     "Override Fax",
+     ""
+    ],
+    "Override_Fax_Confirm": [
+     "text",
+     "Override Fax Confirm",
+     ""
+    ],
+    "Override_Reason": [
+     "textarea",
+     "Override Reason",
+     ""
+    ],
+    "Override_Unlock": [
+     "checkbox",
+     "Override Unlock",
+     ""
+    ],
+    "PVS_Link": [
+     "text",
+     "PVS Link",
+     ""
+    ],
+    "Patient_Display": [
+     "text",
+     "Patient Display",
+     ""
+    ],
+    "Patient_Name": [
+     "text",
+     "Patient Name",
+     ""
+    ],
+    "Referral_ID": [
+     "text",
+     "Referral ID",
+     ""
+    ],
+    "Result_Message": [
+     "text",
+     "Result Message",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Partner_Billing_Contacts": {
+   "display": "Partner Billing Contacts",
+   "fields": {
+    "Books_Customer_ID": [
+     "text",
+     "Books Customer ID",
+     ""
+    ],
+    "Partner_Billing_Address": [
+     "address",
+     "Address",
+     ""
+    ],
+    "Partner_Billing_Contact_ID_Stamp": [
+     "text",
+     "Partner Billing Contact ID Stamp ",
+     ""
+    ],
+    "Partner_Billing_Invoice_Delivery": [
+     "radiobuttons",
+     "Partner Billing Invoice Delivery",
+     ""
+    ],
+    "Partner_Billing_POC_Email": [
+     "email",
+     "Partner Billing POC Email",
+     ""
+    ],
+    "Partner_Billing_POC_Fax": [
+     "text",
+     "Partner Billing POC Fax",
+     ""
+    ],
+    "Partner_Billing_POC_First_Name": [
+     "text",
+     "Partner Billing POC First Name",
+     ""
+    ],
+    "Partner_Billing_POC_Last_Name": [
+     "text",
+     "Partner Billing POC Last Name",
+     ""
+    ],
+    "Partner_Billing_POC_Phone": [
+     "text",
+     "Partner Billing POC Phone",
+     ""
+    ],
+    "Partner_Billing_POC_Status": [
+     "radiobuttons",
+     "Partner Billing POC Status",
+     ""
+    ],
+    "Partner_Billing_POC_Title": [
+     "text",
+     "Partner Billing POC Title",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Link",
+     "Partners"
+    ],
+    "Partner_Location_Link": [
+     "picklist",
+     "Partner Location",
+     ""
+    ],
+    "Partner_PVS_Delivery": [
+     "picklist",
+     "Partner PVS Delivery",
+     ""
+    ],
+    "Partner_PVS_Fax": [
+     "phonenumber",
+     "Partner PVS Fax",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ]
+   }
+  },
+  "Partner_Contracts": {
+   "display": "Partner Contracts",
+   "fields": {
+    "Contract_Notes": [
+     "richtext",
+     "Contract Notes",
+     ""
+    ],
+    "Partner_Contract_Effective_Date": [
+     "date",
+     "Partner Contract Effective Date",
+     ""
+    ],
+    "Partner_Contract_ID_Stamp_Generator": [
+     "text",
+     "Partner Contract ID Stamp Generator",
+     ""
+    ],
+    "Partner_Contract_Status": [
+     "radiobuttons",
+     "Partner Contract Status",
+     ""
+    ],
+    "Partner_Contract_Term_Date": [
+     "date",
+     "Partner Contract Term Date",
+     ""
+    ],
+    "Partner_Contract_Upload": [
+     "upload file",
+     "Partner Contract Upload",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Link",
+     "Partners"
+    ],
+    "Partner_Location_Link": [
+     "picklist",
+     "Partner Location Link",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ]
+   }
+  },
+  "Partner_Locations": {
+   "display": "Partner Locations",
+   "fields": {
+    "Books_Customer_ID": [
+     "text",
+     "Books Customer ID",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Link",
+     "Partners"
+    ],
+    "Partner_Location_Code": [
+     "text",
+     "Partner Loc Code",
+     ""
+    ],
+    "Partner_Location_ID": [
+     "text",
+     "Partner Location ID",
+     ""
+    ],
+    "Partner_Location_ID_Stamp": [
+     "text",
+     "Partner Location ID Stamp",
+     ""
+    ],
+    "Partner_Location_Label": [
+     "text",
+     "Partner Location Label",
+     ""
+    ],
+    "Partner_Location_Name": [
+     "text",
+     "Partner Loc Name",
+     ""
+    ],
+    "Partner_Location_Status": [
+     "radiobuttons",
+     "Partner Loc Status",
+     ""
+    ],
+    "Primary_Office": [
+     "radiobuttons",
+     "Primary Office?",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ]
+   }
+  },
+  "Partner_Rates": {
+   "display": "Partner Rates",
+   "fields": {
+    "Current_Rate": [
+     "radiobuttons",
+     "Current Rate?",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Link",
+     "Partners"
+    ],
+    "Partner_Location_Link": [
+     "picklist",
+     "Partner Location Name",
+     ""
+    ],
+    "Partner_Rate_ID_Stamp": [
+     "text",
+     "Partner Rate ID Stamp",
+     ""
+    ],
+    "Partner_Rate_Status": [
+     "radiobuttons",
+     "Partner Rate Status",
+     ""
+    ],
+    "Partner_Rates_Effective_Date": [
+     "date",
+     "Partner Rates Effective Date",
+     ""
+    ],
+    "Partner_Rates_Section": [
+     "section",
+     "Partner Rates Section",
+     ""
+    ],
+    "Partner_Section": [
+     "section",
+     "Partner Section",
+     ""
+    ],
+    "Rate_Amount": [
+     "USD",
+     "Rate Amount",
+     ""
+    ],
+    "Rate_Category": [
+     "picklist",
+     "Rate Category",
+     ""
+    ],
+    "Rate_Type": [
+     "picklist",
+     "Rate Type",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ]
+   }
+  },
+  "Partner_Referral_Contact_Lookup": {
+   "display": "Partner Referral Contact Lookup",
+   "fields": {
+    "Partner_POC_Email": [
+     "email",
+     "Email",
+     ""
+    ],
+    "Partner_Referral_Contact_First_Name": [
+     "text",
+     "First Name",
+     ""
+    ],
+    "Partner_Referral_Contact_Last_Name": [
+     "text",
+     "Last Name",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Partner_Referral_Contact_Signup": {
+   "display": "Partner Referral Contact Signup",
+   "fields": {
+    "Partner_Link": [
+     "picklist",
+     "Partner Lookup",
+     "Partners"
+    ],
+    "Partner_Location_Link": [
+     "picklist",
+     "Partner Location Lookup",
+     ""
+    ],
+    "Partner_POC_Email": [
+     "email",
+     "Partner POC Email",
+     ""
+    ],
+    "Partner_POC_First_Name": [
+     "text",
+     "Partner POC First Name",
+     ""
+    ],
+    "Partner_POC_Last_Name": [
+     "text",
+     "Partner POC Last Name",
+     ""
+    ],
+    "Partner_POC_Phone": [
+     "phonenumber",
+     "Partner POC Phone",
+     ""
+    ],
+    "Partner_POC_Title": [
+     "picklist",
+     "Partner POC Title",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Partner_Referral_Contacts": {
+   "display": "Partner Referral Contacts",
+   "fields": {
+    "Hidden_Items_Section": [
+     "section",
+     "Hidden Items Section",
+     ""
+    ],
+    "Partner_Branch": [
+     "text",
+     "Partner Branch/Location*",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Lookup",
+     "Partners"
+    ],
+    "Partner_Locations_Link": [
+     "picklist",
+     "Partner Locations Lookup",
+     ""
+    ],
+    "Partner_Organization": [
+     "text",
+     "Partner Organization*",
+     ""
+    ],
+    "Partner_POC_Email": [
+     "email",
+     "Partner POC Email",
+     ""
+    ],
+    "Partner_POC_First_Name": [
+     "text",
+     "Partner POC First Name",
+     ""
+    ],
+    "Partner_POC_Last_Name": [
+     "text",
+     "Partner POC Last Name",
+     ""
+    ],
+    "Partner_POC_Name_Title": [
+     "text",
+     "Partner POC Name & Title*",
+     ""
+    ],
+    "Partner_POC_Phone": [
+     "phonenumber",
+     "Partner POC Phone",
+     ""
+    ],
+    "Partner_POC_Team": [
+     "text",
+     "Partner POC Team",
+     ""
+    ],
+    "Partner_POC_Title": [
+     "picklist",
+     "Partner POC Title",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Partners": {
+   "display": "",
+   "fields": {
+    "Partner_Address": [
+     "address",
+     "Partner Address",
+     ""
+    ],
+    "Partner_Code": [
+     "text",
+     "Partner Code",
+     ""
+    ],
+    "Partner_Contract_Effective_Date": [
+     "date",
+     "Partner Contract Effective Date",
+     ""
+    ],
+    "Partner_Contract_Upload": [
+     "upload file",
+     "Partner Contract Upload",
+     ""
+    ],
+    "Partner_Details_Section": [
+     "section",
+     "Partner Details Section",
+     ""
+    ],
+    "Partner_Display_Name": [
+     "text",
+     "Partner Display Name",
+     ""
+    ],
+    "Partner_ID": [
+     "text",
+     "Partner ID",
+     ""
+    ],
+    "Partner_ID_Stamp": [
+     "text",
+     "Partner ID Stamp",
+     ""
+    ],
+    "Partner_Legal_Name": [
+     "text",
+     "Partner Legal Name",
+     ""
+    ],
+    "Partner_Phone": [
+     "phonenumber",
+     "Partner Phone",
+     ""
+    ],
+    "Partner_Status": [
+     "radiobuttons",
+     "Partner Status",
+     ""
+    ],
+    "Partner_Type": [
+     "radiobuttons",
+     "Partner Type",
+     ""
+    ],
+    "Rate_Structure": [
+     "radiobuttons",
+     "Rate Structure",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields Section",
+     ""
+    ]
+   }
+  },
+  "Procedure_Templates": {
+   "display": "Procedure Templates",
+   "fields": {}
+  },
+  "Referral_Categories": {
+   "display": "Referral Categories",
+   "fields": {
+    "Referral_Categories_Section": [
+     "section",
+     "Referral Categories Section",
+     ""
+    ],
+    "Referral_Category": [
+     "text",
+     "Referral Category",
+     ""
+    ],
+    "Referral_Keywords": [
+     "textarea",
+     "Referral Keywords",
+     ""
+    ],
+    "Referral_Status": [
+     "radiobuttons",
+     "Referral Status",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Referral_Files": {
+   "display": "Referral Files",
+   "fields": {
+    "File_Category": [
+     "picklist",
+     "File Category",
+     ""
+    ],
+    "File_Name": [
+     "text",
+     "File Name",
+     ""
+    ],
+    "File_Upload": [
+     "upload file",
+     "File Upload",
+     ""
+    ],
+    "Form_Token": [
+     "text",
+     "Form Token",
+     ""
+    ],
+    "Referrals_Main": [
+     "picklist",
+     "Referrals Main",
+     "Referrals_Main"
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Referral_Sweep_Log": {
+   "display": "Referral Sweep Log",
+   "fields": {
+    "Emailed": [
+     "picklist",
+     "",
+     ""
+    ],
+    "FRun_Detail": [
+     "textarea",
+     "Full Run Detail",
+     ""
+    ],
+    "Failed_Count": [
+     "number",
+     "Failed",
+     ""
+    ],
+    "Failure_Detail": [
+     "textarea",
+     "Failures",
+     ""
+    ],
+    "Found_Count": [
+     "number",
+     "Referrals Found",
+     ""
+    ],
+    "Repaired_Count": [
+     "number",
+     "Repaired ",
+     ""
+    ],
+    "Repaired_List": [
+     "textarea",
+     "Repaired Referrals",
+     ""
+    ],
+    "Run_Status": [
+     "picklist",
+     "Run Status",
+     ""
+    ],
+    "Run_Time": [
+     "datetime",
+     "Run Time",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Referrals_Main": {
+   "display": "Referrals Main",
+   "fields": {
+    "AC_First_Name": [
+     "text",
+     "AC First Name",
+     ""
+    ],
+    "AC_Full_Name": [
+     "text",
+     "AC Full Name",
+     ""
+    ],
+    "AC_Last_Name": [
+     "text",
+     "AC Last Name",
+     ""
+    ],
+    "AC_Phone": [
+     "text",
+     "AC Phone",
+     ""
+    ],
+    "AC_Relationship_to_Patient": [
+     "picklist",
+     "AC Relationship to Patient",
+     ""
+    ],
+    "Additional_Contact_Section": [
+     "section",
+     "Additional Contact Info",
+     ""
+    ],
+    "Additional_Information": [
+     "textarea",
+     "Additional Information",
+     ""
+    ],
+    "Advanced_Directives_Details": [
+     "textarea",
+     "Advanced Directives Details",
+     ""
+    ],
+    "Assignment_Status": [
+     "picklist",
+     "Assignment Status",
+     ""
+    ],
+    "Cognito_Referral_ID": [
+     "text",
+     "Cognito Referral ID",
+     ""
+    ],
+    "Data_Issues": [
+     "textarea",
+     "Data Issues",
+     ""
+    ],
+    "Details_Section_3008": [
+     "section",
+     "3008 Details Section",
+     ""
+    ],
+    "Employee_Link": [
+     "picklist",
+     "Employee Link",
+     "Employees"
+    ],
+    "Facility_Name": [
+     "text",
+     "Facility Name",
+     ""
+    ],
+    "Facility_Phone": [
+     "text",
+     "Facility Phone",
+     ""
+    ],
+    "Facility_Room_Number": [
+     "text",
+     "Facility Room Number",
+     ""
+    ],
+    "File_Upload_3008": [
+     "upload file",
+     "3008 File Upload",
+     ""
+    ],
+    "Files_3008_URLs": [
+     "textarea",
+     "3008 File URLs",
+     ""
+    ],
+    "Form_Token": [
+     "text",
+     "Form Token",
+     ""
+    ],
+    "General_Files_URLs": [
+     "textarea",
+     "General Files URLs",
+     ""
+    ],
+    "General_Files_Upload": [
+     "upload file",
+     "General Files Upload",
+     ""
+    ],
+    "General_Information_Section": [
+     "section",
+     "General Information",
+     ""
+    ],
+    "Has_Additional_Contact": [
+     "radiobuttons",
+     "Is there an additional contact?",
+     ""
+    ],
+    "Imaging_Body_Site": [
+     "text",
+     "Body Part / Affected Area",
+     ""
+    ],
+    "Imaging_Order_Details": [
+     "section",
+     "Imaging Order Details",
+     ""
+    ],
+    "Imaging_Order_Indication": [
+     "textarea",
+     "Reason for Imaging Order(s)",
+     ""
+    ],
+    "Imaging_Orders_URLs": [
+     "textarea",
+     "Imaging Orders URLs",
+     ""
+    ],
+    "Imaging_Orders_Upload": [
+     "upload file",
+     "Imaging Orders Upload",
+     ""
+    ],
+    "Imaging_Type_Order": [
+     "text",
+     "Imaging Test(s) to be Ordered",
+     ""
+    ],
+    "List_Patient_Allergies": [
+     "textarea",
+     "List Patient Allergies",
+     ""
+    ],
+    "List_Patient_Anticoagulants": [
+     "textarea",
+     "List Patient Anticoagulants",
+     ""
+    ],
+    "Notified_Time": [
+     "datetime",
+     "Notified Time",
+     ""
+    ],
+    "Partner_Branch": [
+     "text",
+     "Partner Branch/Location",
+     ""
+    ],
+    "Partner_Branch_Link": [
+     "picklist",
+     "Partner Branch Lookup",
+     "Partner_Locations"
+    ],
+    "Partner_Branch_Submitted": [
+     "text",
+     "Partner Branch Submitted",
+     ""
+    ],
+    "Partner_ICD_Codes": [
+     "text",
+     "Partner ICD Codes",
+     ""
+    ],
+    "Partner_ID": [
+     "text",
+     "Partner ID",
+     ""
+    ],
+    "Partner_ID_Stamp": [
+     "text",
+     "Partner ID Stamp",
+     ""
+    ],
+    "Partner_Link": [
+     "picklist",
+     "Partner Lookup",
+     "Partners"
+    ],
+    "Partner_Location_Label": [
+     "text",
+     "Partner Location Label",
+     ""
+    ],
+    "Partner_Organization": [
+     "text",
+     "Partner Organization",
+     ""
+    ],
+    "Partner_POC_Email": [
+     "email",
+     "Partner POC Email",
+     ""
+    ],
+    "Partner_POC_First_Name": [
+     "text",
+     "Partner POC First Name",
+     ""
+    ],
+    "Partner_POC_Last_Name": [
+     "text",
+     "Partner POC Last Name",
+     ""
+    ],
+    "Partner_POC_Name_Title": [
+     "text",
+     "Partner POC Name & Title",
+     ""
+    ],
+    "Partner_POC_Phone": [
+     "text",
+     "Partner POC Phone",
+     ""
+    ],
+    "Partner_POC_Team": [
+     "text",
+     "Partner POC Team",
+     ""
+    ],
+    "Partner_POC_Title": [
+     "picklist",
+     "Partner POC Title",
+     ""
+    ],
+    "Patient_Address": [
+     "address",
+     "Patient Address",
+     ""
+    ],
+    "Patient_Advanced_Directives_Section": [
+     "section",
+     "Patient Advanced Directives",
+     ""
+    ],
+    "Patient_DOB": [
+     "date",
+     "Patient DOB",
+     ""
+    ],
+    "Patient_DOB1": [
+     "text",
+     "Patient DOB",
+     ""
+    ],
+    "Patient_Details_Section": [
+     "section",
+     "Patient Details",
+     ""
+    ],
+    "Patient_First_Name": [
+     "text",
+     "Patient First Name",
+     ""
+    ],
+    "Patient_Full_Address": [
+     "text",
+     "Patient Full Address",
+     ""
+    ],
+    "Patient_Full_Name": [
+     "text",
+     "Patient Full Name",
+     ""
+    ],
+    "Patient_Gender": [
+     "radiobuttons",
+     "Patient Gender",
+     ""
+    ],
+    "Patient_Has_Advanced_Directives": [
+     "radiobuttons",
+     "Does the patient have Advanced Directives?",
+     ""
+    ],
+    "Patient_Has_Allergies": [
+     "radiobuttons",
+     "Does this patient have allergies?",
+     ""
+    ],
+    "Patient_Has_Anticoagulants": [
+     "radiobuttons",
+     "Does the patient take anticoagulants?",
+     ""
+    ],
+    "Patient_Hospice_ID": [
+     "text",
+     "Patient Hospice ID",
+     ""
+    ],
+    "Patient_Last_Name": [
+     "text",
+     "Patient Last Name",
+     ""
+    ],
+    "Patient_Location": [
+     "radiobuttons",
+     "Patient Location",
+     ""
+    ],
+    "Patient_Location_Section": [
+     "section",
+     "Patient Location",
+     ""
+    ],
+    "Patient_MBI": [
+     "text",
+     "Patient MBI",
+     ""
+    ],
+    "Patient_MI": [
+     "text",
+     "Patient MI",
+     ""
+    ],
+    "Patient_Medical_Details_Section": [
+     "section",
+     "Patient Medical Details",
+     ""
+    ],
+    "Patient_Phone": [
+     "text",
+     "Patient Phone",
+     ""
+    ],
+    "Patient_SSN": [
+     "text",
+     "Patient SSN",
+     ""
+    ],
+    "Referral_Added_Time": [
+     "datetime",
+     "Referral Added Time",
+     ""
+    ],
+    "Referral_Attachments_Section": [
+     "section",
+     "Referral Attachments Section",
+     ""
+    ],
+    "Referral_Date": [
+     "date",
+     "Referral Date",
+     ""
+    ],
+    "Referral_Date1": [
+     "text",
+     "Referral Date (Don't Use)",
+     ""
+    ],
+    "Referral_ID": [
+     "text",
+     "Referral ID",
+     ""
+    ],
+    "Referral_ID_Stamp": [
+     "text",
+     "Referral ID Stamp",
+     ""
+    ],
+    "Referral_Partner_Details_Section": [
+     "section",
+     "Referral Partner Details",
+     ""
+    ],
+    "Referral_Reason": [
+     "textarea",
+     "Reason for Referral",
+     ""
+    ],
+    "Referral_Source": [
+     "radiobuttons",
+     "Referral Source",
+     ""
+    ],
+    "Referral_Type": [
+     "radiobuttons",
+     "Service",
+     ""
+    ],
+    "Referral_Type_Section": [
+     "section",
+     "Referral Type",
+     ""
+    ],
+    "System_Fields_Section": [
+     "section",
+     "System Fields",
+     ""
+    ],
+    "X_Ray_Needed": [
+     "radiobuttons",
+     "Will an X-Ray be needed for this referral?",
+     ""
+    ]
+   }
+  },
+  "Referrals_Main2": {
+   "display": "Referrals Main2",
+   "fields": {
+    "AC_First_Name": [
+     "text",
+     "AC First Name",
+     ""
+    ],
+    "AC_Last_Name": [
+     "text",
+     "AC Last Name",
+     ""
+    ],
+    "AC_Phone": [
+     "phonenumber",
+     "AC Phone",
+     ""
+    ],
+    "AC_Relationship_to_Patient": [
+     "picklist",
+     "AC Relationship to Patient",
+     ""
+    ],
+    "Additional_Contact_Section": [
+     "section",
+     "Additional Contact Section",
+     ""
+    ],
+    "Billing_Details_Section": [
+     "section",
+     "Billing Details Section",
+     ""
+    ],
+    "Facility_Name": [
+     "text",
+     "Facility Name",
+     ""
+    ],
+    "Facility_Phone": [
+     "phonenumber",
+     "Facility Phone",
+     ""
+    ],
+    "Facility_Room_Number": [
+     "text",
+     "Facility Room #",
+     ""
+    ],
+    "Partner_Branch": [
+     "text",
+     "Partner Branch",
+     ""
+    ],
+    "Partner_Branch2": [
+     "text",
+     "Partner Branch",
+     ""
+    ],
+    "Partner_Clinical_Team": [
+     "text",
+     "Partner Clinical Team",
+     ""
+    ],
+    "Partner_Locations": [
+     "picklist",
+     "Partner Locations",
+     ""
+    ],
+    "Partner_Organization": [
+     "text",
+     "Partner Organization",
+     ""
+    ],
+    "Partner_POC_Email": [
+     "email",
+     "Partner POC Email",
+     ""
+    ],
+    "Partner_POC_First_Name": [
+     "text",
+     "Partner POC First Name",
+     ""
+    ],
+    "Partner_POC_Last_Name": [
+     "text",
+     "Partner POC Last Name",
+     ""
+    ],
+    "Partner_POC_Phone": [
+     "phonenumber",
+     "Partner POC Phone",
+     ""
+    ],
+    "Patient_Address": [
+     "address",
+     "Patient Address",
+     ""
+    ],
+    "Patient_Biological_Sex": [
+     "radiobuttons",
+     "Patient Biological Sex",
+     ""
+    ],
+    "Patient_DOB": [
+     "date",
+     "Patient DOB",
+     ""
+    ],
+    "Patient_First_Name": [
+     "text",
+     "Patient First Name",
+     ""
+    ],
+    "Patient_Hospice_ID": [
+     "text",
+     "Patient Hospice ID",
+     ""
+    ],
+    "Patient_Identity_Section": [
+     "section",
+     "Patient Identity Section",
+     ""
+    ],
+    "Patient_Last_Name": [
+     "text",
+     "Patient Last Name",
+     ""
+    ],
+    "Patient_MBI": [
+     "text",
+     "",
+     ""
+    ],
+    "Patient_Phone": [
+     "phonenumber",
+     "Patient Phone",
+     ""
+    ],
+    "Patient_SSN": [
+     "text",
+     "Patient SSN",
+     ""
+    ],
+    "Referral": [
+     "section",
+     "Referral Details Section",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Where_is_the_patient_now": [
+     "radiobuttons",
+     "Where is the patient now?",
+     ""
+    ]
+   }
+  },
+  "Referrals_Master": {
+   "display": "Referrals Master",
+   "fields": {}
+  },
+  "Schema_Snapshot": {
+   "display": "Schema Snapshot",
+   "fields": {
+    "Captured_On": [
+     "datetime",
+     "Captured On",
+     ""
+    ],
+    "Change_Summary": [
+     "textarea",
+     "Change Summary",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Snapshot_Data": [
+     "textarea",
+     "Snapshot Data",
+     ""
+    ]
+   }
+  },
+  "Sequence_Tracker": {
+   "display": "Sequence Tracker",
+   "fields": {
+    "Object_Lock_Status": [
+     "radiobuttons",
+     "Object Lock Status",
+     ""
+    ],
+    "Object_Name": [
+     "text",
+     "Object Name",
+     ""
+    ],
+    "Object_Prefix": [
+     "text",
+     "Object Prefix",
+     ""
+    ],
+    "Object_Sequence": [
+     "number",
+     "Object Sequence",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ]
+   }
+  },
+  "Services_Procedures": {
+   "display": "Services & Procedures",
+   "fields": {}
+  }
+ },
+ "functions": {
+  "add_missing_rate_to_uniform_branches": [
+   "dcd91f5d",
+   "string",
+   ""
+  ],
+  "admin_set_field": [
+   "d1426fd8",
+   "map",
+   "string p_report, string p_key_field, string p_key_value, string p_field, string p_value, string p_mode"
+  ],
+  "api_fax_begin": [
+   "bc57c2f5",
+   "map",
+   ""
+  ],
+  "api_fax_pvs_search": [
+   "d2c34a39",
+   "map",
+   "string p_branchId, string p_query, string p_unsentOnly"
+  ],
+  "api_fax_recipients": [
+   "73176f94",
+   "map",
+   ""
+  ],
+  "api_fax_send_console": [
+   "f8368bc1",
+   "map",
+   "string pLogId, string pContactId, list pPvsIds, string pRemarks"
+  ],
+  "assign_direct_partner": [
+   "51977ee2",
+   "string",
+   "string p_mode, string p_refIds, string p_source"
+  ],
+  "assign_partner_branch": [
+   "42fbcef4",
+   "string",
+   "string p_mode, string p_map"
+  ],
+  "audit_pvs_billing_readiness": [
+   "cc40aafb",
+   "string",
+   "string p_mode, date p_from, date p_to"
+  ],
+  "backfill_assignment_ids": [
+   "1617e3ab",
+   "void",
+   ""
+  ],
+  "backfill_contact_name_title": [
+   "c3a7d185",
+   "string",
+   ""
+  ],
+  "backfill_current_rate": [
+   "3c123aeb",
+   "void",
+   ""
+  ],
+  "backfill_data_issues": [
+   "d325074a",
+   "string",
+   "string p_mode"
+  ],
+  "backfill_dm_full_names": [
+   "4ba1575e",
+   "void",
+   ""
+  ],
+  "backfill_employee_ids": [
+   "ddc367a0",
+   "void",
+   ""
+  ],
+  "backfill_employee_initials": [
+   "89b15dbf",
+   "string",
+   ""
+  ],
+  "backfill_employee_name_title": [
+   "3a1937af",
+   "string",
+   "string pMode"
+  ],
+  "backfill_employee_phone_format": [
+   "3acc5496",
+   "void",
+   ""
+  ],
+  "backfill_location_ids": [
+   "1e73ebdd",
+   "void",
+   ""
+  ],
+  "backfill_location_labels": [
+   "dda4e39d",
+   "string",
+   "string p_mode"
+  ],
+  "backfill_mint_missing_referral_ids": [
+   "326dfc65",
+   "string",
+   "string p_mode, string p_scope"
+  ],
+  "backfill_note_finalized_time": [
+   "a2ed37e4",
+   "string",
+   "bool p_commit"
+  ],
+  "backfill_partner_ids": [
+   "a9e05dea",
+   "void",
+   ""
+  ],
+  "backfill_partner_poc_name_title": [
+   "d7999d8d",
+   "void",
+   ""
+  ],
+  "backfill_partner_resolver": [
+   "e8b76f13",
+   "string",
+   "string p_mode, string p_target, int p_from, int p_to"
+  ],
+  "backfill_patient_dob": [
+   "5d1e42d7",
+   "string",
+   "string p_mode"
+  ],
+  "backfill_patient_full_addresses": [
+   "35d96835",
+   "void",
+   ""
+  ],
+  "backfill_patient_full_names": [
+   "88b3340b",
+   "void",
+   ""
+  ],
+  "backfill_provider_login_email": [
+   "d79ea268",
+   "string",
+   "string pMode"
+  ],
+  "backfill_pvs_3008_billing": [
+   "b510f613",
+   "string",
+   "string p_mode, date p_from, date p_to"
+  ],
+  "backfill_pvs_address_from_referral": [
+   "a4af1d0b",
+   "string",
+   ""
+  ],
+  "backfill_pvs_billing_branch": [
+   "064b01c5",
+   "map",
+   "string p_mode"
+  ],
+  "backfill_pvs_complexity_charge": [
+   "0b47f8b8",
+   "string",
+   "string p_mode, string p_pvsIds"
+  ],
+  "backfill_pvs_employee_email": [
+   "9cde0263",
+   "string",
+   ""
+  ],
+  "backfill_pvs_employee_email_alias": [
+   "dc4b9575",
+   "string",
+   "string pMode, string pOldEmail, string pNewEmail"
+  ],
+  "backfill_pvs_employee_initials": [
+   "fca4bb2a",
+   "string",
+   ""
+  ],
+  "backfill_pvs_employee_link": [
+   "786ee33e",
+   "string",
+   "string pMode"
+  ],
+  "backfill_pvs_from_referral": [
+   "c7ba55f1",
+   "string",
+   ""
+  ],
+  "backfill_pvs_ids": [
+   "42e956ad",
+   "string",
+   ""
+  ],
+  "backfill_pvs_invoice_status": [
+   "86cd19c9",
+   "string",
+   "string p_mode, date p_from, date p_to"
+  ],
+  "backfill_pvs_link_by_cognito": [
+   "2049edac",
+   "string",
+   "string p_mode, string p_scope"
+  ],
+  "backfill_pvs_note_placement": [
+   "9c29b147",
+   "string",
+   "string p_mode, date p_from, date p_to"
+  ],
+  "backfill_pvs_patient_full_address": [
+   "be83bd14",
+   "string",
+   ""
+  ],
+  "backfill_pvs_premium_fees": [
+   "d3c4067c",
+   "string",
+   "string p_confirm"
+  ],
+  "backfill_pvs_provider_identity": [
+   "2184a2c7",
+   "string",
+   "string p_mode, string p_from, string p_to"
+  ],
+  "backfill_pvs_referral_date": [
+   "cdd92dbc",
+   "string",
+   "string p_mode, string p_pvsKey"
+  ],
+  "backfill_pvs_referral_id_from_link": [
+   "8cb76cab",
+   "string",
+   "string p_mode, string p_scope"
+  ],
+  "backfill_pvs_referral_source": [
+   "ead4aa01",
+   "string",
+   "string p_mode, int p_limit"
+  ],
+  "backfill_pvs_row_status": [
+   "8fde12ee",
+   "string",
+   "string p_mode, int p_limit"
+  ],
+  "backfill_referral_added_time": [
+   "c1c4d85a",
+   "string",
+   ""
+  ],
+  "backfill_referral_branch": [
+   "d72f2ef9",
+   "string",
+   ""
+  ],
+  "backfill_referral_branch_from_contact": [
+   "7b81f9db",
+   "string",
+   ""
+  ],
+  "backfill_referral_date": [
+   "16579b0f",
+   "string",
+   "string p_mode"
+  ],
+  "backfill_referral_employee_link": [
+   "0cad12e2",
+   "string",
+   "string pMode"
+  ],
+  "backfill_referral_id_from_token": [
+   "2b862da1",
+   "string",
+   ""
+  ],
+  "backfill_referral_id_stamp": [
+   "bec7bb7f",
+   "void",
+   ""
+  ],
+  "backfill_referral_ids": [
+   "afc9eb5f",
+   "void",
+   ""
+  ],
+  "backfill_referral_partner_fields": [
+   "da3df7dc",
+   "string",
+   "string p_mode"
+  ],
+  "backfill_referral_uploads": [
+   "20926bfe",
+   "string",
+   "string p_mode, string p_refKey"
+  ],
+  "build_3008_email_html": [
+   "6fa6b12a",
+   "map",
+   "int p_recId"
+  ],
+  "build_console_docs": [
+   "91e093c4",
+   "map",
+   "string pFaxID, string pToName, string pToPartner, string pToFax, string pToAttn, string pRemarks, list pPvsIds, list pUploadNames"
+  ],
+  "build_creator_attachments": [
+   "a982159e",
+   "list",
+   "int p_recId, string p_token"
+  ],
+  "build_imaging_email_html": [
+   "2d5fe06e",
+   "map",
+   "int p_recId"
+  ],
+  "build_pvs_fax_html": [
+   "8d4cebe0",
+   "string",
+   "int pPvsID, string pFaxID, string pToName, string pToPartner, string pToFax, string pToAttn, string pRemarks, list pImageUrls"
+  ],
+  "build_pvs_note_html": [
+   "93dfc870",
+   "string",
+   "map pVals"
+  ],
+  "build_referral_confirmation_html": [
+   "8a8b3af7",
+   "map",
+   "int p_recId"
+  ],
+  "build_referral_email_html": [
+   "a8589a4e",
+   "map",
+   "int p_recId"
+  ],
+  "build_zepto_attachments": [
+   "ce2e8095",
+   "list",
+   "int p_refId, string p_token"
+  ],
+  "compute_data_issues": [
+   "23602929",
+   "string",
+   "int p_recId"
+  ],
+  "create_3008_pvs_july": [
+   "efb09763",
+   "string",
+   "string pMode"
+  ],
+  "create_3008_pvs_sept": [
+   "0a9493b1",
+   "string",
+   "string pMode"
+  ],
+  "create_books_customers": [
+   "9fc3b29b",
+   "string",
+   ""
+  ],
+  "create_invoice_from_selection": [
+   "406bc6bc",
+   "string",
+   "list p_pvsIds"
+  ],
+  "dash_metrics": [
+   "f47bb02c",
+   "map",
+   "date p_monthStart"
+  ],
+  "dash_metrics_range": [
+   "08a0264c",
+   "map",
+   "date p_from, date p_to, string p_mode, string p_key"
+  ],
+  "diag_3008_batch_eligibility": [
+   "ead136bd",
+   "string",
+   "date p_from, date p_to"
+  ],
+  "diag_3008_draft_vs_invoiced": [
+   "f18530c1",
+   "string",
+   "date p_from, date p_to"
+  ],
+  "diag_3008_duplicates": [
+   "6d225297",
+   "string",
+   ""
+  ],
+  "diag_3008_link_check": [
+   "f31b2f38",
+   "string",
+   "date p_from, date p_to"
+  ],
+  "diag_3008_missing_reason": [
+   "7ced6557",
+   "string",
+   ""
+  ],
+  "diag_3008_no_pvs_list": [
+   "faf7c407",
+   "string",
+   ""
+  ],
+  "diag_3008_no_pvs_sheet": [
+   "762e7f35",
+   "string",
+   "date p_from, date p_to"
+  ],
+  "diag_3008_overdue": [
+   "aa371510",
+   "string",
+   ""
+  ],
+  "diag_accentcare_rates": [
+   "83952d0a",
+   "string",
+   ""
+  ],
+  "diag_addendum_restamp": [
+   "afc07213",
+   "string",
+   ""
+  ],
+  "diag_august_pvs_gap": [
+   "12c1c4e1",
+   "string",
+   ""
+  ],
+  "diag_august_pvs_state": [
+   "da70741a",
+   "string",
+   ""
+  ],
+  "diag_bad_remarks_faxes": [
+   "acd73ff1",
+   "string",
+   ""
+  ],
+  "diag_blank_referral_id": [
+   "cf6b2dc4",
+   "string",
+   ""
+  ],
+  "diag_branch_books_ids": [
+   "275fc481",
+   "string",
+   ""
+  ],
+  "diag_compliance_gap": [
+   "01c7f409",
+   "string",
+   ""
+  ],
+  "diag_config_write": [
+   "619ee9a3",
+   "string",
+   ""
+  ],
+  "diag_dob_coverage": [
+   "c59ffb0e",
+   "string",
+   ""
+  ],
+  "diag_duplicate_location_names": [
+   "8f094f3d",
+   "string",
+   ""
+  ],
+  "diag_duplicate_referral_ids": [
+   "82f8c1ed",
+   "string",
+   ""
+  ],
+  "diag_duplicate_visits": [
+   "aa6fc5a3",
+   "string",
+   ""
+  ],
+  "diag_empath_labels": [
+   "d2fb838c",
+   "string",
+   ""
+  ],
+  "diag_employees": [
+   "fec5a73f",
+   "string",
+   ""
+  ],
+  "diag_esi_references": [
+   "5e56705e",
+   "string",
+   ""
+  ],
+  "diag_fax_attachments": [
+   "341d75e6",
+   "string",
+   ""
+  ],
+  "diag_fax_coverage": [
+   "9ad9b1b8",
+   "string",
+   ""
+  ],
+  "diag_fax_error": [
+   "a5246fa2",
+   "string",
+   "string p_faxId"
+  ],
+  "diag_fax_pdf_image": [
+   "34fec5c8",
+   "string",
+   "int pPvsID"
+  ],
+  "diag_fax_readiness": [
+   "aa481d73",
+   "map",
+   "int p_days"
+  ],
+  "diag_fax_repair_errors": [
+   "45a553de",
+   "string",
+   ""
+  ],
+  "diag_fax_target": [
+   "b2391f7d",
+   "string",
+   "string p_pvsId"
+  ],
+  "diag_find_referral": [
+   "60270a87",
+   "string",
+   "string p_text"
+  ],
+  "diag_form_fields": [
+   "0238237f",
+   "string",
+   "string p_formLink"
+  ],
+  "diag_imaging_notify_check": [
+   "09c6c49c",
+   "string",
+   "int p_days"
+  ],
+  "diag_innovage_rates": [
+   "0425511c",
+   "string",
+   ""
+  ],
+  "diag_invoice_batch": [
+   "39312db2",
+   "string",
+   "int p_batchId"
+  ],
+  "diag_invoice_patient_gaps": [
+   "4a10fb5d",
+   "string",
+   "string p_invoiceNumbers"
+  ],
+  "diag_invoice_pvs": [
+   "4ef9b0d4",
+   "string",
+   "string p_booksInvoiceId"
+  ],
+  "diag_invoice_record": [
+   "cecfea58",
+   "string",
+   "int p_invoiceId"
+  ],
+  "diag_invoice_same_patient_dos": [
+   "5e8fe2db",
+   "string",
+   "string p_invoiceNumbers"
+  ],
+  "diag_match_3008_refs": [
+   "3b5a04a4",
+   "string",
+   "string p_rows"
+  ],
+  "diag_missing_dob": [
+   "6e9a34da",
+   "string",
+   ""
+  ],
+  "diag_missing_pvs_fax": [
+   "c5e3a768",
+   "map",
+   ""
+  ],
+  "diag_month_billing_gap": [
+   "018e1314",
+   "string",
+   "int p_year, int p_month"
+  ],
+  "diag_mpu_3008_export": [
+   "2238a51d",
+   "string",
+   "int p_year, int p_month"
+  ],
+  "diag_mpu_pvs_export": [
+   "fed2b257",
+   "string",
+   "int p_year, int p_month"
+  ],
+  "diag_mpu_readiness": [
+   "eefc5e9a",
+   "string",
+   "int p_year, int p_month, string p_part"
+  ],
+  "diag_mpu_referral_export": [
+   "90a6a0ae",
+   "string",
+   "int p_year, int p_month, string p_partner"
+  ],
+  "diag_orphan_referral": [
+   "cfff6752",
+   "string",
+   "string p_recId"
+  ],
+  "diag_orphaned_records": [
+   "43138662",
+   "string",
+   ""
+  ],
+  "diag_partner_location_labels": [
+   "3ffe506e",
+   "string",
+   ""
+  ],
+  "diag_partner_rates": [
+   "3307c87f",
+   "string",
+   ""
+  ],
+  "diag_patient_visits": [
+   "b10ab2b3",
+   "string",
+   "string pName"
+  ],
+  "diag_premium_visit_invoices": [
+   "8d6eb9f0",
+   "string",
+   ""
+  ],
+  "diag_provider_backfill_trace": [
+   "5ab5c84f",
+   "string",
+   "string p_pvs_id"
+  ],
+  "diag_pvs_added_time_clusters": [
+   "96c463b6",
+   "string",
+   ""
+  ],
+  "diag_pvs_billing_flags": [
+   "b6ac5885",
+   "string",
+   ""
+  ],
+  "diag_pvs_billing_snapshot": [
+   "bd5685a3",
+   "string",
+   "string p_pvsKey"
+  ],
+  "diag_pvs_billing_vs_referral": [
+   "86fb0243",
+   "string",
+   "int p_from, int p_to"
+  ],
+  "diag_pvs_blank_reason": [
+   "be9bef6f",
+   "string",
+   ""
+  ],
+  "diag_pvs_by_recid": [
+   "1ea6cc2e",
+   "string",
+   "string p_ids"
+  ],
+  "diag_pvs_creation_source": [
+   "ea2f2d8f",
+   "string",
+   "int p_year, int p_month"
+  ],
+  "diag_pvs_email_branches": [
+   "0b3472c1",
+   "string",
+   ""
+  ],
+  "diag_pvs_fax_number": [
+   "2389bbbf",
+   "string",
+   "int pPvsID"
+  ],
+  "diag_pvs_field_values": [
+   "ce615daf",
+   "string",
+   "string p_pvsId"
+  ],
+  "diag_pvs_for_refs": [
+   "7dad7fd7",
+   "string",
+   "string p_refIds"
+  ],
+  "diag_pvs_hospice_ids": [
+   "fc32b427",
+   "string",
+   "string p_pvsIds"
+  ],
+  "diag_pvs_ids": [
+   "11fe2f47",
+   "string",
+   ""
+  ],
+  "diag_pvs_login_email_gaps": [
+   "2909ae31",
+   "string",
+   ""
+  ],
+  "diag_pvs_note_compare": [
+   "2ff9fe10",
+   "string",
+   "string p_pvsIds"
+  ],
+  "diag_pvs_note_placement": [
+   "79e0fc4c",
+   "string",
+   "date p_from, date p_to"
+  ],
+  "diag_pvs_one": [
+   "a3560efd",
+   "string",
+   "string p_pvsId"
+  ],
+  "diag_pvs_premium_mismatches": [
+   "a012e075",
+   "string",
+   ""
+  ],
+  "diag_pvs_provider_fields": [
+   "08f076ed",
+   "string",
+   "string p_pvs_id"
+  ],
+  "diag_pvs_reason_by_entry": [
+   "479de69e",
+   "string",
+   ""
+  ],
+  "diag_pvs_referral_match": [
+   "5af303f7",
+   "string",
+   "string p_pvsIds"
+  ],
+  "diag_pvs_stamp_gap": [
+   "523a0486",
+   "string",
+   ""
+  ],
+  "diag_pvs_status_mix": [
+   "195212ff",
+   "string",
+   ""
+  ],
+  "diag_rc_fax_history": [
+   "2a27dfc8",
+   "string",
+   ""
+  ],
+  "diag_rc_token": [
+   "5912c03c",
+   "string",
+   ""
+  ],
+  "diag_ref_branch_candidates": [
+   "646d42f2",
+   "string",
+   "string p_refId"
+  ],
+  "diag_ref_patient_pvs_match": [
+   "f788cb5b",
+   "string",
+   "string p_refIds"
+  ],
+  "diag_referral_branch": [
+   "403e50c6",
+   "string",
+   "string p_referral_id"
+  ],
+  "diag_referral_by_name": [
+   "2339498a",
+   "string",
+   "string p_text"
+  ],
+  "diag_referral_collision": [
+   "e2d87f43",
+   "string",
+   "date p_date"
+  ],
+  "diag_referral_contact_match": [
+   "942f97a9",
+   "string",
+   ""
+  ],
+  "diag_referral_date_source": [
+   "fed56803",
+   "string",
+   "string p_refIds"
+  ],
+  "diag_referral_dates": [
+   "d4cd5481",
+   "string",
+   ""
+  ],
+  "diag_referral_dump": [
+   "9291940e",
+   "string",
+   "string p_refIds"
+  ],
+  "diag_referral_id_records": [
+   "d8d89350",
+   "string",
+   "string p_refIds"
+  ],
+  "diag_referral_ids": [
+   "ee5aefed",
+   "string",
+   ""
+  ],
+  "diag_referral_imaging": [
+   "2978bdd3",
+   "string",
+   "string p_refIds"
+  ],
+  "diag_referral_intake": [
+   "ec1d7756",
+   "string",
+   "string p_refKey"
+  ],
+  "diag_referral_origin": [
+   "b4777b41",
+   "string",
+   ""
+  ],
+  "diag_referral_partner_resolve": [
+   "4e3bc525",
+   "map",
+   "string pRefId"
+  ],
+  "diag_referrals_missing_pvs": [
+   "523562d6",
+   "string",
+   "date p_from, date p_to"
+  ],
+  "diag_room_number_gaps": [
+   "572dd19f",
+   "string",
+   ""
+  ],
+  "diag_safe_test_referrals": [
+   "b64b9788",
+   "string",
+   ""
+  ],
+  "diag_sept_pvs_completeness": [
+   "e9f5eca6",
+   "map",
+   "date p_start, date p_end"
+  ],
+  "diag_sequence_trackers": [
+   "d8605393",
+   "string",
+   ""
+  ],
+  "diag_stuck_faxes": [
+   "04847309",
+   "string",
+   ""
+  ],
+  "diag_unfaxed_by_branch": [
+   "ded355cc",
+   "map",
+   ""
+  ],
+  "diag_unmatched_branch_labels": [
+   "712a1148",
+   "string",
+   ""
+  ],
+  "diag_unnotified_referrals": [
+   "1101e7a8",
+   "string",
+   ""
+  ],
+  "diag_upload_field_usage": [
+   "3b75896e",
+   "string",
+   ""
+  ],
+  "diag_upload_field_values": [
+   "d5a9b5c5",
+   "string",
+   "string p_refKey"
+  ],
+  "diag_upload_probe": [
+   "f8fc861c",
+   "string",
+   "string p_refKey"
+  ],
+  "diag_workdrive_download": [
+   "bcf08803",
+   "string",
+   "string p_resId"
+  ],
+  "diag_zztest_referrals": [
+   "1f6e58ca",
+   "string",
+   ""
+  ],
+  "fix_accentcare_current_rate": [
+   "11dbf983",
+   "string",
+   ""
+  ],
+  "fix_six_room_numbers": [
+   "86372f34",
+   "string",
+   ""
+  ],
+  "flag_duplicate_referrals": [
+   "bb80209f",
+   "string",
+   "string p_mode, string p_pairs"
+  ],
+  "fmt_phone_display": [
+   "a0e01219",
+   "string",
+   "string pRaw"
+  ],
+  "fmt_referral_source": [
+   "52c2822a",
+   "string",
+   "string pOrg, string pBranch"
+  ],
+  "get_notification_recipients": [
+   "669ee2c9",
+   "list",
+   "string p_type"
+  ],
+  "get_partner_referral_contact": [
+   "de3de109",
+   "map",
+   "string pPocEmail"
+  ],
+  "get_pvs_fax_files": [
+   "9dd4343d",
+   "map",
+   "int pPvsID, list pSelected, bool pAll"
+  ],
+  "get_rc_token": [
+   "77b5c821",
+   "string",
+   ""
+  ],
+  "is_portal_admin": [
+   "c087e286",
+   "bool",
+   ""
+  ],
+  "is_pvs_email_branch": [
+   "988536c6",
+   "bool",
+   "int pBranchId"
+  ],
+  "link_pvs_to_referral": [
+   "2cdc90b2",
+   "string",
+   ""
+  ],
+  "log_change": [
+   "da39a3ee",
+   "void",
+   "string source_form, string source_rec_id, string source_display_id, string field_label, string old_val, string new_val, string changed_by"
+  ],
+  "mint_assignment_id": [
+   "9012ac26",
+   "void",
+   "int recId"
+  ],
+  "mint_employee_id": [
+   "abe6d187",
+   "void",
+   "int recId"
+  ],
+  "mint_location_id": [
+   "3294e041",
+   "void",
+   "int recId"
+  ],
+  "mint_partner_id": [
+   "56af41ff",
+   "void",
+   "int recId"
+  ],
+  "mint_referral_id": [
+   "783553de",
+   "void",
+   "int recId"
+  ],
+  "normalize_pvs_phones": [
+   "c9f56edd",
+   "string",
+   "string p_confirm"
+  ],
+  "parse_patient_dob": [
+   "f2fb1840",
+   "date",
+   "string p_text"
+  ],
+  "partner_branch_values": [
+   "fb8b8277",
+   "map",
+   "string pKey"
+  ],
+  "poll_fax_status": [
+   "267ffc33",
+   "string",
+   ""
+  ],
+  "prepare_month_for_billing": [
+   "195183eb",
+   "string",
+   "string p_mode, string p_from, string p_to"
+  ],
+  "process_new_referral": [
+   "a1669334",
+   "string",
+   "string p_refKey, string p_notify"
+  ],
+  "relink_pvs_to_referral": [
+   "028ccd4f",
+   "string",
+   "string p_mode"
+  ],
+  "repair_fax_log_status": [
+   "4309c986",
+   "string",
+   "bool p_commit"
+  ],
+  "repair_invoice_pvs_from_referral": [
+   "5c66d61c",
+   "string",
+   "string p_invoiceNumbers, string p_mode"
+  ],
+  "repair_pvs_3008_import": [
+   "c61668f2",
+   "string",
+   "string p_mode"
+  ],
+  "replicate_uniform_rates": [
+   "c6109783",
+   "string",
+   ""
+  ],
+  "report_partner_rate_coverage": [
+   "25544b04",
+   "string",
+   ""
+  ],
+  "reprice_draft_pvs": [
+   "c3adf543",
+   "string",
+   "string p_branchLabel, string p_confirm"
+  ],
+  "resend_referral_notifications": [
+   "6114486d",
+   "string",
+   "string p_refKeys, string p_toEmail"
+  ],
+  "reset_invoice": [
+   "e2617b20",
+   "string",
+   "string p_invoiceNumber, string p_confirm"
+  ],
+  "reset_invoice_by_id": [
+   "c432d82f",
+   "string",
+   "string p_mode, int p_invoiceId, string p_confirm"
+  ],
+  "resolve_branch_id": [
+   "bd31f089",
+   "string",
+   "string pCurrentLink, string pContactEmail, string pLabelText, string pOrgText"
+  ],
+  "resolve_pvs_fax_target": [
+   "bc832a0b",
+   "map",
+   "int pPvsID"
+  ],
+  "resolve_referral_branch_from_text": [
+   "eb8395fb",
+   "string",
+   ""
+  ],
+  "resync_location_labels": [
+   "5d2244f0",
+   "string",
+   ""
+  ],
+  "resync_location_names": [
+   "16a84f0e",
+   "string",
+   ""
+  ],
+  "resync_patient_dob": [
+   "a69da960",
+   "string",
+   "string p_mode"
+  ],
+  "retire_3008_duplicates_auto": [
+   "e965f4a1",
+   "string",
+   "string p_mode"
+  ],
+  "retire_pvs_duplicate": [
+   "f364a1a7",
+   "string",
+   "string p_mode, string p_dupePvsId, string p_keeperPvsId"
+  ],
+  "retire_pvs_duplicates": [
+   "5aa0908b",
+   "string",
+   "string p_mode, string p_dupePvsIds"
+  ],
+  "retire_pvs_record": [
+   "fdb800c0",
+   "string",
+   "string p_mode, string p_pvsId, string p_reason"
+  ],
+  "retry_failed_faxes": [
+   "e742ede6",
+   "string",
+   ""
+  ],
+  "run_invoice_batch": [
+   "3cbcdde6",
+   "string",
+   "int p_batchId, decimal p_maxTotal"
+  ],
+  "run_pvs_exclusion_monitor": [
+   "f38e4155",
+   "string",
+   ""
+  ],
+  "run_schema_monitor": [
+   "f14c8c36",
+   "string",
+   ""
+  ],
+  "seed_schema_to_github": [
+   "aac9159a",
+   "void",
+   ""
+  ],
+  "send_3008_notification": [
+   "82aa2b0f",
+   "string",
+   "string p_refKey"
+  ],
+  "send_activity_digest": [
+   "afff7e36",
+   "string",
+   "string p_type, string p_from, string p_to"
+  ],
+  "send_assignment_notification": [
+   "c5cdb09d",
+   "string",
+   "string p_asgKey"
+  ],
+  "send_fax_digest": [
+   "08736048",
+   "string",
+   ""
+  ],
+  "send_imaging_notification": [
+   "e732197d",
+   "string",
+   "string p_refKey"
+  ],
+  "send_pvs_fax": [
+   "16b1a24d",
+   "map",
+   "int pPvsID, string pToName, string pToPartner, string pToFax, string pToAttn, string pRemarks, string pNumberSource, string pOverrideReason, list pImageUrls, list pAttachFiles, int pAttempt, int pOriginalFaxID"
+  ],
+  "send_referral_confirmation": [
+   "0a0f7f71",
+   "string",
+   "string p_refKey"
+  ],
+  "send_referral_notification": [
+   "145e37f9",
+   "string",
+   "string p_refKey"
+  ],
+  "send_via_sendgrid": [
+   "a593170f",
+   "void",
+   "string pTo, string pSubject, string pMessage"
+  ],
+  "set_current_rate": [
+   "584a618b",
+   "void",
+   "int rateId"
+  ],
+  "set_partner_poc_name_title": [
+   "c11204b4",
+   "void",
+   "int recId"
+  ],
+  "set_patient_full_name": [
+   "21cacd0a",
+   "void",
+   "int recId"
+  ],
+  "set_pvs_complexity": [
+   "6f9a6237",
+   "string",
+   "string p_mode, string p_pvsId, string p_level"
+  ],
+  "set_pvs_equipment_charge": [
+   "2f796a22",
+   "string",
+   "string p_pvsId, string p_amount, string p_details"
+  ],
+  "set_pvs_provider": [
+   "7c741a74",
+   "string",
+   "string p_mode, string p_pvsId, string p_employeeEmail"
+  ],
+  "set_pvs_referral_link": [
+   "8b69707c",
+   "string",
+   "string p_pvsId, string p_refId, string p_mode"
+  ],
+  "sos_referral_health": [
+   "06196e3c",
+   "string",
+   "string p_mode, string p_scope, int p_limit"
+  ],
+  "sweep_unnotified_referrals": [
+   "029093ed",
+   "string",
+   "string p_mode, string p_scope, int p_limit"
+  ],
+  "sync_pvs_branch_from_referral": [
+   "36713cbd",
+   "string",
+   "string p_pvsId, string p_mode"
+  ],
+  "test_github_commit": [
+   "ab2c18d1",
+   "void",
+   ""
+  ],
+  "test_schema_connection": [
+   "2eac0c3e",
+   "void",
+   ""
+  ],
+  "test_smtp": [
+   "184fcd49",
+   "string",
+   ""
+  ],
+  "widget_today_visits": [
+   "4dc9826b",
+   "map",
+   ""
+  ]
+ },
+ "pages": {
+  "Access_Revoked_Page": [
+   "bde112e0",
+   ""
+  ],
+  "Drilldown_Data": [
+   "7a0a351b",
+   "string dd_key, string dd_month"
+  ],
+  "My_Assignments": [
+   "e07a8926",
+   ""
+  ],
+  "PVS": [
+   "099742e1",
+   ""
+  ],
+  "Provider_Dashboard": [
+   "a4416afd",
+   "string v_login_email"
+  ],
+  "Reports": [
+   "ddfefbaa",
+   "string r_from, string r_mode, string r_to"
+  ],
+  "User_Lookup": [
+   "c4a9b1bc",
+   ""
+  ]
+ },
+ "report_actions": {
+  "Fax_PVS": [
+   "5088c310",
+   "",
+   "OnClick",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Fax_PVS_Button": [
+   "5088c310",
+   "",
+   "OnClick",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ]
+ },
+ "reports": {
+  "API_Config_Report": [
+   "API_Config",
+   "",
+   ""
+  ],
+  "All_Assignments": [
+   "Assignments",
+   "",
+   ""
+  ],
+  "All_Employees": [
+   "Employees",
+   "",
+   ""
+  ],
+  "All_Files": [
+   "Referral_Files",
+   "",
+   ""
+  ],
+  "All_Partner_Billing_Contacts": [
+   "Partner_Billing_Contacts",
+   "",
+   ""
+  ],
+  "All_Partners": [
+   "Partners",
+   "",
+   ""
+  ],
+  "All_Sequence_Trackers": [
+   "Sequence_Tracker",
+   "",
+   ""
+  ],
+  "Change_Log_Report": [
+   "Change_Log",
+   "",
+   ""
+  ],
+  "Clinic_Hours_Report": [
+   "Encounter_ClinicHours",
+   "",
+   ""
+  ],
+  "Exam_Catalog_Report": [
+   "Exam_Catalog",
+   "",
+   ""
+  ],
+  "Fax_Address_Book_Report": [
+   "Fax_Address_Book",
+   "",
+   ""
+  ],
+  "Fax_Attachments_Report": [
+   "Fax_Attachments",
+   "",
+   ""
+  ],
+  "Fax_Attachments_Report1": [
+   "Fax_Attachments",
+   "",
+   ""
+  ],
+  "Fax_Log1": [
+   "Fax_Log",
+   "",
+   ""
+  ],
+  "Fax_Log_Report": [
+   "Fax_Log",
+   "",
+   ""
+  ],
+  "ICD_10_Codes_Report": [
+   "ICD10_Codes",
+   "",
+   ""
+  ],
+  "Imaging_Orders_Report": [
+   "Imaging_Orders",
+   "",
+   ""
+  ],
+  "Imaging_Request_Report": [
+   "Imaging_Order",
+   "",
+   ""
+  ],
+  "Invoice_Batch_Report": [
+   "Invoice_Batch",
+   "",
+   ""
+  ],
+  "Invoices_Report": [
+   "Invoices",
+   "",
+   ""
+  ],
+  "Lab_Request_Report": [
+   "Encounter_LabRequest",
+   "",
+   ""
+  ],
+  "MPU_Reporting_Report": [
+   "MPU_Reporting",
+   "",
+   ""
+  ],
+  "Messaging_Hub_Report": [
+   "Messaging_Hub",
+   "",
+   ""
+  ],
+  "My_PVS_Notes": [
+   "Encounter_PatientVisit",
+   "[Provider_Login_Email == zoho.loginuserid]",
+   "Fax PVS=Fax_PVS_Button"
+  ],
+  "PVS_Addendum_Report": [
+   "Encounters_PVSAddendum",
+   "",
+   ""
+  ],
+  "PVS_Report": [
+   "Encounter_PatientVisit",
+   "",
+   "Fax PVS=Fax_PVS"
+  ],
+  "Partner_Contracts_Report": [
+   "Partner_Contracts",
+   "",
+   ""
+  ],
+  "Partner_Locations_Report": [
+   "Partner_Locations",
+   "",
+   ""
+  ],
+  "Partner_Rates_Report": [
+   "Partner_Rates",
+   "",
+   ""
+  ],
+  "Partner_Referral_Contact_Lookup_Report": [
+   "Partner_Referral_Contact_Lookup",
+   "",
+   ""
+  ],
+  "Partner_Referral_Contact_Signup_Report": [
+   "Partner_Referral_Contact_Signup",
+   "",
+   ""
+  ],
+  "Partner_Referral_Contacts_Report": [
+   "Partner_Referral_Contacts",
+   "",
+   ""
+  ],
+  "Procedure_Templates_Report": [
+   "Procedure_Templates",
+   "",
+   ""
+  ],
+  "Referral_Categories_Report": [
+   "Referral_Categories",
+   "",
+   ""
+  ],
+  "Referral_Sweep_Log_Report": [
+   "Referral_Sweep_Log",
+   "",
+   ""
+  ],
+  "Referrals_Main2_Report": [
+   "Referrals_Main2",
+   "",
+   ""
+  ],
+  "Referrals_Main_Report": [
+   "Referrals_Main",
+   "",
+   ""
+  ],
+  "Referrals_Master_Report": [
+   "Referrals_Master",
+   "",
+   ""
+  ],
+  "Schema_Snapshot_Report": [
+   "Schema_Snapshot",
+   "",
+   ""
+  ],
+  "Services_Procedures_Report": [
+   "Services_Procedures",
+   "",
+   ""
+  ]
+ },
+ "schedules": {
+  "Activity_Digest_Daily_6am": [
+   "a48d8c22",
+   "",
+   "schedule",
+   "",
+   "enabled",
+   "",
+   "2026-10-03 06:00:00",
+   "daily"
+  ],
+  "Activity_Digest_Weekly_Fr": [
+   "86bbe26e",
+   "",
+   "schedule",
+   "",
+   "enabled",
+   "",
+   "2026-10-09 06:00:00",
+   "weekly"
+  ],
+  "Fax_Digest_Daily_4am": [
+   "919e520e",
+   "",
+   "schedule",
+   "",
+   "enabled",
+   "",
+   "2026-09-23 04:00:00",
+   "daily"
+  ],
+  "Fax_Poll_Re_arm": [
+   "437d39f4",
+   "",
+   "schedule",
+   "",
+   "enabled",
+   "[Fax_Status == \"Queued\"]",
+   "after 3 minutes from Last_Polled_Time",
+   ""
+  ],
+  "Fax_Retry_Sweep": [
+   "a8c487d2",
+   "",
+   "schedule",
+   "",
+   "enabled",
+   "",
+   "after 15 minutes from Last_Polled_Time",
+   ""
+  ],
+  "SOS_Schema_Monitor_Daily_": [
+   "c70affab",
+   "",
+   "schedule",
+   "",
+   "enabled",
+   "",
+   "2026-07-08 06:00:00",
+   "daily"
+  ]
+ },
+ "workflows": {
+  "Assignments/Assignment_Change_Log": [
+   "064faff0",
+   "on edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Assignment_ID_Generator": [
+   "3a37234f",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Assignment_Lock_Immutable": [
+   "87339ee6",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Assignment_Notify_Provide": [
+   "2a834196",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Assignment_Pull_From_Refe1": [
+   "47d32192",
+   "on add or edit",
+   "OnUserInput",
+   "Referral_Link",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Assignment_Referral_Emplo": [
+   "05a7f787",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Assignment_Required_Refer": [
+   "d8a0ce56",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Assignment_Status_From_Pr": [
+   "235f5914",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Assignment_Visit_Status_C": [
+   "fab451e6",
+   "on edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Show_Hide_Facility_Name_P": [
+   "643f2c3e",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Show_Hide_Facility_Name_P1": [
+   "643f2c3e",
+   "on add or edit",
+   "OnUserInput",
+   "Patient_Location",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Dashboard_Range/Dashboard_Range_Apply": [
+   "5805509e",
+   "",
+   "OnClick",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Employees/Employee_ID_Generator": [
+   "0c4b5ef2",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Employees/Employee_Initials_Generat": [
+   "fd360383",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Employees/Employee_Name_Title_Gener1": [
+   "95e69cc6",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Employees/Employee_Phone_Format": [
+   "7f3e194e",
+   "on add or edit",
+   "OnUserInput",
+   "Employee_Phone",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Employees/Portal_Access_By_Status": [
+   "14b4bc2a",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Employees/Show_Hide_Employee_Term_D": [
+   "ce5ee626",
+   "on add or edit",
+   "OnUserInput",
+   "Employee_Status",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Employees/Validate_Employee_Phone_B": [
+   "b941d048",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Additional_Charges_Show_H1": [
+   "bf9fb081",
+   "on add or edit",
+   "OnUserInput",
+   "Additional_Charges",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Billing_Branch_Required": [
+   "cef4d0fb",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "disabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Branch_Sets_Charge": [
+   "0b0d37b4",
+   "on add or edit",
+   "OnUserInput",
+   "Billing_Branch",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Build_Patient_Full_Addres": [
+   "dc493581",
+   "on add or edit",
+   "OnUserInput",
+   "Patient_Address",
+   "disabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Complexity_Charge_Require": [
+   "6f15ef26",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "disabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Complexity_Sets_Charge": [
+   "a727f346",
+   "on add or edit",
+   "OnUserInput",
+   "Complexity_Level",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Default_Hide_On_Load": [
+   "ddd25209",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Diag_Session_Identity": [
+   "6dfb56e0",
+   "on add",
+   "OnLoad",
+   "",
+   "disabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Diversion_Type_Show_Hide": [
+   "73f3dd85",
+   "on add",
+   "OnUserInput",
+   "Diversion_Tracking",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Edit_Needed_Unlock": [
+   "227595b2",
+   "on add or edit",
+   "OnUserInput",
+   "Edit_Needed",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Entry_Type_Section_Visibi": [
+   "277e8d20",
+   "on add",
+   "OnUserInput",
+   "Type_of_Entry",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Facility_Fields_Show_Hide": [
+   "643f2c3e",
+   "on add",
+   "OnUserInput",
+   "Patient_Location",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Fax_Override_Number_Forma": [
+   "c5415379",
+   "on add or edit",
+   "OnUserInput",
+   "Fax_Override_Number",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Fax_This_Note_On_Submit": [
+   "6d1cf602",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Fax_This_Note_On_Submit1": [
+   "0d9c540f",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Fax_This_Note_Preview_And": [
+   "ed447ce6",
+   "on add or edit",
+   "OnUserInput",
+   "Fax_This_Note",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Has_Referral_ID_Show_Hide": [
+   "2739d9ae",
+   "on add or edit",
+   "OnUserInput",
+   "Has_Referral_ID",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Invoice_Status_Lock": [
+   "2b51437e",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Note_Finalized_Stamp": [
+   "6be7df37",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/PVS_3008_Billing_Stamp": [
+   "90de7ec5",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/PVS_ID_Stamp_Generator": [
+   "a2fbaed6",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/PVS_Patient_Data_Push_Bac": [
+   "7978fdc5",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/PVS_Required_Fields": [
+   "c96d9ccd",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/PVS_Sets_Billing_Branch_O": [
+   "2bed0db1",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/PVS_System_Fields_Stamp_O": [
+   "c2af3fb6",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Pre_fills_provider_sectio": [
+   "2f3916b8",
+   "on add",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Provider_ICD_Print_Builde": [
+   "384d4395",
+   "on add or edit",
+   "OnUserInput",
+   "Provider_ICD10_Codes_Link",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Provider_Identity_Stamp": [
+   "cbbca45a",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Provider_Login_Stamp_On_S": [
+   "7461188d",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Referral_Link_Pre_Fill": [
+   "3f76e1b5",
+   "on add",
+   "OnUserInput",
+   "Referral_Link",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Referral_Sets_Billing_Bra": [
+   "88a95386",
+   "on add or edit",
+   "OnUserInput",
+   "Referral_Link",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Encounter_PatientVisit/Validate_Complexity_On_Fi": [
+   "3c02c217",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "disabled",
+   "",
+   "",
+   ""
+  ],
+  "Imaging_Orders/Default_Hide_On_Load2": [
+   "976db731",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Imaging_Orders/Imaging_Facility_Visibili": [
+   "96109edd",
+   "on add or edit",
+   "OnUserInput",
+   "Patient_Location",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Imaging_Orders/Imaging_Facility_Visibili1": [
+   "198a9256",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Imaging_Orders/Imaging_Order_Provider_Ga": [
+   "4289bcd9",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Imaging_Orders/Imaging_Order_Provider_St": [
+   "3bc463b9",
+   "on add",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Imaging_Orders/Imaging_Referral_Link_Pre": [
+   "1180bb3c",
+   "on add or edit",
+   "OnUserInput",
+   "Referral_Link",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Invoice_Batch/Invoice_Batch_On_Create": [
+   "e7532b11",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Invoice_Batch/Invoice_Batch_On_Load_Dis": [
+   "7652f97a",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "PVS_Fax_Review/PVS_Fax_Review_Fax_Now": [
+   "075c31c9",
+   "",
+   "OnClick",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "PVS_Fax_Review/PVS_Fax_Review_Format_Ove": [
+   "92d2671a",
+   "on add",
+   "OnUserInput",
+   "Override_Fax",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "PVS_Fax_Review/PVS_Fax_Review_Format_Ove1": [
+   "3b931449",
+   "on add",
+   "OnUserInput",
+   "Override_Fax_Confirm",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "PVS_Fax_Review/PVS_Fax_Review_On_Load": [
+   "92de62d2",
+   "on add",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "PVS_Fax_Review/PVS_Fax_Review_Override_U": [
+   "9dddbb09",
+   "on add",
+   "OnUserInput",
+   "Override_Unlock",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Billing_Contacts/Partner_Billing_Contact_B": [
+   "0a353608",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Billing_Contacts/Partner_Billing_Contact_S": [
+   "5ea63366",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Billing_Contacts/Partner_Billing_POC_Fax_F": [
+   "47e5eacc",
+   "on add or edit",
+   "OnUserInput",
+   "Partner_Billing_POC_Fax",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Billing_Contacts/Partner_Billing_POC_Phone": [
+   "eefccaff",
+   "on add or edit",
+   "OnUserInput",
+   "Partner_Billing_POC_Phone",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Contracts/Partner_Contract_Branch_M": [
+   "03708d75",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Contracts/Partner_Contract_ID_Stamp": [
+   "947d0d94",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Locations/LOC_ID_Generator": [
+   "b7d237f2",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Locations/LOC_Partner_Lock": [
+   "36b62fd2",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Locations/LOC_Required_Codes": [
+   "580a6203",
+   "on add",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Locations/Location_Label_Generator": [
+   "551e1dc8",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Locations/Partner_Location_Primary_": [
+   "de85b7a7",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "disabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Locations/Primary_Office_Auto_Demot": [
+   "dae7e672",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Rates/Partner_Rate_Branch_Match": [
+   "03708d75",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Rates/Partner_Rate_Current_Flag": [
+   "5fa1e89d",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Rates/Partner_Rate_Partner_Stam": [
+   "da39a3ee",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Rates/Partner_Rate_Stamp_Genera1": [
+   "f6ef0edb",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Referral_Contact_Signup/Signup_Upsert_Referral_Co": [
+   "4b5bdd4c",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partner_Referral_Contacts/Partner_POC_Name_Title_Bu": [
+   "d326f1e0",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partners/PAR_ID_Generator": [
+   "462bf281",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Partners/PAR_Required_Code1": [
+   "e335fce9",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Branch_Sets_Partner": [
+   "d410e71e",
+   "on add or edit",
+   "OnUserInput",
+   "Partner_Branch_Link",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Branch_Sets_Partner_Link": [
+   "3c26fd85",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "disabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Build_Patient_Full_Addres1": [
+   "61bbd166",
+   "on add or edit",
+   "OnUserInput",
+   "Patient_Address",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/DM_Full_Name_Generator": [
+   "08005713",
+   "on add or edit",
+   "OnUserInput",
+   "AC_Last_Name",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Decision_Maker_Phone_Form1": [
+   "56d69438",
+   "on add or edit",
+   "OnUserInput",
+   "AC_Phone",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Default_Hide_On_Load1": [
+   "b8979819",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Facility_Phone_Format1": [
+   "753a0293",
+   "on add or edit",
+   "OnUserInput",
+   "Facility_Phone",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Partner_Contact_Lookup": [
+   "2a7b3974",
+   "on add",
+   "OnUserInput",
+   "Partner_POC_Email",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Partner_POC_Name_Title_Ge": [
+   "d2dcfa73",
+   "on edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Patient_Full_Name_Generat": [
+   "8161cbd1",
+   "on edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Patient_Phone_Format1": [
+   "79124e82",
+   "on add or edit",
+   "OnUserInput",
+   "Patient_Phone",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Referral_DOB_Sync_On_Edit": [
+   "c0bb67f3",
+   "on edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Referral_Data_Issues_Chec": [
+   "2f6b790d",
+   "on add or edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Referral_Data_Issues_Sync": [
+   "691bfd8b",
+   "on edit",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Referral_Partner_POC_Phon": [
+   "f9bb40c9",
+   "on add or edit",
+   "OnUserInput",
+   "Partner_POC_Phone",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Referral_Resolves_Partner": [
+   "6f75406b",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Referrals_Main_On_Create_": [
+   "511df513",
+   "on add",
+   "OnSuccess",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/SSN_Format1": [
+   "518381ab",
+   "on add or edit",
+   "OnUserInput",
+   "Patient_SSN",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Referrals_Main/Sender_Sets_Branch": [
+   "3c53ce86",
+   "on add or edit",
+   "OnUserInput",
+   "Partner_POC_Email",
+   "enabled",
+   "",
+   "",
+   ""
+  ]
+ }
+}

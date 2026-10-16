@@ -122,6 +122,7 @@ functions/diag_mpu_3008_export.dg	diag_mpu_3008_export		function					Encounter_P
 functions/diag_mpu_pvs_export.dg	diag_mpu_pvs_export		function					Encounter_PatientVisit		fed2b257
 functions/diag_mpu_readiness.dg	diag_mpu_readiness		function					Encounter_PatientVisit;Referrals_Main		eefc5e9a
 functions/diag_mpu_referral_export.dg	diag_mpu_referral_export		function					Referrals_Main		90a6a0ae
+functions/diag_orphan_referral.dg	diag_orphan_referral		function					Assignments;Encounter_PatientVisit;Imaging_Orders;Referrals_Main		cfff6752
 functions/diag_orphaned_records.dg	diag_orphaned_records		function					Assignments;Encounter_PatientVisit;Referrals_Main		43138662
 functions/diag_partner_location_labels.dg	diag_partner_location_labels		function					Partner_Locations		3ffe506e
 functions/diag_partner_rates.dg	diag_partner_rates		function					Partner_Locations;Partner_Rates		3307c87f
@@ -157,6 +158,7 @@ functions/diag_ref_branch_candidates.dg	diag_ref_branch_candidates		function				
 functions/diag_ref_patient_pvs_match.dg	diag_ref_patient_pvs_match		function					Encounter_PatientVisit;Referrals_Main		f788cb5b
 functions/diag_referral_branch.dg	diag_referral_branch		function					Partner_Locations;Partner_Referral_Contacts;Referrals_Main		403e50c6
 functions/diag_referral_by_name.dg	diag_referral_by_name		function					Referrals_Main		2339498a
+functions/diag_referral_collision.dg	diag_referral_collision		function					Referrals_Main		e2d87f43
 functions/diag_referral_contact_match.dg	diag_referral_contact_match		function					Partner_Referral_Contacts;Referrals_Main		942f97a9
 functions/diag_referral_date_source.dg	diag_referral_date_source		function					Referrals_Main		fed56803
 functions/diag_referral_dates.dg	diag_referral_dates		function					Referrals_Main		d4cd5481
@@ -198,7 +200,7 @@ functions/mint_assignment_id.dg	mint_assignment_id		function					Assignments;Seq
 functions/mint_employee_id.dg	mint_employee_id		function					Employees;Sequence_Tracker		abe6d187
 functions/mint_location_id.dg	mint_location_id		function					Partner_Locations;Partners;Sequence_Tracker		3294e041
 functions/mint_partner_id.dg	mint_partner_id		function					Partners;Sequence_Tracker		56af41ff
-functions/mint_referral_id.dg	mint_referral_id		function					Referrals_Main;Sequence_Tracker		c85fb791
+functions/mint_referral_id.dg	mint_referral_id		function					Referrals_Main;Sequence_Tracker		783553de
 functions/normalize_pvs_phones.dg	normalize_pvs_phones		function					Encounter_PatientVisit		c9f56edd
 functions/parse_patient_dob.dg	parse_patient_dob		function							f2fb1840
 functions/partner_branch_values.dg	partner_branch_values		function					Partner_Locations;Partners		fb8b8277

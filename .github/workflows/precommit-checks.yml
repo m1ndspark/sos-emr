@@ -41,3 +41,23 @@ jobs:
             exit 0
           fi
           tr '\n' '\0' < changed.txt | xargs -0 --no-run-if-empty ./.githooks/sos-checks.sh
+
+      - name: ds_map freshness (warn only)
+        continue-on-error: true
+        run: |
+          idx=context/ds_map/_index.md
+          if [ ! -f "$idx" ] || [ ! -f SOS_Referrals_App.ds ]; then
+            echo "No ds_map index or .ds; skipping."
+            exit 0
+          fi
+          want=$(sha256sum SOS_Referrals_App.ds | cut -d' ' -f1)
+          have=$(grep -m1 -oE '\.ds SHA-256: [0-9a-f]{64}' "$idx" | grep -oE '[0-9a-f]{64}' || true)
+          if [ "$want" != "$have" ]; then
+            echo "::warning file=$idx::ds_map header SHA-256 (${have:-none}) does not match SOS_Referrals_App.ds ($want). Regenerate with: python3 tools/ds_sync.py --ds SOS_Referrals_App.ds --repo . --manifest --map"
+          else
+            echo "ds_map header SHA-256 matches SOS_Referrals_App.ds."
+          fi
+          if grep -q 'STATUS: STALE' "$idx"; then
+            echo "::warning file=$idx::ds_map _index.md is marked STALE."
+          fi
+          exit 0
