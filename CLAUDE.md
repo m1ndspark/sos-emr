@@ -1,7 +1,7 @@
 # CLAUDE.md - SOS EMR Code Repository
 
 This file briefs Claude Code at the start of every session in this repo. Read it
-first, then read `MANIFEST.tsv` to locate code, then the files in `context/`.
+first, then follow START HERE EACH SESSION (ds_map orientation), then the files in `context/`.
 For a single item's history, read its `.dg` and `git log -- <path>`. (`_INDEX.md`
 is a frozen Session 27 stub, superseded by `MANIFEST.tsv`; do not rely on it.)
 
