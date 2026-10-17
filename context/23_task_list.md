@@ -163,6 +163,7 @@ Owner legend:
 
 | Task | Owner | Status | Blocking | Deadline |
 |---|---|---|---|---|
+| Non-EMR: litigation financial-impact analysis (discovery requests 37/38/39) in progress; working files in ~/Claude/SOS/Litigation (not in repo). Next: Square invoice export 01/01/2026-present, confirm lost/reduced partner list. | Neil / cchat | OPEN | N | next session |
 | Books vs Creator September gap: Books live Sept invoices $65,136 vs Creator $64,961 (Sept visit dates) = $175 unexplained. Find the line (out-of-month visit or amount mismatch). | cchat | OPEN | N | none |
 | Source data gaps on Sept PVS (blank on PVS and referral): facility name PVS-1799-JK, 1931-KK, 1932-KK, 1936-KK, 1941-KK; facility phone PVS-1763-AS, 1788-JK, 1931-KK, 1932-KK, 1936-KK, 1941-KK; patient phone PVS-1753-JK, 1766-AS. | Neil | OPEN | N | none |
 | Sept referrals marked Facility with no facility name: REF-1082, 1126, 1446, 1452, 1480, 1529, 1532 (check if Home, as REF-1472 was). REF-1632 no DOB. REF-1500 and REF-1579 have no Referral Date and no Added Time. | Neil / cchat | OPEN | N | none |
