@@ -1,0 +1,71 @@
+SOS Code - SOS Session Log - October 16, 2026 (Session 62) - EOD
+
+Date: 2026-10-16 (Friday)
+Session: 62 (all day; CHECKPOINT 1 commit 58c79df, CHECKPOINT 2 commit d824a19, task-list fixes 2333bd1 and 0f722ec)
+Repo: ~/Claude/SOS/sos-emr (main, pushed). v65 .ds on disk, NOT committed; waiting on v66 export.
+IDs only in this log; no patient names or DOBs.
+
+=====================================================================
+PART 1 - SEPTEMBER 2026 BILLING COMPLETENESS (CLOSED)
+=====================================================================
+Scope: September 2026 only (Neil ruling).
+
+3008 reconciliation
+- 101 real September 3008s billed (Kayla 69, Ann 32). Kayla's list has 70: 1 patient has no referral or document in Creator, on hold until Neil approves adding records. Ann's list has 32 rows (not 33).
+- 18 PVS reassigned JK -> KK (set_pvs_provider_batch).
+- InnoVage 3008 invoices: Orlando INV-000100/114/116, Tampa INV-000101/115/117 = $17,675 (101 x $175). 83 billed by 10/06, 18 added 10/16.
+- REF-1444 belongs to one patient only; the other Ann-list patient was renumbered after the early ID glitch.
+
+Duplicates and holds
+- PVS retired as duplicates: 1802>1803, 1533>1531, 1568>1567, 1744>1572, 1805>1743, 1807>1789, 1815>1906 (1807/1815 were Josh's empty placeholders coded 3008 on Empath referrals).
+- Released from hold: PVS-1803 and imported PVS-1991 to 2008 except PVS-1999-MS (Preliminary, No Charge, $0, stays held).
+- REF-1621: PVS-1802-JK and PVS-1803-JK carry the same patient; no mismatch. Task rows closed.
+
+Billing rules / functions
+- 3008s are InnoVage only. Non-InnoVage "Cares 3008 Assessment" rate rows set Inactive (set_partner_rate_status). run_invoice_batch stops any batch containing a visit whose branch rate type is Inactive.
+- Empath per-invoice cap 2999.99; batches split by cap.
+- Net 30 on API invoices confirmed.
+- Void and rebill: new fields Invoice_Batch.Batch_Reason, Invoice_Batch.Replaces_Invoice_Number, Invoices.Revision_Date, Invoices.Replaces_Invoice_Number. A revised invoice keeps the voided invoice's invoice date and due date, adds Revision_Date and a REVISED Books note. create_invoice_from_selection(list p_pvsIds, string p_replacesInvoice).
+- PVS_Required_Fields (OnValidate): 3008 requires Cares_3008_Completion_Date; Patient Visit and Imaging Order require Visit_Completion_Date (imaging = coordination date). Root cause of dateless PVS: field not mandatory and no validation.
+
+Invoices (all SENT 10/16 by Neil, verified in Books)
+- INV-000116 to INV-000129 (InnoVage, Empath Tidewell x6, Trustbridge, Suncoast HIL, Marion, AccentCare Pasco/Hillsborough/Hernando).
+- INV-000110 voided; replaced by INV-000130 + INV-000131 (Suncoast - Pinellas), invoice date 10/04/2026, due 11/03/2026.
+- Tidewell, Trustbridge, Hernando had no early-October Sept invoice; these were their first Sept billing.
+
+Email approach (decision)
+- No Books email templates. Invoices go from Books with the standard email; late/supplemental invoices need no explanation.
+- A void-and-rebill gets ONE explanation email per partner from Neil's own inbox. Sent 10/16 to the Empath contact for Pinellas (INV-000110 -> 130/131). Local template files in ~/Claude/SOS/Email Templates are superseded.
+
+Integrity audit (new functions)
+- audit_month_integrity(string p_mode, date p_from, date p_to), modes PVS / BILLING / REFERRALS / DATELESS.
+- diag_pvs_vs_referral(string p_pvsIds); diag_pvs_names(string p_pvsIds).
+- sync_pvs_from_referral(string p_mode, date p_from, date p_to): fills PVS blanks from referral; referral wins on Partner ID/Org/Branch/Label; takes referral first/last split when full name matches (case-only skipped). COMMIT changed 45 PVS.
+- REF-1472 Patient Location set to Home (Neil).
+- Results: 223 counted Sept PVS; 218 billed on live invoices = $64,961 (3008s $17,675 on 101; other 117 visits $47,286). 0 unbilled with a charge. $0 unbilled: Visit Cancelled 1521/1523/1532/1823-JK; held 1999-MS.
+- Remaining PVS source gaps (blank on PVS and referral): facility name 1799-JK, 1931/1932/1936/1941-KK; facility phone 1763-AS, 1788-JK, 1931/1932/1936/1941-KK; patient phone 1753-JK, 1766-AS.
+- Referrals: 253 Sept; 26 no PVS (known list); Facility with no facility name REF-1082/1126/1446/1452/1480/1529/1532; REF-1632 no DOB; REF-1500/1579 no Referral Date and no Added Time; Employee_Link blank on all 253 (conflicts with S61 ruling).
+- Dateless PVS app-wide: 26 (19 retired August shells). Counted: PVS-1228-JK (June), 1758-JK, 1759-JK, 1795-JK (parked for Josh), 1910-JK, 1949-AS, 1957-JK (October, likely in progress).
+- Books vs Creator Sept gap: $65,136 vs $64,961 = $175 unexplained.
+- Books LF-000003 to LF-000021 (9/19-9/21) still Draft.
+
+Rules saved this session
+- Any single-record fix proposal also includes the batch version.
+- No new records until Neil says ready; fixes by function, not retyping.
+- After findings, STOP and wait; no code in the same response as findings.
+- Parked: revenue-per-visit analysis (Neil: ~$47K on 117 non-3008 visits is too low), after billing.
+- Parked: ask Josh about dateless PVS-1758-JK, 1759-JK, 1795-JK (+ 1228-JK).
+
+=====================================================================
+PART 2 - NON-EMR WORK
+=====================================================================
+- Litigation financial-impact analysis (discovery) started; details kept out of the repo by design (see Apple Notes session log and the SOS Code project doc).
+
+=====================================================================
+NEXT SESSION
+=====================================================================
+1. Export v66 .ds and commit (captures today's functions, fields, PVS_Required_Fields update).
+2. Litigation: Square 2026 export, confirm lost list, then request 37 document list and request 38 table.
+3. Books vs Creator $175 September gap.
+4. Josh: dateless PVS (1758, 1759, 1795, 1228).
+5. Referral/PVS source gaps and the Employee_Link assignment question.
