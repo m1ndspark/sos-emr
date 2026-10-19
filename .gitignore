@@ -38,3 +38,6 @@ secrets.*
 
 # Local scratch output from Claude sessions, never committed
 Claude outputs/
+
+# Remittance advices (bank account numbers, local only)
+docs/remittances/
