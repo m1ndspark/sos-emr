@@ -1,6 +1,6 @@
 /*
  * Author       : sosmmc
- * Generated on : 17-Oct-2026 06:46:58
+ * Generated on : 18-Oct-2026 19:08:55
  * Version      : 1.0
  */
  application "SOS Referrals App"
@@ -8396,6 +8396,310 @@
 				Partner_Branch_Submitted as "Partner Branch Submitted"
 				Referral_Added_Time as "Referral Added Time"
 				Added_Time as "Added Time"
+			)
+		}
+		list API_PVS_All
+		{
+			displayName = "API PVS All"
+			show all rows from Encounter_PatientVisit    
+			(
+				Visit_Status as "Visit Status"
+				Has_Referral_ID as "Do you have a Referral ID?"
+				Referral_Link as "Referral Link"
+				Edit_Needed as "Edit Needed"
+				Type_of_Entry as "Type of Entry"
+				Patient_Full_Name_2 as "Patient Full Name"
+				Was_3008_Completed as "Was the 3008 Completed?"
+				PVS_3008_Upload as "PVS 3008 Upload"
+				Cares_3008_Completion_Date as "3008 Completion Date"
+				Notes_3008 as "3008 Notes"
+				Patient_Full_Name_1 as "Patient Full Name"
+				Patient_First_Name as "Patient First Name"
+				Patient_MI as "Patient MI"
+				Patient_Last_Name as "Patient Last Name"
+				Patient_DOB as "Patient DOB"
+				Patient_DOB1 as "Patient DOB"
+				Patient_Gender as "Biological Sex"
+				Patient_Hospice_ID as "Patient Hospice ID"
+				Patient_SSN as "Patient SSN"
+				Patient_Phone as "Patient Phone"
+				(
+					displayformat = plainnumber 
+				)
+				Patient_Email as "Patient Email"
+				Patient_Location as "Patient Location"
+				Facility_Name as "Facility Name"
+				Facility_Phone as "Facility Phone"
+				(
+					displayformat = plainnumber 
+				)
+				Facility_Room_Number as "Facility Room Number"
+				Patient_Address  as "Patient Address"
+	 			(
+	      			enable = Link_to_Map,Show_As_Text
+	 			)
+				Patient_Full_Address as "Patient Full Address"
+				Reason_for_Referral as "Reason for Referral"
+				Goals_of_Care as "Goals of Care"
+				Partner_ICD_Codes as "Partner ICD 10 Codes"
+				Additional_Information as "Additional Information"
+				List_Patient_Allergies as "List Patient Allergies"
+				List_Patient_Anticoagulants as "List Patient Anticoagulants"
+				Advanced_Directives_Details as "Advanced Directives Details"
+				General_Files_Upload as "General Files Upload"
+				Imaging_Orders as "Imaging Order(s)"
+				Imaging_Order_Indication as "Imaging Order Indication"
+				Upload_Imaging_Order_Files as "Imaging Order Files"
+				Imaging_Ordered_Date as "Imaging Ordered Date"
+				Lab_Type_Orders as "What labs are being ordered?"
+				Lab_Order_Indication as "Lab Order Indication"
+				Requested_Lab_Vendor as "Requested Lab Vendor"
+				Lab_Files_Upload as "Lab Files Upload"
+				Lab_Order_Date as "Lab Order Date"
+				Clinical_Note_Type as "Clinical Note Type"
+				Final_Clinical_Note as "Clinical Note"
+				Provider_ICD10_Codes_Link as "ICD-10 Codes Lookup (Optional)"
+				Provider_ICD_Print as " Provider ICD Codes"
+				Clinical_Note_File_Upload as "Clinical Note File Upload"
+				Type_of_Procedures as "Type of Procedure(s)"
+				Complexity_Level as "Complexity Level"
+				Additional_Charges as "Additional Charges"
+				Complexity_Charge as "Complexity Charge"
+				After_Hours_Fee as "After Hours ($)"
+				Super_Stat_Fee as "Super STAT ($)"
+				Equipment_Charge_Amount as "Equipment Charge Amount ($)"
+				Equipment_Charge_Details as "Equipment Charge Details"
+				Other_Charges_Amount as "Other Charges Amount ($)"
+				Other_Charges_Details as "Other Charges Details"
+				PVS_File_Upload as "PVS File Upload"
+				Diversion_Tracking as "Did this visit result in a Diversion?"
+				Type_of_Diversion as "Type of Diversion"
+				Partner_Organization as "Referral Partner"
+				Partner_Branch as "Partner Branch/Location"
+				Partner_POC_Name_Title as "Partner POC"
+				Partner_POC_Team as "Partner POC Team"
+				Partner_POC_First_Name as "PR POC First Name"
+				Partner_POC_Last_Name as "PR POC Last Name"
+				Partner_POC_Title as "PR POC Title"
+				Partner_POC_Phone as "PR POC Phone"
+				(
+					displayformat = plainnumber 
+				)
+				Partner_POC_Email as "PR POC Email"
+				Partner_Location_Label as "Partner Location Label"
+				Employee_Name_Title as "Employee Name & Title"
+				Employee_First_Name as "Employee First Name"
+				Employee_Last_Name as "Employee Last Name"
+				Employee_Title as "Employee Title"
+				Employee_Initials as "Employee Initials"
+				Employee_Email as "Employee Email"
+				Visit_Completion_Date as "Visit Completion Date"
+				Invoice_Link as "Invoice Connection"
+				Hold_From_Invoicing as "Hold From Invoicing"
+				Billing_Branch as "Billing Branch"
+				Fax_This_Note as "Fax This Note"
+				Fax_Override_Unlock as "Override Fax?"
+				Fax_Override_Number as "Fax Number"
+				Fax_Override_Reason as "Override Reason"
+				Print_Preview as "Print Preview"
+				Note_Finalized_Time as "Note Finalized Time"
+				PVS_ID as "PVS ID"
+				PVS_Referral_ID as "PVS Referral ID"
+				Referral_ID as "Referral ID"
+				Referral_ID_Stamp as "Referral ID Stamp"
+				Partner_ID as "Partner ID"
+				Partner_ID_Stamp as "Partner ID Stamp"
+				Employee_Full_Name as "Employee Full Name"
+				Fax_Status as "Fax Status"
+				Invoice_Status as "Invoice Status"
+				QC_Reviewed as "QC Reviewed"
+				Provider_Login_Email as "Provider Login Email"
+				Employee_Link as "Employee Link"
+				Row_Status as "Row Status"
+				Duplicate_Of_PVS_ID as "Duplicate Of"
+				Row_Status_Note as "Row Status Note"
+				Referral_Date as "Referral Date"
+				Referral_Source as "Referral Source"
+			)
+		}
+		list API_Referrals_All
+		{
+			displayName = "API Referrals All"
+			show all rows from Referrals_Main    
+			(
+				Referral_Source as "Referral Source"
+				Referral_Type as "Service"
+				Patient_First_Name as "Patient First Name"
+				Patient_MI as "Patient MI"
+				Patient_Last_Name as "Patient Last Name"
+				Patient_DOB as "Patient DOB"
+				Patient_DOB1 as "Patient DOB"
+				Patient_Gender as "Patient Gender"
+				Patient_Hospice_ID as "Patient Hospice ID"
+				Patient_MBI as "Patient MBI"
+				Patient_SSN as "Patient SSN"
+				Patient_Phone as "Patient Phone"
+				Has_Additional_Contact as "Is there an additional contact?"
+				AC_First_Name as "AC First Name"
+				AC_Last_Name as "AC Last Name"
+				AC_Phone as "AC Phone"
+				AC_Relationship_to_Patient as "AC Relationship to Patient"
+				Patient_Location as "Patient Location"
+				Facility_Name as "Facility Name"
+				Facility_Phone as "Facility Phone"
+				Facility_Room_Number as "Facility Room Number"
+				Patient_Address  as "Patient Address"
+	 			(
+	      			enable = Link_to_Map,Show_As_Text
+	 			)
+				Patient_Full_Address as "Patient Full Address"
+				Referral_Reason as "Reason for Referral"
+				Partner_ICD_Codes as "Partner ICD Codes"
+				X_Ray_Needed as "Will an X-Ray be needed for this referral?"
+				Patient_Has_Allergies as "Does this patient have allergies?"
+				List_Patient_Allergies as "List Patient Allergies"
+				Patient_Has_Anticoagulants as "Does the patient take anticoagulants?"
+				List_Patient_Anticoagulants as "List Patient Anticoagulants"
+				Patient_Has_Advanced_Directives as "Does the patient have Advanced Directives?"
+				Advanced_Directives_Details as "Advanced Directives Details"
+				Additional_Information as "Additional Information"
+				General_Files_Upload as "General Files Upload"
+				Imaging_Type_Order as "Imaging Test(s) to be Ordered"
+				Imaging_Body_Site as "Body Part / Affected Area"
+				Imaging_Order_Indication as "Reason for Imaging Order(s)"
+				Imaging_Orders_Upload as "Imaging Orders Upload"
+				File_Upload_3008 as "3008 File Upload"
+				Partner_Link as "Partner Lookup"
+				Partner_Branch_Link as "Partner Branch Lookup"
+				Partner_Organization as "Partner Organization"
+				Partner_Branch as "Partner Branch/Location"
+				Partner_POC_First_Name as "Partner POC First Name"
+				Partner_POC_Last_Name as "Partner POC Last Name"
+				Partner_POC_Title as "Partner POC Title"
+				Partner_POC_Team as "Partner POC Team"
+				Partner_POC_Phone as "Partner POC Phone"
+				Partner_POC_Email as "Partner POC Email"
+				Files_3008_URLs as "3008 File URLs"
+				General_Files_URLs as "General Files URLs"
+				Imaging_Orders_URLs as "Imaging Orders URLs"
+				Data_Issues as "Data Issues"
+				Referral_ID as "Referral ID"
+				Referral_Date as "Referral Date"
+				Referral_Date1 as "Referral Date (Don't Use)"
+				Referral_ID_Stamp as "Referral ID Stamp"
+				Patient_Full_Name as "Patient Full Name"
+				AC_Full_Name as "AC Full Name"
+				Partner_POC_Name_Title as "Partner POC Name & Title"
+				Partner_ID as "Partner ID"
+				Partner_ID_Stamp as "Partner ID Stamp"
+				Partner_Location_Label as "Partner Location Label"
+				Referral_Added_Time as "Referral Added Time"
+				Form_Token as "Form Token"
+				Assignment_Status as "Assignment Status"
+				Employee_Link as "Employee Link"
+				Cognito_Referral_ID as "Cognito Referral ID"
+				Partner_Branch_Submitted as "Partner Branch Submitted"
+				Notified_Time as "Notified Time"
+			)
+		}
+		list API_Invoices_All
+		{
+			displayName = "API Invoices All"
+			show all rows from Invoices    
+			(
+				Partner_Link as "Partner Lookup"
+				Partner_Location_Link as "Partner Location Lookup"
+				Invoice_Date as "Invoice Date"
+				Service_Date_From as "Service Date From"
+				Service_Date_To as "Service Date To"
+				Invoice_Total as "Invoice Total"
+				Invoice_Record_Status as "Invoice Record Status"
+				Visit_Count as "Visit Count"
+				Created_By as "Created By"
+				Revision_Date as "Revision Date"
+				Replaces_Invoice_Number as "Replaces Invoice Number"
+				Books_Customer_ID as "Books Customer ID"
+				Books_Invoice_ID as "Books Invoice ID"
+				Books_Invoice_Number as "Books Invoice Number"
+				Books_Sync_Status as "Books Sync Status"
+				Books_Sync_Message as "Books Sync Message"
+				Books_Sync_Timestamp as "Books Sync Timestamp"
+				Invoice_ID as "Invoice ID"
+				Invoice_ID_Stamp as "Invoice ID Stamp"
+			)
+		}
+		list API_Invoice_Batch_All
+		{
+			displayName = "API Invoice Batch All"
+			show all rows from Invoice_Batch    
+			(
+				Partner_Link as "Partner Lookup"
+				Partner_Location_Link as "Partner Location Lookup"
+				Date_From as "Date From"
+				Date_To as "Date To"
+				Max_Invoice_Total as "Max Invoice Total"
+				Batch_Status as "Batch Status"
+				Batch_Reason as "Batch Reason"
+				Replaces_Invoice_Number as "Replaces Invoice Number"
+				Result_Message as "Result Message"
+				Invoice_Link as "Invoice Lookup"
+			)
+		}
+		list API_Partner_Rates_All
+		{
+			displayName = "API Partner Rates All"
+			show all rows from Partner_Rates    
+			(
+				Partner_Link as "Partner Link"
+				Partner_Location_Link as "Partner Location Name"
+				Rate_Category as "Rate Category"
+				Rate_Type as "Rate Type"
+				Rate_Amount as "Rate Amount"
+				Partner_Rates_Effective_Date as "Partner Rates Effective Date"
+				Current_Rate as "Current Rate?"
+				Partner_Rate_Status as "Partner Rate Status"
+				Partner_Rate_ID_Stamp as "Partner Rate ID Stamp"
+			)
+		}
+		list API_Partner_Locations_All
+		{
+			displayName = "API Partner Locations All"
+			show all rows from Partner_Locations    
+			(
+				Partner_Link as "Partner Link"
+				Primary_Office as "Primary Office?"
+				Partner_Location_Name as "Partner Loc Name"
+				Partner_Location_Code as "Partner Loc Code"
+				Partner_Location_Status as "Partner Loc Status"
+				Books_Customer_ID as "Books Customer ID"
+				Partner_Location_ID as "Partner Location ID"
+				Partner_Location_ID_Stamp as "Partner Location ID Stamp"
+				Partner_Location_Label as "Partner Location Label"
+			)
+		}
+		list API_Partners_All
+		{
+			displayName = "API Partners All"
+			show all rows from Partners    
+			(
+				Partner_Type as "Partner Type"
+				Partner_Legal_Name as "Partner Legal Name"
+				Partner_Display_Name as "Partner Display Name"
+				Partner_Code as "Partner Code"
+				Partner_Phone as "Partner Phone"
+				(
+					displayformat = plainnumber 
+				)
+				Partner_Address  as "Partner Address"
+	 			(
+	      			enable = Link_to_Map,Show_As_Text
+	 			)
+				Rate_Structure as "Rate Structure"
+				Partner_Contract_Effective_Date as "Partner Contract Effective Date"
+				Partner_Contract_Upload as "Partner Contract Upload"
+				Partner_Status as "Partner Status"
+				Partner_ID as "Partner ID"
+				Partner_ID_Stamp as "Partner ID Stamp"
 			)
 		}
 	}
@@ -24698,6 +25002,150 @@
                  	}
                  	return "STUCK " + v_n + "\n" + v_lines.toString("\n");
                  }
+				 string diag_unbilled_visits(date p_from, date p_to, string p_partner)
+                 {
+                 	if(p_from == null || p_to == null)
+                 	{
+                 		return "ERROR: p_from and p_to are required.";
+                 	}
+                 	if(p_from > p_to)
+                 	{
+                 		return "ERROR: p_from is after p_to.";
+                 	}
+                 	v_Key = ifnull(p_partner,"").toString().trim();
+                 	v_Branches = List();
+                 	v_PartnerName = "ALL PARTNERS";
+                 	if(v_Key != "")
+                 	{
+                 		v_Hits = 0;
+                 		v_PartnerId = null;
+                 		for each  v_Pt in Partners[Partner_ID == v_Key || Partner_Display_Name == v_Key]
+                 		{
+                 			v_Hits = v_Hits + 1;
+                 			v_PartnerId = v_Pt.ID;
+                 			v_PartnerName = ifnull(v_Pt.Partner_Display_Name,"").toString();
+                 		}
+                 		if(v_Hits == 0)
+                 		{
+                 			return "ERROR: No partner found matching " + v_Key + ".";
+                 		}
+                 		if(v_Hits > 1)
+                 		{
+                 			return "ERROR: " + v_Hits + " partners match " + v_Key + ".";
+                 		}
+                 		for each  v_L in Partner_Locations[Partner_Link == v_PartnerId]
+                 		{
+                 			v_Branches.add(v_L.ID);
+                 		}
+                 	}
+                 	v_Labels = Map();
+                 	for each  v_L in Partner_Locations[ID != 0]
+                 	{
+                 		v_Labels.put(v_L.ID.toString(),ifnull(v_L.Partner_Location_Label,"NO LABEL").toString().trim());
+                 	}
+                 	v_Ready = List();
+                 	v_Fix = List();
+                 	v_Excl = List();
+                 	v_ReadyTotal = 0.0;
+                 	for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Invoice_Link == null] sort by Visit_Completion_Date
+                 	{
+                 		v_InScope = true;
+                 		if(v_Key != "")
+                 		{
+                 			if(v_P.Billing_Branch == null || !v_Branches.contains(v_P.Billing_Branch))
+                 			{
+                 				v_InScope = false;
+                 			}
+                 		}
+                 		if(v_InScope)
+                 		{
+                 			v_Lbl = "NO BILLING BRANCH";
+                 			if(v_P.Billing_Branch != null)
+                 			{
+                 				v_Hit = v_Labels.get(v_P.Billing_Branch.toString());
+                 				if(v_Hit != null)
+                 				{
+                 					v_Lbl = v_Hit;
+                 				}
+                 			}
+                 			v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+                 			v_Amt = 0.0;
+                 			if(v_P.Complexity_Charge != null)
+                 			{
+                 				v_Amt = v_P.Complexity_Charge.toDecimal();
+                 			}
+                 			v_Fees = 0.0;
+                 			if(v_P.After_Hours_Fee != null)
+                 			{
+                 				v_Fees = v_Fees + v_P.After_Hours_Fee.toDecimal();
+                 			}
+                 			if(v_P.Super_Stat_Fee != null)
+                 			{
+                 				v_Fees = v_Fees + v_P.Super_Stat_Fee.toDecimal();
+                 			}
+                 			if(v_P.Equipment_Charge_Amount != null)
+                 			{
+                 				v_Fees = v_Fees + v_P.Equipment_Charge_Amount.toDecimal();
+                 			}
+                 			if(v_P.Other_Charges_Amount != null)
+                 			{
+                 				v_Fees = v_Fees + v_P.Other_Charges_Amount.toDecimal();
+                 			}
+                 			v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 			v_Hold = ifnull(v_P.Hold_From_Invoicing,"").toString().trim();
+                 			v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+                 			v_Vs = ifnull(v_P.Visit_Status,"").toString().trim();
+                 			v_Nt = ifnull(v_P.Clinical_Note_Type,"").toString().trim();
+                 			v_Line = ifnull(v_P.PVS_ID,"(no PVS ID)").toString() + " | " + ifnull(v_P.Referral_ID,"no REF").toString() + " | DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy") + " | " + v_Lbl + " | " + if(v_Lvl == "","(no level)",v_Lvl) + " " + v_Amt + if(v_Fees > 0," + fees " + v_Fees,"") + " | inv " + if(v_Inv == "","(blank)",v_Inv) + " | hold " + if(v_Hold == "","(blank)",v_Hold) + " | row " + if(v_Rs == "","(blank)",v_Rs) + " | visit " + if(v_Vs == "","(blank)",v_Vs) + " | note " + if(v_Nt == "","(blank)",v_Nt);
+                 			if(v_Hold == "Yes")
+                 			{
+                 				v_Excl.add(v_Line + " | HELD");
+                 			}
+                 			else if(v_Rs == "Cancelled" || v_Rs == "Duplicate")
+                 			{
+                 				v_Excl.add(v_Line + " | ROW " + v_Rs.toUpperCase());
+                 			}
+                 			else if(v_Lvl == "Visit Cancelled" || v_Lvl == "No Charge")
+                 			{
+                 				v_Excl.add(v_Line + " | " + v_Lvl.toUpperCase());
+                 			}
+                 			else if(v_P.Billing_Branch == null)
+                 			{
+                 				v_Fix.add(v_Line + " | NO BILLING BRANCH");
+                 			}
+                 			else if(v_Lvl == "")
+                 			{
+                 				v_Fix.add(v_Line + " | NO COMPLEXITY LEVEL");
+                 			}
+                 			else if(v_Amt <= 0)
+                 			{
+                 				v_Fix.add(v_Line + " | ZERO CHARGE");
+                 			}
+                 			else
+                 			{
+                 				v_Ready.add(v_Line);
+                 				v_ReadyTotal = v_ReadyTotal + v_Amt + v_Fees;
+                 			}
+                 		}
+                 	}
+                 	v_Out = "UNBILLED VISITS | " + v_PartnerName + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy");
+                 	v_Out = v_Out + "\n\n== Ready to bill (" + v_Ready.size() + ") | total " + v_ReadyTotal;
+                 	for each  v_X in v_Ready
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	v_Out = v_Out + "\n\n== Needs fix before billing (" + v_Fix.size() + ")";
+                 	for each  v_X in v_Fix
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	v_Out = v_Out + "\n\n== Correctly excluded (" + v_Excl.size() + ")";
+                 	for each  v_X in v_Excl
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	return v_Out;
+                 }
 				 map diag_unfaxed_by_branch()
                  {
                  	v_out = Map();
@@ -25123,6 +25571,176 @@
                  		}
                  	}
                  	return "Set Current_Rate=Yes and Status=Active on " + v_fixed + " AccentCare rates.";
+                 }
+				 string fix_pvs_branch_batch(string p_pvsIds, string p_mode)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+                 	{
+                 		return "Invalid mode. Use PREVIEW or COMMIT.";
+                 	}
+                 	v_Raw = ifnull(p_pvsIds,"").toString().trim();
+                 	if(v_Raw == "")
+                 	{
+                 		return "ERROR: Enter one or more PVS IDs separated by commas, for example PVS-1767-AS,PVS-1542-AS.";
+                 	}
+                 	v_Keys = List();
+                 	for each  v_Piece in v_Raw.toList(",")
+                 	{
+                 		v_K = v_Piece.trim();
+                 		if(v_K != "" && !v_Keys.contains(v_K))
+                 		{
+                 			v_Keys.add(v_K);
+                 		}
+                 	}
+                 	v_Moves = List();
+                 	v_Same = List();
+                 	v_Blocked = List();
+                 	v_Done = List();
+                 	for each  v_Key in v_Keys
+                 	{
+                 		v_Hits = 0;
+                 		v_RecId = null;
+                 		for each  v_F in Encounter_PatientVisit[PVS_ID == v_Key]
+                 		{
+                 			v_Hits = v_Hits + 1;
+                 			v_RecId = v_F.ID;
+                 		}
+                 		if(v_Hits == 0)
+                 		{
+                 			v_Blocked.add(v_Key + " | not found");
+                 			continue;
+                 		}
+                 		if(v_Hits > 1)
+                 		{
+                 			v_Blocked.add(v_Key + " | matches " + v_Hits + " records");
+                 			continue;
+                 		}
+                 		v_P = Encounter_PatientVisit[ID == v_RecId];
+                 		v_CurLabel = "(blank)";
+                 		if(v_P.Billing_Branch != null)
+                 		{
+                 			v_CL = Partner_Locations[ID == v_P.Billing_Branch];
+                 			if(v_CL.ID != null)
+                 			{
+                 				v_CurLabel = ifnull(v_CL.Partner_Location_Label,"NO LABEL").toString().trim();
+                 			}
+                 		}
+                 		if(v_P.Referral_Link == null)
+                 		{
+                 			v_Blocked.add(v_Key + " | no referral link");
+                 			continue;
+                 		}
+                 		v_R = Referrals_Main[ID == v_P.Referral_Link];
+                 		if(v_R.ID == null)
+                 		{
+                 			v_Blocked.add(v_Key + " | referral link points to a deleted record");
+                 			continue;
+                 		}
+                 		v_RefId = ifnull(v_R.Referral_ID,"(no REF ID)").toString();
+                 		if(v_R.Partner_Branch_Link == null)
+                 		{
+                 			v_Blocked.add(v_Key + " | " + v_RefId + " has no Partner Branch");
+                 			continue;
+                 		}
+                 		v_NewLabel = "NO LABEL";
+                 		v_NL = Partner_Locations[ID == v_R.Partner_Branch_Link];
+                 		if(v_NL.ID != null)
+                 		{
+                 			v_NewLabel = ifnull(v_NL.Partner_Location_Label,"NO LABEL").toString().trim();
+                 		}
+                 		v_Status = ifnull(v_P.Invoice_Status,"").toString().trim();
+                 		v_InvTxt = "not on an invoice";
+                 		if(v_P.Invoice_Link != null)
+                 		{
+                 			v_I = Invoices[ID == v_P.Invoice_Link];
+                 			if(v_I.ID != null)
+                 			{
+                 				v_InvTxt = ifnull(v_I.Books_Invoice_Number,"no number").toString() + " (" + ifnull(v_I.Invoice_Record_Status,"").toString() + ")";
+                 			}
+                 		}
+                 		v_Dos = "no DOS";
+                 		if(v_P.Visit_Completion_Date != null)
+                 		{
+                 			v_Dos = "DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy");
+                 		}
+                 		v_Level = ifnull(v_P.Complexity_Level,"").toString().trim();
+                 		v_CurCharge = 0;
+                 		if(v_P.Complexity_Charge != null)
+                 		{
+                 			v_CurCharge = v_P.Complexity_Charge;
+                 		}
+                 		v_NewCharge = 0;
+                 		v_RateFound = false;
+                 		if(v_Level != "")
+                 		{
+                 			for each  v_Rt in Partner_Rates[Partner_Location_Link == v_R.Partner_Branch_Link && Rate_Type == v_Level && Current_Rate == "Yes"]
+                 			{
+                 				v_NewCharge = v_Rt.Rate_Amount;
+                 				v_RateFound = true;
+                 				break;
+                 			}
+                 		}
+                 		v_Line = v_Key + " | " + v_RefId + " | " + v_Dos + " | billing [" + v_CurLabel + "] -> referral [" + v_NewLabel + "] | " + v_InvTxt + ", status " + if(v_Status == "","(blank)",v_Status) + " | " + if(v_Level == "","(no level)",v_Level) + " " + v_CurCharge + " -> " + v_NewCharge;
+                 		if(v_Level != "" && !v_RateFound)
+                 		{
+                 			v_Line = v_Line + " | NO CURRENT RATE AT NEW BRANCH";
+                 		}
+                 		else if(v_CurCharge.toDecimal() != v_NewCharge.toDecimal())
+                 		{
+                 			v_Line = v_Line + " | CHARGE CHANGES";
+                 		}
+                 		if(v_P.Billing_Branch != null && v_P.Billing_Branch == v_R.Partner_Branch_Link)
+                 		{
+                 			v_Same.add(v_Key + " | " + v_RefId + " | already [" + v_CurLabel + "]");
+                 			continue;
+                 		}
+                 		if(v_Mode == "PREVIEW")
+                 		{
+                 			if(v_Status != "" && v_Status != "Draft")
+                 			{
+                 				v_Line = v_Line + " | NEEDS reset_invoice BEFORE COMMIT";
+                 			}
+                 			v_Moves.add(v_Line);
+                 		}
+                 		else
+                 		{
+                 			if(v_Status != "" && v_Status != "Draft")
+                 			{
+                 				v_Blocked.add(v_Line + " | NOT DRAFT, run reset_invoice first");
+                 				continue;
+                 			}
+                 			v_Done.add(thisapp.sync_pvs_branch_from_referral(v_Key,"COMMIT"));
+                 		}
+                 	}
+                 	v_Out = "MODE: " + v_Mode + " | PVS entered: " + v_Keys.size();
+                 	if(v_Mode == "PREVIEW")
+                 	{
+                 		v_Out = v_Out + "\n\n== Will move (" + v_Moves.size() + ")";
+                 		for each  v_L in v_Moves
+                 		{
+                 			v_Out = v_Out + "\n" + v_L;
+                 		}
+                 	}
+                 	else
+                 	{
+                 		v_Out = v_Out + "\n\n== Moved (" + v_Done.size() + ")";
+                 		for each  v_L in v_Done
+                 		{
+                 			v_Out = v_Out + "\n" + v_L;
+                 		}
+                 	}
+                 	v_Out = v_Out + "\n\n== Already on the referral's branch (" + v_Same.size() + ")";
+                 	for each  v_L in v_Same
+                 	{
+                 		v_Out = v_Out + "\n" + v_L;
+                 	}
+                 	v_Out = v_Out + "\n\n== Blocked (" + v_Blocked.size() + ")";
+                 	for each  v_L in v_Blocked
+                 	{
+                 		v_Out = v_Out + "\n" + v_L;
+                 	}
+                 	return v_Out;
                  }
 				 string fix_six_room_numbers()
                  {
@@ -26357,6 +26975,102 @@
                  	if(v_MissRates.size() > 0)
                  	{
                  		v_Out = v_Out + "\n\nMISSING RATE CARDS\n" + v_MissRates.toString("\n");
+                 	}
+                 	return v_Out;
+                 }
+				 string preview_invoice_batch_pool(string p_branchLabel, date p_from, date p_to)
+                 {
+                 	v_Label = ifnull(p_branchLabel,"").toString().trim();
+                 	if(v_Label == "")
+                 	{
+                 		return "ERROR: Enter the branch label exactly as it appears on Partner Locations, for example Empath - Tidewell.";
+                 	}
+                 	if(p_from == null || p_to == null)
+                 	{
+                 		return "ERROR: p_from and p_to are required.";
+                 	}
+                 	if(p_from > p_to)
+                 	{
+                 		return "ERROR: p_from is after p_to.";
+                 	}
+                 	v_Hits = 0;
+                 	v_BranchId = null;
+                 	for each  v_L in Partner_Locations[Partner_Location_Label == v_Label]
+                 	{
+                 		v_Hits = v_Hits + 1;
+                 		v_BranchId = v_L.ID;
+                 	}
+                 	if(v_Hits == 0)
+                 	{
+                 		return "ERROR: No branch found with label " + v_Label + ".";
+                 	}
+                 	if(v_Hits > 1)
+                 	{
+                 		return "ERROR: " + v_Hits + " branches share label " + v_Label + ".";
+                 	}
+                 	v_Elig = List();
+                 	v_Excl = List();
+                 	v_Total = 0.0;
+                 	for each  v_P in Encounter_PatientVisit[Billing_Branch == v_BranchId && Invoice_Status == "Draft" && Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to] sort by Visit_Completion_Date
+                 	{
+                 		v_Id = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+                 		v_Ref = ifnull(v_P.Referral_ID,"no REF").toString();
+                 		v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+                 		v_Base = v_Id + " | " + v_Ref + " | DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy") + " | " + if(v_Lvl == "","(no level)",v_Lvl);
+                 		if(v_P.Invoice_Link != null)
+                 		{
+                 			v_Excl.add(v_Base + " | already linked to an invoice");
+                 		}
+                 		else if(v_P.Hold_From_Invoicing == "Yes")
+                 		{
+                 			v_Excl.add(v_Base + " | Hold From Invoicing = Yes");
+                 		}
+                 		else if(v_Lvl == "Visit Cancelled")
+                 		{
+                 			v_Excl.add(v_Base + " | Visit Cancelled");
+                 		}
+                 		else
+                 		{
+                 			v_Amt = 0.0;
+                 			if(v_P.Complexity_Charge != null)
+                 			{
+                 				v_Amt = v_P.Complexity_Charge.toDecimal();
+                 			}
+                 			v_Fees = 0.0;
+                 			if(v_P.After_Hours_Fee != null)
+                 			{
+                 				v_Fees = v_Fees + v_P.After_Hours_Fee.toDecimal();
+                 			}
+                 			if(v_P.Super_Stat_Fee != null)
+                 			{
+                 				v_Fees = v_Fees + v_P.Super_Stat_Fee.toDecimal();
+                 			}
+                 			if(v_P.Equipment_Charge_Amount != null)
+                 			{
+                 				v_Fees = v_Fees + v_P.Equipment_Charge_Amount.toDecimal();
+                 			}
+                 			if(v_P.Other_Charges_Amount != null)
+                 			{
+                 				v_Fees = v_Fees + v_P.Other_Charges_Amount.toDecimal();
+                 			}
+                 			v_Total = v_Total + v_Amt + v_Fees;
+                 			v_Elig.add(v_Base + " | charge " + v_Amt + if(v_Fees > 0," + fees " + v_Fees,""));
+                 		}
+                 	}
+                 	v_Out = "BRANCH: " + v_Label + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy");
+                 	v_Out = v_Out + "\n\n== Will be billed (" + v_Elig.size() + ") | total " + v_Total;
+                 	if(v_Total > 2999.99)
+                 	{
+                 		v_Out = v_Out + " | OVER 2999.99, batch will split";
+                 	}
+                 	for each  v_E in v_Elig
+                 	{
+                 		v_Out = v_Out + "\n" + v_E;
+                 	}
+                 	v_Out = v_Out + "\n\n== Draft but excluded (" + v_Excl.size() + ")";
+                 	for each  v_X in v_Excl
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
                  	}
                  	return v_Out;
                  }
@@ -28081,6 +28795,127 @@
                  		v_out = v_out + " Changes: " + v_log.toString(" | ");
                  	}
                  	return v_out;
+                 }
+				 string reprice_pvs_batch(string p_pvsIds, string p_mode)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+                 	{
+                 		return "Invalid mode. Use PREVIEW or COMMIT.";
+                 	}
+                 	v_Raw = ifnull(p_pvsIds,"").toString().trim();
+                 	if(v_Raw == "")
+                 	{
+                 		return "ERROR: Enter one or more PVS IDs separated by commas.";
+                 	}
+                 	v_Keys = List();
+                 	for each  v_Piece in v_Raw.toList(",")
+                 	{
+                 		v_K = v_Piece.trim();
+                 		if(v_K != "" && !v_Keys.contains(v_K))
+                 		{
+                 			v_Keys.add(v_K);
+                 		}
+                 	}
+                 	v_Chg = List();
+                 	v_Same = List();
+                 	v_Blk = List();
+                 	for each  v_Key in v_Keys
+                 	{
+                 		v_Hits = 0;
+                 		v_RecId = null;
+                 		for each  v_F in Encounter_PatientVisit[PVS_ID == v_Key]
+                 		{
+                 			v_Hits = v_Hits + 1;
+                 			v_RecId = v_F.ID;
+                 		}
+                 		if(v_Hits == 0)
+                 		{
+                 			v_Blk.add(v_Key + " | not found");
+                 			continue;
+                 		}
+                 		if(v_Hits > 1)
+                 		{
+                 			v_Blk.add(v_Key + " | matches " + v_Hits + " records");
+                 			continue;
+                 		}
+                 		v_P = Encounter_PatientVisit[ID == v_RecId];
+                 		v_Status = ifnull(v_P.Invoice_Status,"").toString().trim();
+                 		if(v_P.Invoice_Link != null || (v_Status != "" && v_Status != "Draft"))
+                 		{
+                 			v_Blk.add(v_Key + " | on an invoice or not Draft, status " + if(v_Status == "","(blank)",v_Status));
+                 			continue;
+                 		}
+                 		if(v_P.Billing_Branch == null)
+                 		{
+                 			v_Blk.add(v_Key + " | no billing branch");
+                 			continue;
+                 		}
+                 		v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+                 		if(v_Lvl == "")
+                 		{
+                 			v_Blk.add(v_Key + " | no complexity level");
+                 			continue;
+                 		}
+                 		v_Loc = Partner_Locations[ID == v_P.Billing_Branch];
+                 		v_Lbl = ifnull(v_Loc.Partner_Location_Label,"NO LABEL").toString();
+                 		v_RateN = 0;
+                 		v_Rate = 0.0;
+                 		for each  v_R in Partner_Rates[Partner_Location_Link == v_P.Billing_Branch && Rate_Type == v_Lvl && Current_Rate == "Yes"]
+                 		{
+                 			v_RateN = v_RateN + 1;
+                 			if(v_R.Rate_Amount != null)
+                 			{
+                 				v_Rate = v_R.Rate_Amount.toDecimal();
+                 			}
+                 		}
+                 		if(v_RateN != 1)
+                 		{
+                 			v_Blk.add(v_Key + " | " + v_Lbl + " / " + v_Lvl + " has " + v_RateN + " current rate rows");
+                 			continue;
+                 		}
+                 		v_Cur = 0.0;
+                 		if(v_P.Complexity_Charge != null)
+                 		{
+                 			v_Cur = v_P.Complexity_Charge.toDecimal();
+                 		}
+                 		v_Dos = "no DOS";
+                 		if(v_P.Visit_Completion_Date != null)
+                 		{
+                 			v_Dos = "DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy");
+                 		}
+                 		v_Line = v_Key + " | " + ifnull(v_P.Referral_ID,"no REF").toString() + " | " + v_Dos + " | " + v_Lbl + " | " + v_Lvl + " " + v_Cur + " -> " + v_Rate;
+                 		if(v_Cur == v_Rate)
+                 		{
+                 			v_Same.add(v_Line);
+                 			continue;
+                 		}
+                 		v_Chg.add(v_Line);
+                 		if(v_Mode == "COMMIT")
+                 		{
+                 			v_Stamp = "Charge re-priced " + v_Cur + " to " + v_Rate + " (" + v_Lbl + " current " + v_Lvl + " rate) " + zoho.currentdate.toString("MM-dd-yyyy") + " by " + zoho.loginuser + ".";
+                 			v_Old = ifnull(v_P.Row_Status_Note,"").toString().trim();
+                 			v_P.Complexity_Charge=v_Rate;
+                 			v_P.Row_Status_Note=if(v_Old == "",v_Stamp,v_Old + " " + v_Stamp);
+                 		}
+                 	}
+                 	v_Out = "MODE: " + v_Mode + " | PVS entered: " + v_Keys.size();
+                 	v_Out = v_Out + "\n\n== " + if(v_Mode == "COMMIT","Re-priced","Will re-price") + " (" + v_Chg.size() + ")";
+                 	for each  v_X in v_Chg
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	v_Out = v_Out + "\n\n== Already at current rate (" + v_Same.size() + ")";
+                 	for each  v_X in v_Same
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	v_Out = v_Out + "\n\n== Blocked (" + v_Blk.size() + ")";
+                 	for each  v_X in v_Blk
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	return v_Out;
                  }
 				 string resend_referral_notifications(string p_refKeys, string p_toEmail)
                  {
@@ -35132,6 +35967,224 @@
                  		message :"If you received this, Creator is routing through SendGrid."
                  	]
                  	return "Sent. Check SendGrid Activity Feed.";
+                 }
+				 string update_partner_rates(string p_partner, string p_rates, date p_effective, string p_mode)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+                 	{
+                 		return "Invalid mode. Use PREVIEW or COMMIT.";
+                 	}
+                 	if(p_effective == null)
+                 	{
+                 		return "ERROR: p_effective is required.";
+                 	}
+                 	v_Key = ifnull(p_partner,"").toString().trim();
+                 	if(v_Key == "")
+                 	{
+                 		return "ERROR: Enter the partner's Partner ID or Display Name.";
+                 	}
+                 	v_Hits = 0;
+                 	v_PartnerId = null;
+                 	v_PartnerName = "";
+                 	for each  v_Pt in Partners[Partner_ID == v_Key || Partner_Display_Name == v_Key]
+                 	{
+                 		v_Hits = v_Hits + 1;
+                 		v_PartnerId = v_Pt.ID;
+                 		v_PartnerName = ifnull(v_Pt.Partner_Display_Name,"").toString();
+                 	}
+                 	if(v_Hits == 0)
+                 	{
+                 		return "ERROR: No partner found matching " + v_Key + ".";
+                 	}
+                 	if(v_Hits > 1)
+                 	{
+                 		return "ERROR: " + v_Hits + " partners match " + v_Key + ".";
+                 	}
+                 	v_Allowed = {"High Complexity","Moderate Complexity","Low Complexity","Hospital at Home","Telemedicine","Care Coordination","General Consultation","Cares 3008 Assessment","After Hours","Super STAT","Visit Cancelled"};
+                 	v_NewRates = Map();
+                 	v_Types = List();
+                 	v_RateTxt = ifnull(p_rates,"").toString();
+                 	for each  v_Piece in v_RateTxt.toList(";")
+                 	{
+                 		v_Pc = v_Piece.trim();
+                 		if(v_Pc != "")
+                 		{
+                 			if(!v_Pc.contains("="))
+                 			{
+                 				return "ERROR: " + v_Pc + " is not in Type=Amount form.";
+                 			}
+                 			v_T = v_Pc.getPrefix("=").trim();
+                 			v_A = v_Pc.getSuffix("=").trim();
+                 			if(!v_Allowed.contains(v_T))
+                 			{
+                 				return "ERROR: " + v_T + " is not a Rate Type.";
+                 			}
+                 			v_Digits = v_A.remove(".");
+                 			if(v_Digits == "" || !v_Digits.isNumber() || v_A.length() - v_Digits.length() > 1)
+                 			{
+                 				return "ERROR: " + v_A + " is not a valid amount for " + v_T + ".";
+                 			}
+                 			v_Amt = v_A.toDecimal();
+                 			if(v_Amt <= 0)
+                 			{
+                 				return "ERROR: Amount for " + v_T + " must be greater than 0.";
+                 			}
+                 			if(v_Types.contains(v_T))
+                 			{
+                 				return "ERROR: " + v_T + " is listed twice.";
+                 			}
+                 			v_NewRates.put(v_T,v_Amt);
+                 			v_Types.add(v_T);
+                 		}
+                 	}
+                 	if(v_Types.size() == 0)
+                 	{
+                 		return "ERROR: Enter rates as Type=Amount separated by semicolons, for example Moderate Complexity=373;Low Complexity=170.";
+                 	}
+                 	v_Branches = List();
+                 	for each  v_L in Partner_Locations[Partner_Link == v_PartnerId] sort by Partner_Location_Label
+                 	{
+                 		v_Branches.add(v_L.ID);
+                 	}
+                 	v_RateChg = List();
+                 	v_RateSame = List();
+                 	v_RateBlk = List();
+                 	for each  v_B in v_Branches
+                 	{
+                 		v_Loc = Partner_Locations[ID == v_B];
+                 		v_Lbl = ifnull(v_Loc.Partner_Location_Label,"NO LABEL").toString();
+                 		for each  v_T in v_Types
+                 		{
+                 			v_New = v_NewRates.get(v_T);
+                 			v_CurN = 0;
+                 			v_CurId = null;
+                 			v_CurAmt = 0.0;
+                 			v_CurDate = null;
+                 			v_CurCat = "";
+                 			v_CurStatus = "Active";
+                 			for each  v_R in Partner_Rates[Partner_Location_Link == v_B && Rate_Type == v_T && Current_Rate == "Yes"]
+                 			{
+                 				v_CurN = v_CurN + 1;
+                 				v_CurId = v_R.ID;
+                 				if(v_R.Rate_Amount != null)
+                 				{
+                 					v_CurAmt = v_R.Rate_Amount.toDecimal();
+                 				}
+                 				v_CurDate = v_R.Partner_Rates_Effective_Date;
+                 				v_CurCat = ifnull(v_R.Rate_Category,"").toString();
+                 				v_CurStatus = ifnull(v_R.Partner_Rate_Status,"Active").toString();
+                 			}
+                 			if(v_CurN == 0)
+                 			{
+                 				v_RateBlk.add(v_Lbl + " | " + v_T + " | no current rate row");
+                 			}
+                 			else if(v_CurN > 1)
+                 			{
+                 				v_RateBlk.add(v_Lbl + " | " + v_T + " | " + v_CurN + " current rate rows, resolve first");
+                 			}
+                 			else if(v_CurAmt == v_New)
+                 			{
+                 				v_RateSame.add(v_Lbl + " | " + v_T + " | already " + v_New);
+                 			}
+                 			else if(v_CurDate != null && v_CurDate >= p_effective)
+                 			{
+                 				v_RateBlk.add(v_Lbl + " | " + v_T + " | current row is already effective " + v_CurDate.toString("MM/dd/yyyy"));
+                 			}
+                 			else
+                 			{
+                 				v_DateTxt = "no date";
+                 				if(v_CurDate != null)
+                 				{
+                 					v_DateTxt = v_CurDate.toString("MM/dd/yyyy");
+                 				}
+                 				v_RateChg.add(v_Lbl + " | " + v_T + " | " + v_CurAmt + " (eff " + v_DateTxt + ") -> " + v_New + " (eff " + p_effective.toString("MM/dd/yyyy") + ")");
+                 				if(v_Mode == "COMMIT")
+                 				{
+                 					v_NewId = insert into Partner_Rates
+                 					[
+                 						Partner_Link=v_PartnerId
+                 						Partner_Location_Link=v_B
+                 						Rate_Category=v_CurCat
+                 						Rate_Type=v_T
+                 						Rate_Amount=v_New
+                 						Partner_Rates_Effective_Date=p_effective
+                 						Current_Rate="Yes"
+                 						Partner_Rate_Status=v_CurStatus
+                 						Added_User=zoho.loginuser
+                 					];
+                 					v_NewRec = Partner_Rates[ID == v_NewId];
+                 					v_NewRec.Partner_Rate_ID_Stamp=v_NewId.toString();
+                 					v_OldRec = Partner_Rates[ID == v_CurId];
+                 					v_OldRec.Current_Rate="No";
+                 				}
+                 			}
+                 		}
+                 	}
+                 	v_PvsChg = List();
+                 	v_PvsInv = List();
+                 	for each  v_B in v_Branches
+                 	{
+                 		v_Loc = Partner_Locations[ID == v_B];
+                 		v_Lbl = ifnull(v_Loc.Partner_Location_Label,"NO LABEL").toString();
+                 		for each  v_P in Encounter_PatientVisit[Billing_Branch == v_B && Visit_Completion_Date >= p_effective] sort by Visit_Completion_Date
+                 		{
+                 			v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+                 			if(v_NewRates.containKey(v_Lvl))
+                 			{
+                 				v_New = v_NewRates.get(v_Lvl);
+                 				v_Cur = 0.0;
+                 				if(v_P.Complexity_Charge != null)
+                 				{
+                 					v_Cur = v_P.Complexity_Charge.toDecimal();
+                 				}
+                 				if(v_Cur != v_New)
+                 				{
+                 					v_Status = ifnull(v_P.Invoice_Status,"").toString().trim();
+                 					v_Line = ifnull(v_P.PVS_ID,"(no PVS ID)").toString() + " | " + ifnull(v_P.Referral_ID,"no REF").toString() + " | DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy") + " | " + v_Lbl + " | " + v_Lvl + " " + v_Cur + " -> " + v_New;
+                 					if(v_P.Invoice_Link != null || (v_Status != "" && v_Status != "Draft"))
+                 					{
+                 						v_PvsInv.add(v_Line + " | ON AN INVOICE, NOT CHANGED");
+                 					}
+                 					else
+                 					{
+                 						v_PvsChg.add(v_Line);
+                 						if(v_Mode == "COMMIT")
+                 						{
+                 							v_P.Complexity_Charge=v_New;
+                 						}
+                 					}
+                 				}
+                 			}
+                 		}
+                 	}
+                 	v_Out = "MODE: " + v_Mode + " | Partner: " + v_PartnerName + " | Branches: " + v_Branches.size() + " | Effective " + p_effective.toString("MM/dd/yyyy");
+                 	v_Out = v_Out + "\n\n== Rate rows " + if(v_Mode == "COMMIT","changed","to change") + " (" + v_RateChg.size() + ")";
+                 	for each  v_X in v_RateChg
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	v_Out = v_Out + "\n\n== Rate rows already at new amount (" + v_RateSame.size() + ")";
+                 	for each  v_X in v_RateSame
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	v_Out = v_Out + "\n\n== Rate rows blocked (" + v_RateBlk.size() + ")";
+                 	for each  v_X in v_RateBlk
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	v_Out = v_Out + "\n\n== Visits " + if(v_Mode == "COMMIT","re-priced","to re-price") + " (" + v_PvsChg.size() + ")";
+                 	for each  v_X in v_PvsChg
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	v_Out = v_Out + "\n\n== Visits already invoiced, not changed (" + v_PvsInv.size() + ")";
+                 	for each  v_X in v_PvsInv
+                 	{
+                 		v_Out = v_Out + "\n" + v_X;
+                 	}
+                 	return v_Out;
                  }
 				 map widget_today_visits()
                  {
@@ -46053,6 +47106,943 @@
 						)
 				)
 			}
+			report API_PVS_All
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								Visit_Status as "Visit Status"
+								Has_Referral_ID as "Do you have a Referral ID?"
+								Referral_Link as "Referral Link"
+								Edit_Needed as "Edit Needed"
+								Type_of_Entry as "Type of Entry"
+								Patient_Full_Name_2 as "Patient Full Name"
+								Was_3008_Completed as "Was the 3008 Completed?"
+								PVS_3008_Upload as "PVS 3008 Upload"
+								Cares_3008_Completion_Date as "3008 Completion Date"
+								Notes_3008 as "3008 Notes"
+								Patient_Full_Name_1 as "Patient Full Name"
+								Patient_First_Name as "Patient First Name"
+								Patient_MI as "Patient MI"
+								Patient_Last_Name as "Patient Last Name"
+								Patient_DOB as "Patient DOB"
+								Patient_DOB1 as "Patient DOB"
+								Patient_Gender as "Biological Sex"
+								Patient_Hospice_ID as "Patient Hospice ID"
+								Patient_SSN as "Patient SSN"
+								Patient_Phone as "Patient Phone"
+								Patient_Email as "Patient Email"
+								Patient_Location as "Patient Location"
+								Facility_Name as "Facility Name"
+								Facility_Phone as "Facility Phone"
+								Facility_Room_Number as "Facility Room Number"
+								Patient_Address as "Patient Address"
+								Patient_Full_Address as "Patient Full Address"
+								Reason_for_Referral as "Reason for Referral"
+								Goals_of_Care as "Goals of Care"
+								Partner_ICD_Codes as "Partner ICD 10 Codes"
+								Additional_Information as "Additional Information"
+								List_Patient_Allergies as "List Patient Allergies"
+								List_Patient_Anticoagulants as "List Patient Anticoagulants"
+								Advanced_Directives_Details as "Advanced Directives Details"
+								General_Files_Upload as "General Files Upload"
+								Imaging_Orders as "Imaging Order(s)"
+								Imaging_Order_Indication as "Imaging Order Indication"
+								Upload_Imaging_Order_Files as "Imaging Order Files"
+								Imaging_Ordered_Date as "Imaging Ordered Date"
+								Lab_Type_Orders as "What labs are being ordered?"
+								Lab_Order_Indication as "Lab Order Indication"
+								Requested_Lab_Vendor as "Requested Lab Vendor"
+								Lab_Files_Upload as "Lab Files Upload"
+								Lab_Order_Date as "Lab Order Date"
+								Clinical_Note_Type as "Clinical Note Type"
+								Final_Clinical_Note as "Clinical Note"
+								Provider_ICD10_Codes_Link as "ICD-10 Codes Lookup (Optional)"
+								Provider_ICD_Print as " Provider ICD Codes"
+								Clinical_Note_File_Upload as "Clinical Note File Upload"
+								Type_of_Procedures as "Type of Procedure(s)"
+								Complexity_Level as "Complexity Level"
+								Additional_Charges as "Additional Charges"
+								Complexity_Charge as "Complexity Charge"
+								After_Hours_Fee as "After Hours ($)"
+								Super_Stat_Fee as "Super STAT ($)"
+								Equipment_Charge_Amount as "Equipment Charge Amount ($)"
+								Equipment_Charge_Details as "Equipment Charge Details"
+								Other_Charges_Amount as "Other Charges Amount ($)"
+								Other_Charges_Details as "Other Charges Details"
+								PVS_File_Upload as "PVS File Upload"
+								Diversion_Tracking as "Did this visit result in a Diversion?"
+								Type_of_Diversion as "Type of Diversion"
+								Partner_Organization as "Referral Partner"
+								Partner_Branch as "Partner Branch/Location"
+								Partner_POC_Name_Title as "Partner POC"
+								Partner_POC_Team as "Partner POC Team"
+								Partner_POC_First_Name as "PR POC First Name"
+								Partner_POC_Last_Name as "PR POC Last Name"
+								Partner_POC_Title as "PR POC Title"
+								Partner_POC_Phone as "PR POC Phone"
+								Partner_POC_Email as "PR POC Email"
+								Partner_Location_Label as "Partner Location Label"
+								Employee_Name_Title as "Employee Name & Title"
+								Employee_First_Name as "Employee First Name"
+								Employee_Last_Name as "Employee Last Name"
+								Employee_Title as "Employee Title"
+								Employee_Initials as "Employee Initials"
+								Employee_Email as "Employee Email"
+								Visit_Completion_Date as "Visit Completion Date"
+								Invoice_Link as "Invoice Connection"
+								Hold_From_Invoicing as "Hold From Invoicing"
+								Billing_Branch as "Billing Branch"
+								Fax_This_Note as "Fax This Note"
+								Fax_Override_Unlock as "Override Fax?"
+								Fax_Override_Number as "Fax Number"
+								Fax_Override_Reason as "Override Reason"
+								Print_Preview as "Print Preview"
+								Note_Finalized_Time as "Note Finalized Time"
+								PVS_ID as "PVS ID"
+								PVS_Referral_ID as "PVS Referral ID"
+								Referral_ID as "Referral ID"
+								Referral_ID_Stamp as "Referral ID Stamp"
+								Partner_ID as "Partner ID"
+								Partner_ID_Stamp as "Partner ID Stamp"
+								Employee_Full_Name as "Employee Full Name"
+								Fax_Status as "Fax Status"
+								Invoice_Status as "Invoice Status"
+								QC_Reviewed as "QC Reviewed"
+								Provider_Login_Email as "Provider Login Email"
+								Employee_Link as "Employee Link"
+								Row_Status as "Row Status"
+								Duplicate_Of_PVS_ID as "Duplicate Of"
+								Row_Status_Note as "Row Status Note"
+								Referral_Date as "Referral Date"
+								Referral_Source as "Referral Source"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Visit_Status as "Visit Status"
+								Has_Referral_ID as "Do you have a Referral ID?"
+								Referral_Link as "Referral Link"
+								Edit_Needed as "Edit Needed"
+								Type_of_Entry as "Type of Entry"
+								Patient_Full_Name_2 as "Patient Full Name"
+								Was_3008_Completed as "Was the 3008 Completed?"
+								PVS_3008_Upload as "PVS 3008 Upload"
+								Cares_3008_Completion_Date as "3008 Completion Date"
+								Notes_3008 as "3008 Notes"
+								Patient_Full_Name_1 as "Patient Full Name"
+								Patient_First_Name as "Patient First Name"
+								Patient_MI as "Patient MI"
+								Patient_Last_Name as "Patient Last Name"
+								Patient_DOB as "Patient DOB"
+								Patient_DOB1 as "Patient DOB"
+								Patient_Gender as "Biological Sex"
+								Patient_Hospice_ID as "Patient Hospice ID"
+								Patient_SSN as "Patient SSN"
+								Patient_Phone as "Patient Phone"
+								Patient_Email as "Patient Email"
+								Patient_Location as "Patient Location"
+								Facility_Name as "Facility Name"
+								Facility_Phone as "Facility Phone"
+								Facility_Room_Number as "Facility Room Number"
+								Patient_Address as "Patient Address"
+								Patient_Full_Address as "Patient Full Address"
+								Reason_for_Referral as "Reason for Referral"
+								Goals_of_Care as "Goals of Care"
+								Partner_ICD_Codes as "Partner ICD 10 Codes"
+								Additional_Information as "Additional Information"
+								List_Patient_Allergies as "List Patient Allergies"
+								List_Patient_Anticoagulants as "List Patient Anticoagulants"
+								Advanced_Directives_Details as "Advanced Directives Details"
+								General_Files_Upload as "General Files Upload"
+								Imaging_Orders as "Imaging Order(s)"
+								Imaging_Order_Indication as "Imaging Order Indication"
+								Upload_Imaging_Order_Files as "Imaging Order Files"
+								Imaging_Ordered_Date as "Imaging Ordered Date"
+								Lab_Type_Orders as "What labs are being ordered?"
+								Lab_Order_Indication as "Lab Order Indication"
+								Requested_Lab_Vendor as "Requested Lab Vendor"
+								Lab_Files_Upload as "Lab Files Upload"
+								Lab_Order_Date as "Lab Order Date"
+								Clinical_Note_Type as "Clinical Note Type"
+								Final_Clinical_Note as "Clinical Note"
+								Provider_ICD10_Codes_Link as "ICD-10 Codes Lookup (Optional)"
+								Provider_ICD_Print as " Provider ICD Codes"
+								Clinical_Note_File_Upload as "Clinical Note File Upload"
+								Type_of_Procedures as "Type of Procedure(s)"
+								Complexity_Level as "Complexity Level"
+								Additional_Charges as "Additional Charges"
+								Complexity_Charge as "Complexity Charge"
+								After_Hours_Fee as "After Hours ($)"
+								Super_Stat_Fee as "Super STAT ($)"
+								Equipment_Charge_Amount as "Equipment Charge Amount ($)"
+								Equipment_Charge_Details as "Equipment Charge Details"
+								Other_Charges_Amount as "Other Charges Amount ($)"
+								Other_Charges_Details as "Other Charges Details"
+								PVS_File_Upload as "PVS File Upload"
+								Diversion_Tracking as "Did this visit result in a Diversion?"
+								Type_of_Diversion as "Type of Diversion"
+								Partner_Organization as "Referral Partner"
+								Partner_Branch as "Partner Branch/Location"
+								Partner_POC_Name_Title as "Partner POC"
+								Partner_POC_Team as "Partner POC Team"
+								Partner_POC_First_Name as "PR POC First Name"
+								Partner_POC_Last_Name as "PR POC Last Name"
+								Partner_POC_Title as "PR POC Title"
+								Partner_POC_Phone as "PR POC Phone"
+								Partner_POC_Email as "PR POC Email"
+								Partner_Location_Label as "Partner Location Label"
+								Employee_Name_Title as "Employee Name & Title"
+								Employee_First_Name as "Employee First Name"
+								Employee_Last_Name as "Employee Last Name"
+								Employee_Title as "Employee Title"
+								Employee_Initials as "Employee Initials"
+								Employee_Email as "Employee Email"
+								Visit_Completion_Date as "Visit Completion Date"
+								Invoice_Link as "Invoice Connection"
+								Hold_From_Invoicing as "Hold From Invoicing"
+								Billing_Branch as "Billing Branch"
+								Fax_This_Note as "Fax This Note"
+								Fax_Override_Unlock as "Override Fax?"
+								Fax_Override_Number as "Fax Number"
+								Fax_Override_Reason as "Override Reason"
+								Print_Preview as "Print Preview"
+								Note_Finalized_Time as "Note Finalized Time"
+								PVS_ID as "PVS ID"
+								PVS_Referral_ID as "PVS Referral ID"
+								Referral_ID as "Referral ID"
+								Referral_ID_Stamp as "Referral ID Stamp"
+								Partner_ID as "Partner ID"
+								Partner_ID_Stamp as "Partner ID Stamp"
+								Employee_Full_Name as "Employee Full Name"
+								Fax_Status as "Fax Status"
+								Invoice_Status as "Invoice Status"
+								QC_Reviewed as "QC Reviewed"
+								Provider_Login_Email as "Provider Login Email"
+								Employee_Link as "Employee Link"
+								Row_Status as "Row Status"
+								Duplicate_Of_PVS_ID as "Duplicate Of"
+								Row_Status_Note as "Row Status Note"
+								Referral_Date as "Referral Date"
+								Referral_Source as "Referral Source"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report API_Referrals_All
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								Referral_Source as "Referral Source"
+								Referral_Type as "Service"
+								Patient_First_Name as "Patient First Name"
+								Patient_MI as "Patient MI"
+								Patient_Last_Name as "Patient Last Name"
+								Patient_DOB as "Patient DOB"
+								Patient_DOB1 as "Patient DOB"
+								Patient_Gender as "Patient Gender"
+								Patient_Hospice_ID as "Patient Hospice ID"
+								Patient_MBI as "Patient MBI"
+								Patient_SSN as "Patient SSN"
+								Patient_Phone as "Patient Phone"
+								Has_Additional_Contact as "Is there an additional contact?"
+								AC_First_Name as "AC First Name"
+								AC_Last_Name as "AC Last Name"
+								AC_Phone as "AC Phone"
+								AC_Relationship_to_Patient as "AC Relationship to Patient"
+								Patient_Location as "Patient Location"
+								Facility_Name as "Facility Name"
+								Facility_Phone as "Facility Phone"
+								Facility_Room_Number as "Facility Room Number"
+								Patient_Address as "Patient Address"
+								Patient_Full_Address as "Patient Full Address"
+								Referral_Reason as "Reason for Referral"
+								Partner_ICD_Codes as "Partner ICD Codes"
+								X_Ray_Needed as "Will an X-Ray be needed for this referral?"
+								Patient_Has_Allergies as "Does this patient have allergies?"
+								List_Patient_Allergies as "List Patient Allergies"
+								Patient_Has_Anticoagulants as "Does the patient take anticoagulants?"
+								List_Patient_Anticoagulants as "List Patient Anticoagulants"
+								Patient_Has_Advanced_Directives as "Does the patient have Advanced Directives?"
+								Advanced_Directives_Details as "Advanced Directives Details"
+								Additional_Information as "Additional Information"
+								General_Files_Upload as "General Files Upload"
+								Imaging_Type_Order as "Imaging Test(s) to be Ordered"
+								Imaging_Body_Site as "Body Part / Affected Area"
+								Imaging_Order_Indication as "Reason for Imaging Order(s)"
+								Imaging_Orders_Upload as "Imaging Orders Upload"
+								File_Upload_3008 as "3008 File Upload"
+								Partner_Link as "Partner Lookup"
+								Partner_Branch_Link as "Partner Branch Lookup"
+								Partner_Organization as "Partner Organization"
+								Partner_Branch as "Partner Branch/Location"
+								Partner_POC_First_Name as "Partner POC First Name"
+								Partner_POC_Last_Name as "Partner POC Last Name"
+								Partner_POC_Title as "Partner POC Title"
+								Partner_POC_Team as "Partner POC Team"
+								Partner_POC_Phone as "Partner POC Phone"
+								Partner_POC_Email as "Partner POC Email"
+								Files_3008_URLs as "3008 File URLs"
+								General_Files_URLs as "General Files URLs"
+								Imaging_Orders_URLs as "Imaging Orders URLs"
+								Data_Issues as "Data Issues"
+								Referral_ID as "Referral ID"
+								Referral_Date as "Referral Date"
+								Referral_Date1 as "Referral Date (Don't Use)"
+								Referral_ID_Stamp as "Referral ID Stamp"
+								Patient_Full_Name as "Patient Full Name"
+								AC_Full_Name as "AC Full Name"
+								Partner_POC_Name_Title as "Partner POC Name & Title"
+								Partner_ID as "Partner ID"
+								Partner_ID_Stamp as "Partner ID Stamp"
+								Partner_Location_Label as "Partner Location Label"
+								Referral_Added_Time as "Referral Added Time"
+								Form_Token as "Form Token"
+								Assignment_Status as "Assignment Status"
+								Employee_Link as "Employee Link"
+								Cognito_Referral_ID as "Cognito Referral ID"
+								Partner_Branch_Submitted as "Partner Branch Submitted"
+								Notified_Time as "Notified Time"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Referral_Source as "Referral Source"
+								Referral_Type as "Service"
+								Patient_First_Name as "Patient First Name"
+								Patient_MI as "Patient MI"
+								Patient_Last_Name as "Patient Last Name"
+								Patient_DOB as "Patient DOB"
+								Patient_DOB1 as "Patient DOB"
+								Patient_Gender as "Patient Gender"
+								Patient_Hospice_ID as "Patient Hospice ID"
+								Patient_MBI as "Patient MBI"
+								Patient_SSN as "Patient SSN"
+								Patient_Phone as "Patient Phone"
+								Has_Additional_Contact as "Is there an additional contact?"
+								AC_First_Name as "AC First Name"
+								AC_Last_Name as "AC Last Name"
+								AC_Phone as "AC Phone"
+								AC_Relationship_to_Patient as "AC Relationship to Patient"
+								Patient_Location as "Patient Location"
+								Facility_Name as "Facility Name"
+								Facility_Phone as "Facility Phone"
+								Facility_Room_Number as "Facility Room Number"
+								Patient_Address as "Patient Address"
+								Patient_Full_Address as "Patient Full Address"
+								Referral_Reason as "Reason for Referral"
+								Partner_ICD_Codes as "Partner ICD Codes"
+								X_Ray_Needed as "Will an X-Ray be needed for this referral?"
+								Patient_Has_Allergies as "Does this patient have allergies?"
+								List_Patient_Allergies as "List Patient Allergies"
+								Patient_Has_Anticoagulants as "Does the patient take anticoagulants?"
+								List_Patient_Anticoagulants as "List Patient Anticoagulants"
+								Patient_Has_Advanced_Directives as "Does the patient have Advanced Directives?"
+								Advanced_Directives_Details as "Advanced Directives Details"
+								Additional_Information as "Additional Information"
+								General_Files_Upload as "General Files Upload"
+								Imaging_Type_Order as "Imaging Test(s) to be Ordered"
+								Imaging_Body_Site as "Body Part / Affected Area"
+								Imaging_Order_Indication as "Reason for Imaging Order(s)"
+								Imaging_Orders_Upload as "Imaging Orders Upload"
+								File_Upload_3008 as "3008 File Upload"
+								Partner_Link as "Partner Lookup"
+								Partner_Branch_Link as "Partner Branch Lookup"
+								Partner_Organization as "Partner Organization"
+								Partner_Branch as "Partner Branch/Location"
+								Partner_POC_First_Name as "Partner POC First Name"
+								Partner_POC_Last_Name as "Partner POC Last Name"
+								Partner_POC_Title as "Partner POC Title"
+								Partner_POC_Team as "Partner POC Team"
+								Partner_POC_Phone as "Partner POC Phone"
+								Partner_POC_Email as "Partner POC Email"
+								Files_3008_URLs as "3008 File URLs"
+								General_Files_URLs as "General Files URLs"
+								Imaging_Orders_URLs as "Imaging Orders URLs"
+								Data_Issues as "Data Issues"
+								Referral_ID as "Referral ID"
+								Referral_Date as "Referral Date"
+								Referral_Date1 as "Referral Date (Don't Use)"
+								Referral_ID_Stamp as "Referral ID Stamp"
+								Patient_Full_Name as "Patient Full Name"
+								AC_Full_Name as "AC Full Name"
+								Partner_POC_Name_Title as "Partner POC Name & Title"
+								Partner_ID as "Partner ID"
+								Partner_ID_Stamp as "Partner ID Stamp"
+								Partner_Location_Label as "Partner Location Label"
+								Referral_Added_Time as "Referral Added Time"
+								Form_Token as "Form Token"
+								Assignment_Status as "Assignment Status"
+								Employee_Link as "Employee Link"
+								Cognito_Referral_ID as "Cognito Referral ID"
+								Partner_Branch_Submitted as "Partner Branch Submitted"
+								Notified_Time as "Notified Time"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report API_Invoices_All
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								Partner_Link as "Partner Lookup"
+								Partner_Location_Link as "Partner Location Lookup"
+								Invoice_Date as "Invoice Date"
+								Service_Date_From as "Service Date From"
+								Service_Date_To as "Service Date To"
+								Invoice_Total as "Invoice Total"
+								Invoice_Record_Status as "Invoice Record Status"
+								Visit_Count as "Visit Count"
+								Created_By as "Created By"
+								Revision_Date as "Revision Date"
+								Replaces_Invoice_Number as "Replaces Invoice Number"
+								Books_Customer_ID as "Books Customer ID"
+								Books_Invoice_ID as "Books Invoice ID"
+								Books_Invoice_Number as "Books Invoice Number"
+								Books_Sync_Status as "Books Sync Status"
+								Books_Sync_Message as "Books Sync Message"
+								Books_Sync_Timestamp as "Books Sync Timestamp"
+								Invoice_ID as "Invoice ID"
+								Invoice_ID_Stamp as "Invoice ID Stamp"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Partner_Link as "Partner Lookup"
+								Partner_Location_Link as "Partner Location Lookup"
+								Invoice_Date as "Invoice Date"
+								Service_Date_From as "Service Date From"
+								Service_Date_To as "Service Date To"
+								Invoice_Total as "Invoice Total"
+								Invoice_Record_Status as "Invoice Record Status"
+								Visit_Count as "Visit Count"
+								Created_By as "Created By"
+								Revision_Date as "Revision Date"
+								Replaces_Invoice_Number as "Replaces Invoice Number"
+								Books_Customer_ID as "Books Customer ID"
+								Books_Invoice_ID as "Books Invoice ID"
+								Books_Invoice_Number as "Books Invoice Number"
+								Books_Sync_Status as "Books Sync Status"
+								Books_Sync_Message as "Books Sync Message"
+								Books_Sync_Timestamp as "Books Sync Timestamp"
+								Invoice_ID as "Invoice ID"
+								Invoice_ID_Stamp as "Invoice ID Stamp"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report API_Invoice_Batch_All
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								Partner_Link as "Partner Lookup"
+								Partner_Location_Link as "Partner Location Lookup"
+								Date_From as "Date From"
+								Date_To as "Date To"
+								Max_Invoice_Total as "Max Invoice Total"
+								Batch_Status as "Batch Status"
+								Batch_Reason as "Batch Reason"
+								Replaces_Invoice_Number as "Replaces Invoice Number"
+								Result_Message as "Result Message"
+								Invoice_Link as "Invoice Lookup"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Partner_Link as "Partner Lookup"
+								Partner_Location_Link as "Partner Location Lookup"
+								Date_From as "Date From"
+								Date_To as "Date To"
+								Max_Invoice_Total as "Max Invoice Total"
+								Batch_Status as "Batch Status"
+								Batch_Reason as "Batch Reason"
+								Replaces_Invoice_Number as "Replaces Invoice Number"
+								Result_Message as "Result Message"
+								Invoice_Link as "Invoice Lookup"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report API_Partner_Rates_All
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								Partner_Link as "Partner Link"
+								Partner_Location_Link as "Partner Location Name"
+								Rate_Category as "Rate Category"
+								Rate_Type as "Rate Type"
+								Rate_Amount as "Rate Amount"
+								Partner_Rates_Effective_Date as "Partner Rates Effective Date"
+								Current_Rate as "Current Rate?"
+								Partner_Rate_Status as "Partner Rate Status"
+								Partner_Rate_ID_Stamp as "Partner Rate ID Stamp"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Partner_Link as "Partner Link"
+								Partner_Location_Link as "Partner Location Name"
+								Rate_Category as "Rate Category"
+								Rate_Type as "Rate Type"
+								Rate_Amount as "Rate Amount"
+								Partner_Rates_Effective_Date as "Partner Rates Effective Date"
+								Current_Rate as "Current Rate?"
+								Partner_Rate_Status as "Partner Rate Status"
+								Partner_Rate_ID_Stamp as "Partner Rate ID Stamp"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report API_Partner_Locations_All
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								Partner_Link as "Partner Link"
+								Primary_Office as "Primary Office?"
+								Partner_Location_Name as "Partner Loc Name"
+								Partner_Location_Code as "Partner Loc Code"
+								Partner_Location_Status as "Partner Loc Status"
+								Books_Customer_ID as "Books Customer ID"
+								Partner_Location_ID as "Partner Location ID"
+								Partner_Location_ID_Stamp as "Partner Location ID Stamp"
+								Partner_Location_Label as "Partner Location Label"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Partner_Link as "Partner Link"
+								Primary_Office as "Primary Office?"
+								Partner_Location_Name as "Partner Loc Name"
+								Partner_Location_Code as "Partner Loc Code"
+								Partner_Location_Status as "Partner Loc Status"
+								Books_Customer_ID as "Books Customer ID"
+								Partner_Location_ID as "Partner Location ID"
+								Partner_Location_ID_Stamp as "Partner Location ID Stamp"
+								Partner_Location_Label as "Partner Location Label"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report API_Partners_All
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								Partner_Type as "Partner Type"
+								Partner_Legal_Name as "Partner Legal Name"
+								Partner_Display_Name as "Partner Display Name"
+								Partner_Code as "Partner Code"
+								Partner_Phone as "Partner Phone"
+								Partner_Address as "Partner Address"
+								Rate_Structure as "Rate Structure"
+								Partner_Contract_Effective_Date as "Partner Contract Effective Date"
+								Partner_Contract_Upload as "Partner Contract Upload"
+								Partner_Status as "Partner Status"
+								Partner_ID as "Partner ID"
+								Partner_ID_Stamp as "Partner ID Stamp"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Partner_Type as "Partner Type"
+								Partner_Legal_Name as "Partner Legal Name"
+								Partner_Display_Name as "Partner Display Name"
+								Partner_Code as "Partner Code"
+								Partner_Phone as "Partner Phone"
+								Partner_Address as "Partner Address"
+								Rate_Structure as "Rate Structure"
+								Partner_Contract_Effective_Date as "Partner Contract Effective Date"
+								Partner_Contract_Upload as "Partner Contract Upload"
+								Partner_Status as "Partner Status"
+								Partner_ID as "Partner ID"
+								Partner_ID_Stamp as "Partner ID Stamp"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
 		}
 		menu
 		{
@@ -46448,6 +48438,10 @@
 					{
 						icon = "users-2-child"
 					}
+					report API_PVS_All
+					{
+						icon = "users-2-child"
+					}
 				}
 				section Referrals_Main
 				{
@@ -46456,6 +48450,55 @@
 					report MPU_Export_Referrals
 					{
 						icon = "business-scale"
+					}
+					report API_Referrals_All
+					{
+						icon = "business-scale"
+					}
+				}
+				section Invoices
+				{
+					displayname = "Invoices"
+					icon = "shopping-receipt"
+					report API_Invoices_All
+					{
+						icon = "shopping-receipt"
+					}
+				}
+				section Invoice_Batch
+				{
+					displayname = "Invoice Batch"
+					icon = "shopping-receipt-list-42"
+					report API_Invoice_Batch_All
+					{
+						icon = "shopping-receipt-list-42"
+					}
+				}
+				section Partner_Rates
+				{
+					displayname = "Partner Rates"
+					icon = "business-percentage-39"
+					report API_Partner_Rates_All
+					{
+						icon = "business-percentage-39"
+					}
+				}
+				section Partner_Locations
+				{
+					displayname = "Partner Locations"
+					icon = "location-pin-copy"
+					report API_Partner_Locations_All
+					{
+						icon = "location-pin-copy"
+					}
+				}
+				section Partners
+				{
+					displayname = "Partners"
+					icon = "users-multiple-19"
+					report API_Partners_All
+					{
+						icon = "users-multiple-19"
 					}
 				}
 			}

@@ -1,0 +1,167 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_Raw = ifnull(p_pvsIds,"").toString().trim();
+if(v_Raw == "")
+{
+	return "ERROR: Enter one or more PVS IDs separated by commas, for example PVS-1767-AS,PVS-1542-AS.";
+}
+v_Keys = List();
+for each  v_Piece in v_Raw.toList(",")
+{
+	v_K = v_Piece.trim();
+	if(v_K != "" && !v_Keys.contains(v_K))
+	{
+		v_Keys.add(v_K);
+	}
+}
+v_Moves = List();
+v_Same = List();
+v_Blocked = List();
+v_Done = List();
+for each  v_Key in v_Keys
+{
+	v_Hits = 0;
+	v_RecId = null;
+	for each  v_F in Encounter_PatientVisit[PVS_ID == v_Key]
+	{
+		v_Hits = v_Hits + 1;
+		v_RecId = v_F.ID;
+	}
+	if(v_Hits == 0)
+	{
+		v_Blocked.add(v_Key + " | not found");
+		continue;
+	}
+	if(v_Hits > 1)
+	{
+		v_Blocked.add(v_Key + " | matches " + v_Hits + " records");
+		continue;
+	}
+	v_P = Encounter_PatientVisit[ID == v_RecId];
+	v_CurLabel = "(blank)";
+	if(v_P.Billing_Branch != null)
+	{
+		v_CL = Partner_Locations[ID == v_P.Billing_Branch];
+		if(v_CL.ID != null)
+		{
+			v_CurLabel = ifnull(v_CL.Partner_Location_Label,"NO LABEL").toString().trim();
+		}
+	}
+	if(v_P.Referral_Link == null)
+	{
+		v_Blocked.add(v_Key + " | no referral link");
+		continue;
+	}
+	v_R = Referrals_Main[ID == v_P.Referral_Link];
+	if(v_R.ID == null)
+	{
+		v_Blocked.add(v_Key + " | referral link points to a deleted record");
+		continue;
+	}
+	v_RefId = ifnull(v_R.Referral_ID,"(no REF ID)").toString();
+	if(v_R.Partner_Branch_Link == null)
+	{
+		v_Blocked.add(v_Key + " | " + v_RefId + " has no Partner Branch");
+		continue;
+	}
+	v_NewLabel = "NO LABEL";
+	v_NL = Partner_Locations[ID == v_R.Partner_Branch_Link];
+	if(v_NL.ID != null)
+	{
+		v_NewLabel = ifnull(v_NL.Partner_Location_Label,"NO LABEL").toString().trim();
+	}
+	v_Status = ifnull(v_P.Invoice_Status,"").toString().trim();
+	v_InvTxt = "not on an invoice";
+	if(v_P.Invoice_Link != null)
+	{
+		v_I = Invoices[ID == v_P.Invoice_Link];
+		if(v_I.ID != null)
+		{
+			v_InvTxt = ifnull(v_I.Books_Invoice_Number,"no number").toString() + " (" + ifnull(v_I.Invoice_Record_Status,"").toString() + ")";
+		}
+	}
+	v_Dos = "no DOS";
+	if(v_P.Visit_Completion_Date != null)
+	{
+		v_Dos = "DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy");
+	}
+	v_Level = ifnull(v_P.Complexity_Level,"").toString().trim();
+	v_CurCharge = 0;
+	if(v_P.Complexity_Charge != null)
+	{
+		v_CurCharge = v_P.Complexity_Charge;
+	}
+	v_NewCharge = 0;
+	v_RateFound = false;
+	if(v_Level != "")
+	{
+		for each  v_Rt in Partner_Rates[Partner_Location_Link == v_R.Partner_Branch_Link && Rate_Type == v_Level && Current_Rate == "Yes"]
+		{
+			v_NewCharge = v_Rt.Rate_Amount;
+			v_RateFound = true;
+			break;
+		}
+	}
+	v_Line = v_Key + " | " + v_RefId + " | " + v_Dos + " | billing [" + v_CurLabel + "] -> referral [" + v_NewLabel + "] | " + v_InvTxt + ", status " + if(v_Status == "","(blank)",v_Status) + " | " + if(v_Level == "","(no level)",v_Level) + " " + v_CurCharge + " -> " + v_NewCharge;
+	if(v_Level != "" && !v_RateFound)
+	{
+		v_Line = v_Line + " | NO CURRENT RATE AT NEW BRANCH";
+	}
+	else if(v_CurCharge.toDecimal() != v_NewCharge.toDecimal())
+	{
+		v_Line = v_Line + " | CHARGE CHANGES";
+	}
+	if(v_P.Billing_Branch != null && v_P.Billing_Branch == v_R.Partner_Branch_Link)
+	{
+		v_Same.add(v_Key + " | " + v_RefId + " | already [" + v_CurLabel + "]");
+		continue;
+	}
+	if(v_Mode == "PREVIEW")
+	{
+		if(v_Status != "" && v_Status != "Draft")
+		{
+			v_Line = v_Line + " | NEEDS reset_invoice BEFORE COMMIT";
+		}
+		v_Moves.add(v_Line);
+	}
+	else
+	{
+		if(v_Status != "" && v_Status != "Draft")
+		{
+			v_Blocked.add(v_Line + " | NOT DRAFT, run reset_invoice first");
+			continue;
+		}
+		v_Done.add(thisapp.sync_pvs_branch_from_referral(v_Key,"COMMIT"));
+	}
+}
+v_Out = "MODE: " + v_Mode + " | PVS entered: " + v_Keys.size();
+if(v_Mode == "PREVIEW")
+{
+	v_Out = v_Out + "\n\n== Will move (" + v_Moves.size() + ")";
+	for each  v_L in v_Moves
+	{
+		v_Out = v_Out + "\n" + v_L;
+	}
+}
+else
+{
+	v_Out = v_Out + "\n\n== Moved (" + v_Done.size() + ")";
+	for each  v_L in v_Done
+	{
+		v_Out = v_Out + "\n" + v_L;
+	}
+}
+v_Out = v_Out + "\n\n== Already on the referral's branch (" + v_Same.size() + ")";
+for each  v_L in v_Same
+{
+	v_Out = v_Out + "\n" + v_L;
+}
+v_Out = v_Out + "\n\n== Blocked (" + v_Blocked.size() + ")";
+for each  v_L in v_Blocked
+{
+	v_Out = v_Out + "\n" + v_L;
+}
+return v_Out;

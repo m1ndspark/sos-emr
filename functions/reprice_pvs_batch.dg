@@ -1,0 +1,118 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+v_Raw = ifnull(p_pvsIds,"").toString().trim();
+if(v_Raw == "")
+{
+	return "ERROR: Enter one or more PVS IDs separated by commas.";
+}
+v_Keys = List();
+for each  v_Piece in v_Raw.toList(",")
+{
+	v_K = v_Piece.trim();
+	if(v_K != "" && !v_Keys.contains(v_K))
+	{
+		v_Keys.add(v_K);
+	}
+}
+v_Chg = List();
+v_Same = List();
+v_Blk = List();
+for each  v_Key in v_Keys
+{
+	v_Hits = 0;
+	v_RecId = null;
+	for each  v_F in Encounter_PatientVisit[PVS_ID == v_Key]
+	{
+		v_Hits = v_Hits + 1;
+		v_RecId = v_F.ID;
+	}
+	if(v_Hits == 0)
+	{
+		v_Blk.add(v_Key + " | not found");
+		continue;
+	}
+	if(v_Hits > 1)
+	{
+		v_Blk.add(v_Key + " | matches " + v_Hits + " records");
+		continue;
+	}
+	v_P = Encounter_PatientVisit[ID == v_RecId];
+	v_Status = ifnull(v_P.Invoice_Status,"").toString().trim();
+	if(v_P.Invoice_Link != null || (v_Status != "" && v_Status != "Draft"))
+	{
+		v_Blk.add(v_Key + " | on an invoice or not Draft, status " + if(v_Status == "","(blank)",v_Status));
+		continue;
+	}
+	if(v_P.Billing_Branch == null)
+	{
+		v_Blk.add(v_Key + " | no billing branch");
+		continue;
+	}
+	v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+	if(v_Lvl == "")
+	{
+		v_Blk.add(v_Key + " | no complexity level");
+		continue;
+	}
+	v_Loc = Partner_Locations[ID == v_P.Billing_Branch];
+	v_Lbl = ifnull(v_Loc.Partner_Location_Label,"NO LABEL").toString();
+	v_RateN = 0;
+	v_Rate = 0.0;
+	for each  v_R in Partner_Rates[Partner_Location_Link == v_P.Billing_Branch && Rate_Type == v_Lvl && Current_Rate == "Yes"]
+	{
+		v_RateN = v_RateN + 1;
+		if(v_R.Rate_Amount != null)
+		{
+			v_Rate = v_R.Rate_Amount.toDecimal();
+		}
+	}
+	if(v_RateN != 1)
+	{
+		v_Blk.add(v_Key + " | " + v_Lbl + " / " + v_Lvl + " has " + v_RateN + " current rate rows");
+		continue;
+	}
+	v_Cur = 0.0;
+	if(v_P.Complexity_Charge != null)
+	{
+		v_Cur = v_P.Complexity_Charge.toDecimal();
+	}
+	v_Dos = "no DOS";
+	if(v_P.Visit_Completion_Date != null)
+	{
+		v_Dos = "DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy");
+	}
+	v_Line = v_Key + " | " + ifnull(v_P.Referral_ID,"no REF").toString() + " | " + v_Dos + " | " + v_Lbl + " | " + v_Lvl + " " + v_Cur + " -> " + v_Rate;
+	if(v_Cur == v_Rate)
+	{
+		v_Same.add(v_Line);
+		continue;
+	}
+	v_Chg.add(v_Line);
+	if(v_Mode == "COMMIT")
+	{
+		v_Stamp = "Charge re-priced " + v_Cur + " to " + v_Rate + " (" + v_Lbl + " current " + v_Lvl + " rate) " + zoho.currentdate.toString("MM-dd-yyyy") + " by " + zoho.loginuser + ".";
+		v_Old = ifnull(v_P.Row_Status_Note,"").toString().trim();
+		v_P.Complexity_Charge=v_Rate;
+		v_P.Row_Status_Note=if(v_Old == "",v_Stamp,v_Old + " " + v_Stamp);
+	}
+}
+v_Out = "MODE: " + v_Mode + " | PVS entered: " + v_Keys.size();
+v_Out = v_Out + "\n\n== " + if(v_Mode == "COMMIT","Re-priced","Will re-price") + " (" + v_Chg.size() + ")";
+for each  v_X in v_Chg
+{
+	v_Out = v_Out + "\n" + v_X;
+}
+v_Out = v_Out + "\n\n== Already at current rate (" + v_Same.size() + ")";
+for each  v_X in v_Same
+{
+	v_Out = v_Out + "\n" + v_X;
+}
+v_Out = v_Out + "\n\n== Blocked (" + v_Blk.size() + ")";
+for each  v_X in v_Blk
+{
+	v_Out = v_Out + "\n" + v_X;
+}
+return v_Out;

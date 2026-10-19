@@ -1,5 +1,5 @@
 {
- "ds_sha256": "15a758f65b42e767d2ec2e9ff22aa16d525d50418be65c6674724ec34bffb310",
+ "ds_sha256": "d1791ffff3a9332ebceb4764674cceecfdb6dd082c60336d753ea8ff2a1d374a",
  "forms": {
   "API_Config": {
    "display": "API Config",
@@ -4231,6 +4231,11 @@
    "string",
    ""
   ],
+  "diag_unbilled_visits": [
+   "c644a0fe",
+   "string",
+   "date p_from, date p_to, string p_partner"
+  ],
   "diag_unfaxed_by_branch": [
    "ded355cc",
    "map",
@@ -4280,6 +4285,11 @@
    "11dbf983",
    "string",
    ""
+  ],
+  "fix_pvs_branch_batch": [
+   "97837afd",
+   "string",
+   "string p_pvsIds, string p_mode"
   ],
   "fix_six_room_numbers": [
    "86372f34",
@@ -4391,6 +4401,11 @@
    "string",
    "string p_mode, string p_from, string p_to"
   ],
+  "preview_invoice_batch_pool": [
+   "9e046071",
+   "string",
+   "string p_branchLabel, date p_from, date p_to"
+  ],
   "process_new_referral": [
    "a1669334",
    "string",
@@ -4430,6 +4445,11 @@
    "c3adf543",
    "string",
    "string p_branchLabel, string p_confirm"
+  ],
+  "reprice_pvs_batch": [
+   "2816131b",
+   "string",
+   "string p_pvsIds, string p_mode"
   ],
   "resend_referral_notifications": [
    "6114486d",
@@ -4681,6 +4701,11 @@
    "string",
    ""
   ],
+  "update_partner_rates": [
+   "07c04dfe",
+   "string",
+   "string p_partner, string p_rates, date p_effective, string p_mode"
+  ],
   "widget_today_visits": [
    "4dc9826b",
    "map",
@@ -4742,6 +4767,41 @@
  "reports": {
   "API_Config_Report": [
    "API_Config",
+   "",
+   ""
+  ],
+  "API_Invoice_Batch_All": [
+   "Invoice_Batch",
+   "",
+   ""
+  ],
+  "API_Invoices_All": [
+   "Invoices",
+   "",
+   ""
+  ],
+  "API_PVS_All": [
+   "Encounter_PatientVisit",
+   "",
+   ""
+  ],
+  "API_Partner_Locations_All": [
+   "Partner_Locations",
+   "",
+   ""
+  ],
+  "API_Partner_Rates_All": [
+   "Partner_Rates",
+   "",
+   ""
+  ],
+  "API_Partners_All": [
+   "Partners",
+   "",
+   ""
+  ],
+  "API_Referrals_All": [
+   "Referrals_Main",
    "",
    ""
   ],

@@ -100,7 +100,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Partner_Branch_Link
 - Status: ENABLED
-- .ds line: 37963
+- .ds line: 39016
 - Fields read: Partner_Branch_Link
 - Fields set: Partner_Branch, Partner_ID, Partner_Link, Partner_Location_Label, Partner_Organization
 - Fields shown/hidden/enabled/disabled: -
@@ -113,7 +113,7 @@
 - Record event: on add or edit
 - Form event: OnSuccess
 - Status: DISABLED
-- .ds line: 37998
+- .ds line: 39051
 - Fields read: Partner_Branch_Link
 - Fields set: Partner_ID
 - Fields shown/hidden/enabled/disabled: -
@@ -126,7 +126,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Patient_Address
 - Status: ENABLED
-- .ds line: 37443
+- .ds line: 38496
 - Fields read: Patient_Address
 - Fields set: Patient_Full_Address
 - Fields shown/hidden/enabled/disabled: -
@@ -139,7 +139,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of AC_Last_Name
 - Status: ENABLED
-- .ds line: 37608
+- .ds line: 38661
 - Fields read: AC_First_Name, AC_Last_Name
 - Fields set: AC_Full_Name
 - Fields shown/hidden/enabled/disabled: -
@@ -152,7 +152,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of AC_Phone
 - Status: ENABLED
-- .ds line: 35636
+- .ds line: 36689
 - Fields read: -
 - Fields set: AC_Phone
 - Fields shown/hidden/enabled/disabled: -
@@ -165,7 +165,7 @@
 - Record event: on add or edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 37484
+- .ds line: 38537
 - Fields read: -
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Patient_Full_Address
@@ -178,7 +178,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Facility_Phone
 - Status: ENABLED
-- .ds line: 35694
+- .ds line: 36747
 - Fields read: -
 - Fields set: Facility_Phone
 - Fields shown/hidden/enabled/disabled: -
@@ -191,7 +191,7 @@
 - Record event: on add
 - Form event: OnUserInput of Partner_POC_Email
 - Status: ENABLED
-- .ds line: 37927
+- .ds line: 38980
 - Fields read: Partner_POC_Email
 - Fields set: Partner_POC_First_Name, Partner_POC_Last_Name, Partner_POC_Phone, Partner_POC_Team, Partner_POC_Title
 - Fields shown/hidden/enabled/disabled: -
@@ -204,7 +204,7 @@
 - Record event: on edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 38655
+- .ds line: 39708
 - Fields read: Partner_POC_First_Name, Partner_POC_Last_Name, Partner_POC_Title
 - Fields set: Partner_POC_Name_Title
 - Fields shown/hidden/enabled/disabled: -
@@ -217,7 +217,7 @@
 - Record event: on edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 38615
+- .ds line: 39668
 - Fields read: Patient_First_Name, Patient_Last_Name, Patient_MI
 - Fields set: Patient_Full_Name
 - Fields shown/hidden/enabled/disabled: -
@@ -230,7 +230,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Patient_Phone
 - Status: ENABLED
-- .ds line: 35607
+- .ds line: 36660
 - Fields read: -
 - Fields set: Patient_Phone
 - Fields shown/hidden/enabled/disabled: -
@@ -243,7 +243,7 @@
 - Record event: on edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 39105
+- .ds line: 40158
 - Fields read: ID, Patient_DOB1
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -256,7 +256,7 @@
 - Record event: on add or edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 39027
+- .ds line: 40080
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -269,7 +269,7 @@
 - Record event: on edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 39137
+- .ds line: 40190
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -282,7 +282,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Partner_POC_Phone
 - Status: ENABLED
-- .ds line: 35665
+- .ds line: 36718
 - Fields read: -
 - Fields set: Partner_POC_Phone
 - Fields shown/hidden/enabled/disabled: -
@@ -295,7 +295,7 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 40212
+- .ds line: 41265
 - Fields read: Partner_POC_Email
 - Fields set: Partner_Branch, Partner_Branch_Link, Partner_Branch_Submitted, Partner_ID, Partner_ID_Stamp, Partner_Link, Partner_Location_Label, Partner_Organization
 - Fields shown/hidden/enabled/disabled: -
@@ -308,7 +308,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 38596
+- .ds line: 39649
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -321,7 +321,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Patient_SSN
 - Status: ENABLED
-- .ds line: 35579
+- .ds line: 36632
 - Fields read: -
 - Fields set: Patient_SSN
 - Fields shown/hidden/enabled/disabled: -
@@ -334,7 +334,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Partner_POC_Email
 - Status: ENABLED
-- .ds line: 38228
+- .ds line: 39281
 - Fields read: Partner_POC_Email
 - Fields set: Partner_Branch_Link
 - Fields shown/hidden/enabled/disabled: -
@@ -385,7 +385,7 @@ Every item that references a field of this form.
 - Referrals_Main.Imaging_Orders_Upload: function backfill_referral_uploads [read]; function build_creator_attachments [read]; function diag_referral_intake [read]; function diag_upload_field_usage [read]; function diag_upload_field_values [read]
 - Referrals_Main.File_Upload_3008: function backfill_referral_uploads [read]; function build_creator_attachments [read]; function diag_referral_intake [read]; function diag_upload_field_usage [read]; function diag_upload_field_values [read]
 - Referrals_Main.Partner_Link: function assign_direct_partner [update]; function assign_partner_branch [update]; function audit_month_integrity [read]; function backfill_partner_resolver [read, update]; function backfill_referral_branch [update]; function backfill_referral_partner_fields [read, update]; function dash_metrics [read]; function dash_metrics_range [read]; function diag_referral_branch [read]; function diag_referral_dump [read]; function diag_referral_intake [read]; function process_new_referral [update]; function run_import_backfills [update]; workflow Referrals_Main/Branch_Sets_Partner [set]; workflow Referrals_Main/Referral_Resolves_Partner [set]
-- Referrals_Main.Partner_Branch_Link: function assign_direct_partner [read, update]; function assign_partner_branch [update]; function audit_month_integrity [read]; function backfill_partner_resolver [read, update]; function backfill_pvs_billing_branch [read]; function backfill_referral_branch [fetch, read]; function backfill_referral_branch_from_contact [fetch, update]; function backfill_referral_partner_fields [read, update]; function create_3008_pvs_july [read]; function create_3008_pvs_sept [read]; function diag_esi_references [fetch]; function diag_fax_readiness [fetch, read]; function diag_mpu_readiness [read]; function diag_pvs_billing_vs_referral [read]; function diag_pvs_vs_referral [read]; function diag_referral_branch [read]; function diag_referral_contact_match [fetch]; function diag_referral_dump [read]; function diag_referral_intake [read]; function diag_referral_partner_resolve [read]; function diag_safe_test_referrals [read]; function diag_zztest_referrals [read]; function prepare_month_for_billing [read]; function process_new_referral [read, update]; function relink_pvs_to_referral [read]; function resolve_referral_branch_from_text [fetch, update]; function resync_location_labels [read]; function resync_location_names [read]; function run_import_backfills [read, update]; function sos_referral_health [read]; function sync_pvs_branch_from_referral [read]; workflow Encounter_PatientVisit/PVS_Sets_Billing_Branch_O [read]; workflow Encounter_PatientVisit/Referral_Sets_Billing_Bra [read]; workflow Referrals_Main/Branch_Sets_Partner [read, trigger]; workflow Referrals_Main/Branch_Sets_Partner_Link [read]; workflow Referrals_Main/Referral_Resolves_Partner [set]; workflow Referrals_Main/Sender_Sets_Branch [set]
+- Referrals_Main.Partner_Branch_Link: function assign_direct_partner [read, update]; function assign_partner_branch [update]; function audit_month_integrity [read]; function backfill_partner_resolver [read, update]; function backfill_pvs_billing_branch [read]; function backfill_referral_branch [fetch, read]; function backfill_referral_branch_from_contact [fetch, update]; function backfill_referral_partner_fields [read, update]; function create_3008_pvs_july [read]; function create_3008_pvs_sept [read]; function diag_esi_references [fetch]; function diag_fax_readiness [fetch, read]; function diag_mpu_readiness [read]; function diag_pvs_billing_vs_referral [read]; function diag_pvs_vs_referral [read]; function diag_referral_branch [read]; function diag_referral_contact_match [fetch]; function diag_referral_dump [read]; function diag_referral_intake [read]; function diag_referral_partner_resolve [read]; function diag_safe_test_referrals [read]; function diag_zztest_referrals [read]; function fix_pvs_branch_batch [read]; function prepare_month_for_billing [read]; function process_new_referral [read, update]; function relink_pvs_to_referral [read]; function resolve_referral_branch_from_text [fetch, update]; function resync_location_labels [read]; function resync_location_names [read]; function run_import_backfills [read, update]; function sos_referral_health [read]; function sync_pvs_branch_from_referral [read]; workflow Encounter_PatientVisit/PVS_Sets_Billing_Branch_O [read]; workflow Encounter_PatientVisit/Referral_Sets_Billing_Bra [read]; workflow Referrals_Main/Branch_Sets_Partner [read, trigger]; workflow Referrals_Main/Branch_Sets_Partner_Link [read]; workflow Referrals_Main/Referral_Resolves_Partner [set]; workflow Referrals_Main/Sender_Sets_Branch [set]
 - Referrals_Main.Partner_Organization: function assign_direct_partner [update]; function assign_partner_branch [update]; function audit_month_integrity [read]; function backfill_partner_resolver [read, update]; function backfill_pvs_billing_branch [read]; function backfill_referral_branch [update]; function backfill_referral_partner_fields [read, update]; function backfill_referral_uploads [read]; function build_3008_email_html [read]; function build_imaging_email_html [read]; function build_referral_email_html [read]; function compute_data_issues [read]; function create_3008_pvs_july [read]; function create_3008_pvs_sept [read]; function diag_blank_referral_id [read]; function diag_duplicate_patient_referrals [read]; function diag_missing_dob [read]; function diag_month_billing_gap [read]; function diag_mpu_referral_export [read]; function diag_pvs_vs_referral [read]; function diag_ref_branch_candidates [read]; function diag_ref_patient_pvs_match [read]; function diag_referral_branch [read]; function diag_referral_by_name [read]; function diag_referral_dump [read]; function diag_referral_intake [read]; function diag_referral_partner_resolve [read]; function diag_safe_test_referrals [read]; function diag_unnotified_referrals [read]; function process_new_referral [read, update]; function relink_pvs_to_referral [read]; function run_import_backfills [read, update]; function send_activity_digest [read]; function sos_referral_health [read]; function sync_pvs_from_referral [read]; workflow Assignments/Assignment_Pull_From_Refe1 [read]; workflow Encounter_PatientVisit/PVS_Sets_Billing_Branch_O [read]; workflow Encounter_PatientVisit/Referral_Link_Pre_Fill [read]; workflow Encounter_PatientVisit/Referral_Sets_Billing_Bra [read]; workflow Referrals_Main/Branch_Sets_Partner [set]; workflow Referrals_Main/Referral_Data_Issues_Chec [read]; workflow Referrals_Main/Referral_Resolves_Partner [set]
 - Referrals_Main.Partner_Branch: function assign_direct_partner [update]; function assign_partner_branch [update]; function audit_month_integrity [read]; function backfill_partner_resolver [read, update]; function backfill_pvs_billing_branch [read]; function backfill_referral_branch [update]; function backfill_referral_partner_fields [read, update]; function backfill_referral_uploads [read]; function build_3008_email_html [read]; function build_imaging_email_html [read]; function build_referral_email_html [read]; function create_3008_pvs_july [read]; function create_3008_pvs_sept [read]; function diag_3008_no_pvs_sheet [read]; function diag_missing_dob [read]; function diag_month_billing_gap [read]; function diag_pvs_vs_referral [read]; function diag_ref_branch_candidates [read]; function diag_ref_patient_pvs_match [read]; function diag_referral_branch [read]; function diag_referral_by_name [read]; function diag_referral_dump [read]; function diag_referral_intake [read]; function diag_referral_partner_resolve [read]; function diag_safe_test_referrals [read]; function diag_unnotified_referrals [read]; function process_new_referral [update]; function relink_pvs_to_referral [read]; function resolve_referral_branch_from_text [read]; function resync_location_names [update]; function run_import_backfills [read, update]; function sos_referral_health [read]; function sync_pvs_from_referral [read]; workflow Assignments/Assignment_Pull_From_Refe1 [read]; workflow Encounter_PatientVisit/Referral_Link_Pre_Fill [read]; workflow Encounter_PatientVisit/Referral_Sets_Billing_Bra [read]; workflow Referrals_Main/Branch_Sets_Partner [set]; workflow Referrals_Main/Referral_Resolves_Partner [set]
 - Referrals_Main.Partner_POC_First_Name: function compute_data_issues [read]; function diag_mpu_referral_export [read]; function process_new_referral [read]; function run_import_backfills [read]; function set_partner_poc_name_title [read]; workflow Encounter_PatientVisit/Referral_Link_Pre_Fill [read]; workflow Referrals_Main/Partner_Contact_Lookup [set]; workflow Referrals_Main/Partner_POC_Name_Title_Ge [read]
@@ -398,7 +398,7 @@ Every item that references a field of this form.
 - Referrals_Main.General_Files_URLs: function backfill_referral_uploads [fetch, read]; function build_zepto_attachments [read]; function diag_referral_intake [read]; function process_new_referral [read]
 - Referrals_Main.Imaging_Orders_URLs: function backfill_referral_uploads [fetch, read]; function build_zepto_attachments [read]; function compute_data_issues [read]; function diag_referral_imaging [read]; function diag_referral_intake [read]; function process_new_referral [read]
 - Referrals_Main.Data_Issues: function backfill_data_issues [read, update]; function diag_referral_dump [read]; function flag_duplicate_referrals [read, update]; function run_import_backfills [update]; workflow Referrals_Main/Referral_Data_Issues_Chec [update]; workflow Referrals_Main/Referral_Data_Issues_Sync [read, update]
-- Referrals_Main.Referral_ID: function assign_direct_partner [fetch]; function assign_partner_branch [fetch]; function audit_month_integrity [read]; function backfill_data_issues [read]; function backfill_mint_missing_referral_ids [fetch, read]; function backfill_partner_resolver [read]; function backfill_patient_dob [read]; function backfill_pvs_billing_branch [read]; function backfill_pvs_referral_id_from_link [read]; function backfill_referral_date [read]; function backfill_referral_employee_link [read]; function backfill_referral_id_from_token [read, update]; function backfill_referral_ids [read]; function backfill_referral_partner_fields [read]; function backfill_referral_uploads [fetch, read]; function build_3008_email_html [read]; function build_imaging_email_html [read]; function build_referral_confirmation_html [read]; function build_referral_email_html [read]; function create_3008_pvs_july [fetch]; function create_3008_pvs_sept [fetch]; function dash_metrics [read]; function dash_metrics_range [read]; function diag_3008_link_check [read]; function diag_3008_no_pvs_list [read]; function diag_3008_no_pvs_sheet [read]; function diag_3008_overdue [read]; function diag_blank_referral_id [read]; function diag_compliance_gap [read]; function diag_dob_coverage [read]; function diag_duplicate_patient_referrals [read]; function diag_duplicate_referral_ids [read]; function diag_fax_readiness [read]; function diag_find_referral [fetch, read]; function diag_imaging_notify_check [read]; function diag_import_ref_matches [fetch, read]; function diag_invoice_patient_gaps [read]; function diag_map_cognito_refs [read]; function diag_match_3008_refs [read]; function diag_missing_dob [read]; function diag_month_billing_gap [read]; function diag_mpu_3008_export [read]; function diag_mpu_readiness [read]; function diag_mpu_referral_export [read]; function diag_orphan_referral [read]; function diag_pvs_billing_vs_referral [read]; function diag_pvs_for_refs [fetch]; function diag_pvs_names [read]; function diag_pvs_referral_match [fetch, read]; function diag_pvs_vs_referral [read]; function diag_ref_branch_candidates [fetch]; function diag_ref_names [fetch]; function diag_ref_patient_pvs_match [fetch, read]; function diag_referral_branch [fetch, read]; function diag_referral_by_name [read]; function diag_referral_collision [fetch, read]; function diag_referral_date_source [fetch]; function diag_referral_dates [read]; function diag_referral_dump [fetch]; function diag_referral_id_records [fetch]; function diag_referral_ids [read]; function diag_referral_imaging [fetch]; function diag_referral_intake [fetch, read]; function diag_referral_origin [read]; function diag_referral_partner_resolve [fetch]; function diag_referrals_missing_pvs [read]; function diag_room_number_gaps [read]; function diag_safe_test_referrals [read]; function diag_sequence_trackers [read]; function diag_unmatched_branch_labels [read]; function diag_unnotified_referrals [read]; function diag_upload_field_usage [read]; function diag_upload_field_values [fetch, read]; function diag_upload_probe [fetch, read]; function diag_zztest_referrals [read]; function flag_duplicate_referrals [fetch]; function link_pvs_to_referral [fetch]; function mint_referral_id [fetch, read, update]; function prepare_month_for_billing [fetch]; function process_new_referral [fetch, read]; function relink_pvs_to_referral [fetch]; function repair_invoice_pvs_from_referral [fetch, read]; function resend_referral_notifications [fetch]; function resync_patient_dob [read]; function run_import_backfills [fetch, read]; function run_pvs_exclusion_monitor [fetch, read]; function send_3008_notification [fetch]; function send_activity_digest [read]; function send_assignment_notification [read]; function send_imaging_notification [fetch, read]; function send_referral_confirmation [fetch, read]; function send_referral_notification [fetch, read]; function set_pvs_referral_link [fetch, read]; function sos_referral_health [read]; function sweep_unnotified_referrals [fetch, read]; function sync_pvs_branch_from_referral [read]; function sync_pvs_from_referral [read]; function widget_today_visits [read]; page Drilldown_Data [read]; workflow Encounter_PatientVisit/Referral_Link_Pre_Fill [read]; workflow PVS_Fax_Review/PVS_Fax_Review_On_Load [read]; workflow Referrals_Main/Referral_Data_Issues_Chec [read]
+- Referrals_Main.Referral_ID: function assign_direct_partner [fetch]; function assign_partner_branch [fetch]; function audit_month_integrity [read]; function backfill_data_issues [read]; function backfill_mint_missing_referral_ids [fetch, read]; function backfill_partner_resolver [read]; function backfill_patient_dob [read]; function backfill_pvs_billing_branch [read]; function backfill_pvs_referral_id_from_link [read]; function backfill_referral_date [read]; function backfill_referral_employee_link [read]; function backfill_referral_id_from_token [read, update]; function backfill_referral_ids [read]; function backfill_referral_partner_fields [read]; function backfill_referral_uploads [fetch, read]; function build_3008_email_html [read]; function build_imaging_email_html [read]; function build_referral_confirmation_html [read]; function build_referral_email_html [read]; function create_3008_pvs_july [fetch]; function create_3008_pvs_sept [fetch]; function dash_metrics [read]; function dash_metrics_range [read]; function diag_3008_link_check [read]; function diag_3008_no_pvs_list [read]; function diag_3008_no_pvs_sheet [read]; function diag_3008_overdue [read]; function diag_blank_referral_id [read]; function diag_compliance_gap [read]; function diag_dob_coverage [read]; function diag_duplicate_patient_referrals [read]; function diag_duplicate_referral_ids [read]; function diag_fax_readiness [read]; function diag_find_referral [fetch, read]; function diag_imaging_notify_check [read]; function diag_import_ref_matches [fetch, read]; function diag_invoice_patient_gaps [read]; function diag_map_cognito_refs [read]; function diag_match_3008_refs [read]; function diag_missing_dob [read]; function diag_month_billing_gap [read]; function diag_mpu_3008_export [read]; function diag_mpu_readiness [read]; function diag_mpu_referral_export [read]; function diag_orphan_referral [read]; function diag_pvs_billing_vs_referral [read]; function diag_pvs_for_refs [fetch]; function diag_pvs_names [read]; function diag_pvs_referral_match [fetch, read]; function diag_pvs_vs_referral [read]; function diag_ref_branch_candidates [fetch]; function diag_ref_names [fetch]; function diag_ref_patient_pvs_match [fetch, read]; function diag_referral_branch [fetch, read]; function diag_referral_by_name [read]; function diag_referral_collision [fetch, read]; function diag_referral_date_source [fetch]; function diag_referral_dates [read]; function diag_referral_dump [fetch]; function diag_referral_id_records [fetch]; function diag_referral_ids [read]; function diag_referral_imaging [fetch]; function diag_referral_intake [fetch, read]; function diag_referral_origin [read]; function diag_referral_partner_resolve [fetch]; function diag_referrals_missing_pvs [read]; function diag_room_number_gaps [read]; function diag_safe_test_referrals [read]; function diag_sequence_trackers [read]; function diag_unmatched_branch_labels [read]; function diag_unnotified_referrals [read]; function diag_upload_field_usage [read]; function diag_upload_field_values [fetch, read]; function diag_upload_probe [fetch, read]; function diag_zztest_referrals [read]; function fix_pvs_branch_batch [read]; function flag_duplicate_referrals [fetch]; function link_pvs_to_referral [fetch]; function mint_referral_id [fetch, read, update]; function prepare_month_for_billing [fetch]; function process_new_referral [fetch, read]; function relink_pvs_to_referral [fetch]; function repair_invoice_pvs_from_referral [fetch, read]; function resend_referral_notifications [fetch]; function resync_patient_dob [read]; function run_import_backfills [fetch, read]; function run_pvs_exclusion_monitor [fetch, read]; function send_3008_notification [fetch]; function send_activity_digest [read]; function send_assignment_notification [read]; function send_imaging_notification [fetch, read]; function send_referral_confirmation [fetch, read]; function send_referral_notification [fetch, read]; function set_pvs_referral_link [fetch, read]; function sos_referral_health [read]; function sweep_unnotified_referrals [fetch, read]; function sync_pvs_branch_from_referral [read]; function sync_pvs_from_referral [read]; function widget_today_visits [read]; page Drilldown_Data [read]; workflow Encounter_PatientVisit/Referral_Link_Pre_Fill [read]; workflow PVS_Fax_Review/PVS_Fax_Review_On_Load [read]; workflow Referrals_Main/Referral_Data_Issues_Chec [read]
 - Referrals_Main.Referral_Date: function audit_month_integrity [read]; function backfill_pvs_referral_date [read]; function backfill_pvs_system_fields_range [read]; function backfill_referral_date [fetch, update]; function build_3008_email_html [read]; function build_console_docs [read]; function build_imaging_email_html [read]; function build_pvs_fax_html [read]; function build_referral_confirmation_html [read]; function build_referral_email_html [read]; function create_invoice_from_selection [read]; function dash_metrics [fetch, read]; function dash_metrics_range [fetch, read]; function diag_3008_link_check [read]; function diag_3008_no_pvs_list [fetch, read]; function diag_3008_no_pvs_sheet [read]; function diag_3008_overdue [fetch]; function diag_august_pvs_gap [read]; function diag_blank_referral_id [read]; function diag_compliance_gap [read]; function diag_duplicate_patient_referrals [fetch, read]; function diag_duplicate_referral_ids [read]; function diag_find_referral [read]; function diag_imaging_notify_check [read]; function diag_import_ref_matches [read]; function diag_map_cognito_refs [read]; function diag_match_3008_refs [read]; function diag_month_billing_gap [read]; function diag_mpu_3008_export [fetch, read]; function diag_mpu_readiness [fetch]; function diag_mpu_referral_export [fetch, read]; function diag_pvs_referral_match [read]; function diag_ref_patient_pvs_match [read]; function diag_referral_by_name [read]; function diag_referral_collision [fetch]; function diag_referral_date_source [read]; function diag_referral_dates [read]; function diag_referral_dump [read]; function diag_referral_id_records [read]; function diag_referral_imaging [read]; function diag_referral_origin [read]; function diag_referrals_missing_pvs [fetch, read]; function diag_safe_test_referrals [fetch, read]; function diag_unnotified_referrals [fetch]; function process_new_referral [read, update]; function run_import_backfills [read]; function send_activity_digest [fetch, read]; function sos_referral_health [read]; function sweep_unnotified_referrals [fetch]; function sync_pvs_from_referral [read]; function widget_today_visits [fetch, read]; page Drilldown_Data [read]; workflow Assignments/Assignment_Pull_From_Refe1 [read]; workflow Encounter_PatientVisit/Fax_This_Note_Preview_And [read]; workflow Encounter_PatientVisit/PVS_System_Fields_Stamp_O [read]; workflow Encounter_PatientVisit/Referral_Link_Pre_Fill [read]
 - Referrals_Main.Referral_Date1: function diag_referral_date_source [read]
 - Referrals_Main.Referral_ID_Stamp: function backfill_referral_id_stamp [read, update]; function diag_referral_by_name [read]; function diag_referral_collision [read]; function diag_referral_ids [read]; function mint_referral_id [update]; function run_import_backfills [fetch, read, update]; function sos_referral_health [read]; workflow Encounter_PatientVisit/Referral_Link_Pre_Fill [read]

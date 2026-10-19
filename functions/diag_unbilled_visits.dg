@@ -1,0 +1,141 @@
+if(p_from == null || p_to == null)
+{
+	return "ERROR: p_from and p_to are required.";
+}
+if(p_from > p_to)
+{
+	return "ERROR: p_from is after p_to.";
+}
+v_Key = ifnull(p_partner,"").toString().trim();
+v_Branches = List();
+v_PartnerName = "ALL PARTNERS";
+if(v_Key != "")
+{
+	v_Hits = 0;
+	v_PartnerId = null;
+	for each  v_Pt in Partners[Partner_ID == v_Key || Partner_Display_Name == v_Key]
+	{
+		v_Hits = v_Hits + 1;
+		v_PartnerId = v_Pt.ID;
+		v_PartnerName = ifnull(v_Pt.Partner_Display_Name,"").toString();
+	}
+	if(v_Hits == 0)
+	{
+		return "ERROR: No partner found matching " + v_Key + ".";
+	}
+	if(v_Hits > 1)
+	{
+		return "ERROR: " + v_Hits + " partners match " + v_Key + ".";
+	}
+	for each  v_L in Partner_Locations[Partner_Link == v_PartnerId]
+	{
+		v_Branches.add(v_L.ID);
+	}
+}
+v_Labels = Map();
+for each  v_L in Partner_Locations[ID != 0]
+{
+	v_Labels.put(v_L.ID.toString(),ifnull(v_L.Partner_Location_Label,"NO LABEL").toString().trim());
+}
+v_Ready = List();
+v_Fix = List();
+v_Excl = List();
+v_ReadyTotal = 0.0;
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Invoice_Link == null] sort by Visit_Completion_Date
+{
+	v_InScope = true;
+	if(v_Key != "")
+	{
+		if(v_P.Billing_Branch == null || !v_Branches.contains(v_P.Billing_Branch))
+		{
+			v_InScope = false;
+		}
+	}
+	if(v_InScope)
+	{
+		v_Lbl = "NO BILLING BRANCH";
+		if(v_P.Billing_Branch != null)
+		{
+			v_Hit = v_Labels.get(v_P.Billing_Branch.toString());
+			if(v_Hit != null)
+			{
+				v_Lbl = v_Hit;
+			}
+		}
+		v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+		v_Amt = 0.0;
+		if(v_P.Complexity_Charge != null)
+		{
+			v_Amt = v_P.Complexity_Charge.toDecimal();
+		}
+		v_Fees = 0.0;
+		if(v_P.After_Hours_Fee != null)
+		{
+			v_Fees = v_Fees + v_P.After_Hours_Fee.toDecimal();
+		}
+		if(v_P.Super_Stat_Fee != null)
+		{
+			v_Fees = v_Fees + v_P.Super_Stat_Fee.toDecimal();
+		}
+		if(v_P.Equipment_Charge_Amount != null)
+		{
+			v_Fees = v_Fees + v_P.Equipment_Charge_Amount.toDecimal();
+		}
+		if(v_P.Other_Charges_Amount != null)
+		{
+			v_Fees = v_Fees + v_P.Other_Charges_Amount.toDecimal();
+		}
+		v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+		v_Hold = ifnull(v_P.Hold_From_Invoicing,"").toString().trim();
+		v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+		v_Vs = ifnull(v_P.Visit_Status,"").toString().trim();
+		v_Nt = ifnull(v_P.Clinical_Note_Type,"").toString().trim();
+		v_Line = ifnull(v_P.PVS_ID,"(no PVS ID)").toString() + " | " + ifnull(v_P.Referral_ID,"no REF").toString() + " | DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy") + " | " + v_Lbl + " | " + if(v_Lvl == "","(no level)",v_Lvl) + " " + v_Amt + if(v_Fees > 0," + fees " + v_Fees,"") + " | inv " + if(v_Inv == "","(blank)",v_Inv) + " | hold " + if(v_Hold == "","(blank)",v_Hold) + " | row " + if(v_Rs == "","(blank)",v_Rs) + " | visit " + if(v_Vs == "","(blank)",v_Vs) + " | note " + if(v_Nt == "","(blank)",v_Nt);
+		if(v_Hold == "Yes")
+		{
+			v_Excl.add(v_Line + " | HELD");
+		}
+		else if(v_Rs == "Cancelled" || v_Rs == "Duplicate")
+		{
+			v_Excl.add(v_Line + " | ROW " + v_Rs.toUpperCase());
+		}
+		else if(v_Lvl == "Visit Cancelled" || v_Lvl == "No Charge")
+		{
+			v_Excl.add(v_Line + " | " + v_Lvl.toUpperCase());
+		}
+		else if(v_P.Billing_Branch == null)
+		{
+			v_Fix.add(v_Line + " | NO BILLING BRANCH");
+		}
+		else if(v_Lvl == "")
+		{
+			v_Fix.add(v_Line + " | NO COMPLEXITY LEVEL");
+		}
+		else if(v_Amt <= 0)
+		{
+			v_Fix.add(v_Line + " | ZERO CHARGE");
+		}
+		else
+		{
+			v_Ready.add(v_Line);
+			v_ReadyTotal = v_ReadyTotal + v_Amt + v_Fees;
+		}
+	}
+}
+v_Out = "UNBILLED VISITS | " + v_PartnerName + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy");
+v_Out = v_Out + "\n\n== Ready to bill (" + v_Ready.size() + ") | total " + v_ReadyTotal;
+for each  v_X in v_Ready
+{
+	v_Out = v_Out + "\n" + v_X;
+}
+v_Out = v_Out + "\n\n== Needs fix before billing (" + v_Fix.size() + ")";
+for each  v_X in v_Fix
+{
+	v_Out = v_Out + "\n" + v_X;
+}
+v_Out = v_Out + "\n\n== Correctly excluded (" + v_Excl.size() + ")";
+for each  v_X in v_Excl
+{
+	v_Out = v_Out + "\n" + v_X;
+}
+return v_Out;

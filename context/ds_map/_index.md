@@ -1,9 +1,9 @@
 # ds_map index
 
 - Source: SOS_Referrals_App.ds
-- .ds export generated on (from .ds header): 17-Oct-2026 06:46:58
-- .ds file modified time: 2026-10-17 13:47:59
-- .ds SHA-256: 15a758f65b42e767d2ec2e9ff22aa16d525d50418be65c6674724ec34bffb310
+- .ds export generated on (from .ds header): 18-Oct-2026 19:08:55
+- .ds file modified time: 2026-10-19 02:09:43
+- .ds SHA-256: d1791ffff3a9332ebceb4764674cceecfdb6dd082c60336d753ea8ff2a1d374a
 - STATUS: CURRENT
 
 Derived from the .ds. Wins over schema/ when they disagree. Open the .dg or .ds for ground truth before editing.
@@ -20,11 +20,11 @@ Files: forms/<Form>.md (fields, workflows, reverse index), functions.md, unresol
 | Fields (excluding sections) | 521 |
 | Form workflows | 102 |
 | Form workflows disabled | 7 |
-| Functions | 283 |
+| Functions | 288 |
 | Schedules | 6 |
 | Batch workflows | 0 |
 | Approval workflows | 0 |
-| Reports | 42 |
+| Reports | 49 |
 | Report custom actions | 2 |
 | Pages | 7 |
 
@@ -305,6 +305,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | diag_sept_pvs_completeness | Deluge | map | date p_start, date p_end |
 | diag_sequence_trackers | Deluge | string | - |
 | diag_stuck_faxes | Deluge | string | - |
+| diag_unbilled_visits | Deluge | string | date p_from, date p_to, string p_partner |
 | diag_unfaxed_by_branch | Deluge | map | - |
 | diag_unmatched_branch_labels | Deluge | string | - |
 | diag_unnotified_referrals | Deluge | string | - |
@@ -315,6 +316,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | diag_zztest_referrals | Deluge | string | - |
 | fill_3008_reason | Deluge | string | string p_mode, date p_from, date p_to |
 | fix_accentcare_current_rate | Deluge | string | - |
+| fix_pvs_branch_batch | Deluge | string | string p_pvsIds, string p_mode |
 | fix_six_room_numbers | Deluge | string | - |
 | flag_duplicate_referrals | Deluge | string | string p_mode, string p_pairs |
 | fmt_phone_display | Deluge | string | string pRaw |
@@ -337,6 +339,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | partner_branch_values | Deluge | map | string pKey |
 | poll_fax_status | Deluge | string | - |
 | prepare_month_for_billing | Deluge | string | string p_mode, string p_from, string p_to |
+| preview_invoice_batch_pool | Deluge | string | string p_branchLabel, date p_from, date p_to |
 | process_new_referral | Deluge | string | string p_refKey, string p_notify |
 | relink_pvs_to_referral | Deluge | string | string p_mode |
 | repair_fax_log_status | Deluge | string | bool p_commit |
@@ -345,6 +348,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | replicate_uniform_rates | Deluge | string | - |
 | report_partner_rate_coverage | Deluge | string | - |
 | reprice_draft_pvs | Deluge | string | string p_branchLabel, string p_confirm |
+| reprice_pvs_batch | Deluge | string | string p_pvsIds, string p_mode |
 | resend_referral_notifications | Deluge | string | string p_refKeys, string p_toEmail |
 | reset_invoice | Deluge | string | string p_invoiceNumber, string p_confirm |
 | reset_invoice_by_id | Deluge | string | string p_mode, int p_invoiceId, string p_confirm |
@@ -395,6 +399,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | test_github_commit | Deluge | void | - |
 | test_schema_connection | Deluge | void | - |
 | test_smtp | Deluge | string | - |
+| update_partner_rates | Deluge | string | string p_partner, string p_rates, date p_effective, string p_mode |
 | widget_today_visits | Deluge | map | - |
 
 ## Reports
@@ -402,6 +407,13 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | Report | Type | Source form | Filter | Custom actions |
 |---|---|---|---|---|
 | API_Config_Report | list (default) | API_Config | - | - |
+| API_Invoice_Batch_All | list | Invoice_Batch | - | - |
+| API_Invoices_All | list | Invoices | - | - |
+| API_PVS_All | list | Encounter_PatientVisit | - | - |
+| API_Partner_Locations_All | list | Partner_Locations | - | - |
+| API_Partner_Rates_All | list | Partner_Rates | - | - |
+| API_Partners_All | list | Partners | - | - |
+| API_Referrals_All | list | Referrals_Main | - | - |
 | All_Assignments | list (default) | Assignments | - | - |
 | All_Employees | list (default) | Employees | - | - |
 | All_Files | list (default) | Referral_Files | - | - |

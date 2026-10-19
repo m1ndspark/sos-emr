@@ -1,0 +1,93 @@
+v_Label = ifnull(p_branchLabel,"").toString().trim();
+if(v_Label == "")
+{
+	return "ERROR: Enter the branch label exactly as it appears on Partner Locations, for example Empath - Tidewell.";
+}
+if(p_from == null || p_to == null)
+{
+	return "ERROR: p_from and p_to are required.";
+}
+if(p_from > p_to)
+{
+	return "ERROR: p_from is after p_to.";
+}
+v_Hits = 0;
+v_BranchId = null;
+for each  v_L in Partner_Locations[Partner_Location_Label == v_Label]
+{
+	v_Hits = v_Hits + 1;
+	v_BranchId = v_L.ID;
+}
+if(v_Hits == 0)
+{
+	return "ERROR: No branch found with label " + v_Label + ".";
+}
+if(v_Hits > 1)
+{
+	return "ERROR: " + v_Hits + " branches share label " + v_Label + ".";
+}
+v_Elig = List();
+v_Excl = List();
+v_Total = 0.0;
+for each  v_P in Encounter_PatientVisit[Billing_Branch == v_BranchId && Invoice_Status == "Draft" && Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to] sort by Visit_Completion_Date
+{
+	v_Id = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+	v_Ref = ifnull(v_P.Referral_ID,"no REF").toString();
+	v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+	v_Base = v_Id + " | " + v_Ref + " | DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy") + " | " + if(v_Lvl == "","(no level)",v_Lvl);
+	if(v_P.Invoice_Link != null)
+	{
+		v_Excl.add(v_Base + " | already linked to an invoice");
+	}
+	else if(v_P.Hold_From_Invoicing == "Yes")
+	{
+		v_Excl.add(v_Base + " | Hold From Invoicing = Yes");
+	}
+	else if(v_Lvl == "Visit Cancelled")
+	{
+		v_Excl.add(v_Base + " | Visit Cancelled");
+	}
+	else
+	{
+		v_Amt = 0.0;
+		if(v_P.Complexity_Charge != null)
+		{
+			v_Amt = v_P.Complexity_Charge.toDecimal();
+		}
+		v_Fees = 0.0;
+		if(v_P.After_Hours_Fee != null)
+		{
+			v_Fees = v_Fees + v_P.After_Hours_Fee.toDecimal();
+		}
+		if(v_P.Super_Stat_Fee != null)
+		{
+			v_Fees = v_Fees + v_P.Super_Stat_Fee.toDecimal();
+		}
+		if(v_P.Equipment_Charge_Amount != null)
+		{
+			v_Fees = v_Fees + v_P.Equipment_Charge_Amount.toDecimal();
+		}
+		if(v_P.Other_Charges_Amount != null)
+		{
+			v_Fees = v_Fees + v_P.Other_Charges_Amount.toDecimal();
+		}
+		v_Total = v_Total + v_Amt + v_Fees;
+		v_Elig.add(v_Base + " | charge " + v_Amt + if(v_Fees > 0," + fees " + v_Fees,""));
+	}
+}
+v_Out = "BRANCH: " + v_Label + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy");
+v_Out = v_Out + "\n\n== Will be billed (" + v_Elig.size() + ") | total " + v_Total;
+if(v_Total > 2999.99)
+{
+	v_Out = v_Out + " | OVER 2999.99, batch will split";
+}
+for each  v_E in v_Elig
+{
+	v_Out = v_Out + "\n" + v_E;
+}
+v_Out = v_Out + "\n\n== Draft but excluded (" + v_Excl.size() + ")";
+for each  v_X in v_Excl
+{
+	v_Out = v_Out + "\n" + v_X;
+}
+return v_Out;

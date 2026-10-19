@@ -28,7 +28,7 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 36337
+- .ds line: 37390
 - Fields read: Partner_Link, Partner_Location_Link
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -41,7 +41,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 36318
+- .ds line: 37371
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -

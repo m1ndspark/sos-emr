@@ -29,7 +29,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 38095
+- .ds line: 39148
 - Fields read: ID, Max_Invoice_Total
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -42,7 +42,7 @@
 - Record event: on add or edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 38074
+- .ds line: 39127
 - Fields read: -
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Batch_Status, Invoice_Link, Result_Message
