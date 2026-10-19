@@ -1,0 +1,45 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+if(p_from == null || p_to == null)
+{
+	return "p_from and p_to are required.";
+}
+v_Out = "MODE: " + v_Mode + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy") + "\n";
+v_Changed = List();
+v_Already = List();
+v_Dupes = List();
+v_Stamp = "Row Status set to Cancelled (Complexity Level = Visit Cancelled) " + zoho.currentdate.toString("MM-dd-yyyy") + " by " + zoho.loginuser + ".";
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Complexity_Level == "Visit Cancelled"]
+{
+	v_Id = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+	v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+	if(v_Rs == "Cancelled")
+	{
+		v_Already.add(v_Id);
+	}
+	else if(v_Rs == "Duplicate")
+	{
+		v_Dupes.add(v_Id);
+	}
+	else
+	{
+		v_Changed.add(v_Id + " | " + ifnull(v_P.Referral_ID,"no REF").toString() + " | DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy") + " | [" + if(v_Rs == "","(blank)",v_Rs) + "] -> [Cancelled]");
+		if(v_Mode == "COMMIT")
+		{
+			v_Old = ifnull(v_P.Row_Status_Note,"").toString().trim();
+			v_P.Row_Status="Cancelled";
+			v_P.Row_Status_Note=if(v_Old == "",v_Stamp,v_Old + " " + v_Stamp);
+		}
+	}
+}
+v_Out = v_Out + "\n== " + if(v_Mode == "COMMIT","Changed","Will change") + " (" + v_Changed.size() + ")";
+for each  v_L in v_Changed
+{
+	v_Out = v_Out + "\n" + v_L;
+}
+v_Out = v_Out + "\n\n== Already Cancelled (" + v_Already.size() + "): " + v_Already.toString(", ");
+v_Out = v_Out + "\n== Skipped, marked Duplicate (" + v_Dupes.size() + "): " + v_Dupes.toString(", ");
+return v_Out;

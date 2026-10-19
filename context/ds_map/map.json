@@ -1,5 +1,5 @@
 {
- "ds_sha256": "f1f3c3ba9ecc5226c196bef3ee107b16c7185b3cf892856cf905a9d2ddc89919",
+ "ds_sha256": "15a758f65b42e767d2ec2e9ff22aa16d525d50418be65c6674724ec34bffb310",
  "forms": {
   "API_Config": {
    "display": "API Config",
@@ -1746,6 +1746,11 @@
   "Invoice_Batch": {
    "display": "Invoice Batch",
    "fields": {
+    "Batch_Reason": [
+     "picklist",
+     "Batch Reason",
+     ""
+    ],
     "Batch_Status": [
      "radiobuttons",
      "Batch Status",
@@ -1779,6 +1784,11 @@
     "Partner_Location_Link": [
      "picklist",
      "Partner Location Lookup",
+     ""
+    ],
+    "Replaces_Invoice_Number": [
+     "text",
+     "Replaces Invoice Number",
      ""
     ],
     "Result_Message": [
@@ -1866,6 +1876,16 @@
      "Partner Location Lookup",
      ""
     ],
+    "Replaces_Invoice_Number": [
+     "text",
+     "Replaces Invoice Number",
+     ""
+    ],
+    "Revision_Date": [
+     "date",
+     "Revision Date",
+     ""
+    ],
     "Section": [
      "section",
      "",
@@ -1877,6 +1897,11 @@
      ""
     ],
     "Section2": [
+     "section",
+     "Section",
+     ""
+    ],
+    "Section3": [
      "section",
      "Section",
      ""
@@ -3286,6 +3311,11 @@
    "string",
    "string p_mode, string p_map"
   ],
+  "audit_month_integrity": [
+   "204b53a3",
+   "string",
+   "string p_mode, date p_from, date p_to"
+  ],
   "audit_pvs_billing_readiness": [
    "cc40aafb",
    "string",
@@ -3431,6 +3461,11 @@
    "string",
    "string pMode"
   ],
+  "backfill_pvs_employee_link_range": [
+   "627c68ef",
+   "string",
+   "string p_mode, date p_from, date p_to"
+  ],
   "backfill_pvs_from_referral": [
    "c7ba55f1",
    "string",
@@ -3490,6 +3525,11 @@
    "8fde12ee",
    "string",
    "string p_mode, int p_limit"
+  ],
+  "backfill_pvs_system_fields_range": [
+   "1650509c",
+   "string",
+   "string p_mode, date p_from, date p_to"
   ],
   "backfill_referral_added_time": [
    "c1c4d85a",
@@ -3607,9 +3647,9 @@
    ""
   ],
   "create_invoice_from_selection": [
-   "406bc6bc",
+   "a787d351",
    "string",
-   "list p_pvsIds"
+   "list p_pvsIds, string p_replacesInvoice"
   ],
   "dash_metrics": [
    "f47bb02c",
@@ -3686,6 +3726,11 @@
    "string",
    ""
   ],
+  "diag_billing_preview": [
+   "05e029f6",
+   "string",
+   "date p_from, date p_to"
+  ],
   "diag_blank_referral_id": [
    "cf6b2dc4",
    "string",
@@ -3715,6 +3760,11 @@
    "8f094f3d",
    "string",
    ""
+  ],
+  "diag_duplicate_patient_referrals": [
+   "214577e9",
+   "string",
+   "date p_from, date p_to"
   ],
   "diag_duplicate_referral_ids": [
    "82f8c1ed",
@@ -3776,6 +3826,11 @@
    "string",
    "string p_pvsId"
   ],
+  "diag_find_patients": [
+   "eea7d460",
+   "string",
+   "string p_rows"
+  ],
   "diag_find_referral": [
    "60270a87",
    "string",
@@ -3786,10 +3841,20 @@
    "string",
    "string p_formLink"
   ],
+  "diag_held_pvs": [
+   "4f007b14",
+   "string",
+   "date p_from, date p_to"
+  ],
   "diag_imaging_notify_check": [
    "09c6c49c",
    "string",
    "int p_days"
+  ],
+  "diag_import_ref_matches": [
+   "380a1a16",
+   "string",
+   ""
   ],
   "diag_innovage_rates": [
    "0425511c",
@@ -3821,8 +3886,18 @@
    "string",
    "string p_invoiceNumbers"
   ],
+  "diag_map_cognito_refs": [
+   "4d97c4b9",
+   "string",
+   "string p_rows"
+  ],
   "diag_match_3008_refs": [
-   "3b5a04a4",
+   "4397fe67",
+   "string",
+   "string p_rows"
+  ],
+  "diag_match_pvs_by_patient": [
+   "bf73d568",
    "string",
    "string p_rows"
   ],
@@ -3896,10 +3971,20 @@
    "string",
    "string p_pvs_id"
   ],
+  "diag_pv_missing_proc_div": [
+   "f218108a",
+   "string",
+   "date p_from, date p_to"
+  ],
   "diag_pvs_added_time_clusters": [
    "96c463b6",
    "string",
    ""
+  ],
+  "diag_pvs_billing_batch": [
+   "743ba34e",
+   "string",
+   "string p_pvsIds"
   ],
   "diag_pvs_billing_flags": [
    "b6ac5885",
@@ -3966,6 +4051,11 @@
    "string",
    ""
   ],
+  "diag_pvs_names": [
+   "67879398",
+   "string",
+   "string p_pvsIds"
+  ],
   "diag_pvs_note_compare": [
    "2ff9fe10",
    "string",
@@ -3975,6 +4065,11 @@
    "79e0fc4c",
    "string",
    "date p_from, date p_to"
+  ],
+  "diag_pvs_note_text": [
+   "e1a15521",
+   "string",
+   "string p_pvsIds, int p_chars"
   ],
   "diag_pvs_one": [
    "a3560efd",
@@ -4011,6 +4106,11 @@
    "string",
    ""
   ],
+  "diag_pvs_vs_referral": [
+   "a0c76633",
+   "string",
+   "string p_pvsIds"
+  ],
   "diag_rc_fax_history": [
    "2a27dfc8",
    "string",
@@ -4025,6 +4125,11 @@
    "646d42f2",
    "string",
    "string p_refId"
+  ],
+  "diag_ref_names": [
+   "da610c8a",
+   "string",
+   "string p_refIds"
   ],
   "diag_ref_patient_pvs_match": [
    "f788cb5b",
@@ -4165,6 +4270,11 @@
    "1f6e58ca",
    "string",
    ""
+  ],
+  "fill_3008_reason": [
+   "301917bb",
+   "string",
+   "string p_mode, date p_from, date p_to"
   ],
   "fix_accentcare_current_rate": [
    "11dbf983",
@@ -4376,6 +4486,11 @@
    "string",
    "string p_mode, string p_dupePvsId, string p_keeperPvsId"
   ],
+  "retire_pvs_duplicate_pairs": [
+   "34d7aaec",
+   "string",
+   "string p_mode, string p_pairs"
+  ],
   "retire_pvs_duplicates": [
    "5aa0908b",
    "string",
@@ -4391,8 +4506,13 @@
    "string",
    ""
   ],
+  "run_import_backfills": [
+   "2aec2286",
+   "string",
+   "string p_mode, int p_limit"
+  ],
   "run_invoice_batch": [
-   "3cbcdde6",
+   "72c03624",
    "string",
    "int p_batchId, decimal p_maxTotal"
   ],
@@ -4466,25 +4586,60 @@
    "void",
    "int recId"
   ],
+  "set_partner_rate_status": [
+   "6f0784bb",
+   "string",
+   "string p_mode, string p_rateType, string p_skipPartners, string p_status"
+  ],
   "set_patient_full_name": [
    "21cacd0a",
    "void",
    "int recId"
+  ],
+  "set_pvs_cancelled_row_status": [
+   "911db6c0",
+   "string",
+   "string p_mode, date p_from, date p_to"
   ],
   "set_pvs_complexity": [
    "6f9a6237",
    "string",
    "string p_mode, string p_pvsId, string p_level"
   ],
+  "set_pvs_diversion": [
+   "beb5a6bf",
+   "string",
+   "string p_mode, date p_from, date p_to, string p_pairs"
+  ],
+  "set_pvs_entry_type": [
+   "b3d07113",
+   "string",
+   "string p_mode, string p_pvsIds, string p_type"
+  ],
   "set_pvs_equipment_charge": [
    "2f796a22",
    "string",
    "string p_pvsId, string p_amount, string p_details"
   ],
+  "set_pvs_hold_batch": [
+   "c22af20c",
+   "string",
+   "string p_mode, string p_pvsIds, string p_hold"
+  ],
+  "set_pvs_procedures": [
+   "3e7af4b9",
+   "string",
+   "string p_mode, date p_from, date p_to, string p_pairs"
+  ],
   "set_pvs_provider": [
    "7c741a74",
    "string",
    "string p_mode, string p_pvsId, string p_employeeEmail"
+  ],
+  "set_pvs_provider_batch": [
+   "23d55981",
+   "string",
+   "string p_mode, string p_pvsIds, string p_employeeEmail"
   ],
   "set_pvs_referral_link": [
    "8b69707c",
@@ -4505,6 +4660,11 @@
    "36713cbd",
    "string",
    "string p_pvsId, string p_mode"
+  ],
+  "sync_pvs_from_referral": [
+   "18acd028",
+   "string",
+   "string p_mode, date p_from, date p_to"
   ],
   "test_github_commit": [
    "ab2c18d1",
@@ -4682,6 +4842,16 @@
   ],
   "Lab_Request_Report": [
    "Encounter_LabRequest",
+   "",
+   ""
+  ],
+  "MPU_Export": [
+   "Encounter_PatientVisit",
+   "",
+   ""
+  ],
+  "MPU_Export_Referrals": [
+   "Referrals_Main",
    "",
    ""
   ],
@@ -4906,16 +5076,6 @@
   ],
   "Assignments/Assignment_Required_Refer": [
    "d8a0ce56",
-   "on add or edit",
-   "OnValidate",
-   "",
-   "enabled",
-   "",
-   "",
-   ""
-  ],
-  "Assignments/Assignment_Status_From_Pr": [
-   "235f5914",
    "on add or edit",
    "OnValidate",
    "",
@@ -5255,7 +5415,7 @@
    ""
   ],
   "Encounter_PatientVisit/PVS_Required_Fields": [
-   "c96d9ccd",
+   "7cd05c83",
    "on add or edit",
    "OnValidate",
    "",

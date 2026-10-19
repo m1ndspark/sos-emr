@@ -1,0 +1,27 @@
+v_Rows = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Type_of_Entry == "Patient Visit"]
+{
+	v_Rs = ifnull(v_P.Row_Status,"").toString();
+	if(v_Rs == "Duplicate")
+	{
+		continue;
+	}
+	if(v_Rs == "Cancelled")
+	{
+		continue;
+	}
+	v_Miss = List();
+	if(ifnull(v_P.Type_of_Procedures,"").toString().trim() == "" || ifnull(v_P.Type_of_Procedures,"").toString() == "[]")
+	{
+		v_Miss.add("Procedure");
+	}
+	if(ifnull(v_P.Diversion_Tracking,"").toString().trim() == "")
+	{
+		v_Miss.add("Diversion");
+	}
+	if(v_Miss.size() > 0)
+	{
+		v_Rows.add(ifnull(v_P.PVS_ID,"rec " + v_P.ID).toString() + " | " + ifnull(v_P.Referral_ID,"").toString() + " | " + v_P.Visit_Completion_Date.toString("MM-dd") + " | " + ifnull(v_P.Employee_Full_Name,"").toString() + " | " + v_Miss.toString(","));
+	}
+}
+return "READ-ONLY | count " + v_Rows.size() + "\n" + v_Rows.toString("\n");

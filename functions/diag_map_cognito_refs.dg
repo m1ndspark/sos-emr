@@ -1,0 +1,35 @@
+v_out = "READ-ONLY";
+v_list = ifnull(p_rows,"").toList(";");
+for each  v_raw in v_list
+{
+	v_parts = v_raw.trim().toList("|");
+	if(v_parts.size() < 3)
+	{
+		continue;
+	}
+	v_num = v_parts.get(0).trim();
+	v_last = v_parts.get(1).trim().toLowerCase();
+	v_dob = v_parts.get(2).trim().toDate("MM/dd/yyyy");
+	v_recs = Referrals_Main[Patient_DOB == v_dob];
+	v_same = v_recs.count();
+	v_hit = false;
+	for each  v_r in v_recs
+	{
+		v_ln = ifnull(v_r.Patient_Last_Name,"").toString().trim().toLowerCase();
+		if(v_ln.contains(v_last))
+		{
+			v_hit = true;
+			v_rd = "";
+			if(v_r.Referral_Date != null)
+			{
+				v_rd = v_r.Referral_Date.toString("MM-dd-yyyy");
+			}
+			v_out = v_out + "\n" + v_num + " | " + ifnull(v_r.Referral_ID,"(blank)") + " | cognito " + ifnull(v_r.Cognito_Referral_ID,"(blank)") + " | ref date " + v_rd + " | " + ifnull(v_r.Referral_Type,"") + " | " + ifnull(v_r.Partner_Location_Label,"");
+		}
+	}
+	if(!v_hit)
+	{
+		v_out = v_out + "\n" + v_num + " | NO REFERRAL | same DOB: " + v_same;
+	}
+}
+return v_out;

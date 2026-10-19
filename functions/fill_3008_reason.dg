@@ -1,0 +1,21 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Ids = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Type_of_Entry == "3008"]
+{
+	if(ifnull(v_P.Reason_for_Referral,"").toString().trim() == "")
+	{
+		v_Ids.add(ifnull(v_P.PVS_ID,"rec " + v_P.ID).toString());
+		if(v_Mode == "COMMIT")
+		{
+			update v_P
+			[
+				Reason_for_Referral="Cares 3008 Assessment"
+			];
+		}
+	}
+}
+return v_Mode + " | set " + v_Ids.size() + " | " + v_Ids.toString(", ");

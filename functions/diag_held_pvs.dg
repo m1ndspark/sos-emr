@@ -1,0 +1,42 @@
+if(p_from == null || p_to == null)
+{
+	return "ERROR: Enter both dates.";
+}
+v_dup = List();
+v_other = List();
+for each  p in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Hold_From_Invoicing == "Yes"] sort by Visit_Completion_Date desc
+{
+	v_inv = "not invoiced";
+	if(p.Invoice_Link != null)
+	{
+		v_inv = "ON INVOICE";
+	}
+	v_added = "";
+	if(p.Added_Time != null)
+	{
+		v_added = p.Added_Time.toString("MM/dd/yyyy");
+	}
+	v_line = ifnull(p.PVS_ID,"no PVS ID") + " | " + ifnull(p.Referral_ID,"no REF") + " | " + ifnull(p.Partner_Organization,"") + " | " + ifnull(p.Type_of_Entry,"") + " | DOS " + p.Visit_Completion_Date.toString("MM/dd/yyyy") + " | " + ifnull(p.Employee_Initials,"") + " | row " + ifnull(p.Row_Status,"") + " | dup of " + ifnull(p.Duplicate_Of_PVS_ID,"-") + " | " + v_inv + " | added " + v_added + " | note " + ifnull(p.Row_Status_Note,"");
+	v_row = ifnull(p.Row_Status,"").toString().trim();
+	if(v_row == "Duplicate")
+	{
+		v_dup.add(v_line);
+	}
+	else
+	{
+		v_other.add(v_line);
+	}
+}
+v_out = "READ-ONLY HELD PVS " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy");
+v_out = v_out + "\nHeld, other reason: " + v_other.size() + " | Retired duplicates: " + v_dup.size();
+v_out = v_out + "\n\nHELD, OTHER REASON";
+if(v_other.size() > 0)
+{
+	v_out = v_out + "\n" + v_other.toString("\n");
+}
+v_out = v_out + "\n\nRETIRED DUPLICATES";
+if(v_dup.size() > 0)
+{
+	v_out = v_out + "\n" + v_dup.toString("\n");
+}
+return v_out;

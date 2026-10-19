@@ -51,13 +51,58 @@ if(v_b.Date_From > v_b.Date_To)
 	}
 	return v_line;
 }
+v_reason = ifnull(v_b.Batch_Reason,"").toString().trim();
+v_repl = "";
+if(v_reason == "Rebill After Void")
+{
+	v_repl = ifnull(v_b.Replaces_Invoice_Number,"").toString().trim();
+	if(v_repl == "")
+	{
+		v_line = v_stamp + " - ERROR: Batch Reason is Rebill After Void but Replaces Invoice Number is blank. Enter the voided invoice number (for example INV-000110) and run again.";
+		v_b.Batch_Status="Failed";
+		if(v_hist == "")
+		{
+			v_b.Result_Message=v_line;
+		}
+		else
+		{
+			v_b.Result_Message=v_hist + "\n" + v_line;
+		}
+		return v_line;
+	}
+}
 v_cap = 0.0;
 if(p_maxTotal != null)
 {
 	v_cap = p_maxTotal.toDecimal();
 }
+v_activeTypes = List();
+v_inactiveTypes = List();
+for each  v_rt in Partner_Rates[Partner_Location_Link == v_b.Partner_Location_Link && Current_Rate == "Yes"]
+{
+	v_rtType = ifnull(v_rt.Rate_Type,"").toString().trim();
+	v_rtStatus = ifnull(v_rt.Partner_Rate_Status,"").toString().trim();
+	if(v_rtType != "")
+	{
+		if(v_rtStatus == "Inactive")
+		{
+			if(!v_inactiveTypes.contains(v_rtType))
+			{
+				v_inactiveTypes.add(v_rtType);
+			}
+		}
+		else
+		{
+			if(!v_activeTypes.contains(v_rtType))
+			{
+				v_activeTypes.add(v_rtType);
+			}
+		}
+	}
+}
 v_ids = List();
 v_bad = List();
+v_off = List();
 v_keys = List();
 v_keyOwner = Map();
 v_dups = List();
@@ -75,7 +120,19 @@ for each  v_r in v_recs
 			v_lvl = "";
 		}
 		v_lvl = v_lvl.trim();
-		if(v_lvl != "Visit Cancelled")
+		v_notOffered = false;
+		if(v_inactiveTypes.contains(v_lvl))
+		{
+			if(!v_activeTypes.contains(v_lvl))
+			{
+				v_notOffered = true;
+			}
+		}
+		if(v_notOffered)
+		{
+			v_off.add(v_r.PVS_ID + " (" + v_lvl + ")");
+		}
+		else if(v_lvl != "Visit Cancelled")
 		{
 			v_amt = 0.0;
 			if(v_r.Complexity_Charge != null)
@@ -157,6 +214,20 @@ for each  v_r in v_recs
 		}
 	}
 }
+if(v_off.size() > 0)
+{
+	v_line = v_stamp + " - STOPPED - nothing was invoiced. " + v_off.size() + " visit(s) use a service this branch does not receive (its rate is set to Inactive). TO RESOLVE: open each visit below and correct its Type of Entry and Complexity Level, or set Hold From Invoicing = Yes if it should not be billed. If this branch should receive the service, set its Partner Rates row back to Active. Then run this batch again. VISITS: " + v_off.toString(", ");
+	v_b.Batch_Status="Failed";
+	if(v_hist == "")
+	{
+		v_b.Result_Message=v_line;
+	}
+	else
+	{
+		v_b.Result_Message=v_hist + "\n" + v_line;
+	}
+	return v_line;
+}
 if(v_dups.size() > 0)
 {
 	v_line = v_stamp + " - STOPPED - nothing was invoiced. " + v_dups.size() + " possible duplicate visit pair(s) found. Each pair below shares the same referral, date of service and complexity level, which usually means the same visit was entered or imported twice. TO RESOLVE: open both records in each pair, decide which one is correct, and set Hold From Invoicing = Yes on the other; if neither should be billed, set its Complexity Level to Visit Cancelled. Then run this batch again. PAIRS: " + v_dups.toString("; ");
@@ -199,7 +270,7 @@ if(v_ids.size() == 0)
 	}
 	return v_line;
 }
-v_out = thisapp.create_invoice_from_selection(v_ids);
+v_out = thisapp.create_invoice_from_selection(v_ids,v_repl);
 if(v_out.startsWith("ERROR"))
 {
 	v_line = v_stamp + " - " + v_out;

@@ -1,0 +1,108 @@
+v_Out = List();
+v_Out.add("READ-ONLY PVS vs REFERRAL");
+v_Labels = Map();
+for each  v_L in Partner_Locations[ID != 0]
+{
+	v_Labels.put(v_L.ID.toString(),ifnull(v_L.Partner_Location_Label,"").toString().trim());
+}
+v_List = ifnull(p_pvsIds,"").toList(",");
+for each  v_Raw in v_List
+{
+	v_Id = v_Raw.trim();
+	if(v_Id == "")
+	{
+		continue;
+	}
+	v_Found = false;
+	for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+	{
+		v_Found = true;
+		v_Inv = "none";
+		if(v_P.Invoice_Link != null)
+		{
+			for each  v_I in Invoices[ID == v_P.Invoice_Link]
+			{
+				v_Inv = ifnull(v_I.Books_Invoice_Number,"").toString() + " " + ifnull(v_I.Invoice_Record_Status,"").toString();
+			}
+		}
+		v_Bill = "none";
+		if(v_P.Billing_Branch != null)
+		{
+			v_Bill = ifnull(v_Labels.get(v_P.Billing_Branch.toString()),"unknown branch").toString();
+		}
+		v_PDob = "";
+		if(v_P.Patient_DOB != null)
+		{
+			v_PDob = v_P.Patient_DOB.toString("MM-dd-yyyy");
+		}
+		v_Out.add("==========");
+		v_Out.add(v_Id + " | " + ifnull(v_P.Type_of_Entry,"").toString() + " | DOS " + ifnull(v_P.Visit_Completion_Date,"").toString() + " | provider " + ifnull(v_P.Employee_Name_Title,"").toString() + " | Billing Branch " + v_Bill + " | invoice " + v_Inv);
+		v_PVals = List();
+		v_PVals.add(ifnull(v_P.Referral_ID,"").toString().trim());
+		v_PVals.add(ifnull(v_P.Patient_First_Name,"").toString().trim());
+		v_PVals.add(ifnull(v_P.Patient_Last_Name,"").toString().trim());
+		v_PVals.add(ifnull(v_P.Patient_Full_Name_1,"").toString().trim());
+		v_PVals.add(v_PDob);
+		v_PVals.add(ifnull(v_P.Patient_Location,"").toString().trim());
+		v_PVals.add(ifnull(v_P.Facility_Name,"").toString().trim());
+		v_PVals.add(ifnull(v_P.Partner_ID,"").toString().trim());
+		v_PVals.add(ifnull(v_P.Partner_Organization,"").toString().trim());
+		v_PVals.add(ifnull(v_P.Partner_Branch,"").toString().trim());
+		v_PVals.add(ifnull(v_P.Partner_Location_Label,"").toString().trim());
+		v_PVals.add(v_Bill);
+		v_Names = {"Referral ID","First Name","Last Name","Full Name","DOB","Location","Facility Name","Partner ID","Partner Organization","Partner Branch","Partner Location Label","Branch (PVS Billing Branch / Ref Branch Link)"};
+		v_RVals = List();
+		v_HasRef = false;
+		if(v_P.Referral_Link != null)
+		{
+			for each  v_R in Referrals_Main[ID == v_P.Referral_Link]
+			{
+				v_HasRef = true;
+				v_RDob = "";
+				if(v_R.Patient_DOB != null)
+				{
+					v_RDob = v_R.Patient_DOB.toString("MM-dd-yyyy");
+				}
+				v_RBr = "none";
+				if(v_R.Partner_Branch_Link != null)
+				{
+					v_RBr = ifnull(v_Labels.get(v_R.Partner_Branch_Link.toString()),"unknown branch").toString();
+				}
+				v_RVals.add(ifnull(v_R.Referral_ID,"").toString().trim());
+				v_RVals.add(ifnull(v_R.Patient_First_Name,"").toString().trim());
+				v_RVals.add(ifnull(v_R.Patient_Last_Name,"").toString().trim());
+				v_RVals.add(ifnull(v_R.Patient_Full_Name,"").toString().trim());
+				v_RVals.add(v_RDob);
+				v_RVals.add(ifnull(v_R.Patient_Location,"").toString().trim());
+				v_RVals.add(ifnull(v_R.Facility_Name,"").toString().trim());
+				v_RVals.add(ifnull(v_R.Partner_ID,"").toString().trim());
+				v_RVals.add(ifnull(v_R.Partner_Organization,"").toString().trim());
+				v_RVals.add(ifnull(v_R.Partner_Branch,"").toString().trim());
+				v_RVals.add(ifnull(v_R.Partner_Location_Label,"").toString().trim());
+				v_RVals.add(v_RBr);
+			}
+		}
+		if(!v_HasRef)
+		{
+			v_Out.add("NO LINKED REFERRAL");
+			continue;
+		}
+		for each index v_i in v_Names
+		{
+			v_A = v_PVals.get(v_i).toString();
+			v_B = v_RVals.get(v_i).toString();
+			v_Flag = "SAME";
+			if(v_A.toLowerCase() != v_B.toLowerCase())
+			{
+				v_Flag = "DIFF";
+			}
+			v_Out.add(v_Flag + " | " + v_Names.get(v_i) + " | PVS: " + v_A + " | REF: " + v_B);
+		}
+	}
+	if(!v_Found)
+	{
+		v_Out.add("==========");
+		v_Out.add(v_Id + " | NOT FOUND");
+	}
+}
+return v_Out.toString("\n");

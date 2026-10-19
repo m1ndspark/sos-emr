@@ -1,0 +1,701 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Commit = false;
+if(v_Mode == "COMMIT")
+{
+	v_Commit = true;
+}
+v_Limit = p_limit;
+if(v_Limit == null)
+{
+	v_Limit = 25;
+}
+if(v_Limit < 1)
+{
+	v_Limit = 25;
+}
+v_RunId = "IMPORT-RUN-" + zoho.currenttime.toString("yyyyMMdd-HHmmss");
+v_Log = List();
+v_Issues = List();
+v_Log.add("RUN " + v_RunId + " | MODE " + v_Mode + " | LIMIT " + v_Limit);
+v_LocIdx = Map();
+for each  v_L in Partner_Locations[ID != 0]
+{
+	v_K1 = ifnull(v_L.Partner_Location_Label,"").toString().trim().toLowerCase();
+	v_K2 = ifnull(v_L.Partner_Location_Name,"").toString().trim().toLowerCase();
+	if(v_K1 != "")
+	{
+		if(v_LocIdx.get(v_K1) == null)
+		{
+			v_LocIdx.put(v_K1,v_L.ID);
+		}
+	}
+	if(v_K2 != "")
+	{
+		if(v_LocIdx.get(v_K2) == null)
+		{
+			v_LocIdx.put(v_K2,v_L.ID);
+		}
+	}
+}
+v_EmpByEmail = Map();
+v_EmpByInit = Map();
+v_InitCount = Map();
+for each  v_E in Employees[ID != 0]
+{
+	v_W = ifnull(v_E.Employee_Email,"").toString().trim().toLowerCase();
+	v_Pt = ifnull(v_E.Employee_Portal_Email,"").toString().trim().toLowerCase();
+	if(v_W != "")
+	{
+		v_EmpByEmail.put(v_W,v_E.ID);
+	}
+	if(v_Pt != "")
+	{
+		v_EmpByEmail.put(v_Pt,v_E.ID);
+	}
+	v_In = ifnull(v_E.Employee_Initials,"").toString().trim().toUpperCase();
+	if(v_In != "")
+	{
+		v_Cnt = ifnull(v_InitCount.get(v_In),0);
+		v_InitCount.put(v_In,v_Cnt + 1);
+		v_EmpByInit.put(v_In,v_E.ID);
+	}
+}
+v_RTotal = 0;
+v_RDone = 0;
+v_RSkip = 0;
+v_RLeft = 0;
+for each  v_R in Referrals_Main[Referral_ID_Stamp == null || Referral_ID_Stamp == ""]
+{
+	if(ifnull(v_R.Cognito_Referral_ID,"").toString().trim() == "")
+	{
+		continue;
+	}
+	v_RTotal = v_RTotal + 1;
+	if(v_RDone >= v_Limit)
+	{
+		v_RLeft = v_RLeft + 1;
+		continue;
+	}
+	v_Rid = ifnull(v_R.Referral_ID,"").toString().trim();
+	if(v_Rid == "")
+	{
+		v_RSkip = v_RSkip + 1;
+		v_Issues.add("REF rec " + v_R.ID + " | SKIP | no Referral_ID");
+		continue;
+	}
+	v_LocId = v_R.Partner_Branch_Link;
+	if(v_LocId == null)
+	{
+		v_Cands = List();
+		v_Cands.add(ifnull(v_R.Partner_Location_Label,"").toString());
+		v_Cands.add(ifnull(v_R.Partner_Branch,"").toString());
+		v_Cands.add(ifnull(v_R.Partner_Organization,"").toString());
+		for each  v_C in v_Cands
+		{
+			if(v_LocId == null)
+			{
+				v_Ck = v_C.trim().toLowerCase();
+				if(v_Ck != "")
+				{
+					v_Hit = v_LocIdx.get(v_Ck);
+					if(v_Hit != null)
+					{
+						v_LocId = v_Hit;
+					}
+				}
+			}
+		}
+	}
+	if(v_LocId == null)
+	{
+		v_RSkip = v_RSkip + 1;
+		v_Issues.add("REF " + v_Rid + " | SKIP | branch not resolved [" + ifnull(v_R.Partner_Branch,"").toString() + "]");
+		continue;
+	}
+	v_Loc = Partner_Locations[ID == v_LocId];
+	if(v_Loc.ID == null)
+	{
+		v_RSkip = v_RSkip + 1;
+		v_Issues.add("REF " + v_Rid + " | SKIP | branch record missing");
+		continue;
+	}
+	v_Org = ifnull(v_Loc.Partner_Link.Partner_Display_Name,"").toString().trim();
+	v_BrName = ifnull(v_Loc.Partner_Location_Name,"").toString().trim();
+	v_Label = ifnull(v_Loc.Partner_Location_Label,"").toString().trim();
+	v_Pid = ifnull(v_Loc.Partner_Link.Partner_ID,"").toString().trim();
+	v_Full = ifnull(v_R.Patient_Full_Name,"").toString().trim();
+	if(v_Full == "")
+	{
+		v_Fn = ifnull(v_R.Patient_First_Name,"").toString().trim();
+		v_Mi = ifnull(v_R.Patient_MI,"").toString().trim();
+		v_Ln = ifnull(v_R.Patient_Last_Name,"").toString().trim();
+		if(v_Ln != "")
+		{
+			v_Full = v_Fn;
+			if(v_Mi != "")
+			{
+				v_Full = (v_Full + " " + v_Mi).trim();
+			}
+			v_Full = (v_Full + " " + v_Ln).trim();
+		}
+	}
+	v_Addr = ifnull(v_R.Patient_Full_Address,"").toString().trim();
+	if(v_Addr == "")
+	{
+		v_A1 = ifnull(v_R.Patient_Address.address_line_1,"").toString().trim();
+		v_A2 = ifnull(v_R.Patient_Address.address_line_2,"").toString().trim();
+		v_Ci = ifnull(v_R.Patient_Address.district_city,"").toString().trim();
+		v_Stt = ifnull(v_R.Patient_Address.state_province,"").toString().trim();
+		v_Zp = ifnull(v_R.Patient_Address.postal_Code,"").toString().trim();
+		v_Addr = v_A1;
+		if(v_A2 != "")
+		{
+			v_Addr = v_Addr + ", " + v_A2;
+		}
+		if(v_Ci != "")
+		{
+			v_Addr = v_Addr + ", " + v_Ci;
+		}
+		if(v_Stt != "")
+		{
+			v_Addr = v_Addr + ", " + v_Stt;
+		}
+		if(v_Zp != "")
+		{
+			v_Addr = v_Addr + " " + v_Zp;
+		}
+		v_Addr = v_Addr.trim();
+	}
+	v_Dob = v_R.Patient_DOB;
+	if(v_Dob == null)
+	{
+		v_Dob = thisapp.parse_patient_dob(ifnull(v_R.Patient_DOB1,"").toString());
+	}
+	v_RDone = v_RDone + 1;
+	v_Log.add("REF " + v_Rid + " | " + v_Label + " | " + v_Full);
+	if(v_Commit)
+	{
+		update v_R
+		[
+			Patient_Full_Name=v_Full
+			Patient_Full_Address=v_Addr
+			Patient_DOB=v_Dob
+			Partner_Organization=v_Org
+			Partner_Branch=v_BrName
+			Partner_Location_Label=v_Label
+			Partner_Link=v_Loc.Partner_Link
+			Partner_Branch_Link=v_Loc.ID
+			Partner_ID=v_Pid
+			Partner_ID_Stamp=v_Loc.Partner_Link.toString()
+		];
+		v_Di = thisapp.compute_data_issues(v_R.ID);
+		update v_R
+		[
+			Data_Issues=v_Di
+			Referral_ID_Stamp=v_R.ID.toString()
+		];
+	}
+}
+v_PTotal = 0;
+v_PDone = 0;
+v_PSkip = 0;
+v_PLeft = 0;
+v_Tries = {1,2,3,4,5,6,7,8,9,10};
+for each  v_P in Encounter_PatientVisit[PVS_ID == null || PVS_ID == ""]
+{
+	v_PTotal = v_PTotal + 1;
+	if(v_PDone >= v_Limit)
+	{
+		v_PLeft = v_PLeft + 1;
+		continue;
+	}
+	v_Key = ifnull(v_P.Referral_ID,"").toString().trim();
+	v_Tag = "PVS rec " + v_P.ID + " [" + v_Key + "]";
+	v_RefRecId = null;
+	if(v_P.Referral_Link != null)
+	{
+		v_RefRecId = v_P.Referral_Link;
+	}
+	if(v_RefRecId == null)
+	{
+		if(v_Key == "")
+		{
+			v_PSkip = v_PSkip + 1;
+			v_Issues.add(v_Tag + " | SKIP | no Referral_ID");
+			continue;
+		}
+		v_Hits = Referrals_Main[Cognito_Referral_ID == v_Key];
+		if(v_Hits.count() == 0)
+		{
+			v_Hits = Referrals_Main[Referral_ID == v_Key];
+		}
+		if(v_Hits.count() != 1)
+		{
+			v_PSkip = v_PSkip + 1;
+			v_Issues.add(v_Tag + " | SKIP | referral matches: " + v_Hits.count());
+			continue;
+		}
+		for each  v_X in v_Hits
+		{
+			v_RefRecId = v_X.ID;
+			break;
+		}
+	}
+	v_Ref = Referrals_Main[ID == v_RefRecId];
+	if(v_Ref.ID == null)
+	{
+		v_PSkip = v_PSkip + 1;
+		v_Issues.add(v_Tag + " | SKIP | referral record " + v_RefRecId + " not found");
+		continue;
+	}
+	v_RefId = ifnull(v_Ref.Referral_ID,"").toString().trim();
+	if(v_RefId == "")
+	{
+		v_PSkip = v_PSkip + 1;
+		v_Issues.add(v_Tag + " | SKIP | referral record " + v_RefRecId + " read back a blank Referral_ID");
+		continue;
+	}
+	if(v_Commit)
+	{
+		if(ifnull(v_Ref.Referral_ID_Stamp,"").toString().trim() == "")
+		{
+			v_PSkip = v_PSkip + 1;
+			v_Issues.add(v_Tag + " | SKIP | referral " + v_RefId + " not processed yet");
+			continue;
+		}
+	}
+	v_LocId = v_Ref.Partner_Branch_Link;
+	if(v_LocId == null)
+	{
+		v_Cands = List();
+		v_Cands.add(ifnull(v_Ref.Partner_Location_Label,"").toString());
+		v_Cands.add(ifnull(v_Ref.Partner_Branch,"").toString());
+		v_Cands.add(ifnull(v_Ref.Partner_Organization,"").toString());
+		for each  v_C in v_Cands
+		{
+			if(v_LocId == null)
+			{
+				v_Ck = v_C.trim().toLowerCase();
+				if(v_Ck != "")
+				{
+					v_Hit = v_LocIdx.get(v_Ck);
+					if(v_Hit != null)
+					{
+						v_LocId = v_Hit;
+					}
+				}
+			}
+		}
+	}
+	if(v_LocId == null)
+	{
+		v_PSkip = v_PSkip + 1;
+		v_Issues.add(v_Tag + " | SKIP | referral " + v_RefId + " has no branch");
+		continue;
+	}
+	v_Loc = Partner_Locations[ID == v_LocId];
+	if(v_Loc.ID == null)
+	{
+		v_PSkip = v_PSkip + 1;
+		v_Issues.add(v_Tag + " | SKIP | branch record missing");
+		continue;
+	}
+	v_EmpId = null;
+	v_Em = ifnull(v_P.Employee_Email,"").toString().trim().toLowerCase();
+	if(v_Em != "")
+	{
+		v_EmpId = v_EmpByEmail.get(v_Em);
+	}
+	v_PIn = ifnull(v_P.Employee_Initials,"").toString().trim().toUpperCase();
+	if(v_EmpId == null)
+	{
+		if(v_PIn != "")
+		{
+			if(ifnull(v_InitCount.get(v_PIn),0) == 1)
+			{
+				v_EmpId = v_EmpByInit.get(v_PIn);
+			}
+		}
+	}
+	if(v_EmpId == null)
+	{
+		v_PSkip = v_PSkip + 1;
+		v_Issues.add(v_Tag + " | SKIP | no unique employee for email [" + v_Em + "] or initials [" + v_PIn + "]");
+		continue;
+	}
+	v_Emp = Employees[ID == v_EmpId];
+	v_EFn = ifnull(v_Emp.Employee_First_Name,"").toString().trim();
+	v_ELn = ifnull(v_Emp.Employee_Last_Name,"").toString().trim();
+	v_ETi = ifnull(v_Emp.Employee_Title,"").toString().trim();
+	v_ENt = ifnull(v_Emp.Employee_Name_Title,"").toString().trim();
+	v_EIn = ifnull(v_Emp.Employee_Initials,"").toString().trim();
+	v_EWork = ifnull(v_Emp.Employee_Email,"").toString().trim();
+	v_EPortal = ifnull(v_Emp.Employee_Portal_Email,"").toString().trim();
+	v_EFull = (v_EFn + " " + v_ELn).trim();
+	if(v_ENt == "")
+	{
+		v_ENt = v_EFull;
+		if(v_ETi != "")
+		{
+			v_ENt = v_ENt + ", " + v_ETi;
+		}
+	}
+	v_Login = v_EWork;
+	if(v_EPortal != "")
+	{
+		v_Login = v_EPortal;
+	}
+	v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+	v_Amt = 0.0;
+	if(v_P.Complexity_Charge != null)
+	{
+		v_Amt = v_P.Complexity_Charge.toDecimal();
+	}
+	if(v_Amt <= 0)
+	{
+		if(v_Lvl != "")
+		{
+			if(v_Lvl != "No Charge")
+			{
+				v_Rate = null;
+				for each  v_Rt in Partner_Rates[Partner_Location_Link == v_LocId && Rate_Type == v_Lvl && Current_Rate == "Yes"]
+				{
+					v_Rate = v_Rt.Rate_Amount;
+					break;
+				}
+				if(v_Rate == null)
+				{
+					v_Issues.add(v_Tag + " | NOTE | no current rate for " + ifnull(v_Loc.Partner_Location_Label,"") + " / " + v_Lvl);
+				}
+				else
+				{
+					v_Amt = v_Rate.toDecimal();
+				}
+			}
+		}
+	}
+	v_Full1 = ifnull(v_P.Patient_Full_Name_1,"").toString().trim();
+	if(v_Full1 == "")
+	{
+		v_Full1 = ifnull(v_Ref.Patient_Full_Name,"").toString().trim();
+	}
+	v_Full2 = ifnull(v_P.Patient_Full_Name_2,"").toString().trim();
+	if(v_Full2 == "")
+	{
+		v_Full2 = v_Full1;
+	}
+	v_Mi = ifnull(v_P.Patient_MI,"").toString().trim();
+	if(v_Mi == "")
+	{
+		v_Mi = ifnull(v_Ref.Patient_MI,"").toString().trim();
+	}
+	v_Ssn = ifnull(v_P.Patient_SSN,"").toString().trim();
+	if(v_Ssn == "")
+	{
+		v_Ssn = ifnull(v_Ref.Patient_SSN,"").toString().trim();
+	}
+	v_Hosp = ifnull(v_P.Patient_Hospice_ID,"").toString().trim();
+	if(v_Hosp == "")
+	{
+		v_Hosp = ifnull(v_Ref.Patient_Hospice_ID,"").toString().trim();
+	}
+	v_PPhone = ifnull(v_P.Patient_Phone,"").toString().trim();
+	if(v_PPhone == "")
+	{
+		v_PPhone = ifnull(v_Ref.Patient_Phone,"").toString().trim();
+	}
+	v_FPhone = ifnull(v_P.Facility_Phone,"").toString().trim();
+	if(v_FPhone == "")
+	{
+		v_FPhone = ifnull(v_Ref.Facility_Phone,"").toString().trim();
+	}
+	v_FRoom = ifnull(v_P.Facility_Room_Number,"").toString().trim();
+	if(v_FRoom == "")
+	{
+		v_FRoom = ifnull(v_Ref.Facility_Room_Number,"").toString().trim();
+	}
+	v_RStamp = ifnull(v_P.Referral_ID_Stamp,"").toString().trim();
+	if(v_RStamp == "")
+	{
+		v_RStamp = ifnull(v_Ref.Referral_ID_Stamp,"").toString().trim();
+	}
+	v_PPid = ifnull(v_P.Partner_ID,"").toString().trim();
+	if(v_PPid == "")
+	{
+		v_PPid = ifnull(v_Ref.Partner_ID,"").toString().trim();
+	}
+	v_PPidS = ifnull(v_P.Partner_ID_Stamp,"").toString().trim();
+	if(v_PPidS == "")
+	{
+		v_PPidS = ifnull(v_Ref.Partner_ID_Stamp,"").toString().trim();
+	}
+	v_PocFn = ifnull(v_P.Partner_POC_First_Name,"").toString().trim();
+	if(v_PocFn == "")
+	{
+		v_PocFn = ifnull(v_Ref.Partner_POC_First_Name,"").toString().trim();
+	}
+	v_PocLn = ifnull(v_P.Partner_POC_Last_Name,"").toString().trim();
+	if(v_PocLn == "")
+	{
+		v_PocLn = ifnull(v_Ref.Partner_POC_Last_Name,"").toString().trim();
+	}
+	v_PocTi = ifnull(v_P.Partner_POC_Title,"").toString().trim();
+	if(v_PocTi == "")
+	{
+		v_PocTi = ifnull(v_Ref.Partner_POC_Title,"").toString().trim();
+	}
+	v_PocPh = ifnull(v_P.Partner_POC_Phone,"").toString().trim();
+	if(v_PocPh == "")
+	{
+		v_PocPh = ifnull(v_Ref.Partner_POC_Phone,"").toString().trim();
+	}
+	v_PocEm = ifnull(v_P.Partner_POC_Email,"").toString().trim();
+	if(v_PocEm == "")
+	{
+		v_PocEm = ifnull(v_Ref.Partner_POC_Email,"").toString().trim();
+	}
+	v_PocTm = ifnull(v_P.Partner_POC_Team,"").toString().trim();
+	if(v_PocTm == "")
+	{
+		v_PocTm = ifnull(v_Ref.Partner_POC_Team,"").toString().trim();
+	}
+	v_PocNt = ifnull(v_P.Partner_POC_Name_Title,"").toString().trim();
+	if(v_PocNt == "")
+	{
+		v_PocNt = (v_PocFn + " " + v_PocLn).trim();
+		if(v_PocTi != "")
+		{
+			if(v_PocNt != "")
+			{
+				v_PocNt = v_PocNt + ", " + v_PocTi;
+			}
+		}
+	}
+	v_Icd = ifnull(v_P.Partner_ICD_Codes,"").toString().trim();
+	if(v_Icd == "")
+	{
+		v_Icd = ifnull(v_Ref.Partner_ICD_Codes,"").toString().trim();
+	}
+	v_Reason = ifnull(v_P.Reason_for_Referral,"").toString().trim();
+	if(v_Reason == "")
+	{
+		v_Reason = ifnull(v_Ref.Referral_Reason,"").toString().trim();
+	}
+	v_Allg = ifnull(v_P.List_Patient_Allergies,"").toString().trim();
+	if(v_Allg == "")
+	{
+		v_Allg = ifnull(v_Ref.List_Patient_Allergies,"").toString().trim();
+	}
+	v_Anti = ifnull(v_P.List_Patient_Anticoagulants,"").toString().trim();
+	if(v_Anti == "")
+	{
+		v_Anti = ifnull(v_Ref.List_Patient_Anticoagulants,"").toString().trim();
+	}
+	v_Ad = ifnull(v_P.Advanced_Directives_Details,"").toString().trim();
+	if(v_Ad == "")
+	{
+		v_Ad = ifnull(v_Ref.Advanced_Directives_Details,"").toString().trim();
+	}
+	v_Addl = ifnull(v_P.Additional_Information,"").toString().trim();
+	if(v_Addl == "")
+	{
+		v_Addl = ifnull(v_Ref.Additional_Information,"").toString().trim();
+	}
+	v_A1 = ifnull(v_P.Patient_Address.address_line_1,"").toString().trim();
+	v_A2 = ifnull(v_P.Patient_Address.address_line_2,"").toString().trim();
+	v_Ci = ifnull(v_P.Patient_Address.district_city,"").toString().trim();
+	v_Stt = ifnull(v_P.Patient_Address.state_province,"").toString().trim();
+	v_Zp = ifnull(v_P.Patient_Address.postal_Code,"").toString().trim();
+	if(v_A1 == "")
+	{
+		v_A1 = ifnull(v_Ref.Patient_Address.address_line_1,"").toString().trim();
+		v_A2 = ifnull(v_Ref.Patient_Address.address_line_2,"").toString().trim();
+		v_Ci = ifnull(v_Ref.Patient_Address.district_city,"").toString().trim();
+		v_Stt = ifnull(v_Ref.Patient_Address.state_province,"").toString().trim();
+		v_Zp = ifnull(v_Ref.Patient_Address.postal_Code,"").toString().trim();
+	}
+	v_PAddr = ifnull(v_P.Patient_Full_Address,"").toString().trim();
+	if(v_PAddr == "")
+	{
+		v_PAddr = v_A1;
+		if(v_A2 != "")
+		{
+			v_PAddr = v_PAddr + ", " + v_A2;
+		}
+		if(v_Ci != "")
+		{
+			v_PAddr = v_PAddr + ", " + v_Ci;
+		}
+		if(v_Stt != "")
+		{
+			v_PAddr = v_PAddr + ", " + v_Stt;
+		}
+		if(v_Zp != "")
+		{
+			v_PAddr = v_PAddr + " " + v_Zp;
+		}
+		v_PAddr = v_PAddr.trim();
+	}
+	v_RDate = v_P.Referral_Date;
+	if(v_RDate == null)
+	{
+		v_RDate = v_Ref.Referral_Date;
+	}
+	v_RSrc = ifnull(v_P.Referral_Source,"").toString().trim();
+	if(v_RSrc == "")
+	{
+		v_RSrc = ifnull(v_Ref.Referral_Source,"").toString().trim();
+	}
+	v_RowSt = ifnull(v_P.Row_Status,"").toString().trim();
+	if(v_RowSt == "")
+	{
+		v_RowSt = "Counted";
+		if(ifnull(v_P.Visit_Status,"").toString() == "Cancelled")
+		{
+			v_RowSt = "Cancelled";
+		}
+	}
+	if(v_PPhone == "")
+	{
+		v_PPhone = null;
+	}
+	if(v_FPhone == "")
+	{
+		v_FPhone = null;
+	}
+	if(v_PocPh == "")
+	{
+		v_PocPh = null;
+	}
+	if(v_PocEm == "")
+	{
+		v_PocEm = null;
+	}
+	v_EEmail = v_EWork;
+	if(v_EEmail == "")
+	{
+		v_EEmail = null;
+	}
+	v_NewId = "(assigned on COMMIT)";
+	if(v_Commit)
+	{
+		v_T = null;
+		v_Seq = null;
+		for each  v_St in Sequence_Tracker[Object_Prefix == "PVS"]
+		{
+			v_T = v_St;
+			v_Seq = v_St.Object_Sequence;
+			break;
+		}
+		if(v_Seq == null)
+		{
+			v_PSkip = v_PSkip + 1;
+			v_Issues.add(v_Tag + " | SKIP | no PVS sequence record");
+			continue;
+		}
+		v_NewId = "";
+		for each  v_N in v_Tries
+		{
+			v_Cand = "PVS-" + v_Seq + "-" + v_EIn;
+			if(Encounter_PatientVisit[PVS_ID == v_Cand].count() == 0)
+			{
+				v_NewId = v_Cand;
+				break;
+			}
+			v_Seq = v_Seq + 1;
+		}
+		if(v_NewId == "")
+		{
+			v_PSkip = v_PSkip + 1;
+			v_Issues.add(v_Tag + " | SKIP | no free PVS ID after 10 tries");
+			continue;
+		}
+		update v_T
+		[
+			Object_Sequence=v_Seq + 1
+		];
+	}
+	v_PDone = v_PDone + 1;
+	v_Log.add("PVS " + v_NewId + " | " + v_RefId + " | " + ifnull(v_Loc.Partner_Location_Label,"") + " | " + v_EFull + " | " + v_Lvl + " $" + v_Amt + " | " + v_RowSt);
+	if(v_Commit)
+	{
+		update v_P
+		[
+			PVS_ID=v_NewId
+			Has_Referral_ID="Yes"
+			Referral_Link=v_Ref.ID
+			Referral_ID=v_RefId
+			PVS_Referral_ID="PVS-" + v_RefId
+			Referral_ID_Stamp=v_RStamp
+			Patient_Full_Name_1=v_Full1
+			Patient_Full_Name_2=v_Full2
+			Patient_MI=v_Mi
+			Patient_SSN=v_Ssn
+			Patient_Hospice_ID=v_Hosp
+			Patient_Phone=v_PPhone
+			Facility_Phone=v_FPhone
+			Facility_Room_Number=v_FRoom
+			Patient_Address.address_line_1=v_A1
+			Patient_Address.address_line_2=v_A2
+			Patient_Address.district_city=v_Ci
+			Patient_Address.state_province=v_Stt
+			Patient_Address.postal_Code=v_Zp
+			Patient_Full_Address=v_PAddr
+			Partner_ID=v_PPid
+			Partner_ID_Stamp=v_PPidS
+			Partner_POC_First_Name=v_PocFn
+			Partner_POC_Last_Name=v_PocLn
+			Partner_POC_Title=v_PocTi
+			Partner_POC_Phone=v_PocPh
+			Partner_POC_Email=v_PocEm
+			Partner_POC_Team=v_PocTm
+			Partner_POC_Name_Title=v_PocNt
+			Partner_ICD_Codes=v_Icd
+			Reason_for_Referral=v_Reason
+			List_Patient_Allergies=v_Allg
+			List_Patient_Anticoagulants=v_Anti
+			Advanced_Directives_Details=v_Ad
+			Additional_Information=v_Addl
+			Billing_Branch=v_LocId
+			Partner_Organization=ifnull(v_Loc.Partner_Link.Partner_Display_Name,"")
+			Partner_Branch=ifnull(v_Loc.Partner_Location_Name,"")
+			Partner_Location_Label=ifnull(v_Loc.Partner_Location_Label,"")
+			Complexity_Charge=v_Amt
+			Employee_First_Name=v_EFn
+			Employee_Last_Name=v_ELn
+			Employee_Title=v_ETi
+			Employee_Name_Title=v_ENt
+			Employee_Initials=v_EIn
+			Employee_Email=v_EEmail
+			Employee_Full_Name=v_EFull
+			Employee_Link=v_EmpId
+			Provider_Login_Email=v_Login
+			Referral_Date=v_RDate
+			Referral_Source=v_RSrc
+			Row_Status=v_RowSt
+		];
+	}
+}
+v_Log.add("REFERRALS | targets " + v_RTotal + " | processed " + v_RDone + " | skipped " + v_RSkip + " | remaining " + v_RLeft);
+v_Log.add("PVS | targets " + v_PTotal + " | processed " + v_PDone + " | skipped " + v_PSkip + " | remaining " + v_PLeft);
+if(v_Issues.size() > 0)
+{
+	v_Log.add("ISSUES:");
+	v_Log.addAll(v_Issues);
+}
+v_Out = v_Log.toString("\n");
+insert into Change_Log
+[
+	Added_User=zoho.loginuser
+	Source_Form="run_import_backfills"
+	Source_Record_ID=v_RunId
+	Source_Display_ID=v_Mode
+	Field_Changed="SUMMARY"
+	New_Value=v_Out
+	Changed_By=zoho.loginuser
+]
+return v_Out;

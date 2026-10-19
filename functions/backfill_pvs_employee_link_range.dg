@@ -1,0 +1,89 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_ByEmail = Map();
+v_ByInit = Map();
+v_InitCount = Map();
+v_Name = Map();
+for each  v_E in Employees[ID != 0]
+{
+	v_Nm = ifnull(v_E.Employee_Name_Title,"").toString().trim();
+	if(v_Nm == "")
+	{
+		v_Nm = (ifnull(v_E.Employee_First_Name,"").toString().trim() + " " + ifnull(v_E.Employee_Last_Name,"").toString().trim()).trim();
+	}
+	v_Name.put(v_E.ID.toString(),v_Nm);
+	v_W = ifnull(v_E.Employee_Email,"").toString().trim().toLowerCase();
+	v_Pt = ifnull(v_E.Employee_Portal_Email,"").toString().trim().toLowerCase();
+	if(v_W != "")
+	{
+		v_ByEmail.put(v_W,v_E.ID);
+	}
+	if(v_Pt != "")
+	{
+		v_ByEmail.put(v_Pt,v_E.ID);
+	}
+	v_In = ifnull(v_E.Employee_Initials,"").toString().trim().toUpperCase();
+	if(v_In != "")
+	{
+		v_Cnt = ifnull(v_InitCount.get(v_In),0);
+		v_InitCount.put(v_In,v_Cnt + 1);
+		v_ByInit.put(v_In,v_E.ID);
+	}
+}
+v_Linked = List();
+v_NoMatch = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Employee_Link == null]
+{
+	v_Tag = ifnull(v_P.PVS_ID,"rec " + v_P.ID).toString();
+	v_Em = ifnull(v_P.Employee_Email,"").toString().trim().toLowerCase();
+	v_In = ifnull(v_P.Employee_Initials,"").toString().trim().toUpperCase();
+	v_EmpId = null;
+	v_How = "";
+	if(v_Em != "")
+	{
+		v_EmpId = v_ByEmail.get(v_Em);
+		if(v_EmpId != null)
+		{
+			v_How = "email";
+		}
+	}
+	if(v_EmpId == null)
+	{
+		if(v_In != "")
+		{
+			if(ifnull(v_InitCount.get(v_In),0) == 1)
+			{
+				v_EmpId = v_ByInit.get(v_In);
+				v_How = "initials";
+			}
+		}
+	}
+	if(v_EmpId == null)
+	{
+		v_NoMatch.add(v_Tag + " | email [" + v_Em + "] initials [" + v_In + "]");
+	}
+	else
+	{
+		v_Linked.add(v_Tag + " -> " + v_Name.get(v_EmpId.toString()) + " (" + v_How + ")");
+		if(v_Mode == "COMMIT")
+		{
+			update v_P
+			[
+				Employee_Link=v_EmpId
+			];
+		}
+	}
+}
+v_Out = v_Mode + " | linked " + v_Linked.size() + " | no match " + v_NoMatch.size();
+if(v_Linked.size() > 0)
+{
+	v_Out = v_Out + "\nLINKED:\n" + v_Linked.toString("\n");
+}
+if(v_NoMatch.size() > 0)
+{
+	v_Out = v_Out + "\nNO MATCH:\n" + v_NoMatch.toString("\n");
+}
+return v_Out;

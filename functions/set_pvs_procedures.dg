@@ -1,0 +1,98 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Allowed = {"Paracentesis","Thoracentesis","Catheter Management","G-Tube / PEG Management","Wound Care","Fracture Care","Acute Care Services","Consultation / Evaluation","Imaging / Evaluation","Tracheostomy Management","Foot/Nail Care","Lab Draw / Venipuncture","IV Access / Infusion","Pleural Catheter / Chest Tube","Other"};
+v_Set = List();
+v_Kept = List();
+v_Range = List();
+v_Missing = List();
+v_Bad = List();
+v_List = ifnull(p_pairs,"").toList(";");
+for each  v_Raw in v_List
+{
+	v_Pair = v_Raw.trim();
+	if(v_Pair == "")
+	{
+		continue;
+	}
+	v_Id = v_Pair.getPrefix("=");
+	v_Val = v_Pair.getSuffix("=");
+	if(v_Id == null || v_Val == null)
+	{
+		v_Bad.add(v_Pair);
+		continue;
+	}
+	v_Id = v_Id.trim();
+	v_Val = v_Val.trim();
+	if(!v_Allowed.contains(v_Val))
+	{
+		v_Bad.add(v_Pair);
+		continue;
+	}
+	v_Found = false;
+	for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+	{
+		v_Found = true;
+		v_D = v_P.Visit_Completion_Date;
+		v_In = false;
+		if(v_D != null)
+		{
+			if(v_D >= p_from)
+			{
+				if(v_D <= p_to)
+				{
+					v_In = true;
+				}
+			}
+		}
+		if(!v_In)
+		{
+			v_Range.add(v_Id);
+			continue;
+		}
+		v_Cur = ifnull(v_P.Type_of_Procedures,"").toString().trim();
+		if(v_Cur != "" && v_Cur != "[]")
+		{
+			v_Kept.add(v_Id + " [" + v_Cur + "]");
+			continue;
+		}
+		v_Set.add(v_Id + " -> " + v_Val);
+		if(v_Mode == "COMMIT")
+		{
+			v_L = List();
+			v_L.add(v_Val);
+			update v_P
+			[
+				Type_of_Procedures=v_L
+			];
+		}
+	}
+	if(!v_Found)
+	{
+		v_Missing.add(v_Id);
+	}
+}
+v_Out = v_Mode + " | set " + v_Set.size() + " | already filled " + v_Kept.size() + " | out of range " + v_Range.size() + " | not found " + v_Missing.size() + " | invalid " + v_Bad.size();
+if(v_Set.size() > 0)
+{
+	v_Out = v_Out + "\nSET:\n" + v_Set.toString("\n");
+}
+if(v_Kept.size() > 0)
+{
+	v_Out = v_Out + "\nALREADY FILLED:\n" + v_Kept.toString("\n");
+}
+if(v_Range.size() > 0)
+{
+	v_Out = v_Out + "\nOUT OF RANGE: " + v_Range.toString(", ");
+}
+if(v_Missing.size() > 0)
+{
+	v_Out = v_Out + "\nNOT FOUND: " + v_Missing.toString(", ");
+}
+if(v_Bad.size() > 0)
+{
+	v_Out = v_Out + "\nINVALID: " + v_Bad.toString(" ; ");
+}
+return v_Out;

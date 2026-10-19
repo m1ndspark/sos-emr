@@ -1,0 +1,30 @@
+v_mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: p_mode must be PREVIEW or COMMIT.";
+}
+v_list = ifnull(p_pairs,"").toList(";");
+v_out = "MODE: " + v_mode;
+v_count = 0;
+for each  v_raw in v_list
+{
+	v_pair = v_raw.trim();
+	if(v_pair != "")
+	{
+		v_parts = v_pair.toList(">");
+		v_count = v_count + 1;
+		if(v_parts.size() != 2)
+		{
+			v_out = v_out + "\n\n#" + v_count + " BAD PAIR [" + v_pair + "], expected DUPE>KEEPER. Skipped.";
+		}
+		else
+		{
+			v_dupe = v_parts.get(0).trim();
+			v_keep = v_parts.get(1).trim();
+			v_res = thisapp.retire_pvs_duplicate(v_mode,v_dupe,v_keep);
+			v_out = v_out + "\n\n#" + v_count + " ==========\n" + v_res;
+		}
+	}
+}
+v_out = v_out + "\n\nPairs processed: " + v_count;
+return v_out;

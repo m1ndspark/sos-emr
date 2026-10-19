@@ -1,0 +1,106 @@
+v_Keys = List();
+v_Ids = Map();
+v_Count = Map();
+v_Total = 0;
+v_NoName = 0;
+for each  r in Referrals_Main[Referral_Date >= p_from && Referral_Date <= p_to] sort by Referral_Date desc
+{
+	v_Total = v_Total + 1;
+	v_First = ifnull(r.Patient_First_Name,"").toString().trim().toLowerCase();
+	v_Last = ifnull(r.Patient_Last_Name,"").toString().trim().toLowerCase();
+	if(v_First == "" && v_Last == "")
+	{
+		v_NoName = v_NoName + 1;
+	}
+	else
+	{
+		v_Key = v_First + " " + v_Last;
+		if(v_Count.containKey(v_Key))
+		{
+			v_Count.put(v_Key,v_Count.get(v_Key) + 1);
+			v_Ids.put(v_Key,v_Ids.get(v_Key) + "," + r.ID.toString());
+		}
+		else
+		{
+			v_Keys.add(v_Key);
+			v_Count.put(v_Key,1);
+			v_Ids.put(v_Key,r.ID.toString());
+		}
+	}
+}
+v_Out = List();
+v_Sets = 0;
+v_Extra = 0;
+v_Flagged = 0;
+for each  v_K in v_Keys
+{
+	v_N = v_Count.get(v_K);
+	if(v_N > 1)
+	{
+		v_Sets = v_Sets + 1;
+		v_Extra = v_Extra + v_N - 1;
+		v_IdList = v_Ids.get(v_K).toList(",");
+		v_Lines = List();
+		v_InvCount = 0;
+		for each  v_RecId in v_IdList
+		{
+			v_Lid = v_RecId.toLong();
+			for each  r2 in Referrals_Main[ID == v_Lid]
+			{
+				v_Dob = "no DOB";
+				if(r2.Patient_DOB != null)
+				{
+					v_Dob = r2.Patient_DOB.toString("yyyy-MM-dd");
+				}
+				v_Line = "   " + ifnull(r2.Referral_ID,"no Referral_ID") + " | ref date " + r2.Referral_Date.toString("yyyy-MM-dd") + " | " + ifnull(r2.Referral_Type,"no service") + " | " + ifnull(r2.Partner_Organization,"no partner") + " | DOB " + v_Dob + " | Cognito " + ifnull(r2.Cognito_Referral_ID,"none");
+				v_Pvs = List();
+				for each  p in Encounter_PatientVisit[Referral_Link == r2.ID]
+				{
+					v_InvTxt = "not invoiced";
+					if(p.Invoice_Link != null)
+					{
+						v_InvCount = v_InvCount + 1;
+						for each  i in Invoices[ID == p.Invoice_Link]
+						{
+							v_InvTxt = ifnull(i.Books_Invoice_Number,"no Books number") + "/" + ifnull(i.Invoice_Record_Status,"no status");
+							break;
+						}
+					}
+					v_Dos = "no DOS";
+					if(p.Visit_Completion_Date != null)
+					{
+						v_Dos = p.Visit_Completion_Date.toString("yyyy-MM-dd");
+					}
+					v_Pvs.add(ifnull(p.PVS_ID,"no PVS ID") + " DOS " + v_Dos + " [" + v_InvTxt + "]");
+				}
+				if(v_Pvs.size() == 0)
+				{
+					v_Line = v_Line + " | PVS: none";
+				}
+				else
+				{
+					v_Line = v_Line + " | PVS: " + v_Pvs.toString(", ");
+				}
+				v_Lines.add(v_Line);
+			}
+		}
+		v_Head = "x" + v_N + " " + v_K;
+		if(v_InvCount > 1)
+		{
+			v_Flagged = v_Flagged + 1;
+			v_Head = v_Head + "  << POSSIBLE DOUBLE BILL (" + v_InvCount + " invoiced PVS)";
+		}
+		v_Out.add(v_Head + "\n" + v_Lines.toString("\n"));
+	}
+}
+v_Msg = "DUPLICATE PATIENT REFERRAL CHECK " + p_from.toString("yyyy-MM-dd") + " to " + p_to.toString("yyyy-MM-dd");
+v_Msg = v_Msg + "\nReferrals scanned: " + v_Total;
+v_Msg = v_Msg + "\nNo patient name: " + v_NoName;
+v_Msg = v_Msg + "\nPatients with 2+ referrals: " + v_Sets;
+v_Msg = v_Msg + "\nExtra referrals beyond the first: " + v_Extra;
+v_Msg = v_Msg + "\nSets flagged POSSIBLE DOUBLE BILL: " + v_Flagged;
+if(v_Out.size() > 0)
+{
+	v_Msg = v_Msg + "\n\n" + v_Out.toString("\n\n");
+}
+return v_Msg;

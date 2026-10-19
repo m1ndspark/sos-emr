@@ -1,0 +1,27 @@
+v_Rows = List();
+v_List = ifnull(p_refIds,"").toList(",");
+for each  v_Raw in v_List
+{
+	v_Id = v_Raw.trim();
+	if(v_Id == "")
+	{
+		continue;
+	}
+	v_Found = false;
+	for each  v_R in Referrals_Main[Referral_ID == v_Id]
+	{
+		v_Found = true;
+		v_Dob = "";
+		if(v_R.Patient_DOB != null)
+		{
+			v_Dob = v_R.Patient_DOB.toString("MM-dd-yyyy");
+		}
+		v_Name = (ifnull(v_R.Patient_First_Name,"").toString().trim() + " " + ifnull(v_R.Patient_Last_Name,"").toString().trim()).trim();
+		v_Rows.add(v_Id + "|" + v_Name + "|" + v_Dob);
+	}
+	if(!v_Found)
+	{
+		v_Rows.add(v_Id + "|NOT FOUND|");
+	}
+}
+return "READ-ONLY\n" + v_Rows.toString("\n");

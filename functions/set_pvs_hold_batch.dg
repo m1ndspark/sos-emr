@@ -1,0 +1,81 @@
+v_mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: p_mode must be PREVIEW or COMMIT.";
+}
+v_hold = ifnull(p_hold,"").trim();
+if(v_hold != "Yes" && v_hold != "No")
+{
+	return "ERROR: p_hold must be Yes or No.";
+}
+v_list = ifnull(p_pvsIds,"").toList(",");
+v_lines = List();
+v_problems = List();
+v_changed = 0;
+v_same = 0;
+for each  v_raw in v_list
+{
+	v_id = v_raw.trim();
+	if(v_id != "")
+	{
+		v_tid = null;
+		v_cur = "";
+		v_row = "";
+		v_inv = false;
+		for each  p in Encounter_PatientVisit[PVS_ID == v_id]
+		{
+			v_tid = p.ID;
+			v_cur = ifnull(p.Hold_From_Invoicing,"").toString().trim();
+			v_row = ifnull(p.Row_Status,"").toString().trim();
+			if(p.Invoice_Link != null)
+			{
+				v_inv = true;
+			}
+			break;
+		}
+		if(v_tid == null)
+		{
+			v_problems.add(v_id + " | NOT FOUND");
+		}
+		else if(v_inv)
+		{
+			v_problems.add(v_id + " | ALREADY ON AN INVOICE, refused");
+		}
+		else if(v_hold == "No" && v_row == "Duplicate")
+		{
+			v_problems.add(v_id + " | ROW STATUS DUPLICATE, release refused");
+		}
+		else if(v_cur == v_hold)
+		{
+			v_same = v_same + 1;
+			v_lines.add(v_id + " | hold already [" + v_cur + "], no change");
+		}
+		else
+		{
+			v_changed = v_changed + 1;
+			v_lines.add(v_id + " | hold [" + v_cur + "] -> [" + v_hold + "] | row " + v_row);
+			if(v_mode == "COMMIT")
+			{
+				for each  u in Encounter_PatientVisit[ID == v_tid]
+				{
+					u.Hold_From_Invoicing=v_hold;
+					break;
+				}
+			}
+		}
+	}
+}
+v_out = "MODE: " + v_mode + " | Set hold to: " + v_hold + " | Changed: " + v_changed + " | Unchanged: " + v_same + " | Refused: " + v_problems.size();
+if(v_lines.size() > 0)
+{
+	v_out = v_out + "\n\n" + v_lines.toString("\n");
+}
+if(v_problems.size() > 0)
+{
+	v_out = v_out + "\n\nREFUSED\n" + v_problems.toString("\n");
+}
+if(v_mode == "COMMIT")
+{
+	v_out = v_out + "\n\nCOMMITTED.";
+}
+return v_out;

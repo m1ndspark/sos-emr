@@ -1,0 +1,151 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Commit = false;
+if(v_Mode == "COMMIT")
+{
+	v_Commit = true;
+}
+v_Scanned = 0;
+v_Changed = 0;
+v_Lines = List();
+v_Left = List();
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+{
+	v_Scanned = v_Scanned + 1;
+	v_Tag = ifnull(v_P.PVS_ID,"").toString().trim();
+	if(v_Tag == "")
+	{
+		v_Tag = "rec " + v_P.ID;
+	}
+	v_HasRef = false;
+	v_Ref = null;
+	if(v_P.Referral_Link != null)
+	{
+		v_Ref = Referrals_Main[ID == v_P.Referral_Link];
+		if(v_Ref.ID != null)
+		{
+			v_HasRef = true;
+		}
+	}
+	v_Set = List();
+	v_RDate = v_P.Referral_Date;
+	if(v_RDate == null)
+	{
+		if(v_HasRef)
+		{
+			if(v_Ref.Referral_Date != null)
+			{
+				v_RDate = v_Ref.Referral_Date;
+				v_Set.add("Referral_Date");
+			}
+		}
+	}
+	v_Reason = ifnull(v_P.Reason_for_Referral,"").toString().trim();
+	if(v_Reason == "")
+	{
+		if(v_HasRef)
+		{
+			v_NewReason = ifnull(v_Ref.Referral_Reason,"").toString().trim();
+			if(v_NewReason != "")
+			{
+				v_Reason = v_NewReason;
+				v_Set.add("Reason_for_Referral");
+			}
+		}
+	}
+	v_Src = ifnull(v_P.Referral_Source,"").toString().trim();
+	if(v_Src == "")
+	{
+		if(v_HasRef)
+		{
+			v_NewSrc = ifnull(v_Ref.Referral_Source,"").toString().trim();
+			if(v_NewSrc != "")
+			{
+				v_Src = v_NewSrc;
+				v_Set.add("Referral_Source");
+			}
+		}
+	}
+	v_Vs = ifnull(v_P.Visit_Status,"").toString().trim();
+	if(v_Vs == "")
+	{
+		if(ifnull(v_P.Was_3008_Completed,"").toString() == "Yes")
+		{
+			v_Vs = "Completed";
+			v_Set.add("Visit_Status");
+		}
+	}
+	v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+	if(v_Rs == "")
+	{
+		if(v_Vs == "Cancelled")
+		{
+			v_Rs = "Cancelled";
+			v_Set.add("Row_Status");
+		}
+		else if(v_Vs != "")
+		{
+			v_Rs = "Counted";
+			v_Set.add("Row_Status");
+		}
+	}
+	if(v_Set.size() > 0)
+	{
+		v_Changed = v_Changed + 1;
+		v_Lines.add(v_Tag + " | " + v_Set.toString(","));
+		if(v_Commit)
+		{
+			update v_P
+			[
+				Referral_Date=v_RDate
+				Reason_for_Referral=v_Reason
+				Referral_Source=v_Src
+				Visit_Status=v_Vs
+				Row_Status=v_Rs
+			];
+		}
+	}
+	v_Miss = List();
+	if(v_RDate == null)
+	{
+		v_Miss.add("Referral_Date");
+	}
+	if(v_Reason == "")
+	{
+		v_Miss.add("Reason_for_Referral");
+	}
+	if(v_Src == "")
+	{
+		v_Miss.add("Referral_Source");
+	}
+	if(v_Vs == "")
+	{
+		v_Miss.add("Visit_Status");
+	}
+	if(v_Rs == "")
+	{
+		v_Miss.add("Row_Status");
+	}
+	if(v_Miss.size() > 0)
+	{
+		v_Ln = v_Tag + " | " + v_Miss.toString(",");
+		if(!v_HasRef)
+		{
+			v_Ln = v_Ln + " | no linked referral";
+		}
+		v_Left.add(v_Ln);
+	}
+}
+v_Out = v_Mode + " | scanned " + v_Scanned + " | changed " + v_Changed + " | still blank " + v_Left.size();
+if(v_Lines.size() > 0)
+{
+	v_Out = v_Out + "\nCHANGES:\n" + v_Lines.toString("\n");
+}
+if(v_Left.size() > 0)
+{
+	v_Out = v_Out + "\nSTILL BLANK:\n" + v_Left.toString("\n");
+}
+return v_Out;

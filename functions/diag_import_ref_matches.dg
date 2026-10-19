@@ -1,0 +1,28 @@
+v_Out = "READ-ONLY";
+for each  v_P in Encounter_PatientVisit[PVS_ID == null || PVS_ID == ""]
+{
+	v_Key = ifnull(v_P.Referral_ID,"").toString().trim();
+	v_Out = v_Out + "\nPVS rec " + v_P.ID + " | key [" + v_Key + "]";
+	v_C = Referrals_Main[Cognito_Referral_ID == v_Key];
+	v_Out = v_Out + " | cognito hits " + v_C.count();
+	for each  v_X in v_C
+	{
+		v_Out = v_Out + " {rec " + v_X.ID + " ref [" + ifnull(v_X.Referral_ID,"") + "] cog [" + ifnull(v_X.Cognito_Referral_ID,"") + "]}";
+	}
+	v_R = Referrals_Main[Referral_ID == v_Key];
+	v_Out = v_Out + " | refid hits " + v_R.count();
+	for each  v_Y in v_R
+	{
+		v_Out = v_Out + " {rec " + v_Y.ID + " ref [" + ifnull(v_Y.Referral_ID,"") + "] cog [" + ifnull(v_Y.Cognito_Referral_ID,"") + "]}";
+	}
+}
+for each  v_Z in Referrals_Main[ID == 4904890000000842003]
+{
+	v_Rd = "";
+	if(v_Z.Referral_Date != null)
+	{
+		v_Rd = v_Z.Referral_Date.toString("MM-dd-yyyy");
+	}
+	v_Out = v_Out + "\nREF rec " + v_Z.ID + " | ref [" + ifnull(v_Z.Referral_ID,"") + "] | cog [" + ifnull(v_Z.Cognito_Referral_ID,"") + "] | " + ifnull(v_Z.Patient_First_Name,"") + " " + ifnull(v_Z.Patient_Last_Name,"") + " | ref date " + v_Rd + " | added " + v_Z.Added_Time + " by " + v_Z.Added_User;
+}
+return v_Out;

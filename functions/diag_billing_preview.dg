@@ -1,0 +1,134 @@
+if(p_from == null || p_to == null)
+{
+	return "ERROR: Enter both dates.";
+}
+v_labels = Map();
+for each  lc in Partner_Locations[ID != 0]
+{
+	v_labels.put(lc.ID.toString(),ifnull(lc.Partner_Location_Label,"no label").toString().trim());
+}
+v_inactive = List();
+v_active = List();
+for each  rt in Partner_Rates[Current_Rate == "Yes"]
+{
+	if(rt.Partner_Location_Link != null)
+	{
+		v_k = rt.Partner_Location_Link.toString() + "|" + ifnull(rt.Rate_Type,"").toString().trim();
+		if(ifnull(rt.Partner_Rate_Status,"").toString().trim() == "Inactive")
+		{
+			if(!v_inactive.contains(v_k))
+			{
+				v_inactive.add(v_k);
+			}
+		}
+		else
+		{
+			if(!v_active.contains(v_k))
+			{
+				v_active.add(v_k);
+			}
+		}
+	}
+}
+v_branches = List();
+v_count = Map();
+v_total = Map();
+v_detail = Map();
+v_flags = List();
+for each  p in Encounter_PatientVisit[Invoice_Status == "Draft" && Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to] sort by Visit_Completion_Date
+{
+	if(p.Invoice_Link == null && p.Hold_From_Invoicing != "Yes")
+	{
+		v_lvl = ifnull(p.Complexity_Level,"").toString().trim();
+		if(v_lvl != "Visit Cancelled")
+		{
+			v_bk = "NO BRANCH";
+			v_bid = "";
+			if(p.Billing_Branch != null)
+			{
+				v_bid = p.Billing_Branch.toString();
+				v_bk = ifnull(v_labels.get(v_bid),"unknown branch");
+			}
+			v_amt = 0.0;
+			if(p.Complexity_Charge != null)
+			{
+				v_amt = p.Complexity_Charge.toDecimal();
+			}
+			v_tot = v_amt;
+			if(p.After_Hours_Fee != null)
+			{
+				v_tot = v_tot + p.After_Hours_Fee.toDecimal();
+			}
+			if(p.Super_Stat_Fee != null)
+			{
+				v_tot = v_tot + p.Super_Stat_Fee.toDecimal();
+			}
+			if(p.Equipment_Charge_Amount != null)
+			{
+				v_tot = v_tot + p.Equipment_Charge_Amount.toDecimal();
+			}
+			if(p.Other_Charges_Amount != null)
+			{
+				v_tot = v_tot + p.Other_Charges_Amount.toDecimal();
+			}
+			v_dos = p.Visit_Completion_Date.toString("MM/dd/yyyy");
+			v_tag = ifnull(p.PVS_ID,"no PVS ID") + " (" + v_dos + ", " + v_lvl + ", $" + v_tot + ")";
+			v_flag = "";
+			if(v_lvl == "")
+			{
+				v_flag = "no complexity level";
+			}
+			else if(v_amt <= 0 && v_lvl != "No Charge")
+			{
+				v_flag = "no rate";
+			}
+			else if(v_bid != "")
+			{
+				v_key = v_bid + "|" + v_lvl;
+				if(v_inactive.contains(v_key))
+				{
+					if(!v_active.contains(v_key))
+					{
+						v_flag = "service Inactive for this branch";
+					}
+				}
+			}
+			if(v_bk == "NO BRANCH")
+			{
+				v_flag = "no billing branch";
+			}
+			if(v_flag != "")
+			{
+				v_flags.add(v_bk + " | " + v_tag + " | " + v_flag);
+			}
+			if(!v_branches.contains(v_bk))
+			{
+				v_branches.add(v_bk);
+				v_count.put(v_bk,0);
+				v_total.put(v_bk,0.0);
+				v_detail.put(v_bk,"");
+			}
+			v_count.put(v_bk,v_count.get(v_bk) + 1);
+			v_total.put(v_bk,v_total.get(v_bk) + v_tot);
+			v_detail.put(v_bk,v_detail.get(v_bk) + "\n   " + v_tag);
+		}
+	}
+}
+v_out = "READ-ONLY BILLING PREVIEW " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy");
+v_grand = 0;
+v_grandAmt = 0.0;
+for each  b in v_branches
+{
+	v_grand = v_grand + v_count.get(b);
+	v_grandAmt = v_grandAmt + v_total.get(b);
+}
+v_out = v_out + "\nBranches: " + v_branches.size() + " | Visits: " + v_grand + " | Total $" + v_grandAmt + " | Would STOP a batch: " + v_flags.size();
+if(v_flags.size() > 0)
+{
+	v_out = v_out + "\n\nWOULD STOP A BATCH\n" + v_flags.toString("\n");
+}
+for each  b in v_branches
+{
+	v_out = v_out + "\n\n== " + b + " | " + v_count.get(b) + " visit(s) | $" + v_total.get(b) + v_detail.get(b);
+}
+return v_out;

@@ -1,0 +1,49 @@
+v_Max = 1200;
+if(p_chars != null)
+{
+	if(p_chars >= 100)
+	{
+		v_Max = p_chars;
+	}
+}
+v_Out = "READ-ONLY";
+v_List = ifnull(p_pvsIds,"").toList(",");
+for each  v_Raw in v_List
+{
+	v_Id = v_Raw.trim();
+	if(v_Id == "")
+	{
+		continue;
+	}
+	v_Found = false;
+	for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+	{
+		v_Found = true;
+		try 
+		{
+			v_Txt = "";
+			if(v_P.Final_Clinical_Note != null)
+			{
+				v_Txt = v_P.Final_Clinical_Note.toString();
+			}
+			v_Txt = v_Txt.replaceAll("<[^>]*>"," ");
+			v_Txt = v_Txt.replaceAll("&nbsp;"," ");
+			v_Txt = v_Txt.replaceAll("\n"," ");
+			v_Txt = v_Txt.trim();
+			if(v_Txt.length() > v_Max)
+			{
+				v_Txt = v_Txt.subString(0,v_Max);
+			}
+			v_Head = v_Id + " | " + ifnull(v_P.Referral_ID,"").toString() + " | " + ifnull(v_P.Complexity_Level,"").toString() + " | proc [" + ifnull(v_P.Type_of_Procedures,"").toString() + "] | diversion [" + ifnull(v_P.Diversion_Tracking,"").toString() + "]";
+			v_Out = v_Out + "\n\n===== " + v_Head + "\n" + v_Txt;
+		}			catch (e)
+		{
+			v_Out = v_Out + "\n\n===== " + v_Id + " | ERROR | " + e.toString();
+		}
+	}
+	if(!v_Found)
+	{
+		v_Out = v_Out + "\n\n===== " + v_Id + " | NOT FOUND";
+	}
+}
+return v_Out;

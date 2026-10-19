@@ -10,32 +10,39 @@ for each  v_raw in v_list
 	{
 		v_row = v_parts.get(0).trim();
 		v_last = v_parts.get(1).trim().toLowerCase();
-		v_key = v_last.getPrefix(" ");
-		if(v_key == null)
+		v_key = v_last;
+		if(v_last.contains(" "))
 		{
-			v_key = v_last;
+			v_key = v_last.getPrefix(" ").trim();
 		}
 		v_dob = v_parts.get(2).trim().toDate("MM/dd/yyyy");
 		v_hits = List();
+		v_other = List();
 		v_dobCount = 0;
 		for each  v_r in Referrals_Main[Patient_DOB == v_dob]
 		{
 			v_dobCount = v_dobCount + 1;
 			v_rl = ifnull(v_r.Patient_Last_Name,"").toLowerCase();
-			if(v_rl.contains(v_key))
+			v_name = ifnull(v_r.Patient_First_Name,"") + " " + ifnull(v_r.Patient_Last_Name,"");
+			v_has = "No";
+			v_pv = Encounter_PatientVisit[Referral_Link == v_r.ID && Type_of_Entry == "3008"];
+			if(v_pv.count() > 0)
 			{
-				v_has = "No";
-				v_pv = Encounter_PatientVisit[Referral_Link == v_r.ID && Type_of_Entry == "3008"];
-				if(v_pv.count() > 0)
-				{
-					v_has = "Yes";
-				}
-				v_rd = "";
-				if(v_r.Referral_Date != null)
-				{
-					v_rd = v_r.Referral_Date.toString("MM-dd-yyyy");
-				}
-				v_hits.add(ifnull(v_r.Referral_ID,"(no REF ID)") + " | Service " + ifnull(v_r.Referral_Type,"") + " | Ref Date " + v_rd + " | 3008 PVS exists " + v_has);
+				v_has = "Yes";
+			}
+			v_rd = "";
+			if(v_r.Referral_Date != null)
+			{
+				v_rd = v_r.Referral_Date.toString("MM-dd-yyyy");
+			}
+			v_txt = ifnull(v_r.Referral_ID,"(no REF ID)") + " | " + v_name + " | Service " + ifnull(v_r.Referral_Type,"") + " | Ref Date " + v_rd + " | 3008 PVS exists " + v_has;
+			if(v_key != "" && v_rl.contains(v_key))
+			{
+				v_hits.add(v_txt);
+			}
+			else
+			{
+				v_other.add(v_txt);
 			}
 		}
 		if(v_hits.size() == 0)
@@ -57,6 +64,10 @@ for each  v_raw in v_list
 			{
 				v_out = v_out + "\nRow " + v_row + " | " + v_h;
 			}
+		}
+		for each  v_o in v_other
+		{
+			v_out = v_out + "\nRow " + v_row + " | DOB only | " + v_o;
 		}
 	}
 }

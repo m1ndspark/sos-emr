@@ -1,0 +1,25 @@
+v_mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: p_mode must be PREVIEW or COMMIT.";
+}
+v_em = ifnull(p_employeeEmail,"").trim();
+if(v_em == "")
+{
+	return "ERROR: p_employeeEmail is required.";
+}
+v_list = ifnull(p_pvsIds,"").toList(",");
+v_out = "MODE: " + v_mode + " | Employee: " + v_em;
+v_count = 0;
+for each  v_raw in v_list
+{
+	v_id = v_raw.trim();
+	if(v_id != "")
+	{
+		v_count = v_count + 1;
+		v_res = thisapp.set_pvs_provider(v_mode,v_id,v_em);
+		v_out = v_out + "\n\n#" + v_count + " " + v_id + " ==========\n" + v_res;
+	}
+}
+v_out = v_out + "\n\nPVS processed: " + v_count;
+return v_out;

@@ -43,7 +43,7 @@
 - Record event: on edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 32309
+- .ds line: 35990
 - Fields read: Assignment_ID, Assignment_Notes, Employee_Link, Facility_Name, Facility_Phone, Facility_Room_Number, ID, Patient_Address, Patient_Location
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -56,7 +56,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 32290
+- .ds line: 35971
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -69,7 +69,7 @@
 - Record event: on add or edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 32370
+- .ds line: 36051
 - Fields read: -
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Patient_DOB, Patient_First_Name, Patient_Last_Name
@@ -82,7 +82,7 @@
 - Record event: on add or edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 36596
+- .ds line: 40293
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -95,7 +95,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Referral_Link
 - Status: ENABLED
-- .ds line: 35181
+- .ds line: 38878
 - Fields read: Referral_Link
 - Fields set: Facility_Name, Facility_Phone, Facility_Room_Number, Patient_Address, Patient_DOB, Patient_First_Name, Patient_Last_Name, Patient_Location, Patient_Phone, Referral_Date, Referral_POC, Referral_Partner
 - Fields shown/hidden/enabled/disabled: -
@@ -108,7 +108,7 @@
 - Record event: on add or edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 35562
+- .ds line: 39259
 - Fields read: Employee_Link, Referral_Link
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -121,25 +121,12 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 32391
+- .ds line: 36072
 - Fields read: Employee_Link, ID, Referral_Link
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
 - Functions called: -
 - Other forms: fetch Assignments (ID)
-
-### Assignment_Status_From_Pr
-
-- Display: Assignment Status From Provider
-- Record event: on add or edit
-- Form event: OnValidate
-- Status: ENABLED
-- .ds line: 36620
-- Fields read: Employee_Link
-- Fields set: -
-- Fields shown/hidden/enabled/disabled: -
-- Functions called: -
-- Other forms: -
 
 ### Assignment_Visit_Status_C
 
@@ -147,7 +134,7 @@
 - Record event: on edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 35247
+- .ds line: 38944
 - Fields read: Referral_Link
 - Fields set: Visit_Status
 - Fields shown/hidden/enabled/disabled: -
@@ -160,7 +147,7 @@
 - Record event: on add or edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 32515
+- .ds line: 36196
 - Fields read: Patient_Location
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Facility_Name, Facility_Phone, Facility_Room_Number
@@ -173,7 +160,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Patient_Location
 - Status: ENABLED
-- .ds line: 32545
+- .ds line: 36226
 - Fields read: Patient_Location
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Facility_Name, Facility_Phone, Facility_Room_Number
@@ -197,7 +184,7 @@ Every item that references a field of this form.
 - Assignments.Patient_Address: function process_new_referral [insert]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Pull_From_Refe1 [set]
 - Assignments.Facility_Phone: function process_new_referral [insert]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Pull_From_Refe1 [set]; workflow Assignments/Show_Hide_Facility_Name_P [show/hide]; workflow Assignments/Show_Hide_Facility_Name_P1 [show/hide]
 - Assignments.Facility_Room_Number: function process_new_referral [insert]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Pull_From_Refe1 [set]; workflow Assignments/Show_Hide_Facility_Name_P [show/hide]; workflow Assignments/Show_Hide_Facility_Name_P1 [show/hide]
-- Assignments.Employee_Link: function backfill_referral_employee_link [fetch, read]; function dash_metrics [read]; function dash_metrics_range [read]; function send_assignment_notification [read]; function widget_today_visits [read]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Referral_Emplo [read]; workflow Assignments/Assignment_Required_Refer [read]; workflow Assignments/Assignment_Status_From_Pr [read]
+- Assignments.Employee_Link: function backfill_referral_employee_link [fetch, read]; function dash_metrics [read]; function dash_metrics_range [read]; function send_assignment_notification [read]; function widget_today_visits [read]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Referral_Emplo [read]; workflow Assignments/Assignment_Required_Refer [read]
 - Assignments.Assignment_Notes: workflow Assignments/Assignment_Change_Log [read]
 - Assignments.Visit_Status: function dash_metrics [read]; function dash_metrics_range [read]; function widget_today_visits [read]; page Drilldown_Data [read]; workflow Assignments/Assignment_Visit_Status_C [set]
 - Assignments.Assignment_ID: function backfill_assignment_ids [read]; function diag_orphaned_records [read]; function diag_sequence_trackers [read]; function mint_assignment_id [read, update]; function send_assignment_notification [fetch, read]; function widget_today_visits [read]; page Drilldown_Data [read]; workflow Assignments/Assignment_Change_Log [read]

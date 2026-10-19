@@ -1,0 +1,62 @@
+v_id = ifnull(p_recId,"").trim();
+if(!v_id.matches("^[0-9]+$"))
+{
+	return "ERROR: Enter the numeric record ID.";
+}
+v_r = Referrals_Main[ID == v_id.toLong()];
+if(v_r.count() == 0)
+{
+	return "ERROR: No referral with record ID " + v_id + ".";
+}
+v_out = List();
+v_add = "";
+if(v_r.Added_Time != null)
+{
+	v_add = v_r.Added_Time.toString("MM-dd-yyyy HH:mm:ss");
+}
+v_out.add("READ-ONLY | ORPHAN rec " + v_id + " | REF [" + ifnull(v_r.Referral_ID,"") + "] | added " + v_add + " | " + ifnull(v_r.Referral_Type,"") + " | " + ifnull(v_r.Partner_Location_Label,""));
+v_pvs = Encounter_PatientVisit[Referral_Link == v_r.ID].count();
+v_asg = Assignments[Referral_Link == v_r.ID].count();
+v_files = Referral_Files[Referrals_Main == v_r.ID].count();
+v_img = Imaging_Orders[Referral_Link == v_r.ID].count();
+v_out.add("Linked: PVS " + v_pvs + " | Assignments " + v_asg + " | Referral Files " + v_files + " | Imaging Orders " + v_img);
+if(v_pvs + v_asg + v_files + v_img == 0)
+{
+	v_out.add("RESULT: nothing is linked to the orphan record.");
+}
+else
+{
+	v_out.add("RESULT: the orphan has linked records; do not delete until they are moved.");
+}
+v_out.add("");
+v_out.add("Other referrals with the same patient last name and DOB:");
+v_n = 0;
+if(v_r.Patient_DOB != null)
+{
+	v_ln = ifnull(v_r.Patient_Last_Name,"").toString().trim().toLowerCase();
+	for each  o in Referrals_Main[Patient_DOB == v_r.Patient_DOB && ID != v_r.ID] sort by Added_Time
+	{
+		if(ifnull(o.Patient_Last_Name,"").toString().trim().toLowerCase() == v_ln)
+		{
+			v_n = v_n + 1;
+			v_oadd = "";
+			if(o.Added_Time != null)
+			{
+				v_oadd = o.Added_Time.toString("MM-dd-yyyy HH:mm:ss");
+			}
+			v_opvs = Encounter_PatientVisit[Referral_Link == o.ID].count();
+			v_out.add(ifnull(o.Referral_ID,"(blank)") + " | rec " + o.ID + " | added " + v_oadd + " | " + ifnull(o.Referral_Type,"") + " | " + ifnull(o.Partner_Location_Label,"") + " | PVS " + v_opvs);
+		}
+	}
+}
+else
+{
+	v_out.add("Orphan has no DOB; match not possible.");
+}
+if(v_n == 0)
+{
+	v_out.add("None found.");
+}
+v_res = v_out.toString("\n");
+info v_res;
+return v_res;

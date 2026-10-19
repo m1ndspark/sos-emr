@@ -1,6 +1,6 @@
 /*
  * Author       : sosmmc
- * Generated on : 14-Oct-2026 17:48:56
+ * Generated on : 17-Oct-2026 06:46:58
  * Version      : 1.0
  */
  application "SOS Referrals App"
@@ -2200,6 +2200,25 @@
 	 			column = 1   
 				width = medium
 			)
+			Batch_Reason
+			(
+				type = picklist
+				displayname = "Batch Reason"
+				maxchar = 100
+				values = {"New Billing","Rebill After Void","Correction","Other"}
+				initial value = "New Billing"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Replaces_Invoice_Number
+			(
+    			type = text
+				displayname = "Replaces Invoice Number"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
 			Result_Message
 			(
     			type = textarea
@@ -2341,7 +2360,7 @@
 	 			column = 1   
 				width = medium
 			)
-			Section1
+			Section3
 			(
 				type = section
 				displayname = "Section"
@@ -2350,11 +2369,37 @@
 	 			column = 0   
 				width = medium
 			)
+			Revision_Date
+			(
+    			type = date
+				displayname = "Revision Date"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 2
+	 			column = 1   
+				width = medium
+			)
+			Replaces_Invoice_Number
+			(
+    			type = text
+				displayname = "Replaces Invoice Number"
+	 			row = 2
+	 			column = 1   
+				width = medium
+			)
+			Section1
+			(
+				type = section
+				displayname = "Section"
+				visibility = true
+	 			row = 3
+	 			column = 0   
+				width = medium
+			)
 			Books_Customer_ID
 			(
     			type = text
 				displayname = "Books Customer ID"
-	 			row = 2
+	 			row = 3
 	 			column = 1   
 				width = medium
 			)
@@ -2362,7 +2407,7 @@
 			(
     			type = text
 				displayname = "Books Invoice ID"
-	 			row = 2
+	 			row = 3
 	 			column = 1   
 				width = medium
 			)
@@ -2370,7 +2415,7 @@
 			(
     			type = text
 				displayname = "Books Invoice Number"
-	 			row = 2
+	 			row = 3
 	 			column = 1   
 				width = medium
 			)
@@ -2380,7 +2425,7 @@
 				displayname = "Books Sync Status"
 				maxchar = 100
 				values = {"Choice 1","Choice 2","Choice 3"}
-	 			row = 2
+	 			row = 3
 	 			column = 1   
 				width = medium
 			)
@@ -2389,7 +2434,7 @@
     			type = textarea
 				displayname = "Books Sync Message"
 				height = 100px
-	 			row = 2
+	 			row = 3
 	 			column = 1   
 				width = medium
 			)
@@ -2399,7 +2444,7 @@
 				displayname = "Books Sync Timestamp"
 				timedisplayoptions = "hh:mm:ss"
 				alloweddays = 0,1,2,3,4,5,6
-	 			row = 2
+	 			row = 3
 	 			column = 1   
 				width = medium
 			)
@@ -2408,7 +2453,7 @@
 				type = section
 				displayname = "Section"
 				visibility = true
-	 			row = 3
+	 			row = 4
 	 			column = 0   
 				width = medium
 			)
@@ -2416,7 +2461,7 @@
 			(
     			type = text
 				displayname = "Invoice ID"
-	 			row = 3
+	 			row = 4
 	 			column = 1   
 				width = medium
 			)
@@ -2424,7 +2469,7 @@
 			(
     			type = text
 				displayname = "Invoice ID Stamp"
-	 			row = 3
+	 			row = 4
 	 			column = 1   
 				width = medium
 			)
@@ -7286,6 +7331,11 @@
 				Notified_Time as "Notified Time"
 				Assignment_Status as "Assignment Status"
 			)
+			sort by
+			(
+				Referral_ID descending
+				Referral_Date descending
+			)
 			customlayouts
 			(
 				template
@@ -7399,11 +7449,17 @@
 				)
 				Referral_ID_Stamp as "Referral ID Stamp"
 				Partner_ID_Stamp as "Partner ID Stamp"
-				Cares_3008_Completion_Date as "3008 Completion Date"
+				Cares_3008_Completion_Date as "3008 Date"
+				(
+					width = 121px
+				)
 				Notes_3008 as "3008 Notes"
 				Lab_Order_Date as "Lab Order Date"
 				Lab_Order_Indication as "Lab Order Indication"
 				PVS_File_Upload as "PVS File Upload"
+				(
+					width = 322px
+				)
 				Lab_Type_Orders as "What labs are being ordered?"
 				Was_3008_Completed as "3008 Completed?"
 				Employee_Initials as "Employee Initials"
@@ -7453,6 +7509,9 @@
 				Advanced_Directives_Details as "Advanced Directives Details"
 				Additional_Information as "Additional Information"
 				General_Files_Upload as "General Files Upload"
+				(
+					width = 333px
+				)
 				Requested_Lab_Vendor as "Requested Lab Vendor"
 				Lab_Files_Upload as "Lab Files Upload"
 				Employee_Full_Name as "Employee Full Name"
@@ -7470,13 +7529,19 @@
 				Visit_Status as "Visit Status"
 				Fax_Status as "Status"
 				(
-					width = 63px
+					width = 72px
 				)
 				ID as "System ID"
 				PVS_3008_Upload as "PVS 3008 Upload"
+				(
+					width = 135px
+				)
 				QC_Reviewed as "QC Reviewed"
 				Provider_Login_Email as "Provider Login Email"
 				Employee_Link as "Employee"
+				(
+					width = 158px
+				)
 				Row_Status as "Row Status"
 				Duplicate_Of_PVS_ID as "Duplicate Of"
 				Row_Status_Note as "Row Status Note"
@@ -7500,10 +7565,16 @@
 				Fax_Override_Reason as "Override Reason"
 				Note_Finalized_Time as "Note Finalized Time"
 				Clinical_Note_File_Upload as "Clinical Note File Upload"
+				(
+					width = 333px
+				)
 			)
 			sort by
 			(
+				Referral_ID descending
+				PVS_ID descending
 				Visit_Completion_Date descending
+				Cares_3008_Completion_Date descending
 			)
 			conditional formatting
 			(
@@ -7860,6 +7931,8 @@
 				Visit_Count as "Visit Count"
 				Created_By as "Created By"
 				Partner_Link.Added_Time as "Added Time"
+				Revision_Date as "Revision Date"
+				Replaces_Invoice_Number as "Replaces Invoice Number"
 			)
 			sort by
 			(
@@ -7881,6 +7954,8 @@
 				ID
 				Max_Invoice_Total as "Max Invoice Total"
 				Partner_Link.Added_Time as "Added Time"
+				Batch_Reason as "Batch Reason"
+				Replaces_Invoice_Number as "Replaces Invoice Number"
 			)
 			sort by
 			(
@@ -8227,6 +8302,100 @@
 				show action in edit record menu = true
 				column header = "Fax PVS"
 				)
+			)
+		}
+		list MPU_Export
+		{
+			displayName = "MPU Export"
+			show all rows from Encounter_PatientVisit    
+			(
+				Visit_Status as "Visit Status"
+				Type_of_Entry as "Type of Entry"
+				Cares_3008_Completion_Date as "3008 Completion Date"
+				Notes_3008 as "3008 Notes"
+				Patient_First_Name as "Patient First Name"
+				Patient_Last_Name as "Patient Last Name"
+				Patient_DOB as "Patient DOB"
+				Patient_DOB1 as "Patient DOB"
+				Patient_Hospice_ID as "Patient Hospice ID"
+				Patient_Location as "Patient Location"
+				Facility_Name as "Facility Name"
+				Patient_Address  as "Patient Address"
+	 			(
+	      			enable = Link_to_Map,Show_As_Text
+	 			)
+				Reason_for_Referral as "Reason for Referral"
+				Clinical_Note_Type as "Clinical Note Type"
+				Final_Clinical_Note as "Clinical Note"
+				Clinical_Note_File_Upload as "Clinical Note File Upload"
+				Type_of_Procedures as "Type of Procedure(s)"
+				Complexity_Level as "Complexity Level"
+				Additional_Charges as "Additional Charges"
+				Complexity_Charge as "Complexity Charge"
+				After_Hours_Fee as "After Hours ($)"
+				Super_Stat_Fee as "Super STAT ($)"
+				Equipment_Charge_Amount as "Equipment Charge Amount ($)"
+				Equipment_Charge_Details as "Equipment Charge Details"
+				Other_Charges_Amount as "Other Charges Amount ($)"
+				Diversion_Tracking as "Did this visit result in a Diversion?"
+				Type_of_Diversion as "Type of Diversion"
+				Partner_Organization as "Referral Partner"
+				Partner_Branch as "Partner Branch/Location"
+				Partner_POC_First_Name as "PR POC First Name"
+				Partner_POC_Last_Name as "PR POC Last Name"
+				Partner_POC_Email as "PR POC Email"
+				Partner_Location_Label as "Partner Location Label"
+				Employee_Name_Title as "Employee Name & Title"
+				Visit_Completion_Date as "Visit Completion Date"
+				Hold_From_Invoicing as "Hold From Invoicing"
+				Billing_Branch as "Billing Branch"
+				PVS_ID as "PVS ID"
+				Referral_ID as "Referral ID"
+				Referral_Date as "Referral Date"
+				Referral_Source as "Referral Source"
+				Row_Status as "Row Status"
+				Duplicate_Of_PVS_ID as "Duplicate Of"
+				Row_Status_Note as "Row Status Note"
+				Invoice_Status as "Invoice Status"
+				Referral_Link.Partner_Organization as "Partner Organization"
+				Added_Time as "Added Time"
+			)
+		}
+		list MPU_Export_Referrals
+		{
+			displayName = "MPU Export Referrals"
+			show all rows from Referrals_Main    
+			(
+				Referral_Source as "Referral Source"
+				Referral_Type as "Service"
+				Patient_First_Name as "Patient First Name"
+				Patient_MI as "Patient MI"
+				Patient_Last_Name as "Patient Last Name"
+				Patient_DOB as "Patient DOB"
+				Patient_DOB1 as "Patient DOB"
+				Patient_Hospice_ID as "Patient Hospice ID"
+				Patient_Location as "Patient Location"
+				Facility_Name as "Facility Name"
+				Patient_Address  as "Patient Address"
+	 			(
+	      			enable = Link_to_Map,Show_As_Text
+	 			)
+				Referral_Reason as "Reason for Referral"
+				X_Ray_Needed as "Will an X-Ray be needed for this referral?"
+				Imaging_Type_Order as "Imaging Test(s) to be Ordered"
+				Partner_Organization as "Partner Organization"
+				Partner_Branch as "Partner Branch/Location"
+				Partner_POC_Email as "Partner POC Email"
+				Data_Issues as "Data Issues"
+				Referral_ID as "Referral ID"
+				Referral_Date as "Referral Date"
+				Partner_POC_Name_Title as "Partner POC Name & Title"
+				Partner_Location_Label as "Partner Location Label"
+				Assignment_Status as "Assignment Status"
+				Employee_Link as "Employee Link"
+				Partner_Branch_Submitted as "Partner Branch Submitted"
+				Referral_Added_Time as "Referral Added Time"
+				Added_Time as "Added Time"
 			)
 		}
 	}
@@ -9033,6 +9202,736 @@
                  	}
                  	v_Head = "ASSIGN PARTNER BRANCH | mode=" + v_Mode + " | changed=" + v_Changed + " | notfound=" + v_Missing;
                  	return v_Head + "\n" + v_Lines.toString("\n");
+                 }
+				 string audit_month_integrity(string p_mode, date p_from, date p_to)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	v_Valid = {"PVS","BILLING","REFERRALS","DATELESS"};
+                 	if(!v_Valid.contains(v_Mode))
+                 	{
+                 		return "Invalid mode. Use PVS, BILLING, REFERRALS or DATELESS.";
+                 	}
+                 	if(p_from == null || p_to == null)
+                 	{
+                 		return "Enter both dates.";
+                 	}
+                 	v_HitList = List();
+                 	v_Summary = List();
+                 	v_Scanned = 0;
+                 	v_Zero = {"No Charge","Visit Cancelled"};
+                 	if(v_Mode == "PVS")
+                 	{
+                 		v_Labels = {"Referral ID","Referral Date","First Name","Last Name","DOB","Gender","Hospice ID","Phone","Location","Facility Name","Facility Phone","Address Line 1","Address City","Address State","Address Zip","Partner ID","Partner Organization","Partner Branch","Partner Location Label","Reason"};
+                 		for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+                 		{
+                 			v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 			if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+                 			{
+                 				continue;
+                 			}
+                 			v_Scanned = v_Scanned + 1;
+                 			v_HasPid = true;
+                 			v_Pid = ifnull(v_P.PVS_ID,"").toString().trim();
+                 			if(v_Pid == "")
+                 			{
+                 				v_HasPid = false;
+                 				v_Pid = "rec " + v_P.ID.toString();
+                 				v_HitList.add("6 PVS | no PVS ID~~" + v_Pid);
+                 			}
+                 			v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+                 			v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+                 			v_PLoc = ifnull(v_P.Patient_Location,"").toString().trim();
+                 			v_PV = Map();
+                 			v_PV.put("Referral ID",ifnull(v_P.Referral_ID,"").toString().trim().toUpperCase());
+                 			v_Tmp = "";
+                 			if(v_P.Referral_Date != null)
+                 			{
+                 				v_Tmp = v_P.Referral_Date.toString("yyyy-MM-dd");
+                 			}
+                 			v_PV.put("Referral Date",v_Tmp);
+                 			v_PV.put("First Name",ifnull(v_P.Patient_First_Name,"").toString().toLowerCase().trim().replaceAll(" +"," "));
+                 			v_PV.put("Last Name",ifnull(v_P.Patient_Last_Name,"").toString().toLowerCase().trim().replaceAll(" +"," "));
+                 			v_Tmp = "";
+                 			if(v_P.Patient_DOB != null)
+                 			{
+                 				v_Tmp = v_P.Patient_DOB.toString("yyyy-MM-dd");
+                 			}
+                 			v_PV.put("DOB",v_Tmp);
+                 			v_PV.put("Gender",ifnull(v_P.Patient_Gender,"").toString().toLowerCase().trim());
+                 			v_PV.put("Hospice ID",ifnull(v_P.Patient_Hospice_ID,"").toString().toLowerCase().trim());
+                 			v_Ph = ifnull(v_P.Patient_Phone,"").toString().replaceAll("[^0-9]","");
+                 			if(v_Ph.length() == 11 && v_Ph.startsWith("1"))
+                 			{
+                 				v_Ph = v_Ph.subString(1,v_Ph.length());
+                 			}
+                 			v_PV.put("Phone",v_Ph);
+                 			v_PV.put("Location",v_PLoc.toLowerCase());
+                 			v_PV.put("Facility Name",ifnull(v_P.Facility_Name,"").toString().toLowerCase().trim().replaceAll(" +"," "));
+                 			v_Ph = ifnull(v_P.Facility_Phone,"").toString().replaceAll("[^0-9]","");
+                 			if(v_Ph.length() == 11 && v_Ph.startsWith("1"))
+                 			{
+                 				v_Ph = v_Ph.subString(1,v_Ph.length());
+                 			}
+                 			v_PV.put("Facility Phone",v_Ph);
+                 			v_PV.put("Address Line 1",ifnull(v_P.Patient_Address.address_line_1,"").toString().toLowerCase().trim().replaceAll(" +"," "));
+                 			v_PV.put("Address City",ifnull(v_P.Patient_Address.district_city,"").toString().toLowerCase().trim());
+                 			v_PV.put("Address State",ifnull(v_P.Patient_Address.state_province,"").toString().toLowerCase().trim());
+                 			v_PV.put("Address Zip",ifnull(v_P.Patient_Address.postal_Code,"").toString().trim());
+                 			v_PV.put("Partner ID",ifnull(v_P.Partner_ID,"").toString().trim().toUpperCase());
+                 			v_PV.put("Partner Organization",ifnull(v_P.Partner_Organization,"").toString().toLowerCase().trim());
+                 			v_PV.put("Partner Branch",ifnull(v_P.Partner_Branch,"").toString().toLowerCase().trim());
+                 			v_PV.put("Partner Location Label",ifnull(v_P.Partner_Location_Label,"").toString().toLowerCase().trim());
+                 			v_PV.put("Reason",ifnull(v_P.Reason_for_Referral,"").toString().trim());
+                 			v_HasRef = false;
+                 			v_RLoc = "";
+                 			v_RV = Map();
+                 			if(v_P.Referral_Link == null)
+                 			{
+                 				v_HitList.add("1 LINK | no referral link~~" + v_Pid);
+                 			}
+                 			else
+                 			{
+                 				for each  v_R in Referrals_Main[ID == v_P.Referral_Link]
+                 				{
+                 					v_HasRef = true;
+                 					v_RLoc = ifnull(v_R.Patient_Location,"").toString().trim();
+                 					v_RV.put("Referral ID",ifnull(v_R.Referral_ID,"").toString().trim().toUpperCase());
+                 					v_Tmp = "";
+                 					if(v_R.Referral_Date != null)
+                 					{
+                 						v_Tmp = v_R.Referral_Date.toString("yyyy-MM-dd");
+                 					}
+                 					v_RV.put("Referral Date",v_Tmp);
+                 					v_RV.put("First Name",ifnull(v_R.Patient_First_Name,"").toString().toLowerCase().trim().replaceAll(" +"," "));
+                 					v_RV.put("Last Name",ifnull(v_R.Patient_Last_Name,"").toString().toLowerCase().trim().replaceAll(" +"," "));
+                 					v_Tmp = "";
+                 					if(v_R.Patient_DOB != null)
+                 					{
+                 						v_Tmp = v_R.Patient_DOB.toString("yyyy-MM-dd");
+                 					}
+                 					v_RV.put("DOB",v_Tmp);
+                 					v_RV.put("Gender",ifnull(v_R.Patient_Gender,"").toString().toLowerCase().trim());
+                 					v_RV.put("Hospice ID",ifnull(v_R.Patient_Hospice_ID,"").toString().toLowerCase().trim());
+                 					v_Ph = ifnull(v_R.Patient_Phone,"").toString().replaceAll("[^0-9]","");
+                 					if(v_Ph.length() == 11 && v_Ph.startsWith("1"))
+                 					{
+                 						v_Ph = v_Ph.subString(1,v_Ph.length());
+                 					}
+                 					v_RV.put("Phone",v_Ph);
+                 					v_RV.put("Location",v_RLoc.toLowerCase());
+                 					v_RV.put("Facility Name",ifnull(v_R.Facility_Name,"").toString().toLowerCase().trim().replaceAll(" +"," "));
+                 					v_Ph = ifnull(v_R.Facility_Phone,"").toString().replaceAll("[^0-9]","");
+                 					if(v_Ph.length() == 11 && v_Ph.startsWith("1"))
+                 					{
+                 						v_Ph = v_Ph.subString(1,v_Ph.length());
+                 					}
+                 					v_RV.put("Facility Phone",v_Ph);
+                 					v_RV.put("Address Line 1",ifnull(v_R.Patient_Address.address_line_1,"").toString().toLowerCase().trim().replaceAll(" +"," "));
+                 					v_RV.put("Address City",ifnull(v_R.Patient_Address.district_city,"").toString().toLowerCase().trim());
+                 					v_RV.put("Address State",ifnull(v_R.Patient_Address.state_province,"").toString().toLowerCase().trim());
+                 					v_RV.put("Address Zip",ifnull(v_R.Patient_Address.postal_Code,"").toString().trim());
+                 					v_RV.put("Partner ID",ifnull(v_R.Partner_ID,"").toString().trim().toUpperCase());
+                 					v_RV.put("Partner Organization",ifnull(v_R.Partner_Organization,"").toString().toLowerCase().trim());
+                 					v_RV.put("Partner Branch",ifnull(v_R.Partner_Branch,"").toString().toLowerCase().trim());
+                 					v_RV.put("Partner Location Label",ifnull(v_R.Partner_Location_Label,"").toString().toLowerCase().trim());
+                 					v_RV.put("Reason",ifnull(v_R.Referral_Reason,"").toString().trim());
+                 				}
+                 				if(!v_HasRef)
+                 				{
+                 					v_HitList.add("1 LINK | referral link points to a missing referral~~" + v_Pid);
+                 				}
+                 			}
+                 			if(v_HasRef)
+                 			{
+                 				v_Skip = List();
+                 				v_BlankOk = List();
+                 				v_NoDiff = {"Reason"};
+                 				v_IsFac = false;
+                 				if(v_PLoc == "Facility")
+                 				{
+                 					v_IsFac = true;
+                 				}
+                 				if(v_RLoc == "Facility")
+                 				{
+                 					v_IsFac = true;
+                 				}
+                 				if(v_IsFac)
+                 				{
+                 					v_BlankOk.add("Address Line 1");
+                 					v_BlankOk.add("Address City");
+                 					v_BlankOk.add("Address State");
+                 					v_BlankOk.add("Address Zip");
+                 				}
+                 				else
+                 				{
+                 					v_Skip.add("Facility Name");
+                 					v_Skip.add("Facility Phone");
+                 				}
+                 				if(v_Type == "3008")
+                 				{
+                 					v_BlankOk.add("Hospice ID");
+                 					v_Skip.add("Reason");
+                 				}
+                 				for each  v_Lab in v_Labels
+                 				{
+                 					if(v_Skip.contains(v_Lab))
+                 					{
+                 						continue;
+                 					}
+                 					v_A = v_PV.get(v_Lab);
+                 					v_B = v_RV.get(v_Lab);
+                 					if(v_A == "")
+                 					{
+                 						if(v_B != "")
+                 						{
+                 							v_HitList.add("2 FIXABLE: blank on PVS, filled on referral | " + v_Lab + "~~" + v_Pid);
+                 						}
+                 						else if(!v_BlankOk.contains(v_Lab))
+                 						{
+                 							v_HitList.add("3 MISSING on PVS and referral | " + v_Lab + "~~" + v_Pid);
+                 						}
+                 					}
+                 					else if(v_B == "")
+                 					{
+                 						v_HitList.add("4 ON PVS, blank on referral | " + v_Lab + "~~" + v_Pid);
+                 					}
+                 					else if(v_A != v_B)
+                 					{
+                 						if(!v_NoDiff.contains(v_Lab))
+                 						{
+                 							v_HitList.add("5 DIFFERS from referral | " + v_Lab + "~~" + v_Pid);
+                 						}
+                 					}
+                 				}
+                 			}
+                 			v_Fn1 = ifnull(v_P.Patient_Full_Name_1,"").toString().toLowerCase().trim().replaceAll(" +"," ");
+                 			v_Last = v_PV.get("Last Name");
+                 			if(v_Fn1 == "")
+                 			{
+                 				v_HitList.add("6 PVS | Patient Full Name 1 blank (prints on invoice)~~" + v_Pid);
+                 			}
+                 			else if(v_Last != "")
+                 			{
+                 				if(!v_Fn1.contains(v_Last))
+                 				{
+                 					v_HitList.add("6 PVS | Patient Full Name 1 does not contain last name~~" + v_Pid);
+                 				}
+                 			}
+                 			if(v_P.Billing_Branch == null)
+                 			{
+                 				v_HitList.add("6 PVS | no Billing Branch~~" + v_Pid);
+                 			}
+                 			if(v_P.Employee_Link == null)
+                 			{
+                 				v_HitList.add("6 PVS | no Employee Link~~" + v_Pid);
+                 			}
+                 			v_Ini = ifnull(v_P.Employee_Initials,"").toString().trim().toUpperCase();
+                 			if(v_Ini == "")
+                 			{
+                 				v_HitList.add("6 PVS | no provider initials~~" + v_Pid);
+                 			}
+                 			else if(v_HasPid)
+                 			{
+                 				v_Parts = v_Pid.toList("-");
+                 				v_Suf = v_Parts.get(v_Parts.size() - 1).toString().trim().toUpperCase();
+                 				if(v_Suf != v_Ini)
+                 				{
+                 					v_HitList.add("6 PVS | PVS ID suffix does not match provider initials~~" + v_Pid + " (" + v_Ini + ")");
+                 				}
+                 			}
+                 			if(ifnull(v_P.Employee_Name_Title,"").toString().trim() == "")
+                 			{
+                 				v_HitList.add("6 PVS | no provider name/title~~" + v_Pid);
+                 			}
+                 			if(v_Type == "")
+                 			{
+                 				v_HitList.add("6 PVS | no Type of Entry~~" + v_Pid);
+                 			}
+                 			v_Vs = ifnull(v_P.Visit_Status,"").toString().trim();
+                 			if(v_Vs != "Completed")
+                 			{
+                 				if(v_Vs == "")
+                 				{
+                 					v_Vs = "(blank)";
+                 				}
+                 				v_HitList.add("6 PVS | Visit Status " + v_Vs + "~~" + v_Pid);
+                 			}
+                 			if(v_Type == "3008")
+                 			{
+                 				if(v_P.Cares_3008_Completion_Date == null)
+                 				{
+                 					v_HitList.add("6 PVS | 3008 with no 3008 Completion Date~~" + v_Pid);
+                 				}
+                 			}
+                 			if(v_Type == "Patient Visit")
+                 			{
+                 				v_Cnt = ifnull(v_P.Clinical_Note_Type,"").toString().trim();
+                 				if(v_Cnt == "")
+                 				{
+                 					v_HitList.add("6 PVS | Patient Visit with no Clinical Note Type~~" + v_Pid);
+                 				}
+                 				else if(v_Cnt == "Preliminary")
+                 				{
+                 					v_HitList.add("6 PVS | Patient Visit note still Preliminary~~" + v_Pid);
+                 				}
+                 				if(ifnull(v_P.Final_Clinical_Note,"").toString().trim() == "")
+                 				{
+                 					v_HitList.add("6 PVS | Patient Visit with empty clinical note~~" + v_Pid);
+                 				}
+                 				v_Proc = ifnull(v_P.Type_of_Procedures,"").toString().trim();
+                 				if(v_Proc == "" || v_Proc == "[]")
+                 				{
+                 					v_HitList.add("6 PVS | Patient Visit with no Type of Procedures~~" + v_Pid);
+                 				}
+                 				if(ifnull(v_P.Diversion_Tracking,"").toString().trim() == "")
+                 				{
+                 					v_HitList.add("6 PVS | Patient Visit with no Diversion Tracking~~" + v_Pid);
+                 				}
+                 			}
+                 			if(v_Type != "Imaging Order")
+                 			{
+                 				if(v_Lvl == "")
+                 				{
+                 					v_HitList.add("6 PVS | no Complexity Level~~" + v_Pid);
+                 				}
+                 			}
+                 			if(v_Lvl != "")
+                 			{
+                 				if(!v_Zero.contains(v_Lvl))
+                 				{
+                 					if(v_P.Complexity_Charge == null)
+                 					{
+                 						v_HitList.add("6 PVS | no Complexity Charge~~" + v_Pid);
+                 					}
+                 				}
+                 			}
+                 		}
+                 	}
+                 	if(v_Mode == "BILLING")
+                 	{
+                 		v_Rates = Map();
+                 		for each  v_RR in Partner_Rates[Current_Rate == "Yes"]
+                 		{
+                 			if(ifnull(v_RR.Partner_Rate_Status,"").toString().trim() == "Inactive")
+                 			{
+                 				continue;
+                 			}
+                 			v_Bk = ifnull(v_RR.Partner_Location_Link,"").toString().trim();
+                 			v_Rt = ifnull(v_RR.Rate_Type,"").toString().trim();
+                 			if(v_Bk != "" && v_Rt != "")
+                 			{
+                 				v_Rates.put(v_Bk + "|" + v_Rt,ifnull(v_RR.Rate_Amount,0));
+                 			}
+                 		}
+                 		v_SeenRef = Map();
+                 		v_SeenPat = Map();
+                 		v_BilledCt = 0;
+                 		v_BilledAmt = 0.0;
+                 		v_OpenCt = 0;
+                 		v_OpenAmt = 0.0;
+                 		for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+                 		{
+                 			v_Pid = ifnull(v_P.PVS_ID,"").toString().trim();
+                 			if(v_Pid == "")
+                 			{
+                 				v_Pid = "rec " + v_P.ID.toString();
+                 			}
+                 			v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 			v_Excl = false;
+                 			if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+                 			{
+                 				v_Excl = true;
+                 			}
+                 			v_Hold = ifnull(v_P.Hold_From_Invoicing,"").toString().trim();
+                 			v_InvNum = "";
+                 			v_InvSt = "NONE";
+                 			if(v_P.Invoice_Link != null)
+                 			{
+                 				v_InvSt = "DEAD";
+                 				for each  v_I in Invoices[ID == v_P.Invoice_Link]
+                 				{
+                 					v_InvSt = "LIVE";
+                 					v_InvNum = ifnull(v_I.Books_Invoice_Number,"").toString().trim();
+                 					if(ifnull(v_I.Invoice_Record_Status,"").toString().trim() == "Void")
+                 					{
+                 						v_InvSt = "VOID";
+                 					}
+                 				}
+                 			}
+                 			v_Tag = v_Pid;
+                 			if(v_InvNum != "")
+                 			{
+                 				v_Tag = v_Pid + " (" + v_InvNum + ")";
+                 			}
+                 			if(v_Excl)
+                 			{
+                 				if(v_InvSt == "LIVE")
+                 				{
+                 					v_HitList.add("1 RETIRED (" + v_Rs + ") but on a live invoice~~" + v_Tag);
+                 				}
+                 				if(v_Hold != "Yes")
+                 				{
+                 					v_HitList.add("3 RETIRED (" + v_Rs + ") but not held~~" + v_Tag);
+                 				}
+                 				continue;
+                 			}
+                 			v_Scanned = v_Scanned + 1;
+                 			if(v_Rs != "Counted")
+                 			{
+                 				if(v_Rs == "")
+                 				{
+                 					v_Rs = "(blank)";
+                 				}
+                 				v_HitList.add("3 Row Status " + v_Rs + "~~" + v_Tag);
+                 			}
+                 			v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+                 			v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+                 			v_Bill = ifnull(v_P.Billing_Branch,"").toString().trim();
+                 			v_IStat = ifnull(v_P.Invoice_Status,"").toString().trim();
+                 			v_Chg = 0.0;
+                 			if(v_P.Complexity_Charge != null)
+                 			{
+                 				v_Chg = v_P.Complexity_Charge.toDecimal();
+                 			}
+                 			v_Amt = v_Chg;
+                 			if(v_P.After_Hours_Fee != null)
+                 			{
+                 				v_Amt = v_Amt + v_P.After_Hours_Fee.toDecimal();
+                 			}
+                 			if(v_P.Super_Stat_Fee != null)
+                 			{
+                 				v_Amt = v_Amt + v_P.Super_Stat_Fee.toDecimal();
+                 			}
+                 			if(v_P.Equipment_Charge_Amount != null)
+                 			{
+                 				v_Amt = v_Amt + v_P.Equipment_Charge_Amount.toDecimal();
+                 			}
+                 			if(v_P.Other_Charges_Amount != null)
+                 			{
+                 				v_Amt = v_Amt + v_P.Other_Charges_Amount.toDecimal();
+                 			}
+                 			if(v_InvSt == "DEAD")
+                 			{
+                 				v_HitList.add("1 Invoice link points to a missing invoice~~" + v_Tag);
+                 			}
+                 			else if(v_InvSt == "VOID")
+                 			{
+                 				v_HitList.add("1 On a VOID invoice (needs rebill)~~" + v_Tag);
+                 			}
+                 			else if(v_InvSt == "LIVE")
+                 			{
+                 				v_BilledCt = v_BilledCt + 1;
+                 				v_BilledAmt = v_BilledAmt + v_Amt;
+                 				if(v_IStat != "Final")
+                 				{
+                 					v_HitList.add("2 On an invoice but Invoice Status not Final~~" + v_Tag);
+                 				}
+                 			}
+                 			else
+                 			{
+                 				if(v_IStat == "Final")
+                 				{
+                 					v_HitList.add("2 Invoice Status Final but no invoice link~~" + v_Tag);
+                 				}
+                 				if(v_Hold == "Yes")
+                 				{
+                 					v_HitList.add("4 HELD, not billed~~" + v_Tag + " $" + v_Amt.round(2));
+                 				}
+                 				else if(v_Zero.contains(v_Lvl))
+                 				{
+                 					v_HitList.add("4 Not billed, $0 level " + v_Lvl + "~~" + v_Tag);
+                 				}
+                 				else if(v_Amt == 0)
+                 				{
+                 					v_HitList.add("1 Not billed, $0 total but level " + v_Lvl + "~~" + v_Tag);
+                 				}
+                 				else
+                 				{
+                 					v_OpenCt = v_OpenCt + 1;
+                 					v_OpenAmt = v_OpenAmt + v_Amt;
+                 					v_HitList.add("1 NOT BILLED, has a charge~~" + v_Tag + " $" + v_Amt.round(2));
+                 				}
+                 			}
+                 			if(v_Lvl != "")
+                 			{
+                 				if(!v_Zero.contains(v_Lvl))
+                 				{
+                 					v_Card = v_Rates.get(v_Bill + "|" + v_Lvl);
+                 					if(v_Card == null)
+                 					{
+                 						v_HitList.add("3 No Active current rate card for branch + level~~" + v_Tag + " " + v_Lvl);
+                 					}
+                 					else if(v_Chg != v_Card.toDecimal())
+                 					{
+                 						v_HitList.add("3 Charge differs from current rate card~~" + v_Tag + " $" + v_Chg + " vs $" + v_Card);
+                 					}
+                 				}
+                 			}
+                 			v_Dos = v_P.Visit_Completion_Date.toString("yyyy-MM-dd");
+                 			v_RefKey = ifnull(v_P.Referral_Link,"").toString() + "|" + v_Dos + "|" + v_Type;
+                 			if(v_SeenRef.containKey(v_RefKey))
+                 			{
+                 				v_HitList.add("1 SAME referral + visit date + type~~" + v_SeenRef.get(v_RefKey) + " & " + v_Tag);
+                 			}
+                 			else
+                 			{
+                 				v_SeenRef.put(v_RefKey,v_Tag);
+                 			}
+                 			v_Dob = "";
+                 			if(v_P.Patient_DOB != null)
+                 			{
+                 				v_Dob = v_P.Patient_DOB.toString("yyyy-MM-dd");
+                 			}
+                 			v_LastN = ifnull(v_P.Patient_Last_Name,"").toString().toLowerCase().trim();
+                 			if(v_LastN != "" && v_Dob != "")
+                 			{
+                 				v_PatKey = v_LastN + "|" + v_Dob + "|" + v_Dos;
+                 				v_PatVal = ifnull(v_P.Referral_Link,"").toString() + "^" + v_Tag;
+                 				if(v_SeenPat.containKey(v_PatKey))
+                 				{
+                 					v_Prev = v_SeenPat.get(v_PatKey).toString();
+                 					v_PrevLink = v_Prev.subString(0,v_Prev.indexOf("^"));
+                 					if(v_PrevLink != ifnull(v_P.Referral_Link,"").toString())
+                 					{
+                 						v_HitList.add("2 SAME patient + visit date on different referrals~~" + v_Prev.subString(v_Prev.indexOf("^") + 1,v_Prev.length()) + " & " + v_Tag);
+                 					}
+                 				}
+                 				else
+                 				{
+                 					v_SeenPat.put(v_PatKey,v_PatVal);
+                 				}
+                 			}
+                 		}
+                 		v_Summary.add("Billed on live invoices: " + v_BilledCt + " visits, $" + v_BilledAmt.round(2));
+                 		v_Summary.add("Not billed with a charge: " + v_OpenCt + " visits, $" + v_OpenAmt.round(2));
+                 	}
+                 	if(v_Mode == "REFERRALS")
+                 	{
+                 		v_Linked = Map();
+                 		for each  v_P in Encounter_PatientVisit[ID != 0]
+                 		{
+                 			v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 			if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+                 			{
+                 				continue;
+                 			}
+                 			if(v_P.Referral_Link != null)
+                 			{
+                 				v_Linked.put(v_P.Referral_Link.toString(),1);
+                 			}
+                 		}
+                 		for each  v_R in Referrals_Main[ID != 0]
+                 		{
+                 			v_Rid = ifnull(v_R.Referral_ID,"").toString().trim();
+                 			v_Tag = v_Rid;
+                 			if(v_Rid == "")
+                 			{
+                 				v_Tag = "rec " + v_R.ID.toString();
+                 			}
+                 			v_Rd = v_R.Referral_Date;
+                 			v_NoRd = false;
+                 			if(v_Rd == null)
+                 			{
+                 				v_NoRd = true;
+                 				if(v_R.Referral_Added_Time != null)
+                 				{
+                 					v_Rd = toDate(v_R.Referral_Added_Time.toString("yyyy-MM-dd"),"yyyy-MM-dd");
+                 				}
+                 			}
+                 			if(v_Rd == null)
+                 			{
+                 				v_HitList.add("2 No Referral Date and no Added Time (any month)~~" + v_Tag);
+                 				continue;
+                 			}
+                 			if(v_Rd < p_from)
+                 			{
+                 				continue;
+                 			}
+                 			if(v_Rd > p_to)
+                 			{
+                 				continue;
+                 			}
+                 			v_Scanned = v_Scanned + 1;
+                 			v_RType = ifnull(v_R.Referral_Type,"").toString().trim();
+                 			if(!v_Linked.containKey(v_R.ID.toString()))
+                 			{
+                 				v_Lbl = v_RType;
+                 				if(v_Lbl == "")
+                 				{
+                 					v_Lbl = "(no type)";
+                 				}
+                 				v_HitList.add("1 NO PVS | " + v_Lbl + "~~" + v_Tag);
+                 			}
+                 			if(v_NoRd)
+                 			{
+                 				v_HitList.add("2 MISSING | Referral Date (Added Time used)~~" + v_Tag);
+                 			}
+                 			if(v_Rid == "")
+                 			{
+                 				v_HitList.add("2 MISSING | Referral ID~~" + v_Tag);
+                 			}
+                 			if(v_RType == "")
+                 			{
+                 				v_HitList.add("2 MISSING | Referral Type~~" + v_Tag);
+                 			}
+                 			if(ifnull(v_R.Patient_First_Name,"").toString().trim() == "")
+                 			{
+                 				v_HitList.add("2 MISSING | Patient First Name~~" + v_Tag);
+                 			}
+                 			if(ifnull(v_R.Patient_Last_Name,"").toString().trim() == "")
+                 			{
+                 				v_HitList.add("2 MISSING | Patient Last Name~~" + v_Tag);
+                 			}
+                 			if(ifnull(v_R.Patient_Full_Name,"").toString().trim() == "")
+                 			{
+                 				v_HitList.add("2 MISSING | Patient Full Name~~" + v_Tag);
+                 			}
+                 			if(v_R.Patient_DOB == null)
+                 			{
+                 				if(ifnull(v_R.Patient_DOB1,"").toString().trim() != "")
+                 				{
+                 					v_HitList.add("2 MISSING | Patient DOB (text DOB not parsed)~~" + v_Tag);
+                 				}
+                 				else
+                 				{
+                 					v_HitList.add("2 MISSING | Patient DOB~~" + v_Tag);
+                 				}
+                 			}
+                 			if(v_R.Partner_Link == null)
+                 			{
+                 				v_HitList.add("2 MISSING | Partner Link~~" + v_Tag);
+                 			}
+                 			if(v_R.Partner_Branch_Link == null)
+                 			{
+                 				v_HitList.add("2 MISSING | Partner Branch Link~~" + v_Tag);
+                 			}
+                 			if(ifnull(v_R.Partner_ID,"").toString().trim() == "")
+                 			{
+                 				v_HitList.add("2 MISSING | Partner ID~~" + v_Tag);
+                 			}
+                 			if(ifnull(v_R.Partner_Organization,"").toString().trim() == "")
+                 			{
+                 				v_HitList.add("2 MISSING | Partner Organization~~" + v_Tag);
+                 			}
+                 			v_RLoc = ifnull(v_R.Patient_Location,"").toString().trim();
+                 			if(v_RLoc == "")
+                 			{
+                 				v_HitList.add("2 MISSING | Patient Location~~" + v_Tag);
+                 			}
+                 			else if(v_RLoc == "Facility")
+                 			{
+                 				if(ifnull(v_R.Facility_Name,"").toString().trim() == "")
+                 				{
+                 					v_HitList.add("2 MISSING | Facility Name~~" + v_Tag);
+                 				}
+                 			}
+                 			else
+                 			{
+                 				if(ifnull(v_R.Patient_Address.address_line_1,"").toString().trim() == "")
+                 				{
+                 					v_HitList.add("2 MISSING | Home address~~" + v_Tag);
+                 				}
+                 			}
+                 			if(v_RType != "3008")
+                 			{
+                 				if(ifnull(v_R.Patient_Hospice_ID,"").toString().trim() == "")
+                 				{
+                 					v_HitList.add("2 MISSING | Hospice ID (MRN)~~" + v_Tag);
+                 				}
+                 			}
+                 			if(v_R.Employee_Link == null)
+                 			{
+                 				v_HitList.add("3 Not assigned to a provider~~" + v_Tag);
+                 			}
+                 		}
+                 	}
+                 	if(v_Mode == "DATELESS")
+                 	{
+                 		v_Summary.add("DATELESS ignores the dates entered and scans every PVS.");
+                 		for each  v_P in Encounter_PatientVisit[ID != 0]
+                 		{
+                 			if(v_P.Visit_Completion_Date != null)
+                 			{
+                 				continue;
+                 			}
+                 			v_Scanned = v_Scanned + 1;
+                 			v_Pid = ifnull(v_P.PVS_ID,"").toString().trim();
+                 			if(v_Pid == "")
+                 			{
+                 				v_Pid = "rec " + v_P.ID.toString();
+                 			}
+                 			v_Rd = "no ref date";
+                 			if(v_P.Referral_Date != null)
+                 			{
+                 				v_Rd = v_P.Referral_Date.toString("MM/dd/yyyy");
+                 			}
+                 			v_Tag = v_Pid + " / " + ifnull(v_P.Referral_ID,"no REF").toString() + " / " + v_Rd;
+                 			v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+                 			if(v_Type == "")
+                 			{
+                 				v_Type = "(no type)";
+                 			}
+                 			v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 			if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+                 			{
+                 				v_HitList.add("2 DATELESS, retired " + v_Rs + "~~" + v_Tag);
+                 			}
+                 			else if(v_Type == "3008")
+                 			{
+                 				if(v_P.Cares_3008_Completion_Date != null)
+                 				{
+                 					v_HitList.add("1 DATELESS 3008 that has a 3008 date (stamp missed)~~" + v_Tag);
+                 				}
+                 				else
+                 				{
+                 					v_HitList.add("1 DATELESS, counted | 3008~~" + v_Tag);
+                 				}
+                 			}
+                 			else
+                 			{
+                 				v_HitList.add("1 DATELESS, counted | " + v_Type + "~~" + v_Tag);
+                 			}
+                 		}
+                 	}
+                 	v_Group = Map();
+                 	v_Count = Map();
+                 	v_Keys = List();
+                 	for each  v_H in v_HitList
+                 	{
+                 		v_Pos = v_H.indexOf("~~");
+                 		v_K = v_H.subString(0,v_Pos);
+                 		v_V = v_H.subString(v_Pos + 2,v_H.length());
+                 		if(v_Group.containKey(v_K))
+                 		{
+                 			v_Group.put(v_K,v_Group.get(v_K) + ", " + v_V);
+                 			v_Count.put(v_K,v_Count.get(v_K) + 1);
+                 		}
+                 		else
+                 		{
+                 			v_Keys.add(v_K);
+                 			v_Group.put(v_K,v_V);
+                 			v_Count.put(v_K,1);
+                 		}
+                 	}
+                 	v_Out = List();
+                 	v_Out.add("READ-ONLY AUDIT | mode " + v_Mode + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy") + " | scanned " + v_Scanned + " | issue types " + v_Keys.size() + " | flags " + v_HitList.size());
+                 	for each  v_S in v_Summary
+                 	{
+                 		v_Out.add(v_S);
+                 	}
+                 	if(v_Keys.size() == 0)
+                 	{
+                 		v_Out.add("NO ISSUES FOUND");
+                 	}
+                 	else
+                 	{
+                 		v_Sorted = v_Keys.sort(true);
+                 		for each  v_K in v_Sorted
+                 		{
+                 			v_Out.add("== " + v_K + " (" + v_Count.get(v_K) + "): " + v_Group.get(v_K));
+                 		}
+                 	}
+                 	return v_Out.toString("\n");
                  }
 				 string audit_pvs_billing_readiness(string p_mode, date p_from, date p_to)
                  {
@@ -11222,6 +12121,98 @@
                  	v_out = v_out + "SAMPLE\n" + v_sample;
                  	return v_out;
                  }
+				 string backfill_pvs_employee_link_range(string p_mode, date p_from, date p_to)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_ByEmail = Map();
+                 	v_ByInit = Map();
+                 	v_InitCount = Map();
+                 	v_Name = Map();
+                 	for each  v_E in Employees[ID != 0]
+                 	{
+                 		v_Nm = ifnull(v_E.Employee_Name_Title,"").toString().trim();
+                 		if(v_Nm == "")
+                 		{
+                 			v_Nm = (ifnull(v_E.Employee_First_Name,"").toString().trim() + " " + ifnull(v_E.Employee_Last_Name,"").toString().trim()).trim();
+                 		}
+                 		v_Name.put(v_E.ID.toString(),v_Nm);
+                 		v_W = ifnull(v_E.Employee_Email,"").toString().trim().toLowerCase();
+                 		v_Pt = ifnull(v_E.Employee_Portal_Email,"").toString().trim().toLowerCase();
+                 		if(v_W != "")
+                 		{
+                 			v_ByEmail.put(v_W,v_E.ID);
+                 		}
+                 		if(v_Pt != "")
+                 		{
+                 			v_ByEmail.put(v_Pt,v_E.ID);
+                 		}
+                 		v_In = ifnull(v_E.Employee_Initials,"").toString().trim().toUpperCase();
+                 		if(v_In != "")
+                 		{
+                 			v_Cnt = ifnull(v_InitCount.get(v_In),0);
+                 			v_InitCount.put(v_In,v_Cnt + 1);
+                 			v_ByInit.put(v_In,v_E.ID);
+                 		}
+                 	}
+                 	v_Linked = List();
+                 	v_NoMatch = List();
+                 	for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Employee_Link == null]
+                 	{
+                 		v_Tag = ifnull(v_P.PVS_ID,"rec " + v_P.ID).toString();
+                 		v_Em = ifnull(v_P.Employee_Email,"").toString().trim().toLowerCase();
+                 		v_In = ifnull(v_P.Employee_Initials,"").toString().trim().toUpperCase();
+                 		v_EmpId = null;
+                 		v_How = "";
+                 		if(v_Em != "")
+                 		{
+                 			v_EmpId = v_ByEmail.get(v_Em);
+                 			if(v_EmpId != null)
+                 			{
+                 				v_How = "email";
+                 			}
+                 		}
+                 		if(v_EmpId == null)
+                 		{
+                 			if(v_In != "")
+                 			{
+                 				if(ifnull(v_InitCount.get(v_In),0) == 1)
+                 				{
+                 					v_EmpId = v_ByInit.get(v_In);
+                 					v_How = "initials";
+                 				}
+                 			}
+                 		}
+                 		if(v_EmpId == null)
+                 		{
+                 			v_NoMatch.add(v_Tag + " | email [" + v_Em + "] initials [" + v_In + "]");
+                 		}
+                 		else
+                 		{
+                 			v_Linked.add(v_Tag + " -> " + v_Name.get(v_EmpId.toString()) + " (" + v_How + ")");
+                 			if(v_Mode == "COMMIT")
+                 			{
+                 				update v_P
+                 				[
+                 					Employee_Link=v_EmpId
+                 				];
+                 			}
+                 		}
+                 	}
+                 	v_Out = v_Mode + " | linked " + v_Linked.size() + " | no match " + v_NoMatch.size();
+                 	if(v_Linked.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nLINKED:\n" + v_Linked.toString("\n");
+                 	}
+                 	if(v_NoMatch.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nNO MATCH:\n" + v_NoMatch.toString("\n");
+                 	}
+                 	return v_Out;
+                 }
 				 string backfill_pvs_from_referral()
                  {
                  	v_done = 0;
@@ -12582,6 +13573,160 @@
                  	}
                  	v_Out = "BACKFILL PVS ROW STATUS | mode=" + v_Mode + " | scanned=" + v_Scanned + " | already set=" + v_Already + " | to Counted=" + v_Counted + " (of which Attempted=" + v_Attempted + ") | to Cancelled=" + v_Cancelled + " | remaining=" + v_Remaining;
                  	return v_Out + "\n" + v_Sample.toString("\n");
+                 }
+				 string backfill_pvs_system_fields_range(string p_mode, date p_from, date p_to)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_Commit = false;
+                 	if(v_Mode == "COMMIT")
+                 	{
+                 		v_Commit = true;
+                 	}
+                 	v_Scanned = 0;
+                 	v_Changed = 0;
+                 	v_Lines = List();
+                 	v_Left = List();
+                 	for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+                 	{
+                 		v_Scanned = v_Scanned + 1;
+                 		v_Tag = ifnull(v_P.PVS_ID,"").toString().trim();
+                 		if(v_Tag == "")
+                 		{
+                 			v_Tag = "rec " + v_P.ID;
+                 		}
+                 		v_HasRef = false;
+                 		v_Ref = null;
+                 		if(v_P.Referral_Link != null)
+                 		{
+                 			v_Ref = Referrals_Main[ID == v_P.Referral_Link];
+                 			if(v_Ref.ID != null)
+                 			{
+                 				v_HasRef = true;
+                 			}
+                 		}
+                 		v_Set = List();
+                 		v_RDate = v_P.Referral_Date;
+                 		if(v_RDate == null)
+                 		{
+                 			if(v_HasRef)
+                 			{
+                 				if(v_Ref.Referral_Date != null)
+                 				{
+                 					v_RDate = v_Ref.Referral_Date;
+                 					v_Set.add("Referral_Date");
+                 				}
+                 			}
+                 		}
+                 		v_Reason = ifnull(v_P.Reason_for_Referral,"").toString().trim();
+                 		if(v_Reason == "")
+                 		{
+                 			if(v_HasRef)
+                 			{
+                 				v_NewReason = ifnull(v_Ref.Referral_Reason,"").toString().trim();
+                 				if(v_NewReason != "")
+                 				{
+                 					v_Reason = v_NewReason;
+                 					v_Set.add("Reason_for_Referral");
+                 				}
+                 			}
+                 		}
+                 		v_Src = ifnull(v_P.Referral_Source,"").toString().trim();
+                 		if(v_Src == "")
+                 		{
+                 			if(v_HasRef)
+                 			{
+                 				v_NewSrc = ifnull(v_Ref.Referral_Source,"").toString().trim();
+                 				if(v_NewSrc != "")
+                 				{
+                 					v_Src = v_NewSrc;
+                 					v_Set.add("Referral_Source");
+                 				}
+                 			}
+                 		}
+                 		v_Vs = ifnull(v_P.Visit_Status,"").toString().trim();
+                 		if(v_Vs == "")
+                 		{
+                 			if(ifnull(v_P.Was_3008_Completed,"").toString() == "Yes")
+                 			{
+                 				v_Vs = "Completed";
+                 				v_Set.add("Visit_Status");
+                 			}
+                 		}
+                 		v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 		if(v_Rs == "")
+                 		{
+                 			if(v_Vs == "Cancelled")
+                 			{
+                 				v_Rs = "Cancelled";
+                 				v_Set.add("Row_Status");
+                 			}
+                 			else if(v_Vs != "")
+                 			{
+                 				v_Rs = "Counted";
+                 				v_Set.add("Row_Status");
+                 			}
+                 		}
+                 		if(v_Set.size() > 0)
+                 		{
+                 			v_Changed = v_Changed + 1;
+                 			v_Lines.add(v_Tag + " | " + v_Set.toString(","));
+                 			if(v_Commit)
+                 			{
+                 				update v_P
+                 				[
+                 					Referral_Date=v_RDate
+                 					Reason_for_Referral=v_Reason
+                 					Referral_Source=v_Src
+                 					Visit_Status=v_Vs
+                 					Row_Status=v_Rs
+                 				];
+                 			}
+                 		}
+                 		v_Miss = List();
+                 		if(v_RDate == null)
+                 		{
+                 			v_Miss.add("Referral_Date");
+                 		}
+                 		if(v_Reason == "")
+                 		{
+                 			v_Miss.add("Reason_for_Referral");
+                 		}
+                 		if(v_Src == "")
+                 		{
+                 			v_Miss.add("Referral_Source");
+                 		}
+                 		if(v_Vs == "")
+                 		{
+                 			v_Miss.add("Visit_Status");
+                 		}
+                 		if(v_Rs == "")
+                 		{
+                 			v_Miss.add("Row_Status");
+                 		}
+                 		if(v_Miss.size() > 0)
+                 		{
+                 			v_Ln = v_Tag + " | " + v_Miss.toString(",");
+                 			if(!v_HasRef)
+                 			{
+                 				v_Ln = v_Ln + " | no linked referral";
+                 			}
+                 			v_Left.add(v_Ln);
+                 		}
+                 	}
+                 	v_Out = v_Mode + " | scanned " + v_Scanned + " | changed " + v_Changed + " | still blank " + v_Left.size();
+                 	if(v_Lines.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nCHANGES:\n" + v_Lines.toString("\n");
+                 	}
+                 	if(v_Left.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nSTILL BLANK:\n" + v_Left.toString("\n");
+                 	}
+                 	return v_Out;
                  }
 				 string backfill_referral_added_time()
                  {
@@ -15177,11 +16322,46 @@
                  	}
                  	return v_out;
                  }
-				 string create_invoice_from_selection(list p_pvsIds)
+				 string create_invoice_from_selection(list p_pvsIds, string p_replacesInvoice)
                  {
                  	if(p_pvsIds.size() == 0)
                  	{
                  		return "ERROR: No visits selected.";
+                 	}
+                 	v_invDate = zoho.currentdate;
+                 	v_repl = ifnull(p_replacesInvoice,"").toString().trim();
+                 	v_origDateTxt = "";
+                 	if(v_repl != "")
+                 	{
+                 		v_origId = null;
+                 		v_origHits = 0;
+                 		for each  v_o in Invoices[Books_Invoice_Number == v_repl]
+                 		{
+                 			if(v_origId == null)
+                 			{
+                 				v_origId = v_o.ID;
+                 			}
+                 			v_origHits = v_origHits + 1;
+                 		}
+                 		if(v_origId == null)
+                 		{
+                 			return "ERROR: Replaced invoice " + v_repl + " not found.";
+                 		}
+                 		if(v_origHits > 1)
+                 		{
+                 			return "ERROR: " + v_origHits + " invoice records share number " + v_repl + ". Resolve before rebilling.";
+                 		}
+                 		v_orig = Invoices[ID == v_origId];
+                 		if(ifnull(v_orig.Invoice_Record_Status,"").toString() != "Void")
+                 		{
+                 			return "ERROR: Replaced invoice " + v_repl + " is not Void. Void it with reset_invoice first.";
+                 		}
+                 		if(v_orig.Invoice_Date == null)
+                 		{
+                 			return "ERROR: Replaced invoice " + v_repl + " has no Invoice Date.";
+                 		}
+                 		v_invDate = v_orig.Invoice_Date;
+                 		v_origDateTxt = v_invDate.toString("MM/dd/yyyy");
                  	}
                  	v_branchId = null;
                  	v_dateFrom = null;
@@ -15340,7 +16520,7 @@
                  	[
                  		Partner_Link=v_partnerId
                  		Partner_Location_Link=v_branchId
-                 		Invoice_Date=zoho.currentdate
+                 		Invoice_Date=v_invDate
                  		Service_Date_From=v_dateFrom
                  		Service_Date_To=v_dateTo
                  		Invoice_Total=v_total
@@ -15351,6 +16531,12 @@
                  		Added_User=zoho.loginuser
                  	];
                  	v_invId = v_invRec;
+                 	if(v_repl != "")
+                 	{
+                 		v_newInv = Invoices[ID == v_invId];
+                 		v_newInv.Revision_Date=zoho.currentdate;
+                 		v_newInv.Replaces_Invoice_Number=v_repl;
+                 	}
                  	for each  v_upd in Encounter_PatientVisit[ID in v_visits]
                  	{
                  		update v_upd
@@ -15361,7 +16547,11 @@
                  	}
                  	v_payload = Map();
                  	v_payload.put("customer_id",v_loc.Books_Customer_ID);
-                 	v_payload.put("date",zoho.currentdate.toString("yyyy-MM-dd"));
+                 	v_payload.put("date",v_invDate.toString("yyyy-MM-dd"));
+                 	if(v_repl != "")
+                 	{
+                 		v_payload.put("notes","REVISED INVOICE. Revised " + zoho.currentdate.toString("MM/dd/yyyy") + ". Replaces " + v_repl + " (void). Original invoice date " + v_origDateTxt + " and original due date are unchanged.");
+                 	}
                  	v_payload.put("reference_number",v_invId.toString());
                  	v_payload.put("payment_terms",30);
                  	v_payload.put("payment_terms_label","Net 30");
@@ -15385,7 +16575,12 @@
                  		v_inv.Books_Invoice_Number=v_books.get("invoice_number");
                  		v_inv.Invoice_Record_Status="Sent";
                  		v_inv.Books_Sync_Message="Success";
-                 		return "INVID:" + v_invId + "|Invoice created: " + v_books.get("invoice_number") + " | visits: " + v_visits.size() + " | total: " + v_total;
+                 		v_revTxt = "";
+                 		if(v_repl != "")
+                 		{
+                 			v_revTxt = " | REVISED, replaces " + v_repl + ", invoice date " + v_origDateTxt;
+                 		}
+                 		return "INVID:" + v_invId + "|Invoice created: " + v_books.get("invoice_number") + " | visits: " + v_visits.size() + " | total: " + v_total + v_revTxt;
                  	}
                  	else
                  	{
@@ -17378,6 +18573,143 @@
                  	}
                  	return "Affected: " + v_n + v_out;
                  }
+				 string diag_billing_preview(date p_from, date p_to)
+                 {
+                 	if(p_from == null || p_to == null)
+                 	{
+                 		return "ERROR: Enter both dates.";
+                 	}
+                 	v_labels = Map();
+                 	for each  lc in Partner_Locations[ID != 0]
+                 	{
+                 		v_labels.put(lc.ID.toString(),ifnull(lc.Partner_Location_Label,"no label").toString().trim());
+                 	}
+                 	v_inactive = List();
+                 	v_active = List();
+                 	for each  rt in Partner_Rates[Current_Rate == "Yes"]
+                 	{
+                 		if(rt.Partner_Location_Link != null)
+                 		{
+                 			v_k = rt.Partner_Location_Link.toString() + "|" + ifnull(rt.Rate_Type,"").toString().trim();
+                 			if(ifnull(rt.Partner_Rate_Status,"").toString().trim() == "Inactive")
+                 			{
+                 				if(!v_inactive.contains(v_k))
+                 				{
+                 					v_inactive.add(v_k);
+                 				}
+                 			}
+                 			else
+                 			{
+                 				if(!v_active.contains(v_k))
+                 				{
+                 					v_active.add(v_k);
+                 				}
+                 			}
+                 		}
+                 	}
+                 	v_branches = List();
+                 	v_count = Map();
+                 	v_total = Map();
+                 	v_detail = Map();
+                 	v_flags = List();
+                 	for each  p in Encounter_PatientVisit[Invoice_Status == "Draft" && Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to] sort by Visit_Completion_Date
+                 	{
+                 		if(p.Invoice_Link == null && p.Hold_From_Invoicing != "Yes")
+                 		{
+                 			v_lvl = ifnull(p.Complexity_Level,"").toString().trim();
+                 			if(v_lvl != "Visit Cancelled")
+                 			{
+                 				v_bk = "NO BRANCH";
+                 				v_bid = "";
+                 				if(p.Billing_Branch != null)
+                 				{
+                 					v_bid = p.Billing_Branch.toString();
+                 					v_bk = ifnull(v_labels.get(v_bid),"unknown branch");
+                 				}
+                 				v_amt = 0.0;
+                 				if(p.Complexity_Charge != null)
+                 				{
+                 					v_amt = p.Complexity_Charge.toDecimal();
+                 				}
+                 				v_tot = v_amt;
+                 				if(p.After_Hours_Fee != null)
+                 				{
+                 					v_tot = v_tot + p.After_Hours_Fee.toDecimal();
+                 				}
+                 				if(p.Super_Stat_Fee != null)
+                 				{
+                 					v_tot = v_tot + p.Super_Stat_Fee.toDecimal();
+                 				}
+                 				if(p.Equipment_Charge_Amount != null)
+                 				{
+                 					v_tot = v_tot + p.Equipment_Charge_Amount.toDecimal();
+                 				}
+                 				if(p.Other_Charges_Amount != null)
+                 				{
+                 					v_tot = v_tot + p.Other_Charges_Amount.toDecimal();
+                 				}
+                 				v_dos = p.Visit_Completion_Date.toString("MM/dd/yyyy");
+                 				v_tag = ifnull(p.PVS_ID,"no PVS ID") + " (" + v_dos + ", " + v_lvl + ", $" + v_tot + ")";
+                 				v_flag = "";
+                 				if(v_lvl == "")
+                 				{
+                 					v_flag = "no complexity level";
+                 				}
+                 				else if(v_amt <= 0 && v_lvl != "No Charge")
+                 				{
+                 					v_flag = "no rate";
+                 				}
+                 				else if(v_bid != "")
+                 				{
+                 					v_key = v_bid + "|" + v_lvl;
+                 					if(v_inactive.contains(v_key))
+                 					{
+                 						if(!v_active.contains(v_key))
+                 						{
+                 							v_flag = "service Inactive for this branch";
+                 						}
+                 					}
+                 				}
+                 				if(v_bk == "NO BRANCH")
+                 				{
+                 					v_flag = "no billing branch";
+                 				}
+                 				if(v_flag != "")
+                 				{
+                 					v_flags.add(v_bk + " | " + v_tag + " | " + v_flag);
+                 				}
+                 				if(!v_branches.contains(v_bk))
+                 				{
+                 					v_branches.add(v_bk);
+                 					v_count.put(v_bk,0);
+                 					v_total.put(v_bk,0.0);
+                 					v_detail.put(v_bk,"");
+                 				}
+                 				v_count.put(v_bk,v_count.get(v_bk) + 1);
+                 				v_total.put(v_bk,v_total.get(v_bk) + v_tot);
+                 				v_detail.put(v_bk,v_detail.get(v_bk) + "\n   " + v_tag);
+                 			}
+                 		}
+                 	}
+                 	v_out = "READ-ONLY BILLING PREVIEW " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy");
+                 	v_grand = 0;
+                 	v_grandAmt = 0.0;
+                 	for each  b in v_branches
+                 	{
+                 		v_grand = v_grand + v_count.get(b);
+                 		v_grandAmt = v_grandAmt + v_total.get(b);
+                 	}
+                 	v_out = v_out + "\nBranches: " + v_branches.size() + " | Visits: " + v_grand + " | Total $" + v_grandAmt + " | Would STOP a batch: " + v_flags.size();
+                 	if(v_flags.size() > 0)
+                 	{
+                 		v_out = v_out + "\n\nWOULD STOP A BATCH\n" + v_flags.toString("\n");
+                 	}
+                 	for each  b in v_branches
+                 	{
+                 		v_out = v_out + "\n\n== " + b + " | " + v_count.get(b) + " visit(s) | $" + v_total.get(b) + v_detail.get(b);
+                 	}
+                 	return v_out;
+                 }
 				 string diag_blank_referral_id()
                  {
                  	v_Rows = List();
@@ -17740,6 +19072,115 @@
                  		return "No duplicate Active location names.";
                  	}
                  	return v_Lines.toString(" || ");
+                 }
+				 string diag_duplicate_patient_referrals(date p_from, date p_to)
+                 {
+                 	v_Keys = List();
+                 	v_Ids = Map();
+                 	v_Count = Map();
+                 	v_Total = 0;
+                 	v_NoName = 0;
+                 	for each  r in Referrals_Main[Referral_Date >= p_from && Referral_Date <= p_to] sort by Referral_Date desc
+                 	{
+                 		v_Total = v_Total + 1;
+                 		v_First = ifnull(r.Patient_First_Name,"").toString().trim().toLowerCase();
+                 		v_Last = ifnull(r.Patient_Last_Name,"").toString().trim().toLowerCase();
+                 		if(v_First == "" && v_Last == "")
+                 		{
+                 			v_NoName = v_NoName + 1;
+                 		}
+                 		else
+                 		{
+                 			v_Key = v_First + " " + v_Last;
+                 			if(v_Count.containKey(v_Key))
+                 			{
+                 				v_Count.put(v_Key,v_Count.get(v_Key) + 1);
+                 				v_Ids.put(v_Key,v_Ids.get(v_Key) + "," + r.ID.toString());
+                 			}
+                 			else
+                 			{
+                 				v_Keys.add(v_Key);
+                 				v_Count.put(v_Key,1);
+                 				v_Ids.put(v_Key,r.ID.toString());
+                 			}
+                 		}
+                 	}
+                 	v_Out = List();
+                 	v_Sets = 0;
+                 	v_Extra = 0;
+                 	v_Flagged = 0;
+                 	for each  v_K in v_Keys
+                 	{
+                 		v_N = v_Count.get(v_K);
+                 		if(v_N > 1)
+                 		{
+                 			v_Sets = v_Sets + 1;
+                 			v_Extra = v_Extra + v_N - 1;
+                 			v_IdList = v_Ids.get(v_K).toList(",");
+                 			v_Lines = List();
+                 			v_InvCount = 0;
+                 			for each  v_RecId in v_IdList
+                 			{
+                 				v_Lid = v_RecId.toLong();
+                 				for each  r2 in Referrals_Main[ID == v_Lid]
+                 				{
+                 					v_Dob = "no DOB";
+                 					if(r2.Patient_DOB != null)
+                 					{
+                 						v_Dob = r2.Patient_DOB.toString("yyyy-MM-dd");
+                 					}
+                 					v_Line = "   " + ifnull(r2.Referral_ID,"no Referral_ID") + " | ref date " + r2.Referral_Date.toString("yyyy-MM-dd") + " | " + ifnull(r2.Referral_Type,"no service") + " | " + ifnull(r2.Partner_Organization,"no partner") + " | DOB " + v_Dob + " | Cognito " + ifnull(r2.Cognito_Referral_ID,"none");
+                 					v_Pvs = List();
+                 					for each  p in Encounter_PatientVisit[Referral_Link == r2.ID]
+                 					{
+                 						v_InvTxt = "not invoiced";
+                 						if(p.Invoice_Link != null)
+                 						{
+                 							v_InvCount = v_InvCount + 1;
+                 							for each  i in Invoices[ID == p.Invoice_Link]
+                 							{
+                 								v_InvTxt = ifnull(i.Books_Invoice_Number,"no Books number") + "/" + ifnull(i.Invoice_Record_Status,"no status");
+                 								break;
+                 							}
+                 						}
+                 						v_Dos = "no DOS";
+                 						if(p.Visit_Completion_Date != null)
+                 						{
+                 							v_Dos = p.Visit_Completion_Date.toString("yyyy-MM-dd");
+                 						}
+                 						v_Pvs.add(ifnull(p.PVS_ID,"no PVS ID") + " DOS " + v_Dos + " [" + v_InvTxt + "]");
+                 					}
+                 					if(v_Pvs.size() == 0)
+                 					{
+                 						v_Line = v_Line + " | PVS: none";
+                 					}
+                 					else
+                 					{
+                 						v_Line = v_Line + " | PVS: " + v_Pvs.toString(", ");
+                 					}
+                 					v_Lines.add(v_Line);
+                 				}
+                 			}
+                 			v_Head = "x" + v_N + " " + v_K;
+                 			if(v_InvCount > 1)
+                 			{
+                 				v_Flagged = v_Flagged + 1;
+                 				v_Head = v_Head + "  << POSSIBLE DOUBLE BILL (" + v_InvCount + " invoiced PVS)";
+                 			}
+                 			v_Out.add(v_Head + "\n" + v_Lines.toString("\n"));
+                 		}
+                 	}
+                 	v_Msg = "DUPLICATE PATIENT REFERRAL CHECK " + p_from.toString("yyyy-MM-dd") + " to " + p_to.toString("yyyy-MM-dd");
+                 	v_Msg = v_Msg + "\nReferrals scanned: " + v_Total;
+                 	v_Msg = v_Msg + "\nNo patient name: " + v_NoName;
+                 	v_Msg = v_Msg + "\nPatients with 2+ referrals: " + v_Sets;
+                 	v_Msg = v_Msg + "\nExtra referrals beyond the first: " + v_Extra;
+                 	v_Msg = v_Msg + "\nSets flagged POSSIBLE DOUBLE BILL: " + v_Flagged;
+                 	if(v_Out.size() > 0)
+                 	{
+                 		v_Msg = v_Msg + "\n\n" + v_Out.toString("\n\n");
+                 	}
+                 	return v_Msg;
                  }
 				 string diag_duplicate_referral_ids()
                  {
@@ -18414,6 +19855,55 @@
                  	v_out = v_out + "resolver gate [" + v_r.get("gate").toString() + "]\n";
                  	return v_out;
                  }
+				 string diag_find_patients(string p_rows)
+                 {
+                 	v_out = "READ-ONLY PATIENT SEARCH, ALL DATES";
+                 	v_list = ifnull(p_rows,"").toList(";");
+                 	for each  v_raw in v_list
+                 	{
+                 		v_parts = v_raw.toList("|");
+                 		if(v_parts.size() == 2)
+                 		{
+                 			v_lastIn = v_parts.get(0).trim();
+                 			v_dobIn = v_parts.get(1).trim();
+                 			v_last = v_lastIn.toLowerCase();
+                 			v_dob = v_dobIn.toDate("MM/dd/yyyy");
+                 			v_out = v_out + "\n\n== " + v_lastIn + " " + v_dobIn;
+                 			v_hits = 0;
+                 			v_other = List();
+                 			for each  p in Encounter_PatientVisit[Patient_DOB == v_dob] sort by Visit_Completion_Date desc
+                 			{
+                 				v_pl = ifnull(p.Patient_Last_Name,"").toString().toLowerCase();
+                 				v_pf = ifnull(p.Patient_Full_Name_1,"").toString().toLowerCase();
+                 				v_dos = "no DOS";
+                 				if(p.Visit_Completion_Date != null)
+                 				{
+                 					v_dos = p.Visit_Completion_Date.toString("MM/dd/yyyy");
+                 				}
+                 				v_line = ifnull(p.PVS_ID,"no PVS ID") + " | " + ifnull(p.Referral_ID,"no REF") + " | " + ifnull(p.Type_of_Entry,"") + " | DOS " + v_dos + " | " + ifnull(p.Employee_Initials,"") + " | row " + ifnull(p.Row_Status,"") + " | hold " + ifnull(p.Hold_From_Invoicing,"");
+                 				v_isMatch = v_pl.contains(v_last) || v_pf.contains(v_last);
+                 				if(v_isMatch)
+                 				{
+                 					v_hits = v_hits + 1;
+                 					v_out = v_out + "\nMATCH " + v_line;
+                 				}
+                 				else
+                 				{
+                 					v_other.add("SAME DOB, OTHER NAME [" + ifnull(p.Patient_Full_Name_1,"") + "] " + v_line);
+                 				}
+                 			}
+                 			if(v_hits == 0)
+                 			{
+                 				v_out = v_out + "\nNo PVS for this name + DOB";
+                 			}
+                 			for each  v_o in v_other
+                 			{
+                 				v_out = v_out + "\n" + v_o;
+                 			}
+                 		}
+                 	}
+                 	return v_out;
+                 }
 				 string diag_find_referral(string p_text)
                  {
                  	v_Q = ifnull(p_text,"").trim();
@@ -18580,6 +20070,51 @@
                  	outLines.add("Total fields: " + rowNum);
                  	return outLines.toString("\n");
                  }
+				 string diag_held_pvs(date p_from, date p_to)
+                 {
+                 	if(p_from == null || p_to == null)
+                 	{
+                 		return "ERROR: Enter both dates.";
+                 	}
+                 	v_dup = List();
+                 	v_other = List();
+                 	for each  p in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Hold_From_Invoicing == "Yes"] sort by Visit_Completion_Date desc
+                 	{
+                 		v_inv = "not invoiced";
+                 		if(p.Invoice_Link != null)
+                 		{
+                 			v_inv = "ON INVOICE";
+                 		}
+                 		v_added = "";
+                 		if(p.Added_Time != null)
+                 		{
+                 			v_added = p.Added_Time.toString("MM/dd/yyyy");
+                 		}
+                 		v_line = ifnull(p.PVS_ID,"no PVS ID") + " | " + ifnull(p.Referral_ID,"no REF") + " | " + ifnull(p.Partner_Organization,"") + " | " + ifnull(p.Type_of_Entry,"") + " | DOS " + p.Visit_Completion_Date.toString("MM/dd/yyyy") + " | " + ifnull(p.Employee_Initials,"") + " | row " + ifnull(p.Row_Status,"") + " | dup of " + ifnull(p.Duplicate_Of_PVS_ID,"-") + " | " + v_inv + " | added " + v_added + " | note " + ifnull(p.Row_Status_Note,"");
+                 		v_row = ifnull(p.Row_Status,"").toString().trim();
+                 		if(v_row == "Duplicate")
+                 		{
+                 			v_dup.add(v_line);
+                 		}
+                 		else
+                 		{
+                 			v_other.add(v_line);
+                 		}
+                 	}
+                 	v_out = "READ-ONLY HELD PVS " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy");
+                 	v_out = v_out + "\nHeld, other reason: " + v_other.size() + " | Retired duplicates: " + v_dup.size();
+                 	v_out = v_out + "\n\nHELD, OTHER REASON";
+                 	if(v_other.size() > 0)
+                 	{
+                 		v_out = v_out + "\n" + v_other.toString("\n");
+                 	}
+                 	v_out = v_out + "\n\nRETIRED DUPLICATES";
+                 	if(v_dup.size() > 0)
+                 	{
+                 		v_out = v_out + "\n" + v_dup.toString("\n");
+                 	}
+                 	return v_out;
+                 }
 				 string diag_imaging_notify_check(int p_days)
                  {
                  	v_Out = "READ-ONLY || REFERRALS last " + p_days + " days:";
@@ -18608,6 +20143,37 @@
                  	for each  v_E in Employees[ID != 0]
                  	{
                  		v_Out = v_Out + " ; " + ifnull(v_E.Employee_First_Name,"") + " " + ifnull(v_E.Employee_Last_Name,"") + "|" + ifnull(v_E.Employee_Status,"").toString() + "|" + ifnull(v_E.Employee_Email,"").toString() + "|" + ifnull(v_E.Email_Notification_Types,"").toString();
+                 	}
+                 	return v_Out;
+                 }
+				 string diag_import_ref_matches()
+                 {
+                 	v_Out = "READ-ONLY";
+                 	for each  v_P in Encounter_PatientVisit[PVS_ID == null || PVS_ID == ""]
+                 	{
+                 		v_Key = ifnull(v_P.Referral_ID,"").toString().trim();
+                 		v_Out = v_Out + "\nPVS rec " + v_P.ID + " | key [" + v_Key + "]";
+                 		v_C = Referrals_Main[Cognito_Referral_ID == v_Key];
+                 		v_Out = v_Out + " | cognito hits " + v_C.count();
+                 		for each  v_X in v_C
+                 		{
+                 			v_Out = v_Out + " {rec " + v_X.ID + " ref [" + ifnull(v_X.Referral_ID,"") + "] cog [" + ifnull(v_X.Cognito_Referral_ID,"") + "]}";
+                 		}
+                 		v_R = Referrals_Main[Referral_ID == v_Key];
+                 		v_Out = v_Out + " | refid hits " + v_R.count();
+                 		for each  v_Y in v_R
+                 		{
+                 			v_Out = v_Out + " {rec " + v_Y.ID + " ref [" + ifnull(v_Y.Referral_ID,"") + "] cog [" + ifnull(v_Y.Cognito_Referral_ID,"") + "]}";
+                 		}
+                 	}
+                 	for each  v_Z in Referrals_Main[ID == 4904890000000842003]
+                 	{
+                 		v_Rd = "";
+                 		if(v_Z.Referral_Date != null)
+                 		{
+                 			v_Rd = v_Z.Referral_Date.toString("MM-dd-yyyy");
+                 		}
+                 		v_Out = v_Out + "\nREF rec " + v_Z.ID + " | ref [" + ifnull(v_Z.Referral_ID,"") + "] | cog [" + ifnull(v_Z.Cognito_Referral_ID,"") + "] | " + ifnull(v_Z.Patient_First_Name,"") + " " + ifnull(v_Z.Patient_Last_Name,"") + " | ref date " + v_Rd + " | added " + v_Z.Added_Time + " by " + v_Z.Added_User;
                  	}
                  	return v_Out;
                  }
@@ -18974,6 +20540,44 @@
                  	v_Out.add("TOTAL groups: " + v_TotalGroups);
                  	return v_Out.toString("\n");
                  }
+				 string diag_map_cognito_refs(string p_rows)
+                 {
+                 	v_out = "READ-ONLY";
+                 	v_list = ifnull(p_rows,"").toList(";");
+                 	for each  v_raw in v_list
+                 	{
+                 		v_parts = v_raw.trim().toList("|");
+                 		if(v_parts.size() < 3)
+                 		{
+                 			continue;
+                 		}
+                 		v_num = v_parts.get(0).trim();
+                 		v_last = v_parts.get(1).trim().toLowerCase();
+                 		v_dob = v_parts.get(2).trim().toDate("MM/dd/yyyy");
+                 		v_recs = Referrals_Main[Patient_DOB == v_dob];
+                 		v_same = v_recs.count();
+                 		v_hit = false;
+                 		for each  v_r in v_recs
+                 		{
+                 			v_ln = ifnull(v_r.Patient_Last_Name,"").toString().trim().toLowerCase();
+                 			if(v_ln.contains(v_last))
+                 			{
+                 				v_hit = true;
+                 				v_rd = "";
+                 				if(v_r.Referral_Date != null)
+                 				{
+                 					v_rd = v_r.Referral_Date.toString("MM-dd-yyyy");
+                 				}
+                 				v_out = v_out + "\n" + v_num + " | " + ifnull(v_r.Referral_ID,"(blank)") + " | cognito " + ifnull(v_r.Cognito_Referral_ID,"(blank)") + " | ref date " + v_rd + " | " + ifnull(v_r.Referral_Type,"") + " | " + ifnull(v_r.Partner_Location_Label,"");
+                 			}
+                 		}
+                 		if(!v_hit)
+                 		{
+                 			v_out = v_out + "\n" + v_num + " | NO REFERRAL | same DOB: " + v_same;
+                 		}
+                 	}
+                 	return v_out;
+                 }
 				 string diag_match_3008_refs(string p_rows)
                  {
                  	v_out = "READ-ONLY";
@@ -18988,32 +20592,39 @@
                  		{
                  			v_row = v_parts.get(0).trim();
                  			v_last = v_parts.get(1).trim().toLowerCase();
-                 			v_key = v_last.getPrefix(" ");
-                 			if(v_key == null)
+                 			v_key = v_last;
+                 			if(v_last.contains(" "))
                  			{
-                 				v_key = v_last;
+                 				v_key = v_last.getPrefix(" ").trim();
                  			}
                  			v_dob = v_parts.get(2).trim().toDate("MM/dd/yyyy");
                  			v_hits = List();
+                 			v_other = List();
                  			v_dobCount = 0;
                  			for each  v_r in Referrals_Main[Patient_DOB == v_dob]
                  			{
                  				v_dobCount = v_dobCount + 1;
                  				v_rl = ifnull(v_r.Patient_Last_Name,"").toLowerCase();
-                 				if(v_rl.contains(v_key))
+                 				v_name = ifnull(v_r.Patient_First_Name,"") + " " + ifnull(v_r.Patient_Last_Name,"");
+                 				v_has = "No";
+                 				v_pv = Encounter_PatientVisit[Referral_Link == v_r.ID && Type_of_Entry == "3008"];
+                 				if(v_pv.count() > 0)
                  				{
-                 					v_has = "No";
-                 					v_pv = Encounter_PatientVisit[Referral_Link == v_r.ID && Type_of_Entry == "3008"];
-                 					if(v_pv.count() > 0)
-                 					{
-                 						v_has = "Yes";
-                 					}
-                 					v_rd = "";
-                 					if(v_r.Referral_Date != null)
-                 					{
-                 						v_rd = v_r.Referral_Date.toString("MM-dd-yyyy");
-                 					}
-                 					v_hits.add(ifnull(v_r.Referral_ID,"(no REF ID)") + " | Service " + ifnull(v_r.Referral_Type,"") + " | Ref Date " + v_rd + " | 3008 PVS exists " + v_has);
+                 					v_has = "Yes";
+                 				}
+                 				v_rd = "";
+                 				if(v_r.Referral_Date != null)
+                 				{
+                 					v_rd = v_r.Referral_Date.toString("MM-dd-yyyy");
+                 				}
+                 				v_txt = ifnull(v_r.Referral_ID,"(no REF ID)") + " | " + v_name + " | Service " + ifnull(v_r.Referral_Type,"") + " | Ref Date " + v_rd + " | 3008 PVS exists " + v_has;
+                 				if(v_key != "" && v_rl.contains(v_key))
+                 				{
+                 					v_hits.add(v_txt);
+                 				}
+                 				else
+                 				{
+                 					v_other.add(v_txt);
                  				}
                  			}
                  			if(v_hits.size() == 0)
@@ -19036,9 +20647,63 @@
                  					v_out = v_out + "\nRow " + v_row + " | " + v_h;
                  				}
                  			}
+                 			for each  v_o in v_other
+                 			{
+                 				v_out = v_out + "\nRow " + v_row + " | DOB only | " + v_o;
+                 			}
                  		}
                  	}
                  	v_out = v_out + "\nTOTALS | single match " + v_one + " | multiple matches " + v_multi + " | no match " + v_none;
+                 	info v_out;
+                 	return v_out;
+                 }
+				 string diag_match_pvs_by_patient(string p_rows)
+                 {
+                 	v_out = "READ-ONLY";
+                 	v_hit = 0;
+                 	v_none = 0;
+                 	v_list = ifnull(p_rows,"").toList(";");
+                 	for each  v_raw in v_list
+                 	{
+                 		v_parts = v_raw.toList("|");
+                 		if(v_parts.size() == 3)
+                 		{
+                 			v_row = v_parts.get(0).trim();
+                 			v_last = v_parts.get(1).trim().toLowerCase();
+                 			v_dob = v_parts.get(2).trim().toDate("MM/dd/yyyy");
+                 			v_n = 0;
+                 			v_dobCount = 0;
+                 			for each  p in Encounter_PatientVisit[Patient_DOB == v_dob]
+                 			{
+                 				v_dobCount = v_dobCount + 1;
+                 				if(ifnull(p.Patient_Last_Name,"").toString().toLowerCase().contains(v_last))
+                 				{
+                 					v_n = v_n + 1;
+                 					v_linked = "No";
+                 					if(p.Referral_Link != null)
+                 					{
+                 						v_linked = "Yes";
+                 					}
+                 					v_dos = "";
+                 					if(p.Visit_Completion_Date != null)
+                 					{
+                 						v_dos = p.Visit_Completion_Date.toString("MM-dd-yyyy");
+                 					}
+                 					v_out = v_out + "\nRow " + v_row + " | " + ifnull(p.PVS_ID,"(no PVS ID)") + " | linked " + v_linked + " | REF " + ifnull(p.Referral_ID,"") + " | " + ifnull(p.Type_of_Entry,"") + " | DOS " + v_dos + " | note " + ifnull(p.Clinical_Note_Type,"") + " | " + ifnull(p.Partner_Location_Label,"");
+                 				}
+                 			}
+                 			if(v_n == 0)
+                 			{
+                 				v_none = v_none + 1;
+                 				v_out = v_out + "\nRow " + v_row + " | NO PVS | PVS with same DOB: " + v_dobCount;
+                 			}
+                 			else
+                 			{
+                 				v_hit = v_hit + 1;
+                 			}
+                 		}
+                 	}
+                 	v_out = v_out + "\nTOTALS | patients with PVS " + v_hit + " | no PVS " + v_none;
                  	info v_out;
                  	return v_out;
                  }
@@ -20140,6 +21805,58 @@
                  	v_out = v_out + "| IN CLUSTERS " + v_clustered + " | NOT CLUSTERED " + (v_total - v_clustered);
                  	return v_out;
                  }
+				 string diag_pvs_billing_batch(string p_pvsIds)
+                 {
+                 	v_out = "READ-ONLY PVS BILLING SNAPSHOT";
+                 	v_list = ifnull(p_pvsIds,"").toList(",");
+                 	for each  v_raw in v_list
+                 	{
+                 		v_id = v_raw.trim();
+                 		if(v_id != "")
+                 		{
+                 			v_found = false;
+                 			for each  p in Encounter_PatientVisit[PVS_ID == v_id]
+                 			{
+                 				v_found = true;
+                 				v_branch = "none";
+                 				if(p.Billing_Branch != null)
+                 				{
+                 					for each  l in Partner_Locations[ID == p.Billing_Branch]
+                 					{
+                 						v_branch = ifnull(l.Partner_Location_Label,"no label");
+                 						break;
+                 					}
+                 				}
+                 				v_inv = "not invoiced";
+                 				if(p.Invoice_Link != null)
+                 				{
+                 					for each  i in Invoices[ID == p.Invoice_Link]
+                 					{
+                 						v_inv = ifnull(i.Books_Invoice_Number,"no Books number") + " / " + ifnull(i.Invoice_Record_Status,"no status");
+                 						break;
+                 					}
+                 				}
+                 				v_dos = "no DOS";
+                 				if(p.Visit_Completion_Date != null)
+                 				{
+                 					v_dos = p.Visit_Completion_Date.toString("MM/dd/yyyy");
+                 				}
+                 				v_chg = "blank";
+                 				if(p.Complexity_Charge != null)
+                 				{
+                 					v_chg = p.Complexity_Charge.toString();
+                 				}
+                 				v_out = v_out + "\n\n" + v_id + " | REF " + ifnull(p.Referral_ID,"") + " | DOS " + v_dos + "\nType " + ifnull(p.Type_of_Entry,"") + " | Complexity " + ifnull(p.Complexity_Level,"") + " | Charge " + v_chg + "\nBilling branch " + v_branch + " | Note type " + ifnull(p.Clinical_Note_Type,"") + " | Invoice status " + ifnull(p.Invoice_Status,"") + "\nInvoice " + v_inv;
+                 				break;
+                 			}
+                 			if(!v_found)
+                 			{
+                 				v_out = v_out + "\n\n" + v_id + " | NOT FOUND";
+                 			}
+                 		}
+                 	}
+                 	return v_out;
+                 }
 				 string diag_pvs_billing_flags()
                  {
                  	v_Counts = Map();
@@ -20732,6 +22449,61 @@
                  	}
                  	return v_out;
                  }
+				 string diag_pvs_names(string p_pvsIds)
+                 {
+                 	v_Rows = List();
+                 	v_List = ifnull(p_pvsIds,"").toList(",");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Id = v_Raw.trim();
+                 		if(v_Id == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+                 		{
+                 			v_Found = true;
+                 			v_PName = ifnull(v_P.Patient_Full_Name_1,"").toString().trim();
+                 			if(v_PName == "")
+                 			{
+                 				v_PName = (ifnull(v_P.Patient_First_Name,"").toString().trim() + " " + ifnull(v_P.Patient_Last_Name,"").toString().trim()).trim();
+                 			}
+                 			v_PDob = "";
+                 			if(v_P.Patient_DOB != null)
+                 			{
+                 				v_PDob = v_P.Patient_DOB.toString("MM-dd-yyyy");
+                 			}
+                 			v_Dos = "NO DOS";
+                 			if(v_P.Visit_Completion_Date != null)
+                 			{
+                 				v_Dos = v_P.Visit_Completion_Date.toString("MM-dd-yyyy");
+                 			}
+                 			v_Type = ifnull(v_P.Type_of_Entry,"").toString();
+                 			v_Ref = "NO REFERRAL LINK";
+                 			if(v_P.Referral_Link != null)
+                 			{
+                 				v_Ref = "REF NOT FOUND";
+                 				for each  v_R in Referrals_Main[ID == v_P.Referral_Link]
+                 				{
+                 					v_RDob = "";
+                 					if(v_R.Patient_DOB != null)
+                 					{
+                 						v_RDob = v_R.Patient_DOB.toString("MM-dd-yyyy");
+                 					}
+                 					v_RName = (ifnull(v_R.Patient_First_Name,"").toString().trim() + " " + ifnull(v_R.Patient_Last_Name,"").toString().trim()).trim();
+                 					v_Ref = ifnull(v_R.Referral_ID,"").toString() + "|" + v_RName + "|" + v_RDob;
+                 				}
+                 			}
+                 			v_Rows.add(v_Id + "|" + v_PName + "|" + v_PDob + "|" + v_Dos + "|" + v_Type + " || " + v_Ref);
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Rows.add(v_Id + "|NOT FOUND");
+                 		}
+                 	}
+                 	return "READ-ONLY\n" + v_Rows.toString("\n");
+                 }
 				 string diag_pvs_note_compare(string p_pvsIds)
                  {
                  	v_Raw = ifnull(p_pvsIds,"").toString().trim();
@@ -20893,6 +22665,58 @@
                  	v_Out = v_Out + "  3008 (correct): " + v_Mis3008 + "\n";
                  	v_Out = v_Out + "  Other: " + v_MisOther + "\n\n";
                  	v_Out = v_Out + "SAMPLE MIS-MAPPED\n" + v_Sample;
+                 	return v_Out;
+                 }
+				 string diag_pvs_note_text(string p_pvsIds, int p_chars)
+                 {
+                 	v_Max = 1200;
+                 	if(p_chars != null)
+                 	{
+                 		if(p_chars >= 100)
+                 		{
+                 			v_Max = p_chars;
+                 		}
+                 	}
+                 	v_Out = "READ-ONLY";
+                 	v_List = ifnull(p_pvsIds,"").toList(",");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Id = v_Raw.trim();
+                 		if(v_Id == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+                 		{
+                 			v_Found = true;
+                 			try 
+                 			{
+                 				v_Txt = "";
+                 				if(v_P.Final_Clinical_Note != null)
+                 				{
+                 					v_Txt = v_P.Final_Clinical_Note.toString();
+                 				}
+                 				v_Txt = v_Txt.replaceAll("<[^>]*>"," ");
+                 				v_Txt = v_Txt.replaceAll("&nbsp;"," ");
+                 				v_Txt = v_Txt.replaceAll("\n"," ");
+                 				v_Txt = v_Txt.trim();
+                 				if(v_Txt.length() > v_Max)
+                 				{
+                 					v_Txt = v_Txt.subString(0,v_Max);
+                 				}
+                 				v_Head = v_Id + " | " + ifnull(v_P.Referral_ID,"").toString() + " | " + ifnull(v_P.Complexity_Level,"").toString() + " | proc [" + ifnull(v_P.Type_of_Procedures,"").toString() + "] | diversion [" + ifnull(v_P.Diversion_Tracking,"").toString() + "]";
+                 				v_Out = v_Out + "\n\n===== " + v_Head + "\n" + v_Txt;
+                 			}			catch (e)
+                 			{
+                 				v_Out = v_Out + "\n\n===== " + v_Id + " | ERROR | " + e.toString();
+                 			}
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Out = v_Out + "\n\n===== " + v_Id + " | NOT FOUND";
+                 		}
+                 	}
                  	return v_Out;
                  }
 				 string diag_pvs_one(string p_pvsId)
@@ -21320,6 +23144,147 @@
                  		v_out = v_out + "\n" + v_k + " = " + v_counts.get(v_k);
                  	}
                  	return v_out;
+                 }
+				 string diag_pvs_vs_referral(string p_pvsIds)
+                 {
+                 	v_Out = List();
+                 	v_Out.add("READ-ONLY PVS vs REFERRAL");
+                 	v_Labels = Map();
+                 	for each  v_L in Partner_Locations[ID != 0]
+                 	{
+                 		v_Labels.put(v_L.ID.toString(),ifnull(v_L.Partner_Location_Label,"").toString().trim());
+                 	}
+                 	v_List = ifnull(p_pvsIds,"").toList(",");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Id = v_Raw.trim();
+                 		if(v_Id == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+                 		{
+                 			v_Found = true;
+                 			v_Inv = "none";
+                 			if(v_P.Invoice_Link != null)
+                 			{
+                 				for each  v_I in Invoices[ID == v_P.Invoice_Link]
+                 				{
+                 					v_Inv = ifnull(v_I.Books_Invoice_Number,"").toString() + " " + ifnull(v_I.Invoice_Record_Status,"").toString();
+                 				}
+                 			}
+                 			v_Bill = "none";
+                 			if(v_P.Billing_Branch != null)
+                 			{
+                 				v_Bill = ifnull(v_Labels.get(v_P.Billing_Branch.toString()),"unknown branch").toString();
+                 			}
+                 			v_PDob = "";
+                 			if(v_P.Patient_DOB != null)
+                 			{
+                 				v_PDob = v_P.Patient_DOB.toString("MM-dd-yyyy");
+                 			}
+                 			v_Out.add("==========");
+                 			v_Out.add(v_Id + " | " + ifnull(v_P.Type_of_Entry,"").toString() + " | DOS " + ifnull(v_P.Visit_Completion_Date,"").toString() + " | provider " + ifnull(v_P.Employee_Name_Title,"").toString() + " | Billing Branch " + v_Bill + " | invoice " + v_Inv);
+                 			v_PVals = List();
+                 			v_PVals.add(ifnull(v_P.Referral_ID,"").toString().trim());
+                 			v_PVals.add(ifnull(v_P.Patient_First_Name,"").toString().trim());
+                 			v_PVals.add(ifnull(v_P.Patient_Last_Name,"").toString().trim());
+                 			v_PVals.add(ifnull(v_P.Patient_Full_Name_1,"").toString().trim());
+                 			v_PVals.add(v_PDob);
+                 			v_PVals.add(ifnull(v_P.Patient_Location,"").toString().trim());
+                 			v_PVals.add(ifnull(v_P.Facility_Name,"").toString().trim());
+                 			v_PVals.add(ifnull(v_P.Partner_ID,"").toString().trim());
+                 			v_PVals.add(ifnull(v_P.Partner_Organization,"").toString().trim());
+                 			v_PVals.add(ifnull(v_P.Partner_Branch,"").toString().trim());
+                 			v_PVals.add(ifnull(v_P.Partner_Location_Label,"").toString().trim());
+                 			v_PVals.add(v_Bill);
+                 			v_Names = {"Referral ID","First Name","Last Name","Full Name","DOB","Location","Facility Name","Partner ID","Partner Organization","Partner Branch","Partner Location Label","Branch (PVS Billing Branch / Ref Branch Link)"};
+                 			v_RVals = List();
+                 			v_HasRef = false;
+                 			if(v_P.Referral_Link != null)
+                 			{
+                 				for each  v_R in Referrals_Main[ID == v_P.Referral_Link]
+                 				{
+                 					v_HasRef = true;
+                 					v_RDob = "";
+                 					if(v_R.Patient_DOB != null)
+                 					{
+                 						v_RDob = v_R.Patient_DOB.toString("MM-dd-yyyy");
+                 					}
+                 					v_RBr = "none";
+                 					if(v_R.Partner_Branch_Link != null)
+                 					{
+                 						v_RBr = ifnull(v_Labels.get(v_R.Partner_Branch_Link.toString()),"unknown branch").toString();
+                 					}
+                 					v_RVals.add(ifnull(v_R.Referral_ID,"").toString().trim());
+                 					v_RVals.add(ifnull(v_R.Patient_First_Name,"").toString().trim());
+                 					v_RVals.add(ifnull(v_R.Patient_Last_Name,"").toString().trim());
+                 					v_RVals.add(ifnull(v_R.Patient_Full_Name,"").toString().trim());
+                 					v_RVals.add(v_RDob);
+                 					v_RVals.add(ifnull(v_R.Patient_Location,"").toString().trim());
+                 					v_RVals.add(ifnull(v_R.Facility_Name,"").toString().trim());
+                 					v_RVals.add(ifnull(v_R.Partner_ID,"").toString().trim());
+                 					v_RVals.add(ifnull(v_R.Partner_Organization,"").toString().trim());
+                 					v_RVals.add(ifnull(v_R.Partner_Branch,"").toString().trim());
+                 					v_RVals.add(ifnull(v_R.Partner_Location_Label,"").toString().trim());
+                 					v_RVals.add(v_RBr);
+                 				}
+                 			}
+                 			if(!v_HasRef)
+                 			{
+                 				v_Out.add("NO LINKED REFERRAL");
+                 				continue;
+                 			}
+                 			for each index v_i in v_Names
+                 			{
+                 				v_A = v_PVals.get(v_i).toString();
+                 				v_B = v_RVals.get(v_i).toString();
+                 				v_Flag = "SAME";
+                 				if(v_A.toLowerCase() != v_B.toLowerCase())
+                 				{
+                 					v_Flag = "DIFF";
+                 				}
+                 				v_Out.add(v_Flag + " | " + v_Names.get(v_i) + " | PVS: " + v_A + " | REF: " + v_B);
+                 			}
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Out.add("==========");
+                 			v_Out.add(v_Id + " | NOT FOUND");
+                 		}
+                 	}
+                 	return v_Out.toString("\n");
+                 }
+				 string diag_pv_missing_proc_div(date p_from, date p_to)
+                 {
+                 	v_Rows = List();
+                 	for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Type_of_Entry == "Patient Visit"]
+                 	{
+                 		v_Rs = ifnull(v_P.Row_Status,"").toString();
+                 		if(v_Rs == "Duplicate")
+                 		{
+                 			continue;
+                 		}
+                 		if(v_Rs == "Cancelled")
+                 		{
+                 			continue;
+                 		}
+                 		v_Miss = List();
+                 		if(ifnull(v_P.Type_of_Procedures,"").toString().trim() == "" || ifnull(v_P.Type_of_Procedures,"").toString() == "[]")
+                 		{
+                 			v_Miss.add("Procedure");
+                 		}
+                 		if(ifnull(v_P.Diversion_Tracking,"").toString().trim() == "")
+                 		{
+                 			v_Miss.add("Diversion");
+                 		}
+                 		if(v_Miss.size() > 0)
+                 		{
+                 			v_Rows.add(ifnull(v_P.PVS_ID,"rec " + v_P.ID).toString() + " | " + ifnull(v_P.Referral_ID,"").toString() + " | " + v_P.Visit_Completion_Date.toString("MM-dd") + " | " + ifnull(v_P.Employee_Full_Name,"").toString() + " | " + v_Miss.toString(","));
+                 		}
+                 	}
+                 	return "READ-ONLY | count " + v_Rows.size() + "\n" + v_Rows.toString("\n");
                  }
 				 string diag_rc_fax_history()
                  {
@@ -22340,6 +24305,36 @@
                  	}
                  	return v_Out.toString("\n");
                  }
+				 string diag_ref_names(string p_refIds)
+                 {
+                 	v_Rows = List();
+                 	v_List = ifnull(p_refIds,"").toList(",");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Id = v_Raw.trim();
+                 		if(v_Id == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_R in Referrals_Main[Referral_ID == v_Id]
+                 		{
+                 			v_Found = true;
+                 			v_Dob = "";
+                 			if(v_R.Patient_DOB != null)
+                 			{
+                 				v_Dob = v_R.Patient_DOB.toString("MM-dd-yyyy");
+                 			}
+                 			v_Name = (ifnull(v_R.Patient_First_Name,"").toString().trim() + " " + ifnull(v_R.Patient_Last_Name,"").toString().trim()).trim();
+                 			v_Rows.add(v_Id + "|" + v_Name + "|" + v_Dob);
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Rows.add(v_Id + "|NOT FOUND|");
+                 		}
+                 	}
+                 	return "READ-ONLY\n" + v_Rows.toString("\n");
+                 }
 				 string diag_ref_patient_pvs_match(string p_refIds)
                  {
                  	v_Out = "READ-ONLY";
@@ -23085,6 +25080,30 @@
                  		}
                  	}
                  	return "ZZTEST referrals found: " + v_n + v_out;
+                 }
+				 string fill_3008_reason(string p_mode, date p_from, date p_to)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_Ids = List();
+                 	for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Type_of_Entry == "3008"]
+                 	{
+                 		if(ifnull(v_P.Reason_for_Referral,"").toString().trim() == "")
+                 		{
+                 			v_Ids.add(ifnull(v_P.PVS_ID,"rec " + v_P.ID).toString());
+                 			if(v_Mode == "COMMIT")
+                 			{
+                 				update v_P
+                 				[
+                 					Reason_for_Referral="Cares 3008 Assessment"
+                 				];
+                 			}
+                 		}
+                 	}
+                 	return v_Mode + " | set " + v_Ids.size() + " | " + v_Ids.toString(", ");
                  }
 				 string fix_accentcare_current_rate()
                  {
@@ -27171,6 +29190,39 @@
                  	}
                  	return v_out;
                  }
+				 string retire_pvs_duplicate_pairs(string p_mode, string p_pairs)
+                 {
+                 	v_mode = ifnull(p_mode,"").trim().toUpperCase();
+                 	if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+                 	{
+                 		return "ERROR: p_mode must be PREVIEW or COMMIT.";
+                 	}
+                 	v_list = ifnull(p_pairs,"").toList(";");
+                 	v_out = "MODE: " + v_mode;
+                 	v_count = 0;
+                 	for each  v_raw in v_list
+                 	{
+                 		v_pair = v_raw.trim();
+                 		if(v_pair != "")
+                 		{
+                 			v_parts = v_pair.toList(">");
+                 			v_count = v_count + 1;
+                 			if(v_parts.size() != 2)
+                 			{
+                 				v_out = v_out + "\n\n#" + v_count + " BAD PAIR [" + v_pair + "], expected DUPE>KEEPER. Skipped.";
+                 			}
+                 			else
+                 			{
+                 				v_dupe = v_parts.get(0).trim();
+                 				v_keep = v_parts.get(1).trim();
+                 				v_res = thisapp.retire_pvs_duplicate(v_mode,v_dupe,v_keep);
+                 				v_out = v_out + "\n\n#" + v_count + " ==========\n" + v_res;
+                 			}
+                 		}
+                 	}
+                 	v_out = v_out + "\n\nPairs processed: " + v_count;
+                 	return v_out;
+                 }
 				 string retire_pvs_record(string p_mode, string p_pvsId, string p_reason)
                  {
                  	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
@@ -27326,6 +29378,710 @@
                  	}
                  	return "retried " + v_retried + ", exhausted " + v_exhausted + ", skipped " + v_skipped;
                  }
+				 string run_import_backfills(string p_mode, int p_limit)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_Commit = false;
+                 	if(v_Mode == "COMMIT")
+                 	{
+                 		v_Commit = true;
+                 	}
+                 	v_Limit = p_limit;
+                 	if(v_Limit == null)
+                 	{
+                 		v_Limit = 25;
+                 	}
+                 	if(v_Limit < 1)
+                 	{
+                 		v_Limit = 25;
+                 	}
+                 	v_RunId = "IMPORT-RUN-" + zoho.currenttime.toString("yyyyMMdd-HHmmss");
+                 	v_Log = List();
+                 	v_Issues = List();
+                 	v_Log.add("RUN " + v_RunId + " | MODE " + v_Mode + " | LIMIT " + v_Limit);
+                 	v_LocIdx = Map();
+                 	for each  v_L in Partner_Locations[ID != 0]
+                 	{
+                 		v_K1 = ifnull(v_L.Partner_Location_Label,"").toString().trim().toLowerCase();
+                 		v_K2 = ifnull(v_L.Partner_Location_Name,"").toString().trim().toLowerCase();
+                 		if(v_K1 != "")
+                 		{
+                 			if(v_LocIdx.get(v_K1) == null)
+                 			{
+                 				v_LocIdx.put(v_K1,v_L.ID);
+                 			}
+                 		}
+                 		if(v_K2 != "")
+                 		{
+                 			if(v_LocIdx.get(v_K2) == null)
+                 			{
+                 				v_LocIdx.put(v_K2,v_L.ID);
+                 			}
+                 		}
+                 	}
+                 	v_EmpByEmail = Map();
+                 	v_EmpByInit = Map();
+                 	v_InitCount = Map();
+                 	for each  v_E in Employees[ID != 0]
+                 	{
+                 		v_W = ifnull(v_E.Employee_Email,"").toString().trim().toLowerCase();
+                 		v_Pt = ifnull(v_E.Employee_Portal_Email,"").toString().trim().toLowerCase();
+                 		if(v_W != "")
+                 		{
+                 			v_EmpByEmail.put(v_W,v_E.ID);
+                 		}
+                 		if(v_Pt != "")
+                 		{
+                 			v_EmpByEmail.put(v_Pt,v_E.ID);
+                 		}
+                 		v_In = ifnull(v_E.Employee_Initials,"").toString().trim().toUpperCase();
+                 		if(v_In != "")
+                 		{
+                 			v_Cnt = ifnull(v_InitCount.get(v_In),0);
+                 			v_InitCount.put(v_In,v_Cnt + 1);
+                 			v_EmpByInit.put(v_In,v_E.ID);
+                 		}
+                 	}
+                 	v_RTotal = 0;
+                 	v_RDone = 0;
+                 	v_RSkip = 0;
+                 	v_RLeft = 0;
+                 	for each  v_R in Referrals_Main[Referral_ID_Stamp == null || Referral_ID_Stamp == ""]
+                 	{
+                 		if(ifnull(v_R.Cognito_Referral_ID,"").toString().trim() == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_RTotal = v_RTotal + 1;
+                 		if(v_RDone >= v_Limit)
+                 		{
+                 			v_RLeft = v_RLeft + 1;
+                 			continue;
+                 		}
+                 		v_Rid = ifnull(v_R.Referral_ID,"").toString().trim();
+                 		if(v_Rid == "")
+                 		{
+                 			v_RSkip = v_RSkip + 1;
+                 			v_Issues.add("REF rec " + v_R.ID + " | SKIP | no Referral_ID");
+                 			continue;
+                 		}
+                 		v_LocId = v_R.Partner_Branch_Link;
+                 		if(v_LocId == null)
+                 		{
+                 			v_Cands = List();
+                 			v_Cands.add(ifnull(v_R.Partner_Location_Label,"").toString());
+                 			v_Cands.add(ifnull(v_R.Partner_Branch,"").toString());
+                 			v_Cands.add(ifnull(v_R.Partner_Organization,"").toString());
+                 			for each  v_C in v_Cands
+                 			{
+                 				if(v_LocId == null)
+                 				{
+                 					v_Ck = v_C.trim().toLowerCase();
+                 					if(v_Ck != "")
+                 					{
+                 						v_Hit = v_LocIdx.get(v_Ck);
+                 						if(v_Hit != null)
+                 						{
+                 							v_LocId = v_Hit;
+                 						}
+                 					}
+                 				}
+                 			}
+                 		}
+                 		if(v_LocId == null)
+                 		{
+                 			v_RSkip = v_RSkip + 1;
+                 			v_Issues.add("REF " + v_Rid + " | SKIP | branch not resolved [" + ifnull(v_R.Partner_Branch,"").toString() + "]");
+                 			continue;
+                 		}
+                 		v_Loc = Partner_Locations[ID == v_LocId];
+                 		if(v_Loc.ID == null)
+                 		{
+                 			v_RSkip = v_RSkip + 1;
+                 			v_Issues.add("REF " + v_Rid + " | SKIP | branch record missing");
+                 			continue;
+                 		}
+                 		v_Org = ifnull(v_Loc.Partner_Link.Partner_Display_Name,"").toString().trim();
+                 		v_BrName = ifnull(v_Loc.Partner_Location_Name,"").toString().trim();
+                 		v_Label = ifnull(v_Loc.Partner_Location_Label,"").toString().trim();
+                 		v_Pid = ifnull(v_Loc.Partner_Link.Partner_ID,"").toString().trim();
+                 		v_Full = ifnull(v_R.Patient_Full_Name,"").toString().trim();
+                 		if(v_Full == "")
+                 		{
+                 			v_Fn = ifnull(v_R.Patient_First_Name,"").toString().trim();
+                 			v_Mi = ifnull(v_R.Patient_MI,"").toString().trim();
+                 			v_Ln = ifnull(v_R.Patient_Last_Name,"").toString().trim();
+                 			if(v_Ln != "")
+                 			{
+                 				v_Full = v_Fn;
+                 				if(v_Mi != "")
+                 				{
+                 					v_Full = (v_Full + " " + v_Mi).trim();
+                 				}
+                 				v_Full = (v_Full + " " + v_Ln).trim();
+                 			}
+                 		}
+                 		v_Addr = ifnull(v_R.Patient_Full_Address,"").toString().trim();
+                 		if(v_Addr == "")
+                 		{
+                 			v_A1 = ifnull(v_R.Patient_Address.address_line_1,"").toString().trim();
+                 			v_A2 = ifnull(v_R.Patient_Address.address_line_2,"").toString().trim();
+                 			v_Ci = ifnull(v_R.Patient_Address.district_city,"").toString().trim();
+                 			v_Stt = ifnull(v_R.Patient_Address.state_province,"").toString().trim();
+                 			v_Zp = ifnull(v_R.Patient_Address.postal_Code,"").toString().trim();
+                 			v_Addr = v_A1;
+                 			if(v_A2 != "")
+                 			{
+                 				v_Addr = v_Addr + ", " + v_A2;
+                 			}
+                 			if(v_Ci != "")
+                 			{
+                 				v_Addr = v_Addr + ", " + v_Ci;
+                 			}
+                 			if(v_Stt != "")
+                 			{
+                 				v_Addr = v_Addr + ", " + v_Stt;
+                 			}
+                 			if(v_Zp != "")
+                 			{
+                 				v_Addr = v_Addr + " " + v_Zp;
+                 			}
+                 			v_Addr = v_Addr.trim();
+                 		}
+                 		v_Dob = v_R.Patient_DOB;
+                 		if(v_Dob == null)
+                 		{
+                 			v_Dob = thisapp.parse_patient_dob(ifnull(v_R.Patient_DOB1,"").toString());
+                 		}
+                 		v_RDone = v_RDone + 1;
+                 		v_Log.add("REF " + v_Rid + " | " + v_Label + " | " + v_Full);
+                 		if(v_Commit)
+                 		{
+                 			update v_R
+                 			[
+                 				Patient_Full_Name=v_Full
+                 				Patient_Full_Address=v_Addr
+                 				Patient_DOB=v_Dob
+                 				Partner_Organization=v_Org
+                 				Partner_Branch=v_BrName
+                 				Partner_Location_Label=v_Label
+                 				Partner_Link=v_Loc.Partner_Link
+                 				Partner_Branch_Link=v_Loc.ID
+                 				Partner_ID=v_Pid
+                 				Partner_ID_Stamp=v_Loc.Partner_Link.toString()
+                 			];
+                 			v_Di = thisapp.compute_data_issues(v_R.ID);
+                 			update v_R
+                 			[
+                 				Data_Issues=v_Di
+                 				Referral_ID_Stamp=v_R.ID.toString()
+                 			];
+                 		}
+                 	}
+                 	v_PTotal = 0;
+                 	v_PDone = 0;
+                 	v_PSkip = 0;
+                 	v_PLeft = 0;
+                 	v_Tries = {1,2,3,4,5,6,7,8,9,10};
+                 	for each  v_P in Encounter_PatientVisit[PVS_ID == null || PVS_ID == ""]
+                 	{
+                 		v_PTotal = v_PTotal + 1;
+                 		if(v_PDone >= v_Limit)
+                 		{
+                 			v_PLeft = v_PLeft + 1;
+                 			continue;
+                 		}
+                 		v_Key = ifnull(v_P.Referral_ID,"").toString().trim();
+                 		v_Tag = "PVS rec " + v_P.ID + " [" + v_Key + "]";
+                 		v_RefRecId = null;
+                 		if(v_P.Referral_Link != null)
+                 		{
+                 			v_RefRecId = v_P.Referral_Link;
+                 		}
+                 		if(v_RefRecId == null)
+                 		{
+                 			if(v_Key == "")
+                 			{
+                 				v_PSkip = v_PSkip + 1;
+                 				v_Issues.add(v_Tag + " | SKIP | no Referral_ID");
+                 				continue;
+                 			}
+                 			v_Hits = Referrals_Main[Cognito_Referral_ID == v_Key];
+                 			if(v_Hits.count() == 0)
+                 			{
+                 				v_Hits = Referrals_Main[Referral_ID == v_Key];
+                 			}
+                 			if(v_Hits.count() != 1)
+                 			{
+                 				v_PSkip = v_PSkip + 1;
+                 				v_Issues.add(v_Tag + " | SKIP | referral matches: " + v_Hits.count());
+                 				continue;
+                 			}
+                 			for each  v_X in v_Hits
+                 			{
+                 				v_RefRecId = v_X.ID;
+                 				break;
+                 			}
+                 		}
+                 		v_Ref = Referrals_Main[ID == v_RefRecId];
+                 		if(v_Ref.ID == null)
+                 		{
+                 			v_PSkip = v_PSkip + 1;
+                 			v_Issues.add(v_Tag + " | SKIP | referral record " + v_RefRecId + " not found");
+                 			continue;
+                 		}
+                 		v_RefId = ifnull(v_Ref.Referral_ID,"").toString().trim();
+                 		if(v_RefId == "")
+                 		{
+                 			v_PSkip = v_PSkip + 1;
+                 			v_Issues.add(v_Tag + " | SKIP | referral record " + v_RefRecId + " read back a blank Referral_ID");
+                 			continue;
+                 		}
+                 		if(v_Commit)
+                 		{
+                 			if(ifnull(v_Ref.Referral_ID_Stamp,"").toString().trim() == "")
+                 			{
+                 				v_PSkip = v_PSkip + 1;
+                 				v_Issues.add(v_Tag + " | SKIP | referral " + v_RefId + " not processed yet");
+                 				continue;
+                 			}
+                 		}
+                 		v_LocId = v_Ref.Partner_Branch_Link;
+                 		if(v_LocId == null)
+                 		{
+                 			v_Cands = List();
+                 			v_Cands.add(ifnull(v_Ref.Partner_Location_Label,"").toString());
+                 			v_Cands.add(ifnull(v_Ref.Partner_Branch,"").toString());
+                 			v_Cands.add(ifnull(v_Ref.Partner_Organization,"").toString());
+                 			for each  v_C in v_Cands
+                 			{
+                 				if(v_LocId == null)
+                 				{
+                 					v_Ck = v_C.trim().toLowerCase();
+                 					if(v_Ck != "")
+                 					{
+                 						v_Hit = v_LocIdx.get(v_Ck);
+                 						if(v_Hit != null)
+                 						{
+                 							v_LocId = v_Hit;
+                 						}
+                 					}
+                 				}
+                 			}
+                 		}
+                 		if(v_LocId == null)
+                 		{
+                 			v_PSkip = v_PSkip + 1;
+                 			v_Issues.add(v_Tag + " | SKIP | referral " + v_RefId + " has no branch");
+                 			continue;
+                 		}
+                 		v_Loc = Partner_Locations[ID == v_LocId];
+                 		if(v_Loc.ID == null)
+                 		{
+                 			v_PSkip = v_PSkip + 1;
+                 			v_Issues.add(v_Tag + " | SKIP | branch record missing");
+                 			continue;
+                 		}
+                 		v_EmpId = null;
+                 		v_Em = ifnull(v_P.Employee_Email,"").toString().trim().toLowerCase();
+                 		if(v_Em != "")
+                 		{
+                 			v_EmpId = v_EmpByEmail.get(v_Em);
+                 		}
+                 		v_PIn = ifnull(v_P.Employee_Initials,"").toString().trim().toUpperCase();
+                 		if(v_EmpId == null)
+                 		{
+                 			if(v_PIn != "")
+                 			{
+                 				if(ifnull(v_InitCount.get(v_PIn),0) == 1)
+                 				{
+                 					v_EmpId = v_EmpByInit.get(v_PIn);
+                 				}
+                 			}
+                 		}
+                 		if(v_EmpId == null)
+                 		{
+                 			v_PSkip = v_PSkip + 1;
+                 			v_Issues.add(v_Tag + " | SKIP | no unique employee for email [" + v_Em + "] or initials [" + v_PIn + "]");
+                 			continue;
+                 		}
+                 		v_Emp = Employees[ID == v_EmpId];
+                 		v_EFn = ifnull(v_Emp.Employee_First_Name,"").toString().trim();
+                 		v_ELn = ifnull(v_Emp.Employee_Last_Name,"").toString().trim();
+                 		v_ETi = ifnull(v_Emp.Employee_Title,"").toString().trim();
+                 		v_ENt = ifnull(v_Emp.Employee_Name_Title,"").toString().trim();
+                 		v_EIn = ifnull(v_Emp.Employee_Initials,"").toString().trim();
+                 		v_EWork = ifnull(v_Emp.Employee_Email,"").toString().trim();
+                 		v_EPortal = ifnull(v_Emp.Employee_Portal_Email,"").toString().trim();
+                 		v_EFull = (v_EFn + " " + v_ELn).trim();
+                 		if(v_ENt == "")
+                 		{
+                 			v_ENt = v_EFull;
+                 			if(v_ETi != "")
+                 			{
+                 				v_ENt = v_ENt + ", " + v_ETi;
+                 			}
+                 		}
+                 		v_Login = v_EWork;
+                 		if(v_EPortal != "")
+                 		{
+                 			v_Login = v_EPortal;
+                 		}
+                 		v_Lvl = ifnull(v_P.Complexity_Level,"").toString().trim();
+                 		v_Amt = 0.0;
+                 		if(v_P.Complexity_Charge != null)
+                 		{
+                 			v_Amt = v_P.Complexity_Charge.toDecimal();
+                 		}
+                 		if(v_Amt <= 0)
+                 		{
+                 			if(v_Lvl != "")
+                 			{
+                 				if(v_Lvl != "No Charge")
+                 				{
+                 					v_Rate = null;
+                 					for each  v_Rt in Partner_Rates[Partner_Location_Link == v_LocId && Rate_Type == v_Lvl && Current_Rate == "Yes"]
+                 					{
+                 						v_Rate = v_Rt.Rate_Amount;
+                 						break;
+                 					}
+                 					if(v_Rate == null)
+                 					{
+                 						v_Issues.add(v_Tag + " | NOTE | no current rate for " + ifnull(v_Loc.Partner_Location_Label,"") + " / " + v_Lvl);
+                 					}
+                 					else
+                 					{
+                 						v_Amt = v_Rate.toDecimal();
+                 					}
+                 				}
+                 			}
+                 		}
+                 		v_Full1 = ifnull(v_P.Patient_Full_Name_1,"").toString().trim();
+                 		if(v_Full1 == "")
+                 		{
+                 			v_Full1 = ifnull(v_Ref.Patient_Full_Name,"").toString().trim();
+                 		}
+                 		v_Full2 = ifnull(v_P.Patient_Full_Name_2,"").toString().trim();
+                 		if(v_Full2 == "")
+                 		{
+                 			v_Full2 = v_Full1;
+                 		}
+                 		v_Mi = ifnull(v_P.Patient_MI,"").toString().trim();
+                 		if(v_Mi == "")
+                 		{
+                 			v_Mi = ifnull(v_Ref.Patient_MI,"").toString().trim();
+                 		}
+                 		v_Ssn = ifnull(v_P.Patient_SSN,"").toString().trim();
+                 		if(v_Ssn == "")
+                 		{
+                 			v_Ssn = ifnull(v_Ref.Patient_SSN,"").toString().trim();
+                 		}
+                 		v_Hosp = ifnull(v_P.Patient_Hospice_ID,"").toString().trim();
+                 		if(v_Hosp == "")
+                 		{
+                 			v_Hosp = ifnull(v_Ref.Patient_Hospice_ID,"").toString().trim();
+                 		}
+                 		v_PPhone = ifnull(v_P.Patient_Phone,"").toString().trim();
+                 		if(v_PPhone == "")
+                 		{
+                 			v_PPhone = ifnull(v_Ref.Patient_Phone,"").toString().trim();
+                 		}
+                 		v_FPhone = ifnull(v_P.Facility_Phone,"").toString().trim();
+                 		if(v_FPhone == "")
+                 		{
+                 			v_FPhone = ifnull(v_Ref.Facility_Phone,"").toString().trim();
+                 		}
+                 		v_FRoom = ifnull(v_P.Facility_Room_Number,"").toString().trim();
+                 		if(v_FRoom == "")
+                 		{
+                 			v_FRoom = ifnull(v_Ref.Facility_Room_Number,"").toString().trim();
+                 		}
+                 		v_RStamp = ifnull(v_P.Referral_ID_Stamp,"").toString().trim();
+                 		if(v_RStamp == "")
+                 		{
+                 			v_RStamp = ifnull(v_Ref.Referral_ID_Stamp,"").toString().trim();
+                 		}
+                 		v_PPid = ifnull(v_P.Partner_ID,"").toString().trim();
+                 		if(v_PPid == "")
+                 		{
+                 			v_PPid = ifnull(v_Ref.Partner_ID,"").toString().trim();
+                 		}
+                 		v_PPidS = ifnull(v_P.Partner_ID_Stamp,"").toString().trim();
+                 		if(v_PPidS == "")
+                 		{
+                 			v_PPidS = ifnull(v_Ref.Partner_ID_Stamp,"").toString().trim();
+                 		}
+                 		v_PocFn = ifnull(v_P.Partner_POC_First_Name,"").toString().trim();
+                 		if(v_PocFn == "")
+                 		{
+                 			v_PocFn = ifnull(v_Ref.Partner_POC_First_Name,"").toString().trim();
+                 		}
+                 		v_PocLn = ifnull(v_P.Partner_POC_Last_Name,"").toString().trim();
+                 		if(v_PocLn == "")
+                 		{
+                 			v_PocLn = ifnull(v_Ref.Partner_POC_Last_Name,"").toString().trim();
+                 		}
+                 		v_PocTi = ifnull(v_P.Partner_POC_Title,"").toString().trim();
+                 		if(v_PocTi == "")
+                 		{
+                 			v_PocTi = ifnull(v_Ref.Partner_POC_Title,"").toString().trim();
+                 		}
+                 		v_PocPh = ifnull(v_P.Partner_POC_Phone,"").toString().trim();
+                 		if(v_PocPh == "")
+                 		{
+                 			v_PocPh = ifnull(v_Ref.Partner_POC_Phone,"").toString().trim();
+                 		}
+                 		v_PocEm = ifnull(v_P.Partner_POC_Email,"").toString().trim();
+                 		if(v_PocEm == "")
+                 		{
+                 			v_PocEm = ifnull(v_Ref.Partner_POC_Email,"").toString().trim();
+                 		}
+                 		v_PocTm = ifnull(v_P.Partner_POC_Team,"").toString().trim();
+                 		if(v_PocTm == "")
+                 		{
+                 			v_PocTm = ifnull(v_Ref.Partner_POC_Team,"").toString().trim();
+                 		}
+                 		v_PocNt = ifnull(v_P.Partner_POC_Name_Title,"").toString().trim();
+                 		if(v_PocNt == "")
+                 		{
+                 			v_PocNt = (v_PocFn + " " + v_PocLn).trim();
+                 			if(v_PocTi != "")
+                 			{
+                 				if(v_PocNt != "")
+                 				{
+                 					v_PocNt = v_PocNt + ", " + v_PocTi;
+                 				}
+                 			}
+                 		}
+                 		v_Icd = ifnull(v_P.Partner_ICD_Codes,"").toString().trim();
+                 		if(v_Icd == "")
+                 		{
+                 			v_Icd = ifnull(v_Ref.Partner_ICD_Codes,"").toString().trim();
+                 		}
+                 		v_Reason = ifnull(v_P.Reason_for_Referral,"").toString().trim();
+                 		if(v_Reason == "")
+                 		{
+                 			v_Reason = ifnull(v_Ref.Referral_Reason,"").toString().trim();
+                 		}
+                 		v_Allg = ifnull(v_P.List_Patient_Allergies,"").toString().trim();
+                 		if(v_Allg == "")
+                 		{
+                 			v_Allg = ifnull(v_Ref.List_Patient_Allergies,"").toString().trim();
+                 		}
+                 		v_Anti = ifnull(v_P.List_Patient_Anticoagulants,"").toString().trim();
+                 		if(v_Anti == "")
+                 		{
+                 			v_Anti = ifnull(v_Ref.List_Patient_Anticoagulants,"").toString().trim();
+                 		}
+                 		v_Ad = ifnull(v_P.Advanced_Directives_Details,"").toString().trim();
+                 		if(v_Ad == "")
+                 		{
+                 			v_Ad = ifnull(v_Ref.Advanced_Directives_Details,"").toString().trim();
+                 		}
+                 		v_Addl = ifnull(v_P.Additional_Information,"").toString().trim();
+                 		if(v_Addl == "")
+                 		{
+                 			v_Addl = ifnull(v_Ref.Additional_Information,"").toString().trim();
+                 		}
+                 		v_A1 = ifnull(v_P.Patient_Address.address_line_1,"").toString().trim();
+                 		v_A2 = ifnull(v_P.Patient_Address.address_line_2,"").toString().trim();
+                 		v_Ci = ifnull(v_P.Patient_Address.district_city,"").toString().trim();
+                 		v_Stt = ifnull(v_P.Patient_Address.state_province,"").toString().trim();
+                 		v_Zp = ifnull(v_P.Patient_Address.postal_Code,"").toString().trim();
+                 		if(v_A1 == "")
+                 		{
+                 			v_A1 = ifnull(v_Ref.Patient_Address.address_line_1,"").toString().trim();
+                 			v_A2 = ifnull(v_Ref.Patient_Address.address_line_2,"").toString().trim();
+                 			v_Ci = ifnull(v_Ref.Patient_Address.district_city,"").toString().trim();
+                 			v_Stt = ifnull(v_Ref.Patient_Address.state_province,"").toString().trim();
+                 			v_Zp = ifnull(v_Ref.Patient_Address.postal_Code,"").toString().trim();
+                 		}
+                 		v_PAddr = ifnull(v_P.Patient_Full_Address,"").toString().trim();
+                 		if(v_PAddr == "")
+                 		{
+                 			v_PAddr = v_A1;
+                 			if(v_A2 != "")
+                 			{
+                 				v_PAddr = v_PAddr + ", " + v_A2;
+                 			}
+                 			if(v_Ci != "")
+                 			{
+                 				v_PAddr = v_PAddr + ", " + v_Ci;
+                 			}
+                 			if(v_Stt != "")
+                 			{
+                 				v_PAddr = v_PAddr + ", " + v_Stt;
+                 			}
+                 			if(v_Zp != "")
+                 			{
+                 				v_PAddr = v_PAddr + " " + v_Zp;
+                 			}
+                 			v_PAddr = v_PAddr.trim();
+                 		}
+                 		v_RDate = v_P.Referral_Date;
+                 		if(v_RDate == null)
+                 		{
+                 			v_RDate = v_Ref.Referral_Date;
+                 		}
+                 		v_RSrc = ifnull(v_P.Referral_Source,"").toString().trim();
+                 		if(v_RSrc == "")
+                 		{
+                 			v_RSrc = ifnull(v_Ref.Referral_Source,"").toString().trim();
+                 		}
+                 		v_RowSt = ifnull(v_P.Row_Status,"").toString().trim();
+                 		if(v_RowSt == "")
+                 		{
+                 			v_RowSt = "Counted";
+                 			if(ifnull(v_P.Visit_Status,"").toString() == "Cancelled")
+                 			{
+                 				v_RowSt = "Cancelled";
+                 			}
+                 		}
+                 		if(v_PPhone == "")
+                 		{
+                 			v_PPhone = null;
+                 		}
+                 		if(v_FPhone == "")
+                 		{
+                 			v_FPhone = null;
+                 		}
+                 		if(v_PocPh == "")
+                 		{
+                 			v_PocPh = null;
+                 		}
+                 		if(v_PocEm == "")
+                 		{
+                 			v_PocEm = null;
+                 		}
+                 		v_EEmail = v_EWork;
+                 		if(v_EEmail == "")
+                 		{
+                 			v_EEmail = null;
+                 		}
+                 		v_NewId = "(assigned on COMMIT)";
+                 		if(v_Commit)
+                 		{
+                 			v_T = null;
+                 			v_Seq = null;
+                 			for each  v_St in Sequence_Tracker[Object_Prefix == "PVS"]
+                 			{
+                 				v_T = v_St;
+                 				v_Seq = v_St.Object_Sequence;
+                 				break;
+                 			}
+                 			if(v_Seq == null)
+                 			{
+                 				v_PSkip = v_PSkip + 1;
+                 				v_Issues.add(v_Tag + " | SKIP | no PVS sequence record");
+                 				continue;
+                 			}
+                 			v_NewId = "";
+                 			for each  v_N in v_Tries
+                 			{
+                 				v_Cand = "PVS-" + v_Seq + "-" + v_EIn;
+                 				if(Encounter_PatientVisit[PVS_ID == v_Cand].count() == 0)
+                 				{
+                 					v_NewId = v_Cand;
+                 					break;
+                 				}
+                 				v_Seq = v_Seq + 1;
+                 			}
+                 			if(v_NewId == "")
+                 			{
+                 				v_PSkip = v_PSkip + 1;
+                 				v_Issues.add(v_Tag + " | SKIP | no free PVS ID after 10 tries");
+                 				continue;
+                 			}
+                 			update v_T
+                 			[
+                 				Object_Sequence=v_Seq + 1
+                 			];
+                 		}
+                 		v_PDone = v_PDone + 1;
+                 		v_Log.add("PVS " + v_NewId + " | " + v_RefId + " | " + ifnull(v_Loc.Partner_Location_Label,"") + " | " + v_EFull + " | " + v_Lvl + " $" + v_Amt + " | " + v_RowSt);
+                 		if(v_Commit)
+                 		{
+                 			update v_P
+                 			[
+                 				PVS_ID=v_NewId
+                 				Has_Referral_ID="Yes"
+                 				Referral_Link=v_Ref.ID
+                 				Referral_ID=v_RefId
+                 				PVS_Referral_ID="PVS-" + v_RefId
+                 				Referral_ID_Stamp=v_RStamp
+                 				Patient_Full_Name_1=v_Full1
+                 				Patient_Full_Name_2=v_Full2
+                 				Patient_MI=v_Mi
+                 				Patient_SSN=v_Ssn
+                 				Patient_Hospice_ID=v_Hosp
+                 				Patient_Phone=v_PPhone
+                 				Facility_Phone=v_FPhone
+                 				Facility_Room_Number=v_FRoom
+                 				Patient_Address.address_line_1=v_A1
+                 				Patient_Address.address_line_2=v_A2
+                 				Patient_Address.district_city=v_Ci
+                 				Patient_Address.state_province=v_Stt
+                 				Patient_Address.postal_Code=v_Zp
+                 				Patient_Full_Address=v_PAddr
+                 				Partner_ID=v_PPid
+                 				Partner_ID_Stamp=v_PPidS
+                 				Partner_POC_First_Name=v_PocFn
+                 				Partner_POC_Last_Name=v_PocLn
+                 				Partner_POC_Title=v_PocTi
+                 				Partner_POC_Phone=v_PocPh
+                 				Partner_POC_Email=v_PocEm
+                 				Partner_POC_Team=v_PocTm
+                 				Partner_POC_Name_Title=v_PocNt
+                 				Partner_ICD_Codes=v_Icd
+                 				Reason_for_Referral=v_Reason
+                 				List_Patient_Allergies=v_Allg
+                 				List_Patient_Anticoagulants=v_Anti
+                 				Advanced_Directives_Details=v_Ad
+                 				Additional_Information=v_Addl
+                 				Billing_Branch=v_LocId
+                 				Partner_Organization=ifnull(v_Loc.Partner_Link.Partner_Display_Name,"")
+                 				Partner_Branch=ifnull(v_Loc.Partner_Location_Name,"")
+                 				Partner_Location_Label=ifnull(v_Loc.Partner_Location_Label,"")
+                 				Complexity_Charge=v_Amt
+                 				Employee_First_Name=v_EFn
+                 				Employee_Last_Name=v_ELn
+                 				Employee_Title=v_ETi
+                 				Employee_Name_Title=v_ENt
+                 				Employee_Initials=v_EIn
+                 				Employee_Email=v_EEmail
+                 				Employee_Full_Name=v_EFull
+                 				Employee_Link=v_EmpId
+                 				Provider_Login_Email=v_Login
+                 				Referral_Date=v_RDate
+                 				Referral_Source=v_RSrc
+                 				Row_Status=v_RowSt
+                 			];
+                 		}
+                 	}
+                 	v_Log.add("REFERRALS | targets " + v_RTotal + " | processed " + v_RDone + " | skipped " + v_RSkip + " | remaining " + v_RLeft);
+                 	v_Log.add("PVS | targets " + v_PTotal + " | processed " + v_PDone + " | skipped " + v_PSkip + " | remaining " + v_PLeft);
+                 	if(v_Issues.size() > 0)
+                 	{
+                 		v_Log.add("ISSUES:");
+                 		v_Log.addAll(v_Issues);
+                 	}
+                 	v_Out = v_Log.toString("\n");
+                 	insert into Change_Log
+                 	[
+                 		Added_User=zoho.loginuser
+                 		Source_Form="run_import_backfills"
+                 		Source_Record_ID=v_RunId
+                 		Source_Display_ID=v_Mode
+                 		Field_Changed="SUMMARY"
+                 		New_Value=v_Out
+                 		Changed_By=zoho.loginuser
+                 	]
+                 	return v_Out;
+                 }
 				 string run_invoice_batch(int p_batchId, decimal p_maxTotal)
                  {
                  	v_b = Invoice_Batch[ID == p_batchId];
@@ -27381,13 +30137,58 @@
                  		}
                  		return v_line;
                  	}
+                 	v_reason = ifnull(v_b.Batch_Reason,"").toString().trim();
+                 	v_repl = "";
+                 	if(v_reason == "Rebill After Void")
+                 	{
+                 		v_repl = ifnull(v_b.Replaces_Invoice_Number,"").toString().trim();
+                 		if(v_repl == "")
+                 		{
+                 			v_line = v_stamp + " - ERROR: Batch Reason is Rebill After Void but Replaces Invoice Number is blank. Enter the voided invoice number (for example INV-000110) and run again.";
+                 			v_b.Batch_Status="Failed";
+                 			if(v_hist == "")
+                 			{
+                 				v_b.Result_Message=v_line;
+                 			}
+                 			else
+                 			{
+                 				v_b.Result_Message=v_hist + "\n" + v_line;
+                 			}
+                 			return v_line;
+                 		}
+                 	}
                  	v_cap = 0.0;
                  	if(p_maxTotal != null)
                  	{
                  		v_cap = p_maxTotal.toDecimal();
                  	}
+                 	v_activeTypes = List();
+                 	v_inactiveTypes = List();
+                 	for each  v_rt in Partner_Rates[Partner_Location_Link == v_b.Partner_Location_Link && Current_Rate == "Yes"]
+                 	{
+                 		v_rtType = ifnull(v_rt.Rate_Type,"").toString().trim();
+                 		v_rtStatus = ifnull(v_rt.Partner_Rate_Status,"").toString().trim();
+                 		if(v_rtType != "")
+                 		{
+                 			if(v_rtStatus == "Inactive")
+                 			{
+                 				if(!v_inactiveTypes.contains(v_rtType))
+                 				{
+                 					v_inactiveTypes.add(v_rtType);
+                 				}
+                 			}
+                 			else
+                 			{
+                 				if(!v_activeTypes.contains(v_rtType))
+                 				{
+                 					v_activeTypes.add(v_rtType);
+                 				}
+                 			}
+                 		}
+                 	}
                  	v_ids = List();
                  	v_bad = List();
+                 	v_off = List();
                  	v_keys = List();
                  	v_keyOwner = Map();
                  	v_dups = List();
@@ -27405,7 +30206,19 @@
                  				v_lvl = "";
                  			}
                  			v_lvl = v_lvl.trim();
-                 			if(v_lvl != "Visit Cancelled")
+                 			v_notOffered = false;
+                 			if(v_inactiveTypes.contains(v_lvl))
+                 			{
+                 				if(!v_activeTypes.contains(v_lvl))
+                 				{
+                 					v_notOffered = true;
+                 				}
+                 			}
+                 			if(v_notOffered)
+                 			{
+                 				v_off.add(v_r.PVS_ID + " (" + v_lvl + ")");
+                 			}
+                 			else if(v_lvl != "Visit Cancelled")
                  			{
                  				v_amt = 0.0;
                  				if(v_r.Complexity_Charge != null)
@@ -27487,6 +30300,20 @@
                  			}
                  		}
                  	}
+                 	if(v_off.size() > 0)
+                 	{
+                 		v_line = v_stamp + " - STOPPED - nothing was invoiced. " + v_off.size() + " visit(s) use a service this branch does not receive (its rate is set to Inactive). TO RESOLVE: open each visit below and correct its Type of Entry and Complexity Level, or set Hold From Invoicing = Yes if it should not be billed. If this branch should receive the service, set its Partner Rates row back to Active. Then run this batch again. VISITS: " + v_off.toString(", ");
+                 		v_b.Batch_Status="Failed";
+                 		if(v_hist == "")
+                 		{
+                 			v_b.Result_Message=v_line;
+                 		}
+                 		else
+                 		{
+                 			v_b.Result_Message=v_hist + "\n" + v_line;
+                 		}
+                 		return v_line;
+                 	}
                  	if(v_dups.size() > 0)
                  	{
                  		v_line = v_stamp + " - STOPPED - nothing was invoiced. " + v_dups.size() + " possible duplicate visit pair(s) found. Each pair below shares the same referral, date of service and complexity level, which usually means the same visit was entered or imported twice. TO RESOLVE: open both records in each pair, decide which one is correct, and set Hold From Invoicing = Yes on the other; if neither should be billed, set its Complexity Level to Visit Cancelled. Then run this batch again. PAIRS: " + v_dups.toString("; ");
@@ -27529,7 +30356,7 @@
                  		}
                  		return v_line;
                  	}
-                 	v_out = thisapp.create_invoice_from_selection(v_ids);
+                 	v_out = thisapp.create_invoice_from_selection(v_ids,v_repl);
                  	if(v_out.startsWith("ERROR"))
                  	{
                  		v_line = v_stamp + " - " + v_out;
@@ -30494,6 +33321,96 @@
                  		rec.Partner_POC_Name_Title=v_name;
                  	}
                  }
+				 string set_partner_rate_status(string p_mode, string p_rateType, string p_skipPartners, string p_status)
+                 {
+                 	v_mode = ifnull(p_mode,"").trim().toUpperCase();
+                 	if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+                 	{
+                 		return "ERROR: p_mode must be PREVIEW or COMMIT.";
+                 	}
+                 	v_type = ifnull(p_rateType,"").trim();
+                 	if(v_type == "")
+                 	{
+                 		return "ERROR: p_rateType is required.";
+                 	}
+                 	v_status = ifnull(p_status,"").trim();
+                 	if(v_status != "Active" && v_status != "Inactive")
+                 	{
+                 		return "ERROR: p_status must be Active or Inactive.";
+                 	}
+                 	v_skip = List();
+                 	v_skipRaw = ifnull(p_skipPartners,"").toList(",");
+                 	for each  s in v_skipRaw
+                 	{
+                 		v_s = s.trim().toLowerCase();
+                 		if(v_s != "")
+                 		{
+                 			v_skip.add(v_s);
+                 		}
+                 	}
+                 	v_names = Map();
+                 	for each  pt in Partners[ID != 0]
+                 	{
+                 		v_names.put(pt.ID.toString(),ifnull(pt.Partner_Display_Name,"").toString().trim());
+                 	}
+                 	v_locs = Map();
+                 	for each  lc in Partner_Locations[ID != 0]
+                 	{
+                 		v_locs.put(lc.ID.toString(),ifnull(lc.Partner_Location_Label,"").toString().trim());
+                 	}
+                 	v_changed = List();
+                 	v_same = List();
+                 	v_skipped = List();
+                 	for each  r in Partner_Rates[Rate_Type == v_type] sort by ID
+                 	{
+                 		v_pn = "";
+                 		if(r.Partner_Link != null)
+                 		{
+                 			v_pn = ifnull(v_names.get(r.Partner_Link.toString()),"");
+                 		}
+                 		v_ln = "";
+                 		if(r.Partner_Location_Link != null)
+                 		{
+                 			v_ln = ifnull(v_locs.get(r.Partner_Location_Link.toString()),"");
+                 		}
+                 		v_cur = ifnull(r.Partner_Rate_Status,"").toString().trim();
+                 		v_line = v_pn + " | " + v_ln + " | $" + ifnull(r.Rate_Amount,"") + " | current " + ifnull(r.Current_Rate,"") + " | status [" + v_cur + "]";
+                 		if(v_skip.contains(v_pn.toLowerCase()))
+                 		{
+                 			v_skipped.add(v_line);
+                 		}
+                 		else if(v_cur == v_status)
+                 		{
+                 			v_same.add(v_line);
+                 		}
+                 		else
+                 		{
+                 			v_changed.add(v_line + " -> [" + v_status + "]");
+                 			if(v_mode == "COMMIT")
+                 			{
+                 				r.Partner_Rate_Status=v_status;
+                 			}
+                 		}
+                 	}
+                 	v_out = "MODE: " + v_mode + " | Rate type: " + v_type + " | Set to: " + v_status + " | Changed: " + v_changed.size() + " | Unchanged: " + v_same.size() + " | Skipped: " + v_skipped.size();
+                 	if(v_changed.size() > 0)
+                 	{
+                 		v_out = v_out + "\n\nCHANGED\n" + v_changed.toString("\n");
+                 	}
+                 	if(v_same.size() > 0)
+                 	{
+                 		v_out = v_out + "\n\nALREADY " + v_status.toUpperCase() + "\n" + v_same.toString("\n");
+                 	}
+                 	if(v_skipped.size() > 0)
+                 	{
+                 		v_out = v_out + "\n\nSKIPPED (excluded partners)\n" + v_skipped.toString("\n");
+                 	}
+                 	if(v_mode == "COMMIT")
+                 	{
+                 		v_out = v_out + "\n\nCOMMITTED.";
+                 	}
+                 	return v_out;
+                 }
 				 void set_patient_full_name(int recId)
                  {
                  	rec = Referrals_Main[ID == recId];
@@ -30527,6 +33444,54 @@
                  			rec.Patient_Full_Name=v_full;
                  		}
                  	}
+                 }
+				 string set_pvs_cancelled_row_status(string p_mode, date p_from, date p_to)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+                 	{
+                 		return "Invalid mode. Use PREVIEW or COMMIT.";
+                 	}
+                 	if(p_from == null || p_to == null)
+                 	{
+                 		return "p_from and p_to are required.";
+                 	}
+                 	v_Out = "MODE: " + v_Mode + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy") + "\n";
+                 	v_Changed = List();
+                 	v_Already = List();
+                 	v_Dupes = List();
+                 	v_Stamp = "Row Status set to Cancelled (Complexity Level = Visit Cancelled) " + zoho.currentdate.toString("MM-dd-yyyy") + " by " + zoho.loginuser + ".";
+                 	for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to && Complexity_Level == "Visit Cancelled"]
+                 	{
+                 		v_Id = ifnull(v_P.PVS_ID,"(no PVS ID)").toString();
+                 		v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 		if(v_Rs == "Cancelled")
+                 		{
+                 			v_Already.add(v_Id);
+                 		}
+                 		else if(v_Rs == "Duplicate")
+                 		{
+                 			v_Dupes.add(v_Id);
+                 		}
+                 		else
+                 		{
+                 			v_Changed.add(v_Id + " | " + ifnull(v_P.Referral_ID,"no REF").toString() + " | DOS " + v_P.Visit_Completion_Date.toString("MM/dd/yyyy") + " | [" + if(v_Rs == "","(blank)",v_Rs) + "] -> [Cancelled]");
+                 			if(v_Mode == "COMMIT")
+                 			{
+                 				v_Old = ifnull(v_P.Row_Status_Note,"").toString().trim();
+                 				v_P.Row_Status="Cancelled";
+                 				v_P.Row_Status_Note=if(v_Old == "",v_Stamp,v_Old + " " + v_Stamp);
+                 			}
+                 		}
+                 	}
+                 	v_Out = v_Out + "\n== " + if(v_Mode == "COMMIT","Changed","Will change") + " (" + v_Changed.size() + ")";
+                 	for each  v_L in v_Changed
+                 	{
+                 		v_Out = v_Out + "\n" + v_L;
+                 	}
+                 	v_Out = v_Out + "\n\n== Already Cancelled (" + v_Already.size() + "): " + v_Already.toString(", ");
+                 	v_Out = v_Out + "\n== Skipped, marked Duplicate (" + v_Dupes.size() + "): " + v_Dupes.toString(", ");
+                 	return v_Out;
                  }
 				 string set_pvs_complexity(string p_mode, string p_pvsId, string p_level)
                  {
@@ -30578,6 +33543,203 @@
                  			break;
                  		}
                  		v_Out = v_Out + "\nCOMMITTED.";
+                 	}
+                 	return v_Out;
+                 }
+				 string set_pvs_diversion(string p_mode, date p_from, date p_to, string p_pairs)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_Types = {"Emergency Department / ER","Urgent Care","Hospital Admission","Wound Clinic","Outpatient Specialist","Radiology / Imaging Center","Laboratory"};
+                 	v_Set = List();
+                 	v_Kept = List();
+                 	v_Range = List();
+                 	v_Missing = List();
+                 	v_Bad = List();
+                 	v_List = ifnull(p_pairs,"").toList(";");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Pair = v_Raw.trim();
+                 		if(v_Pair == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Id = v_Pair.getPrefix("=");
+                 		v_Rest = v_Pair.getSuffix("=");
+                 		if(v_Id == null || v_Rest == null)
+                 		{
+                 			v_Bad.add(v_Pair);
+                 			continue;
+                 		}
+                 		v_Id = v_Id.trim();
+                 		v_Rest = v_Rest.trim();
+                 		v_Ans = v_Rest;
+                 		v_Type = "";
+                 		if(v_Rest.contains("|"))
+                 		{
+                 			v_Ans = v_Rest.getPrefix("|").trim();
+                 			v_Type = v_Rest.getSuffix("|").trim();
+                 		}
+                 		v_Ok = true;
+                 		if(v_Ans != "Yes" && v_Ans != "No")
+                 		{
+                 			v_Ok = false;
+                 		}
+                 		if(v_Ans == "Yes")
+                 		{
+                 			if(!v_Types.contains(v_Type))
+                 			{
+                 				v_Ok = false;
+                 			}
+                 		}
+                 		if(v_Ans == "No")
+                 		{
+                 			if(v_Type != "")
+                 			{
+                 				v_Ok = false;
+                 			}
+                 		}
+                 		if(!v_Ok)
+                 		{
+                 			v_Bad.add(v_Pair);
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+                 		{
+                 			v_Found = true;
+                 			v_D = v_P.Visit_Completion_Date;
+                 			v_In = false;
+                 			if(v_D != null)
+                 			{
+                 				if(v_D >= p_from)
+                 				{
+                 					if(v_D <= p_to)
+                 					{
+                 						v_In = true;
+                 					}
+                 				}
+                 			}
+                 			if(!v_In)
+                 			{
+                 				v_Range.add(v_Id);
+                 				continue;
+                 			}
+                 			v_Cur = ifnull(v_P.Diversion_Tracking,"").toString().trim();
+                 			if(v_Cur != "")
+                 			{
+                 				v_Kept.add(v_Id + " [" + v_Cur + "]");
+                 				continue;
+                 			}
+                 			v_Set.add(v_Id + " -> " + v_Ans + " " + v_Type);
+                 			if(v_Mode == "COMMIT")
+                 			{
+                 				if(v_Ans == "Yes")
+                 				{
+                 					update v_P
+                 					[
+                 						Diversion_Tracking="Yes"
+                 						Type_of_Diversion=v_Type
+                 					];
+                 				}
+                 				else
+                 				{
+                 					update v_P
+                 					[
+                 						Diversion_Tracking="No"
+                 					];
+                 				}
+                 			}
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Missing.add(v_Id);
+                 		}
+                 	}
+                 	v_Out = v_Mode + " | set " + v_Set.size() + " | already filled " + v_Kept.size() + " | out of range " + v_Range.size() + " | not found " + v_Missing.size() + " | invalid " + v_Bad.size();
+                 	if(v_Set.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nSET:\n" + v_Set.toString("\n");
+                 	}
+                 	if(v_Kept.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nALREADY FILLED:\n" + v_Kept.toString("\n");
+                 	}
+                 	if(v_Range.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nOUT OF RANGE: " + v_Range.toString(", ");
+                 	}
+                 	if(v_Missing.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nNOT FOUND: " + v_Missing.toString(", ");
+                 	}
+                 	if(v_Bad.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nINVALID: " + v_Bad.toString(" ; ");
+                 	}
+                 	return v_Out;
+                 }
+				 string set_pvs_entry_type(string p_mode, string p_pvsIds, string p_type)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_Type = ifnull(p_type,"").toString().trim();
+                 	v_Allowed = {"Patient Visit","3008","Imaging Order"};
+                 	if(!v_Allowed.contains(v_Type))
+                 	{
+                 		return "ERROR: p_type must be Patient Visit, 3008 or Imaging Order.";
+                 	}
+                 	v_Changed = List();
+                 	v_Same = List();
+                 	v_Missing = List();
+                 	v_List = ifnull(p_pvsIds,"").toList(",");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Id = v_Raw.trim();
+                 		if(v_Id == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+                 		{
+                 			v_Found = true;
+                 			v_Cur = ifnull(v_P.Type_of_Entry,"").toString();
+                 			if(v_Cur == v_Type)
+                 			{
+                 				v_Same.add(v_Id);
+                 			}
+                 			else
+                 			{
+                 				v_Changed.add(v_Id + " [" + v_Cur + "] -> " + v_Type);
+                 				if(v_Mode == "COMMIT")
+                 				{
+                 					update v_P
+                 					[
+                 						Type_of_Entry=v_Type
+                 					];
+                 				}
+                 			}
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Missing.add(v_Id);
+                 		}
+                 	}
+                 	v_Out = v_Mode + " | changed " + v_Changed.size() + " | already " + v_Same.size() + " | not found " + v_Missing.size();
+                 	if(v_Changed.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\n" + v_Changed.toString("\n");
+                 	}
+                 	if(v_Missing.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nNOT FOUND: " + v_Missing.toString(", ");
                  	}
                  	return v_Out;
                  }
@@ -30634,6 +33796,191 @@
                  		];
                  	}
                  	return "PVS " + p_pvsId + " equipment charge set to " + v_amt + ".";
+                 }
+				 string set_pvs_hold_batch(string p_mode, string p_pvsIds, string p_hold)
+                 {
+                 	v_mode = ifnull(p_mode,"").trim().toUpperCase();
+                 	if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+                 	{
+                 		return "ERROR: p_mode must be PREVIEW or COMMIT.";
+                 	}
+                 	v_hold = ifnull(p_hold,"").trim();
+                 	if(v_hold != "Yes" && v_hold != "No")
+                 	{
+                 		return "ERROR: p_hold must be Yes or No.";
+                 	}
+                 	v_list = ifnull(p_pvsIds,"").toList(",");
+                 	v_lines = List();
+                 	v_problems = List();
+                 	v_changed = 0;
+                 	v_same = 0;
+                 	for each  v_raw in v_list
+                 	{
+                 		v_id = v_raw.trim();
+                 		if(v_id != "")
+                 		{
+                 			v_tid = null;
+                 			v_cur = "";
+                 			v_row = "";
+                 			v_inv = false;
+                 			for each  p in Encounter_PatientVisit[PVS_ID == v_id]
+                 			{
+                 				v_tid = p.ID;
+                 				v_cur = ifnull(p.Hold_From_Invoicing,"").toString().trim();
+                 				v_row = ifnull(p.Row_Status,"").toString().trim();
+                 				if(p.Invoice_Link != null)
+                 				{
+                 					v_inv = true;
+                 				}
+                 				break;
+                 			}
+                 			if(v_tid == null)
+                 			{
+                 				v_problems.add(v_id + " | NOT FOUND");
+                 			}
+                 			else if(v_inv)
+                 			{
+                 				v_problems.add(v_id + " | ALREADY ON AN INVOICE, refused");
+                 			}
+                 			else if(v_hold == "No" && v_row == "Duplicate")
+                 			{
+                 				v_problems.add(v_id + " | ROW STATUS DUPLICATE, release refused");
+                 			}
+                 			else if(v_cur == v_hold)
+                 			{
+                 				v_same = v_same + 1;
+                 				v_lines.add(v_id + " | hold already [" + v_cur + "], no change");
+                 			}
+                 			else
+                 			{
+                 				v_changed = v_changed + 1;
+                 				v_lines.add(v_id + " | hold [" + v_cur + "] -> [" + v_hold + "] | row " + v_row);
+                 				if(v_mode == "COMMIT")
+                 				{
+                 					for each  u in Encounter_PatientVisit[ID == v_tid]
+                 					{
+                 						u.Hold_From_Invoicing=v_hold;
+                 						break;
+                 					}
+                 				}
+                 			}
+                 		}
+                 	}
+                 	v_out = "MODE: " + v_mode + " | Set hold to: " + v_hold + " | Changed: " + v_changed + " | Unchanged: " + v_same + " | Refused: " + v_problems.size();
+                 	if(v_lines.size() > 0)
+                 	{
+                 		v_out = v_out + "\n\n" + v_lines.toString("\n");
+                 	}
+                 	if(v_problems.size() > 0)
+                 	{
+                 		v_out = v_out + "\n\nREFUSED\n" + v_problems.toString("\n");
+                 	}
+                 	if(v_mode == "COMMIT")
+                 	{
+                 		v_out = v_out + "\n\nCOMMITTED.";
+                 	}
+                 	return v_out;
+                 }
+				 string set_pvs_procedures(string p_mode, date p_from, date p_to, string p_pairs)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_Allowed = {"Paracentesis","Thoracentesis","Catheter Management","G-Tube / PEG Management","Wound Care","Fracture Care","Acute Care Services","Consultation / Evaluation","Imaging / Evaluation","Tracheostomy Management","Foot/Nail Care","Lab Draw / Venipuncture","IV Access / Infusion","Pleural Catheter / Chest Tube","Other"};
+                 	v_Set = List();
+                 	v_Kept = List();
+                 	v_Range = List();
+                 	v_Missing = List();
+                 	v_Bad = List();
+                 	v_List = ifnull(p_pairs,"").toList(";");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Pair = v_Raw.trim();
+                 		if(v_Pair == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Id = v_Pair.getPrefix("=");
+                 		v_Val = v_Pair.getSuffix("=");
+                 		if(v_Id == null || v_Val == null)
+                 		{
+                 			v_Bad.add(v_Pair);
+                 			continue;
+                 		}
+                 		v_Id = v_Id.trim();
+                 		v_Val = v_Val.trim();
+                 		if(!v_Allowed.contains(v_Val))
+                 		{
+                 			v_Bad.add(v_Pair);
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+                 		{
+                 			v_Found = true;
+                 			v_D = v_P.Visit_Completion_Date;
+                 			v_In = false;
+                 			if(v_D != null)
+                 			{
+                 				if(v_D >= p_from)
+                 				{
+                 					if(v_D <= p_to)
+                 					{
+                 						v_In = true;
+                 					}
+                 				}
+                 			}
+                 			if(!v_In)
+                 			{
+                 				v_Range.add(v_Id);
+                 				continue;
+                 			}
+                 			v_Cur = ifnull(v_P.Type_of_Procedures,"").toString().trim();
+                 			if(v_Cur != "" && v_Cur != "[]")
+                 			{
+                 				v_Kept.add(v_Id + " [" + v_Cur + "]");
+                 				continue;
+                 			}
+                 			v_Set.add(v_Id + " -> " + v_Val);
+                 			if(v_Mode == "COMMIT")
+                 			{
+                 				v_L = List();
+                 				v_L.add(v_Val);
+                 				update v_P
+                 				[
+                 					Type_of_Procedures=v_L
+                 				];
+                 			}
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Missing.add(v_Id);
+                 		}
+                 	}
+                 	v_Out = v_Mode + " | set " + v_Set.size() + " | already filled " + v_Kept.size() + " | out of range " + v_Range.size() + " | not found " + v_Missing.size() + " | invalid " + v_Bad.size();
+                 	if(v_Set.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nSET:\n" + v_Set.toString("\n");
+                 	}
+                 	if(v_Kept.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nALREADY FILLED:\n" + v_Kept.toString("\n");
+                 	}
+                 	if(v_Range.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nOUT OF RANGE: " + v_Range.toString(", ");
+                 	}
+                 	if(v_Missing.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nNOT FOUND: " + v_Missing.toString(", ");
+                 	}
+                 	if(v_Bad.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nINVALID: " + v_Bad.toString(" ; ");
+                 	}
+                 	return v_Out;
                  }
 				 string set_pvs_provider(string p_mode, string p_pvsId, string p_employeeEmail)
                  {
@@ -30772,6 +34119,34 @@
                  		v_Out = v_Out + "\nCOMMITTED.";
                  	}
                  	return v_Out;
+                 }
+				 string set_pvs_provider_batch(string p_mode, string p_pvsIds, string p_employeeEmail)
+                 {
+                 	v_mode = ifnull(p_mode,"").trim().toUpperCase();
+                 	if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+                 	{
+                 		return "ERROR: p_mode must be PREVIEW or COMMIT.";
+                 	}
+                 	v_em = ifnull(p_employeeEmail,"").trim();
+                 	if(v_em == "")
+                 	{
+                 		return "ERROR: p_employeeEmail is required.";
+                 	}
+                 	v_list = ifnull(p_pvsIds,"").toList(",");
+                 	v_out = "MODE: " + v_mode + " | Employee: " + v_em;
+                 	v_count = 0;
+                 	for each  v_raw in v_list
+                 	{
+                 		v_id = v_raw.trim();
+                 		if(v_id != "")
+                 		{
+                 			v_count = v_count + 1;
+                 			v_res = thisapp.set_pvs_provider(v_mode,v_id,v_em);
+                 			v_out = v_out + "\n\n#" + v_count + " " + v_id + " ==========\n" + v_res;
+                 		}
+                 	}
+                 	v_out = v_out + "\n\nPVS processed: " + v_count;
+                 	return v_out;
                  }
 				 string set_pvs_referral_link(string p_pvsId, string p_refId, string p_mode)
                  {
@@ -31399,6 +34774,312 @@
                  		v_Out = v_Out + " | WRITTEN";
                  	}
                  	return v_Out;
+                 }
+				 string sync_pvs_from_referral(string p_mode, date p_from, date p_to)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+                 	{
+                 		return "Invalid mode. Use PREVIEW or COMMIT.";
+                 	}
+                 	if(p_from == null || p_to == null)
+                 	{
+                 		return "Enter both dates.";
+                 	}
+                 	v_Commit = false;
+                 	if(v_Mode == "COMMIT")
+                 	{
+                 		v_Commit = true;
+                 	}
+                 	v_Out = List();
+                 	v_Scanned = 0;
+                 	v_Changed = 0;
+                 	v_NoRef = 0;
+                 	for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+                 	{
+                 		v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 		if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+                 		{
+                 			continue;
+                 		}
+                 		v_Scanned = v_Scanned + 1;
+                 		v_Pid = ifnull(v_P.PVS_ID,"").toString().trim();
+                 		if(v_Pid == "")
+                 		{
+                 			v_Pid = "rec " + v_P.ID.toString();
+                 		}
+                 		if(v_P.Referral_Link == null)
+                 		{
+                 			v_NoRef = v_NoRef + 1;
+                 			continue;
+                 		}
+                 		v_Has = false;
+                 		for each  v_R in Referrals_Main[ID == v_P.Referral_Link]
+                 		{
+                 			v_Has = true;
+                 			v_Chg = List();
+                 			v_A = ifnull(v_P.Referral_ID,"").toString().trim();
+                 			v_B = ifnull(v_R.Referral_ID,"").toString().trim();
+                 			if(v_A == "" && v_B != "")
+                 			{
+                 				v_Chg.add("fill Referral ID");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Referral_ID=v_B
+                 					];
+                 				}
+                 			}
+                 			if(v_P.Referral_Date == null && v_R.Referral_Date != null)
+                 			{
+                 				v_Chg.add("fill Referral Date");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Referral_Date=v_R.Referral_Date
+                 					];
+                 				}
+                 			}
+                 			v_Fn = ifnull(v_P.Patient_First_Name,"").toString().trim();
+                 			v_Ln = ifnull(v_P.Patient_Last_Name,"").toString().trim();
+                 			v_RFn = ifnull(v_R.Patient_First_Name,"").toString().trim();
+                 			v_RLn = ifnull(v_R.Patient_Last_Name,"").toString().trim();
+                 			if(v_Fn == "" && v_RFn != "")
+                 			{
+                 				v_Chg.add("fill First Name");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Patient_First_Name=v_RFn
+                 					];
+                 				}
+                 				v_Fn = v_RFn;
+                 			}
+                 			if(v_Ln == "" && v_RLn != "")
+                 			{
+                 				v_Chg.add("fill Last Name");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Patient_Last_Name=v_RLn
+                 					];
+                 				}
+                 				v_Ln = v_RLn;
+                 			}
+                 			if(v_Fn != "" && v_Ln != "" && v_RFn != "" && v_RLn != "")
+                 			{
+                 				v_PJoin = (v_Fn + " " + v_Ln).toLowerCase().replaceAll(" +"," ");
+                 				v_RJoin = (v_RFn + " " + v_RLn).toLowerCase().replaceAll(" +"," ");
+                 				if(v_PJoin == v_RJoin)
+                 				{
+                 					v_Diff = false;
+                 					if(v_Fn.toLowerCase() != v_RFn.toLowerCase())
+                 					{
+                 						v_Diff = true;
+                 					}
+                 					if(v_Ln.toLowerCase() != v_RLn.toLowerCase())
+                 					{
+                 						v_Diff = true;
+                 					}
+                 					if(v_Diff)
+                 					{
+                 						v_Chg.add("name split '" + v_Fn + " / " + v_Ln + "' -> '" + v_RFn + " / " + v_RLn + "'");
+                 						if(v_Commit)
+                 						{
+                 							update v_P
+                 							[
+                 								Patient_First_Name=v_RFn
+                 								Patient_Last_Name=v_RLn
+                 							];
+                 						}
+                 					}
+                 				}
+                 			}
+                 			if(v_P.Patient_DOB == null && v_R.Patient_DOB != null)
+                 			{
+                 				v_Chg.add("fill DOB");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Patient_DOB=v_R.Patient_DOB
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Patient_Gender,"").toString().trim();
+                 			v_B = ifnull(v_R.Patient_Gender,"").toString().trim();
+                 			if(v_A == "" && v_B != "")
+                 			{
+                 				v_Chg.add("fill Gender");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Patient_Gender=v_B
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Patient_Hospice_ID,"").toString().trim();
+                 			v_B = ifnull(v_R.Patient_Hospice_ID,"").toString().trim();
+                 			if(v_A == "" && v_B != "")
+                 			{
+                 				v_Chg.add("fill Hospice ID");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Patient_Hospice_ID=v_B
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Patient_Location,"").toString().trim();
+                 			v_B = ifnull(v_R.Patient_Location,"").toString().trim();
+                 			if(v_A == "" && v_B != "")
+                 			{
+                 				v_Chg.add("fill Location");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Patient_Location=v_B
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Facility_Name,"").toString().trim();
+                 			v_B = ifnull(v_R.Facility_Name,"").toString().trim();
+                 			if(v_A == "" && v_B != "")
+                 			{
+                 				v_Chg.add("fill Facility Name");
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Facility_Name=v_B
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Patient_Address.address_line_1,"").toString().trim();
+                 			v_B = ifnull(v_R.Patient_Address.address_line_1,"").toString().trim();
+                 			if(v_A == "" && v_B != "")
+                 			{
+                 				v_Chg.add("fill Address");
+                 				if(v_Commit)
+                 				{
+                 					v_A2 = ifnull(v_R.Patient_Address.address_line_2,"").toString();
+                 					v_Ci = ifnull(v_R.Patient_Address.district_city,"").toString();
+                 					v_St = ifnull(v_R.Patient_Address.state_province,"").toString();
+                 					v_Zp = ifnull(v_R.Patient_Address.postal_Code,"").toString();
+                 					update v_P
+                 					[
+                 						Patient_Address.address_line_1=v_B
+                 						Patient_Address.address_line_2=v_A2
+                 						Patient_Address.district_city=v_Ci
+                 						Patient_Address.state_province=v_St
+                 						Patient_Address.postal_Code=v_Zp
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Partner_ID,"").toString().trim();
+                 			v_B = ifnull(v_R.Partner_ID,"").toString().trim();
+                 			if(v_B != "" && v_A != v_B)
+                 			{
+                 				if(v_A == "")
+                 				{
+                 					v_Chg.add("fill Partner ID");
+                 				}
+                 				else
+                 				{
+                 					v_Chg.add("Partner ID '" + v_A + "' -> '" + v_B + "'");
+                 				}
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Partner_ID=v_B
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Partner_Organization,"").toString().trim();
+                 			v_B = ifnull(v_R.Partner_Organization,"").toString().trim();
+                 			if(v_B != "" && v_A != v_B)
+                 			{
+                 				if(v_A == "")
+                 				{
+                 					v_Chg.add("fill Partner Organization");
+                 				}
+                 				else
+                 				{
+                 					v_Chg.add("Partner Organization '" + v_A + "' -> '" + v_B + "'");
+                 				}
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Partner_Organization=v_B
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Partner_Branch,"").toString().trim();
+                 			v_B = ifnull(v_R.Partner_Branch,"").toString().trim();
+                 			if(v_B != "" && v_A != v_B)
+                 			{
+                 				if(v_A == "")
+                 				{
+                 					v_Chg.add("fill Partner Branch");
+                 				}
+                 				else
+                 				{
+                 					v_Chg.add("Partner Branch '" + v_A + "' -> '" + v_B + "'");
+                 				}
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Partner_Branch=v_B
+                 					];
+                 				}
+                 			}
+                 			v_A = ifnull(v_P.Partner_Location_Label,"").toString().trim();
+                 			v_B = ifnull(v_R.Partner_Location_Label,"").toString().trim();
+                 			if(v_B != "" && v_A != v_B)
+                 			{
+                 				if(v_A == "")
+                 				{
+                 					v_Chg.add("fill Partner Location Label");
+                 				}
+                 				else
+                 				{
+                 					v_Chg.add("Partner Location Label '" + v_A + "' -> '" + v_B + "'");
+                 				}
+                 				if(v_Commit)
+                 				{
+                 					update v_P
+                 					[
+                 						Partner_Location_Label=v_B
+                 					];
+                 				}
+                 			}
+                 			if(v_Chg.size() > 0)
+                 			{
+                 				v_Changed = v_Changed + 1;
+                 				v_Out.add(v_Pid + ": " + v_Chg.toString("; "));
+                 			}
+                 		}
+                 		if(!v_Has)
+                 		{
+                 			v_NoRef = v_NoRef + 1;
+                 		}
+                 	}
+                 	v_Head = v_Mode + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy") + " | scanned " + v_Scanned + " | PVS with changes " + v_Changed + " | no usable referral " + v_NoRef;
+                 	if(v_Out.size() == 0)
+                 	{
+                 		return v_Head + "\nNO CHANGES";
+                 	}
+                 	return v_Head + "\n" + v_Out.toString("\n");
                  }
 				 void test_github_commit()
                  {
@@ -34891,6 +38572,22 @@
 												}
 											}
 										}
+										if(input.Type_of_Entry == "3008")
+										{
+											if(input.Cares_3008_Completion_Date == null)
+											{
+												alert "3008 Completion Date is required for a 3008 entry.";
+												cancel submit;
+											}
+										}
+										else if(input.Type_of_Entry == "Patient Visit" || input.Type_of_Entry == "Imaging Order")
+										{
+											if(input.Visit_Completion_Date == null)
+											{
+												alert "Visit Completion Date is required for a Patient Visit or Imaging Order.";
+												cancel submit;
+											}
+										}
 						)
 					}
 				}
@@ -36612,32 +40309,6 @@
 										}
 										v_Res = thisapp.send_assignment_notification(input.ID.toString());
 										info v_Res;
-						)
-					}
-				}
-
-			}
-			Assignment_Status_From_Pr as "Assignment Status From Provider"
-			{
-				type =  form
-				form = Assignments
-
-				record event = on add or edit
-
-				on validate
-				{
-					actions 
-					{
-						custom deluge script
-						(
-											if(input.Employee_Link != null)
-										{
-											Assignment_Status = "Assigned";
-										}
-										else
-										{
-											Assignment_Status = "Unassigned";
-										}
 						)
 					}
 				}
@@ -39161,6 +42832,7 @@
 								Employee_Link as "Employee"
 								Visit_Completion_Date as "Visit"
 								Type_of_Entry as "Service"
+								Cares_3008_Completion_Date as "3008 Date"
 								Patient_Full_Name_2 as "Patient"
 								Patient_DOB as "DOB"
 								Complexity_Level as "Complexity"
@@ -39252,7 +42924,7 @@
 								Diversion_Tracking as "Did this visit result in a Diversion?"
 								Type_of_Diversion as "Type of Diversion"
 								Was_3008_Completed as "3008 Completed?"
-								Cares_3008_Completion_Date as "3008 Completion Date"
+								Cares_3008_Completion_Date as "3008 Date"
 								Notes_3008 as "3008 Notes"
 								Lab_Type_Orders as "What labs are being ordered?"
 								Lab_Order_Date as "Lab Order Date"
@@ -40953,6 +44625,8 @@
 								Service_Date_To as "Service Date To"
 								Visit_Count as "Visit Count"
 								Created_By as "Created By"
+								Revision_Date as "Revision Date"
+								Replaces_Invoice_Number as "Replaces Invoice Number"
 							)
 						)
 					)
@@ -41037,6 +44711,8 @@
 								Result_Message as "Result Message"
 								Invoice_Link as "Invoice Lookup"
 								Max_Invoice_Total as "Max Invoice Total"
+								Batch_Reason as "Batch Reason"
+								Replaces_Invoice_Number as "Replaces Invoice Number"
 							)
 						)
 					)
@@ -42132,6 +45808,251 @@
 						)
 				)
 			}
+			report MPU_Export
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								PVS_ID as "PVS ID"
+								Referral_ID as "Referral ID"
+								Referral_Date as "Referral Date"
+								Referral_Source as "Referral Source"
+								Type_of_Entry as "Type of Entry"
+								Visit_Status as "Visit Status"
+								Clinical_Note_Type as "Clinical Note Type"
+								Row_Status as "Row Status"
+								Duplicate_Of_PVS_ID as "Duplicate Of"
+								Row_Status_Note as "Row Status Note"
+								Hold_From_Invoicing as "Hold From Invoicing"
+								Invoice_Status as "Invoice Status"
+								Visit_Completion_Date as "Visit Completion Date"
+								Cares_3008_Completion_Date as "3008 Completion Date"
+								Partner_Organization as "Referral Partner"
+								Partner_Branch as "Partner Branch/Location"
+								Partner_Location_Label as "Partner Location Label"
+								Billing_Branch as "Billing Branch"
+								Partner_POC_Email as "PR POC Email"
+								Partner_POC_First_Name as "PR POC First Name"
+								Partner_POC_Last_Name as "PR POC Last Name"
+								Patient_DOB as "Patient DOB"
+								Patient_DOB1 as "Patient DOB"
+								Patient_Hospice_ID as "Patient Hospice ID"
+								Patient_Location as "Patient Location"
+								Facility_Name as "Facility Name"
+								Patient_Address as "Patient Address"
+								Reason_for_Referral as "Reason for Referral"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+	 					type = 1
+						datablock1
+						(
+							layout type = -6
+		     				title = "Overview"
+							fields
+							(
+								PVS_ID as "PVS ID"
+								Referral_ID as "Referral ID"
+								Referral_Date as "Referral Date"
+								Referral_Source as "Referral Source"
+								Type_of_Entry as "Type of Entry"
+								Visit_Status as "Visit Status"
+								Clinical_Note_Type as "Clinical Note Type"
+								Row_Status as "Row Status"
+								Duplicate_Of_PVS_ID as "Duplicate Of"
+								Row_Status_Note as "Row Status Note"
+								Hold_From_Invoicing as "Hold From Invoicing"
+								Invoice_Status as "Invoice Status"
+								Visit_Completion_Date as "Visit Completion Date"
+								Cares_3008_Completion_Date as "3008 Completion Date"
+								Referral_Link.Partner_Organization as "Partner Organization"
+								Partner_Branch as "Partner Branch/Location"
+								Partner_Location_Label as "Partner Location Label"
+								Billing_Branch as "Billing Branch"
+								Partner_POC_Email as "PR POC Email"
+								Patient_First_Name as "Patient First Name"
+								Patient_Last_Name as "Patient Last Name"
+								Patient_DOB as "Patient DOB"
+								Patient_DOB1 as "Patient DOB"
+								Patient_Hospice_ID as "Patient Hospice ID"
+								Patient_Location as "Patient Location"
+								Facility_Name as "Facility Name"
+								Patient_Address as "Patient Address"
+								Reason_for_Referral as "Reason for Referral"
+								Type_of_Procedures as "Type of Procedure(s)"
+								Complexity_Level as "Complexity Level"
+								Additional_Charges as "Additional Charges"
+								Complexity_Charge as "Complexity Charge"
+								After_Hours_Fee as "After Hours ($)"
+								Super_Stat_Fee as "Super STAT ($)"
+								Equipment_Charge_Amount as "Equipment Charge Amount ($)"
+								Equipment_Charge_Details as "Equipment Charge Details"
+								Other_Charges_Amount as "Other Charges Amount ($)"
+								Diversion_Tracking as "Did this visit result in a Diversion?"
+								Type_of_Diversion as "Type of Diversion"
+								Employee_Name_Title as "Employee Name & Title"
+								Final_Clinical_Note as "Clinical Note"
+								Clinical_Note_File_Upload as "Clinical Note File Upload"
+								Notes_3008 as "3008 Notes"
+								Added_Time as "Added Time"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report MPU_Export_Referrals
+			{
+				quickview
+				(
+					layout
+					(
+						displaylayout = "classic"
+						datablock1
+						(
+							fields
+							(
+								Referral_Source as "Referral Source"
+								Referral_Type as "Service"
+								Patient_First_Name as "Patient First Name"
+								Patient_MI as "Patient MI"
+								Patient_Last_Name as "Patient Last Name"
+								Patient_DOB as "Patient DOB"
+								Patient_DOB1 as "Patient DOB"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit   	   
+							Duplicate   	   
+							Delete   	   
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record   	   
+    					)
+						on right click
+						(
+							Edit   	   
+							Delete   	   
+							Duplicate   	   
+							View Record   	   
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+	 					type = 1
+						datablock1
+						(
+							layout type = -6
+		     				title = "Overview"
+							fields
+							(
+								Referral_ID as "Referral ID"
+								Referral_Date as "Referral Date"
+								Referral_Added_Time as "Referral Added Time"
+								Added_Time as "Added Time"
+								Referral_Source as "Referral Source"
+								Referral_Type as "Service"
+								Assignment_Status as "Assignment Status"
+								Partner_Organization as "Partner Organization"
+								Partner_Branch as "Partner Branch/Location"
+								Partner_Location_Label as "Partner Location Label"
+								Partner_Branch_Submitted as "Partner Branch Submitted"
+								Partner_POC_Name_Title as "Partner POC Name & Title"
+								Partner_POC_Email as "Partner POC Email"
+								Patient_First_Name as "Patient First Name"
+								Patient_Last_Name as "Patient Last Name"
+								Patient_DOB as "Patient DOB"
+								Patient_DOB1 as "Patient DOB"
+								Patient_Hospice_ID as "Patient Hospice ID"
+								Patient_Location as "Patient Location"
+								Facility_Name as "Facility Name"
+								Patient_Address as "Patient Address"
+								Referral_Reason as "Reason for Referral"
+								X_Ray_Needed as "Will an X-Ray be needed for this referral?"
+								Imaging_Type_Order as "Imaging Test(s) to be Ordered"
+								Employee_Link as "Employee Link"
+								Data_Issues as "Data Issues"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
 		}
 		menu
 		{
@@ -42519,6 +46440,24 @@
 					{
 						icon = "business-laptop-71"
 					}
+				section New_PVS
+				{
+					displayname = "New PVS"
+					icon = "users-2-child"
+					report MPU_Export
+					{
+						icon = "users-2-child"
+					}
+				}
+				section Referrals_Main
+				{
+					displayname = "Referrals Main"
+					icon = "business-scale"
+					report MPU_Export_Referrals
+					{
+						icon = "business-scale"
+					}
+				}
 			}
 			preference
 			{

@@ -1,0 +1,57 @@
+if(p_date == null)
+{
+	return "ERROR: Enter a date.";
+}
+v_s = (p_date.toString("yyyy-MM-dd") + " 00:00:00").toTime("yyyy-MM-dd HH:mm:ss");
+v_e = (p_date.addDay(1).toString("yyyy-MM-dd") + " 00:00:00").toTime("yyyy-MM-dd HH:mm:ss");
+v_seen = List();
+v_lines = List();
+for each  r in Referrals_Main[Added_Time >= v_s && Added_Time < v_e] sort by Added_Time
+{
+	v_seen.add(r.ID);
+	v_rid = ifnull(r.Referral_ID,"").toString().trim();
+	v_flag = "";
+	if(v_rid == "")
+	{
+		v_flag = " | BLANK REF ID";
+	}
+	v_lines.add("rec " + r.ID + " | " + ifnull(v_rid,"") + " | added " + r.Added_Time.toString("MM-dd-yyyy HH:mm:ss") + " | " + ifnull(r.Referral_Type,"") + " | " + ifnull(r.Partner_Location_Label,"") + " | token " + ifnull(r.Form_Token,"") + " | stamp " + ifnull(r.Referral_ID_Stamp,"") + v_flag);
+}
+v_extra = List();
+for each  r2 in Referrals_Main[Referral_Date == p_date]
+{
+	if(!v_seen.contains(r2.ID))
+	{
+		v_rid2 = ifnull(r2.Referral_ID,"").toString().trim();
+		v_add2 = "";
+		if(r2.Added_Time != null)
+		{
+			v_add2 = r2.Added_Time.toString("MM-dd-yyyy HH:mm:ss");
+		}
+		v_extra.add("rec " + r2.ID + " | " + v_rid2 + " | added " + v_add2 + " | " + ifnull(r2.Referral_Type,"") + " | " + ifnull(r2.Partner_Location_Label,""));
+	}
+}
+v_blank = 0;
+v_blankList = List();
+for each  b in Referrals_Main[Referral_ID == null]
+{
+	v_blank = v_blank + 1;
+	v_badd = "";
+	if(b.Added_Time != null)
+	{
+		v_badd = b.Added_Time.toString("MM-dd-yyyy HH:mm:ss");
+	}
+	v_blankList.add("rec " + b.ID + " | added " + v_badd + " | " + ifnull(b.Partner_Location_Label,""));
+}
+v_out = List();
+v_out.add("READ-ONLY | referrals added " + p_date.toString("MM-dd-yyyy") + ": " + v_lines.size());
+v_out.addAll(v_lines);
+v_out.add("");
+v_out.add("Referral Date = " + p_date.toString("MM-dd-yyyy") + " but added another day: " + v_extra.size());
+v_out.addAll(v_extra);
+v_out.add("");
+v_out.add("ALL referrals with blank Referral ID: " + v_blank);
+v_out.addAll(v_blankList);
+v_res = v_out.toString("\n");
+info v_res;
+return v_res;

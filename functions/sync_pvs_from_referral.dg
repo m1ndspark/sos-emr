@@ -1,0 +1,303 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "PREVIEW" && v_Mode != "COMMIT")
+{
+	return "Invalid mode. Use PREVIEW or COMMIT.";
+}
+if(p_from == null || p_to == null)
+{
+	return "Enter both dates.";
+}
+v_Commit = false;
+if(v_Mode == "COMMIT")
+{
+	v_Commit = true;
+}
+v_Out = List();
+v_Scanned = 0;
+v_Changed = 0;
+v_NoRef = 0;
+for each  v_P in Encounter_PatientVisit[Visit_Completion_Date >= p_from && Visit_Completion_Date <= p_to]
+{
+	v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+	if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+	{
+		continue;
+	}
+	v_Scanned = v_Scanned + 1;
+	v_Pid = ifnull(v_P.PVS_ID,"").toString().trim();
+	if(v_Pid == "")
+	{
+		v_Pid = "rec " + v_P.ID.toString();
+	}
+	if(v_P.Referral_Link == null)
+	{
+		v_NoRef = v_NoRef + 1;
+		continue;
+	}
+	v_Has = false;
+	for each  v_R in Referrals_Main[ID == v_P.Referral_Link]
+	{
+		v_Has = true;
+		v_Chg = List();
+		v_A = ifnull(v_P.Referral_ID,"").toString().trim();
+		v_B = ifnull(v_R.Referral_ID,"").toString().trim();
+		if(v_A == "" && v_B != "")
+		{
+			v_Chg.add("fill Referral ID");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Referral_ID=v_B
+				];
+			}
+		}
+		if(v_P.Referral_Date == null && v_R.Referral_Date != null)
+		{
+			v_Chg.add("fill Referral Date");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Referral_Date=v_R.Referral_Date
+				];
+			}
+		}
+		v_Fn = ifnull(v_P.Patient_First_Name,"").toString().trim();
+		v_Ln = ifnull(v_P.Patient_Last_Name,"").toString().trim();
+		v_RFn = ifnull(v_R.Patient_First_Name,"").toString().trim();
+		v_RLn = ifnull(v_R.Patient_Last_Name,"").toString().trim();
+		if(v_Fn == "" && v_RFn != "")
+		{
+			v_Chg.add("fill First Name");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Patient_First_Name=v_RFn
+				];
+			}
+			v_Fn = v_RFn;
+		}
+		if(v_Ln == "" && v_RLn != "")
+		{
+			v_Chg.add("fill Last Name");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Patient_Last_Name=v_RLn
+				];
+			}
+			v_Ln = v_RLn;
+		}
+		if(v_Fn != "" && v_Ln != "" && v_RFn != "" && v_RLn != "")
+		{
+			v_PJoin = (v_Fn + " " + v_Ln).toLowerCase().replaceAll(" +"," ");
+			v_RJoin = (v_RFn + " " + v_RLn).toLowerCase().replaceAll(" +"," ");
+			if(v_PJoin == v_RJoin)
+			{
+				v_Diff = false;
+				if(v_Fn.toLowerCase() != v_RFn.toLowerCase())
+				{
+					v_Diff = true;
+				}
+				if(v_Ln.toLowerCase() != v_RLn.toLowerCase())
+				{
+					v_Diff = true;
+				}
+				if(v_Diff)
+				{
+					v_Chg.add("name split '" + v_Fn + " / " + v_Ln + "' -> '" + v_RFn + " / " + v_RLn + "'");
+					if(v_Commit)
+					{
+						update v_P
+						[
+							Patient_First_Name=v_RFn
+							Patient_Last_Name=v_RLn
+						];
+					}
+				}
+			}
+		}
+		if(v_P.Patient_DOB == null && v_R.Patient_DOB != null)
+		{
+			v_Chg.add("fill DOB");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Patient_DOB=v_R.Patient_DOB
+				];
+			}
+		}
+		v_A = ifnull(v_P.Patient_Gender,"").toString().trim();
+		v_B = ifnull(v_R.Patient_Gender,"").toString().trim();
+		if(v_A == "" && v_B != "")
+		{
+			v_Chg.add("fill Gender");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Patient_Gender=v_B
+				];
+			}
+		}
+		v_A = ifnull(v_P.Patient_Hospice_ID,"").toString().trim();
+		v_B = ifnull(v_R.Patient_Hospice_ID,"").toString().trim();
+		if(v_A == "" && v_B != "")
+		{
+			v_Chg.add("fill Hospice ID");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Patient_Hospice_ID=v_B
+				];
+			}
+		}
+		v_A = ifnull(v_P.Patient_Location,"").toString().trim();
+		v_B = ifnull(v_R.Patient_Location,"").toString().trim();
+		if(v_A == "" && v_B != "")
+		{
+			v_Chg.add("fill Location");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Patient_Location=v_B
+				];
+			}
+		}
+		v_A = ifnull(v_P.Facility_Name,"").toString().trim();
+		v_B = ifnull(v_R.Facility_Name,"").toString().trim();
+		if(v_A == "" && v_B != "")
+		{
+			v_Chg.add("fill Facility Name");
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Facility_Name=v_B
+				];
+			}
+		}
+		v_A = ifnull(v_P.Patient_Address.address_line_1,"").toString().trim();
+		v_B = ifnull(v_R.Patient_Address.address_line_1,"").toString().trim();
+		if(v_A == "" && v_B != "")
+		{
+			v_Chg.add("fill Address");
+			if(v_Commit)
+			{
+				v_A2 = ifnull(v_R.Patient_Address.address_line_2,"").toString();
+				v_Ci = ifnull(v_R.Patient_Address.district_city,"").toString();
+				v_St = ifnull(v_R.Patient_Address.state_province,"").toString();
+				v_Zp = ifnull(v_R.Patient_Address.postal_Code,"").toString();
+				update v_P
+				[
+					Patient_Address.address_line_1=v_B
+					Patient_Address.address_line_2=v_A2
+					Patient_Address.district_city=v_Ci
+					Patient_Address.state_province=v_St
+					Patient_Address.postal_Code=v_Zp
+				];
+			}
+		}
+		v_A = ifnull(v_P.Partner_ID,"").toString().trim();
+		v_B = ifnull(v_R.Partner_ID,"").toString().trim();
+		if(v_B != "" && v_A != v_B)
+		{
+			if(v_A == "")
+			{
+				v_Chg.add("fill Partner ID");
+			}
+			else
+			{
+				v_Chg.add("Partner ID '" + v_A + "' -> '" + v_B + "'");
+			}
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Partner_ID=v_B
+				];
+			}
+		}
+		v_A = ifnull(v_P.Partner_Organization,"").toString().trim();
+		v_B = ifnull(v_R.Partner_Organization,"").toString().trim();
+		if(v_B != "" && v_A != v_B)
+		{
+			if(v_A == "")
+			{
+				v_Chg.add("fill Partner Organization");
+			}
+			else
+			{
+				v_Chg.add("Partner Organization '" + v_A + "' -> '" + v_B + "'");
+			}
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Partner_Organization=v_B
+				];
+			}
+		}
+		v_A = ifnull(v_P.Partner_Branch,"").toString().trim();
+		v_B = ifnull(v_R.Partner_Branch,"").toString().trim();
+		if(v_B != "" && v_A != v_B)
+		{
+			if(v_A == "")
+			{
+				v_Chg.add("fill Partner Branch");
+			}
+			else
+			{
+				v_Chg.add("Partner Branch '" + v_A + "' -> '" + v_B + "'");
+			}
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Partner_Branch=v_B
+				];
+			}
+		}
+		v_A = ifnull(v_P.Partner_Location_Label,"").toString().trim();
+		v_B = ifnull(v_R.Partner_Location_Label,"").toString().trim();
+		if(v_B != "" && v_A != v_B)
+		{
+			if(v_A == "")
+			{
+				v_Chg.add("fill Partner Location Label");
+			}
+			else
+			{
+				v_Chg.add("Partner Location Label '" + v_A + "' -> '" + v_B + "'");
+			}
+			if(v_Commit)
+			{
+				update v_P
+				[
+					Partner_Location_Label=v_B
+				];
+			}
+		}
+		if(v_Chg.size() > 0)
+		{
+			v_Changed = v_Changed + 1;
+			v_Out.add(v_Pid + ": " + v_Chg.toString("; "));
+		}
+	}
+	if(!v_Has)
+	{
+		v_NoRef = v_NoRef + 1;
+	}
+}
+v_Head = v_Mode + " | " + p_from.toString("MM/dd/yyyy") + " to " + p_to.toString("MM/dd/yyyy") + " | scanned " + v_Scanned + " | PVS with changes " + v_Changed + " | no usable referral " + v_NoRef;
+if(v_Out.size() == 0)
+{
+	return v_Head + "\nNO CHANGES";
+}
+return v_Head + "\n" + v_Out.toString("\n");

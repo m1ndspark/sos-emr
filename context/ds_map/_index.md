@@ -1,9 +1,9 @@
 # ds_map index
 
 - Source: SOS_Referrals_App.ds
-- .ds export generated on (from .ds header): 14-Oct-2026 17:48:56
-- .ds file modified time: 2026-10-14 20:49:46
-- .ds SHA-256: f1f3c3ba9ecc5226c196bef3ee107b16c7185b3cf892856cf905a9d2ddc89919
+- .ds export generated on (from .ds header): 17-Oct-2026 06:46:58
+- .ds file modified time: 2026-10-17 13:47:59
+- .ds SHA-256: 15a758f65b42e767d2ec2e9ff22aa16d525d50418be65c6674724ec34bffb310
 - STATUS: CURRENT
 
 Derived from the .ds. Wins over schema/ when they disagree. Open the .dg or .ds for ground truth before editing.
@@ -17,14 +17,14 @@ Files: forms/<Form>.md (fields, workflows, reverse index), functions.md, unresol
 | Item | Count |
 |---|---|
 | Forms | 39 |
-| Fields (excluding sections) | 517 |
-| Form workflows | 103 |
+| Fields (excluding sections) | 521 |
+| Form workflows | 102 |
 | Form workflows disabled | 7 |
-| Functions | 256 |
+| Functions | 283 |
 | Schedules | 6 |
 | Batch workflows | 0 |
 | Approval workflows | 0 |
-| Reports | 40 |
+| Reports | 42 |
 | Report custom actions | 2 |
 | Pages | 7 |
 
@@ -33,7 +33,7 @@ Files: forms/<Form>.md (fields, workflows, reverse index), functions.md, unresol
 | Link name | Display name | Fields | Workflows | Parent form (subform) |
 |---|---|---|---|---|
 | API_Config | API Config | 7 | 0 | - |
-| Assignments | - | 19 | 11 | - |
+| Assignments | - | 19 | 10 | - |
 | Change_Log | Change Log | 8 | 0 | - |
 | Dashboard_Range | Dashboard Range | 2 | 1 | - |
 | Employees | - | 31 | 7 | - |
@@ -48,8 +48,8 @@ Files: forms/<Form>.md (fields, workflows, reverse index), functions.md, unresol
 | ICD10_Codes | ICD-10 Codes | 8 | 0 | - |
 | Imaging_Order | Imaging Order | 0 | 0 | - |
 | Imaging_Orders | Imaging Orders | 33 | 6 | - |
-| Invoice_Batch | Invoice Batch | 8 | 2 | - |
-| Invoices | - | 17 | 0 | - |
+| Invoice_Batch | Invoice Batch | 10 | 2 | - |
+| Invoices | - | 19 | 0 | - |
 | MPU_Reporting | MPU Reporting | 0 | 0 | - |
 | Messaging_Hub | Messaging Hub | 0 | 0 | - |
 | PVS_Fax_Review | PVS Fax Review | 15 | 5 | - |
@@ -121,6 +121,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | api_fax_send_console | Deluge | map | string pLogId, string pContactId, list pPvsIds, string pRemarks |
 | assign_direct_partner | Deluge | string | string p_mode, string p_refIds, string p_source |
 | assign_partner_branch | Deluge | string | string p_mode, string p_map |
+| audit_month_integrity | Deluge | string | string p_mode, date p_from, date p_to |
 | audit_pvs_billing_readiness | Deluge | string | string p_mode, date p_from, date p_to |
 | backfill_assignment_ids | Deluge | void | - |
 | backfill_contact_name_title | Deluge | string | - |
@@ -150,6 +151,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | backfill_pvs_employee_email_alias | Deluge | string | string pMode, string pOldEmail, string pNewEmail |
 | backfill_pvs_employee_initials | Deluge | string | - |
 | backfill_pvs_employee_link | Deluge | string | string pMode |
+| backfill_pvs_employee_link_range | Deluge | string | string p_mode, date p_from, date p_to |
 | backfill_pvs_from_referral | Deluge | string | - |
 | backfill_pvs_ids | Deluge | string | - |
 | backfill_pvs_invoice_status | Deluge | string | string p_mode, date p_from, date p_to |
@@ -162,6 +164,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | backfill_pvs_referral_id_from_link | Deluge | string | string p_mode, string p_scope |
 | backfill_pvs_referral_source | Deluge | string | string p_mode, int p_limit |
 | backfill_pvs_row_status | Deluge | string | string p_mode, int p_limit |
+| backfill_pvs_system_fields_range | Deluge | string | string p_mode, date p_from, date p_to |
 | backfill_referral_added_time | Deluge | string | - |
 | backfill_referral_branch | Deluge | string | - |
 | backfill_referral_branch_from_contact | Deluge | string | - |
@@ -185,7 +188,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | create_3008_pvs_july | Deluge | string | string pMode |
 | create_3008_pvs_sept | Deluge | string | string pMode |
 | create_books_customers | Deluge | string | - |
-| create_invoice_from_selection | Deluge | string | list p_pvsIds |
+| create_invoice_from_selection | Deluge | string | list p_pvsIds, string p_replacesInvoice |
 | dash_metrics | Deluge | map | date p_monthStart |
 | dash_metrics_range | Deluge | map | date p_from, date p_to, string p_mode, string p_key |
 | diag_3008_batch_eligibility | Deluge | string | date p_from, date p_to |
@@ -201,12 +204,14 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | diag_august_pvs_gap | Deluge | string | - |
 | diag_august_pvs_state | Deluge | string | - |
 | diag_bad_remarks_faxes | Deluge | string | - |
+| diag_billing_preview | Deluge | string | date p_from, date p_to |
 | diag_blank_referral_id | Deluge | string | - |
 | diag_branch_books_ids | Deluge | string | - |
 | diag_compliance_gap | Deluge | string | - |
 | diag_config_write | Deluge | string | - |
 | diag_dob_coverage | Deluge | string | - |
 | diag_duplicate_location_names | Deluge | string | - |
+| diag_duplicate_patient_referrals | Deluge | string | date p_from, date p_to |
 | diag_duplicate_referral_ids | Deluge | string | - |
 | diag_duplicate_visits | Deluge | string | - |
 | diag_empath_labels | Deluge | string | - |
@@ -219,16 +224,21 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | diag_fax_readiness | Deluge | map | int p_days |
 | diag_fax_repair_errors | Deluge | string | - |
 | diag_fax_target | Deluge | string | string p_pvsId |
+| diag_find_patients | Deluge | string | string p_rows |
 | diag_find_referral | Deluge | string | string p_text |
 | diag_form_fields | Deluge | string | string p_formLink |
+| diag_held_pvs | Deluge | string | date p_from, date p_to |
 | diag_imaging_notify_check | Deluge | string | int p_days |
+| diag_import_ref_matches | Deluge | string | - |
 | diag_innovage_rates | Deluge | string | - |
 | diag_invoice_batch | Deluge | string | int p_batchId |
 | diag_invoice_patient_gaps | Deluge | string | string p_invoiceNumbers |
 | diag_invoice_pvs | Deluge | string | string p_booksInvoiceId |
 | diag_invoice_record | Deluge | string | int p_invoiceId |
 | diag_invoice_same_patient_dos | Deluge | string | string p_invoiceNumbers |
+| diag_map_cognito_refs | Deluge | string | string p_rows |
 | diag_match_3008_refs | Deluge | string | string p_rows |
+| diag_match_pvs_by_patient | Deluge | string | string p_rows |
 | diag_missing_dob | Deluge | string | - |
 | diag_missing_pvs_fax | Deluge | map | - |
 | diag_month_billing_gap | Deluge | string | int p_year, int p_month |
@@ -243,7 +253,9 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | diag_patient_visits | Deluge | string | string pName |
 | diag_premium_visit_invoices | Deluge | string | - |
 | diag_provider_backfill_trace | Deluge | string | string p_pvs_id |
+| diag_pv_missing_proc_div | Deluge | string | date p_from, date p_to |
 | diag_pvs_added_time_clusters | Deluge | string | - |
+| diag_pvs_billing_batch | Deluge | string | string p_pvsIds |
 | diag_pvs_billing_flags | Deluge | string | - |
 | diag_pvs_billing_snapshot | Deluge | string | string p_pvsKey |
 | diag_pvs_billing_vs_referral | Deluge | string | int p_from, int p_to |
@@ -257,8 +269,10 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | diag_pvs_hospice_ids | Deluge | string | string p_pvsIds |
 | diag_pvs_ids | Deluge | string | - |
 | diag_pvs_login_email_gaps | Deluge | string | - |
+| diag_pvs_names | Deluge | string | string p_pvsIds |
 | diag_pvs_note_compare | Deluge | string | string p_pvsIds |
 | diag_pvs_note_placement | Deluge | string | date p_from, date p_to |
+| diag_pvs_note_text | Deluge | string | string p_pvsIds, int p_chars |
 | diag_pvs_one | Deluge | string | string p_pvsId |
 | diag_pvs_premium_mismatches | Deluge | string | - |
 | diag_pvs_provider_fields | Deluge | string | string p_pvs_id |
@@ -266,9 +280,11 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | diag_pvs_referral_match | Deluge | string | string p_pvsIds |
 | diag_pvs_stamp_gap | Deluge | string | - |
 | diag_pvs_status_mix | Deluge | string | - |
+| diag_pvs_vs_referral | Deluge | string | string p_pvsIds |
 | diag_rc_fax_history | Deluge | string | - |
 | diag_rc_token | Deluge | string | - |
 | diag_ref_branch_candidates | Deluge | string | string p_refId |
+| diag_ref_names | Deluge | string | string p_refIds |
 | diag_ref_patient_pvs_match | Deluge | string | string p_refIds |
 | diag_referral_branch | Deluge | string | string p_referral_id |
 | diag_referral_by_name | Deluge | string | string p_text |
@@ -297,6 +313,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | diag_upload_probe | Deluge | string | string p_refKey |
 | diag_workdrive_download | Deluge | string | string p_resId |
 | diag_zztest_referrals | Deluge | string | - |
+| fill_3008_reason | Deluge | string | string p_mode, date p_from, date p_to |
 | fix_accentcare_current_rate | Deluge | string | - |
 | fix_six_room_numbers | Deluge | string | - |
 | flag_duplicate_referrals | Deluge | string | string p_mode, string p_pairs |
@@ -339,9 +356,11 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | resync_patient_dob | Deluge | string | string p_mode |
 | retire_3008_duplicates_auto | Deluge | string | string p_mode |
 | retire_pvs_duplicate | Deluge | string | string p_mode, string p_dupePvsId, string p_keeperPvsId |
+| retire_pvs_duplicate_pairs | Deluge | string | string p_mode, string p_pairs |
 | retire_pvs_duplicates | Deluge | string | string p_mode, string p_dupePvsIds |
 | retire_pvs_record | Deluge | string | string p_mode, string p_pvsId, string p_reason |
 | retry_failed_faxes | Deluge | string | - |
+| run_import_backfills | Deluge | string | string p_mode, int p_limit |
 | run_invoice_batch | Deluge | string | int p_batchId, decimal p_maxTotal |
 | run_pvs_exclusion_monitor | Deluge | string | - |
 | run_schema_monitor | Deluge | string | - |
@@ -357,14 +376,22 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | send_via_sendgrid | Deluge | void | string pTo, string pSubject, string pMessage |
 | set_current_rate | Deluge | void | int rateId |
 | set_partner_poc_name_title | Deluge | void | int recId |
+| set_partner_rate_status | Deluge | string | string p_mode, string p_rateType, string p_skipPartners, string p_status |
 | set_patient_full_name | Deluge | void | int recId |
+| set_pvs_cancelled_row_status | Deluge | string | string p_mode, date p_from, date p_to |
 | set_pvs_complexity | Deluge | string | string p_mode, string p_pvsId, string p_level |
+| set_pvs_diversion | Deluge | string | string p_mode, date p_from, date p_to, string p_pairs |
+| set_pvs_entry_type | Deluge | string | string p_mode, string p_pvsIds, string p_type |
 | set_pvs_equipment_charge | Deluge | string | string p_pvsId, string p_amount, string p_details |
+| set_pvs_hold_batch | Deluge | string | string p_mode, string p_pvsIds, string p_hold |
+| set_pvs_procedures | Deluge | string | string p_mode, date p_from, date p_to, string p_pairs |
 | set_pvs_provider | Deluge | string | string p_mode, string p_pvsId, string p_employeeEmail |
+| set_pvs_provider_batch | Deluge | string | string p_mode, string p_pvsIds, string p_employeeEmail |
 | set_pvs_referral_link | Deluge | string | string p_pvsId, string p_refId, string p_mode |
 | sos_referral_health | Deluge | string | string p_mode, string p_scope, int p_limit |
 | sweep_unnotified_referrals | Deluge | string | string p_mode, string p_scope, int p_limit |
 | sync_pvs_branch_from_referral | Deluge | string | string p_pvsId, string p_mode |
+| sync_pvs_from_referral | Deluge | string | string p_mode, date p_from, date p_to |
 | test_github_commit | Deluge | void | - |
 | test_schema_connection | Deluge | void | - |
 | test_smtp | Deluge | string | - |
@@ -395,6 +422,8 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | Invoice_Batch_Report | list (default) | Invoice_Batch | - | - |
 | Invoices_Report | list (default) | Invoices | - | - |
 | Lab_Request_Report | list (default) | Encounter_LabRequest | - | - |
+| MPU_Export | list | Encounter_PatientVisit | - | - |
+| MPU_Export_Referrals | list | Referrals_Main | - | - |
 | MPU_Reporting_Report | list (default) | MPU_Reporting | - | - |
 | Messaging_Hub_Report | list (default) | Messaging_Hub | - | - |
 | My_PVS_Notes | list | Encounter_PatientVisit | [Provider_Login_Email == zoho.loginuserid] | "Fax PVS" -> Fax_PVS_Button |

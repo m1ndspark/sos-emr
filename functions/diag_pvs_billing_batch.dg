@@ -1,0 +1,49 @@
+v_out = "READ-ONLY PVS BILLING SNAPSHOT";
+v_list = ifnull(p_pvsIds,"").toList(",");
+for each  v_raw in v_list
+{
+	v_id = v_raw.trim();
+	if(v_id != "")
+	{
+		v_found = false;
+		for each  p in Encounter_PatientVisit[PVS_ID == v_id]
+		{
+			v_found = true;
+			v_branch = "none";
+			if(p.Billing_Branch != null)
+			{
+				for each  l in Partner_Locations[ID == p.Billing_Branch]
+				{
+					v_branch = ifnull(l.Partner_Location_Label,"no label");
+					break;
+				}
+			}
+			v_inv = "not invoiced";
+			if(p.Invoice_Link != null)
+			{
+				for each  i in Invoices[ID == p.Invoice_Link]
+				{
+					v_inv = ifnull(i.Books_Invoice_Number,"no Books number") + " / " + ifnull(i.Invoice_Record_Status,"no status");
+					break;
+				}
+			}
+			v_dos = "no DOS";
+			if(p.Visit_Completion_Date != null)
+			{
+				v_dos = p.Visit_Completion_Date.toString("MM/dd/yyyy");
+			}
+			v_chg = "blank";
+			if(p.Complexity_Charge != null)
+			{
+				v_chg = p.Complexity_Charge.toString();
+			}
+			v_out = v_out + "\n\n" + v_id + " | REF " + ifnull(p.Referral_ID,"") + " | DOS " + v_dos + "\nType " + ifnull(p.Type_of_Entry,"") + " | Complexity " + ifnull(p.Complexity_Level,"") + " | Charge " + v_chg + "\nBilling branch " + v_branch + " | Note type " + ifnull(p.Clinical_Note_Type,"") + " | Invoice status " + ifnull(p.Invoice_Status,"") + "\nInvoice " + v_inv;
+			break;
+		}
+		if(!v_found)
+		{
+			v_out = v_out + "\n\n" + v_id + " | NOT FOUND";
+		}
+	}
+}
+return v_out;

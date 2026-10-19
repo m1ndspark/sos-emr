@@ -19,18 +19,60 @@ if(v_TrkId == null)
 {
 	return;
 }
-for each  v_TrkUpd in Sequence_Tracker[ID == v_TrkId]
+v_Done = false;
+v_Tries = {1,2,3,4,5,6,7,8,9,10};
+for each  v_T in v_Tries
 {
-	update v_TrkUpd
-	[
-		Object_Sequence=v_Seq + 1
-	];
+	if(!v_Done)
+	{
+		v_Cand = "REF-" + v_Seq;
+		v_Taken = Referrals_Main[Referral_ID == v_Cand].count();
+		if(v_Taken > 0)
+		{
+			v_Seq = v_Seq + 1;
+		}
+		else
+		{
+			try 
+			{
+				for each  v_Rec2 in Referrals_Main[ID == recId]
+				{
+					update v_Rec2
+					[
+						Referral_ID=v_Cand
+						Referral_ID_Stamp=recId.toString()
+					];
+				}
+			}				catch (e)
+			{
+				v_Err = e;
+			}
+			v_Now = "";
+			for each  v_Chk in Referrals_Main[ID == recId]
+			{
+				v_Now = ifnull(v_Chk.Referral_ID,"").toString().trim();
+			}
+			if(v_Now == v_Cand)
+			{
+				v_Done = true;
+			}
+			else
+			{
+				v_Seq = v_Seq + 1;
+			}
+		}
+	}
 }
-for each  v_Rec2 in Referrals_Main[ID == recId]
+if(v_Done)
 {
-	update v_Rec2
-	[
-		Referral_ID="REF-" + v_Seq
-		Referral_ID_Stamp=recId.toString()
-	];
+	for each  v_TrkUpd in Sequence_Tracker[ID == v_TrkId]
+	{
+		if(v_TrkUpd.Object_Sequence <= v_Seq)
+		{
+			update v_TrkUpd
+			[
+				Object_Sequence=v_Seq + 1
+			];
+		}
+	}
 }

@@ -1,0 +1,87 @@
+v_mode = ifnull(p_mode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: p_mode must be PREVIEW or COMMIT.";
+}
+v_type = ifnull(p_rateType,"").trim();
+if(v_type == "")
+{
+	return "ERROR: p_rateType is required.";
+}
+v_status = ifnull(p_status,"").trim();
+if(v_status != "Active" && v_status != "Inactive")
+{
+	return "ERROR: p_status must be Active or Inactive.";
+}
+v_skip = List();
+v_skipRaw = ifnull(p_skipPartners,"").toList(",");
+for each  s in v_skipRaw
+{
+	v_s = s.trim().toLowerCase();
+	if(v_s != "")
+	{
+		v_skip.add(v_s);
+	}
+}
+v_names = Map();
+for each  pt in Partners[ID != 0]
+{
+	v_names.put(pt.ID.toString(),ifnull(pt.Partner_Display_Name,"").toString().trim());
+}
+v_locs = Map();
+for each  lc in Partner_Locations[ID != 0]
+{
+	v_locs.put(lc.ID.toString(),ifnull(lc.Partner_Location_Label,"").toString().trim());
+}
+v_changed = List();
+v_same = List();
+v_skipped = List();
+for each  r in Partner_Rates[Rate_Type == v_type] sort by ID
+{
+	v_pn = "";
+	if(r.Partner_Link != null)
+	{
+		v_pn = ifnull(v_names.get(r.Partner_Link.toString()),"");
+	}
+	v_ln = "";
+	if(r.Partner_Location_Link != null)
+	{
+		v_ln = ifnull(v_locs.get(r.Partner_Location_Link.toString()),"");
+	}
+	v_cur = ifnull(r.Partner_Rate_Status,"").toString().trim();
+	v_line = v_pn + " | " + v_ln + " | $" + ifnull(r.Rate_Amount,"") + " | current " + ifnull(r.Current_Rate,"") + " | status [" + v_cur + "]";
+	if(v_skip.contains(v_pn.toLowerCase()))
+	{
+		v_skipped.add(v_line);
+	}
+	else if(v_cur == v_status)
+	{
+		v_same.add(v_line);
+	}
+	else
+	{
+		v_changed.add(v_line + " -> [" + v_status + "]");
+		if(v_mode == "COMMIT")
+		{
+			r.Partner_Rate_Status=v_status;
+		}
+	}
+}
+v_out = "MODE: " + v_mode + " | Rate type: " + v_type + " | Set to: " + v_status + " | Changed: " + v_changed.size() + " | Unchanged: " + v_same.size() + " | Skipped: " + v_skipped.size();
+if(v_changed.size() > 0)
+{
+	v_out = v_out + "\n\nCHANGED\n" + v_changed.toString("\n");
+}
+if(v_same.size() > 0)
+{
+	v_out = v_out + "\n\nALREADY " + v_status.toUpperCase() + "\n" + v_same.toString("\n");
+}
+if(v_skipped.size() > 0)
+{
+	v_out = v_out + "\n\nSKIPPED (excluded partners)\n" + v_skipped.toString("\n");
+}
+if(v_mode == "COMMIT")
+{
+	v_out = v_out + "\n\nCOMMITTED.";
+}
+return v_out;

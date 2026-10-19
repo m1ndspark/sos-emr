@@ -1,0 +1,46 @@
+v_out = "READ-ONLY PATIENT SEARCH, ALL DATES";
+v_list = ifnull(p_rows,"").toList(";");
+for each  v_raw in v_list
+{
+	v_parts = v_raw.toList("|");
+	if(v_parts.size() == 2)
+	{
+		v_lastIn = v_parts.get(0).trim();
+		v_dobIn = v_parts.get(1).trim();
+		v_last = v_lastIn.toLowerCase();
+		v_dob = v_dobIn.toDate("MM/dd/yyyy");
+		v_out = v_out + "\n\n== " + v_lastIn + " " + v_dobIn;
+		v_hits = 0;
+		v_other = List();
+		for each  p in Encounter_PatientVisit[Patient_DOB == v_dob] sort by Visit_Completion_Date desc
+		{
+			v_pl = ifnull(p.Patient_Last_Name,"").toString().toLowerCase();
+			v_pf = ifnull(p.Patient_Full_Name_1,"").toString().toLowerCase();
+			v_dos = "no DOS";
+			if(p.Visit_Completion_Date != null)
+			{
+				v_dos = p.Visit_Completion_Date.toString("MM/dd/yyyy");
+			}
+			v_line = ifnull(p.PVS_ID,"no PVS ID") + " | " + ifnull(p.Referral_ID,"no REF") + " | " + ifnull(p.Type_of_Entry,"") + " | DOS " + v_dos + " | " + ifnull(p.Employee_Initials,"") + " | row " + ifnull(p.Row_Status,"") + " | hold " + ifnull(p.Hold_From_Invoicing,"");
+			v_isMatch = v_pl.contains(v_last) || v_pf.contains(v_last);
+			if(v_isMatch)
+			{
+				v_hits = v_hits + 1;
+				v_out = v_out + "\nMATCH " + v_line;
+			}
+			else
+			{
+				v_other.add("SAME DOB, OTHER NAME [" + ifnull(p.Patient_Full_Name_1,"") + "] " + v_line);
+			}
+		}
+		if(v_hits == 0)
+		{
+			v_out = v_out + "\nNo PVS for this name + DOB";
+		}
+		for each  v_o in v_other
+		{
+			v_out = v_out + "\n" + v_o;
+		}
+	}
+}
+return v_out;

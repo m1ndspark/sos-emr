@@ -1,0 +1,47 @@
+v_out = "READ-ONLY";
+v_hit = 0;
+v_none = 0;
+v_list = ifnull(p_rows,"").toList(";");
+for each  v_raw in v_list
+{
+	v_parts = v_raw.toList("|");
+	if(v_parts.size() == 3)
+	{
+		v_row = v_parts.get(0).trim();
+		v_last = v_parts.get(1).trim().toLowerCase();
+		v_dob = v_parts.get(2).trim().toDate("MM/dd/yyyy");
+		v_n = 0;
+		v_dobCount = 0;
+		for each  p in Encounter_PatientVisit[Patient_DOB == v_dob]
+		{
+			v_dobCount = v_dobCount + 1;
+			if(ifnull(p.Patient_Last_Name,"").toString().toLowerCase().contains(v_last))
+			{
+				v_n = v_n + 1;
+				v_linked = "No";
+				if(p.Referral_Link != null)
+				{
+					v_linked = "Yes";
+				}
+				v_dos = "";
+				if(p.Visit_Completion_Date != null)
+				{
+					v_dos = p.Visit_Completion_Date.toString("MM-dd-yyyy");
+				}
+				v_out = v_out + "\nRow " + v_row + " | " + ifnull(p.PVS_ID,"(no PVS ID)") + " | linked " + v_linked + " | REF " + ifnull(p.Referral_ID,"") + " | " + ifnull(p.Type_of_Entry,"") + " | DOS " + v_dos + " | note " + ifnull(p.Clinical_Note_Type,"") + " | " + ifnull(p.Partner_Location_Label,"");
+			}
+		}
+		if(v_n == 0)
+		{
+			v_none = v_none + 1;
+			v_out = v_out + "\nRow " + v_row + " | NO PVS | PVS with same DOB: " + v_dobCount;
+		}
+		else
+		{
+			v_hit = v_hit + 1;
+		}
+	}
+}
+v_out = v_out + "\nTOTALS | patients with PVS " + v_hit + " | no PVS " + v_none;
+info v_out;
+return v_out;

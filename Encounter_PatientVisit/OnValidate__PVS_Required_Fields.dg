@@ -17,3 +17,19 @@ if(input.Patient_DOB == null)
 		}
 	}
 }
+if(input.Type_of_Entry == "3008")
+{
+	if(input.Cares_3008_Completion_Date == null)
+	{
+		alert "3008 Completion Date is required for a 3008 entry.";
+		cancel submit;
+	}
+}
+else if(input.Type_of_Entry == "Patient Visit" || input.Type_of_Entry == "Imaging Order")
+{
+	if(input.Visit_Completion_Date == null)
+	{
+		alert "Visit Completion Date is required for a Patient Visit or Imaging Order.";
+		cancel submit;
+	}
+}
