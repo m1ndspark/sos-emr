@@ -216,6 +216,20 @@ RATE VALIDATION:
 - No hard onboarding gate; the billing-time guard covers the dangerous case.
 
 ================================================================================
+EMPATH RATES OF RECORD (Session 63, 2026-10-17; forward-only ruling)
+================================================================================
+Source: SOS Fee Schedule dated 01/22/2025. In Partner_Rates, effective 2026-10-01:
+  Telemedicine 65 | Low (Minor) 170 | Moderate 373 | High (Complex) 575 |
+  Hospital at Home 1,099/day | After Hours 150 | Super STAT 400.
+- update_partner_rates COMMIT inserted 24 current rows (6 Empath branches x 4
+  types). Prior rows (343 / 150 / 55 / 999) are RETAINED with Current_Rate = No,
+  not deleted.
+- FORWARD ONLY (Neil ruling): sent invoices stay as billed; only October Draft
+  visits were re-priced (20). Empath - Main Hospice has no rate rows.
+- MPU uses the rate actually billed: September 343 / 150 / 55, October onward
+  373 / 170 / 65.
+
+================================================================================
 PVS -> INVOICE BILLING RULE (LOCKED logic, build later on the PVS)
 ================================================================================
 - Exactly ONE acuity level per visit (single-select, required).
