@@ -630,7 +630,7 @@ END
 | 3008 recap live send: send_3008_status(10-01-2026, 10-31-2026, Yes). Preview tested; on hold. Session 65. | Neil | OPEN | N | Oct EOM |
 | Task 8: run_invoice_batch does not read Row_Status; re-confirm whether to skip non-Counted rows (Hold Yes covers it today). Session 65. | Neil | OPEN | N | TBD |
 | Task 9: add Body_HTML, Recipients, Send_Response to Notification_Log_Report; clear the Subject initial value. Session 65. | Neil / cchat | OPEN | N | TBD |
-| Export v69 .ds and commit: create_3008_pvs, send_3008_status, copy_pvs_ssn_from_referral, Notification_Log form, Duplicate Referral choice on Assignments are not in v68. Session 65. | Neil / ccode | OPEN | N | next session |
+| Export v69 .ds and commit: create_3008_pvs, send_3008_status, copy_pvs_ssn_from_referral, Notification_Log form, Duplicate Referral choice on Assignments are not in v68. Session 65. Done: v69 synced in 596dada. | Neil / ccode | DONE | N | 2026-11-16 |
 | Post-close: 13 August cancelled PVS (Josh, $0) have blank Hold_From_Invoicing; set Hold Yes after October EOM closes. Session 65. | cchat | OPEN | N | after Oct close |
 | EOM prep runbook context/35_eom_runbook.md + project doc claude/SOS_EOM_Prep_Runbook.md. Session 65. | cchat | DONE | N | 2026-11-16 |
 | October invoicing: Empath batches reset (INV-000146-149) and re-batched under the 2999 cap; all October invoices sent by Neil 11/15-11/16. Session 65. | Neil | DONE | N | 2026-11-16 |
