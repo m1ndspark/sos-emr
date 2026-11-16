@@ -1,0 +1,344 @@
+v_org = "911048634";
+v_base = "https://www.zohoapis.com/books/v3/";
+v_rec = Remit_Intake[ID == p_remit_id.toLong()];
+if(v_rec.ID == null)
+{
+	return "Remit Intake record " + p_remit_id + " not found.";
+}
+v_log = ifnull(v_rec.Process_Log,"");
+v_log = v_log + "\n" + zoho.currenttime.toString("MM-dd-yyyy HH:mm:ss") + " Building allocation";
+v_review = List();
+v_ref = ifnull(v_rec.Payment_Reference,"").toString().trim();
+v_payer = ifnull(v_rec.Payer_Name,"").toString().trim();
+v_total = ifnull(v_rec.Payment_Total,0).toString().toDecimal();
+if(v_ref != "")
+{
+	v_pr = invokeurl
+	[
+		url :v_base + "customerpayments?organization_id=" + v_org + "&reference_number=" + zoho.encryption.urlEncode(v_ref)
+		type :GET
+		connection:"zoho_books_partners"
+	];
+	if(v_pr.get("code") == 0)
+	{
+		for each  v_p in v_pr.get("customerpayments")
+		{
+			if(ifnull(v_p.get("reference_number"),"").toString().trim() == v_ref)
+			{
+				v_review.add("Reference " + v_ref + " is already recorded in Books as payment " + v_p.get("payment_number") + " (" + v_p.get("customer_name") + ", " + v_p.get("amount") + ").");
+			}
+		}
+	}
+	else
+	{
+		v_review.add("Could not check Books for an existing payment: " + v_pr.get("message"));
+	}
+}
+else
+{
+	v_review.add("No payment reference was read from the remit.");
+}
+v_bal = Map();
+v_alloc = Map();
+v_invNum = Map();
+v_invCust = Map();
+v_custName = Map();
+v_pool = Map();
+v_custOrder = List();
+v_lines = ifnull(v_rec.Extracted_Lines,"").toString().toList("\n");
+for each  v_ln in v_lines
+{
+	if(v_ln.trim() != "" && v_ln.contains("|"))
+	{
+		v_parts = v_ln.toList("|");
+		v_num = v_parts.get(0).trim();
+		v_amt = v_parts.get(1).trim().toDecimal();
+		v_ir = invokeurl
+		[
+			url :v_base + "invoices?organization_id=" + v_org + "&invoice_number=" + zoho.encryption.urlEncode(v_num)
+			type :GET
+			connection:"zoho_books_partners"
+		];
+		v_found = Map();
+		if(v_ir.get("code") == 0)
+		{
+			for each  v_i in v_ir.get("invoices")
+			{
+				if(v_i.get("invoice_number").toString().equalsIgnoreCase(v_num))
+				{
+					v_found = v_i;
+				}
+			}
+		}
+		if(v_found.isEmpty())
+		{
+			v_review.add("Invoice " + v_num + " (" + v_amt + ") was not found in Books.");
+		}
+		else
+		{
+			v_iid = v_found.get("invoice_id").toString();
+			v_cid = v_found.get("customer_id").toString();
+			if(!v_custOrder.contains(v_cid))
+			{
+				v_custOrder.add(v_cid);
+				v_custName.put(v_cid,v_found.get("customer_name").toString());
+			}
+			v_st = v_found.get("status").toString();
+			v_b = v_found.get("balance").toString().toDecimal();
+			if(v_bal.containKey(v_iid))
+			{
+				v_b = v_bal.get(v_iid).toString().toDecimal();
+			}
+			v_apply = 0.0;
+			if(v_st != "void" && v_st != "draft" && v_b > 0)
+			{
+				v_apply = v_amt;
+				if(v_b < v_amt)
+				{
+					v_apply = v_b;
+				}
+			}
+			if(v_apply > 0)
+			{
+				v_prev = 0.0;
+				if(v_alloc.containKey(v_iid))
+				{
+					v_prev = v_alloc.get(v_iid).toString().toDecimal();
+				}
+				v_alloc.put(v_iid,v_prev + v_apply);
+				v_bal.put(v_iid,v_b - v_apply);
+				v_invNum.put(v_iid,v_num);
+				v_invCust.put(v_iid,v_cid);
+			}
+			v_left = v_amt - v_apply;
+			if(v_left > 0.009)
+			{
+				v_poolPrev = 0.0;
+				if(v_pool.containKey(v_cid))
+				{
+					v_poolPrev = v_pool.get(v_cid).toString().toDecimal();
+				}
+				v_pool.put(v_cid,v_poolPrev + v_left);
+				v_log = v_log + "\n" + v_num + " is " + v_st + " with balance " + v_b + "; " + v_left + " moved to oldest open invoices.";
+			}
+		}
+	}
+}
+for each  v_cid in v_pool.keys()
+{
+	v_rem = v_pool.get(v_cid).toString().toDecimal();
+	v_or = invokeurl
+	[
+		url :v_base + "invoices?organization_id=" + v_org + "&customer_id=" + v_cid + "&filter_by=Status.Unpaid&sort_column=date&sort_order=A&per_page=200"
+		type :GET
+		connection:"zoho_books_partners"
+	];
+	if(v_or.get("code") == 0)
+	{
+		for each  v_i in v_or.get("invoices")
+		{
+			if(v_rem > 0.009)
+			{
+				v_iid = v_i.get("invoice_id").toString();
+				v_b = v_i.get("balance").toString().toDecimal();
+				if(v_bal.containKey(v_iid))
+				{
+					v_b = v_bal.get(v_iid).toString().toDecimal();
+				}
+				if(v_b > 0.009)
+				{
+					v_a = v_rem;
+					if(v_b < v_rem)
+					{
+						v_a = v_b;
+					}
+					v_prev = 0.0;
+					if(v_alloc.containKey(v_iid))
+					{
+						v_prev = v_alloc.get(v_iid).toString().toDecimal();
+					}
+					v_alloc.put(v_iid,v_prev + v_a);
+					v_bal.put(v_iid,v_b - v_a);
+					v_invNum.put(v_iid,v_i.get("invoice_number").toString());
+					v_invCust.put(v_iid,v_cid);
+					v_rem = v_rem - v_a;
+				}
+			}
+		}
+	}
+	else
+	{
+		v_review.add("Could not load open invoices for " + v_custName.get(v_cid) + ": " + v_or.get("message"));
+	}
+	if(v_rem > 0.009)
+	{
+		v_review.add(v_custName.get(v_cid) + " has " + v_rem.round(2) + " left with no open invoice to apply it to.");
+	}
+}
+v_text = "";
+v_jsonParts = List();
+v_custCount = 0;
+v_allocTotal = 0.0;
+v_htmlRows = "";
+for each  v_cid in v_custOrder
+{
+	v_ct = 0.0;
+	v_cl = List();
+	v_rows = "";
+	v_hRows = "";
+	for each  v_iid in v_alloc.keys()
+	{
+		if(v_invCust.get(v_iid) == v_cid)
+		{
+			v_a = v_alloc.get(v_iid).toString().toDecimal().round(2);
+			v_ct = v_ct + v_a;
+			v_m = Map();
+			v_m.put("invoice_id",v_iid);
+			v_m.put("invoice_number",v_invNum.get(v_iid));
+			v_m.put("amount_applied",v_a);
+			v_cl.add(v_m);
+			v_rows = v_rows + "\n   " + v_invNum.get(v_iid) + " | " + v_a;
+			v_hRows = v_hRows + "<tr><td style=\"padding:4px 10px 4px 24px;\">" + v_invNum.get(v_iid) + "</td><td style=\"padding:4px 10px;text-align:right;\">$" + v_a + "</td></tr>";
+		}
+	}
+	if(v_cl.size() > 0)
+	{
+		v_ct = v_ct.round(2);
+		v_allocTotal = v_allocTotal + v_ct;
+		v_custCount = v_custCount + 1;
+		v_text = v_text + v_custName.get(v_cid) + " | " + v_ct + v_rows + "\n";
+		v_htmlRows = v_htmlRows + "<tr style=\"background:#f2f4f7;\"><td style=\"padding:6px 10px;font-weight:bold;\">" + v_custName.get(v_cid) + "</td><td style=\"padding:6px 10px;text-align:right;font-weight:bold;\">$" + v_ct + "</td></tr>" + v_hRows;
+		v_c = Map();
+		v_c.put("customer_id",v_cid);
+		v_c.put("customer_name",v_custName.get(v_cid));
+		v_c.put("amount",v_ct);
+		v_c.put("invoices",v_cl);
+		v_jsonParts.add(v_c.toString());
+	}
+}
+v_jsonTxt = "[" + v_jsonParts.toString(",") + "]";
+v_diff = v_total - v_allocTotal;
+if(v_diff < 0)
+{
+	v_diff = 0 - v_diff;
+}
+if(v_diff > 0.01)
+{
+	v_review.add("Allocated " + v_allocTotal.round(2) + " does not equal remit total " + v_total.round(2) + ".");
+}
+v_status = "Ready to Approve";
+v_reviewHtml = "";
+if(v_review.size() > 0)
+{
+	v_status = "Needs Review";
+	for each  v_r in v_review
+	{
+		v_log = v_log + "\nREVIEW: " + v_r;
+		v_reviewHtml = v_reviewHtml + "<li>" + v_r + "</li>";
+	}
+}
+v_log = v_log + "\nAllocation built: " + v_allocTotal.round(2) + " across " + v_custCount + " customer(s). Status " + v_status + ".";
+v_rec.Proposed_Allocation=v_text + "\nJSON:" + v_jsonTxt;
+v_rec.Remit_Status=v_status;
+v_amtStr = v_total.round(2).toString();
+v_dot = v_amtStr.indexOf(".");
+v_intStr = v_amtStr;
+v_decStr = "00";
+if(v_dot >= 0)
+{
+	v_intStr = v_amtStr.subString(0,v_dot);
+	v_decStr = v_amtStr.subString(v_dot + 1,v_amtStr.length());
+}
+v_len = v_intStr.length();
+if(v_len > 6)
+{
+	v_intStr = v_intStr.subString(0,v_len - 6) + "," + v_intStr.subString(v_len - 6,v_len - 3) + "," + v_intStr.subString(v_len - 3,v_len);
+}
+else if(v_len > 3)
+{
+	v_intStr = v_intStr.subString(0,v_len - 3) + "," + v_intStr.subString(v_len - 3,v_len);
+}
+v_totalTxt = v_intStr + "." + v_decStr;
+v_prefix = "Remit Ready";
+if(v_status == "Needs Review")
+{
+	v_prefix = "Remit Needs Review";
+}
+v_subj = v_prefix + ": " + v_payer + " | Ref " + v_ref + " | $" + v_totalTxt;
+v_link = "https://portal.sosreferrals.com/#Report:All_Intakes?ID=" + v_rec.ID.toString();
+v_pDate = "";
+if(v_rec.Payment_Date != null)
+{
+	v_pDate = v_rec.Payment_Date.toString("MM/dd/yyyy");
+}
+v_html = "<div style=\"font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#222;\">";
+v_html = v_html + "<p><b>" + v_prefix + "</b></p>";
+v_html = v_html + "<p>Payer: " + v_payer + "<br/>Reference: " + v_ref + "<br/>Payment date: " + v_pDate + "<br/>Remit total: $" + v_totalTxt + "<br/>Allocated: $" + v_allocTotal.round(2) + "</p>";
+if(v_htmlRows != "")
+{
+	v_html = v_html + "<table style=\"border-collapse:collapse;font-size:14px;\">" + v_htmlRows + "</table>";
+}
+else
+{
+	v_html = v_html + "<p>No payments proposed.</p>";
+}
+if(v_reviewHtml != "")
+{
+	v_html = v_html + "<p style=\"margin-top:16px;\"><b>Needs your review:</b></p><ul>" + v_reviewHtml + "</ul>";
+}
+v_html = v_html + "<p style=\"margin-top:16px;\"><a href=\"" + v_link + "\">Open in Creator</a></p></div>";
+v_token = "";
+v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+if(v_cfg.count() > 0)
+{
+	v_token = ifnull(v_cfg.Zepto_Send_Token,"").toString().trim();
+}
+if(v_token == "")
+{
+	v_log = v_log + "\nEmail NOT sent: no ZEPTOMAIL send token in API_Config.";
+}
+else
+{
+	try 
+	{
+		v_fromMap = Map();
+		v_fromMap.put("address","notifications@sosreferrals.com");
+		v_fromMap.put("name","SOS Mobile Medical Care");
+		v_addrMap = Map();
+		v_addrMap.put("address","neil.heird@sosmmc.com");
+		v_entry = Map();
+		v_entry.put("email_address",v_addrMap);
+		v_toList = List();
+		v_toList.add(v_entry);
+		v_payload = Map();
+		v_payload.put("from",v_fromMap);
+		v_payload.put("to",v_toList);
+		v_payload.put("subject",v_subj);
+		v_payload.put("htmlbody",v_html);
+		v_hdr = Map();
+		v_hdr.put("Accept","application/json");
+		v_hdr.put("Content-Type","application/json");
+		v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+		v_resp = invokeurl
+		[
+			url :"https://api.zeptomail.com/v1.1/email"
+			type :POST
+			body:v_payload.toString()
+			headers:v_hdr
+			detailed:true
+		];
+		if(v_resp.get("responseCode") == 201)
+		{
+			v_log = v_log + "\nEmail sent via ZeptoMail: " + v_subj;
+		}
+		else
+		{
+			v_log = v_log + "\nEmail FAILED via ZeptoMail: " + v_resp.get("responseText").toString().left(500);
+		}
+	}		catch (e)
+	{
+		v_log = v_log + "\nEmail FAILED via ZeptoMail: " + e.toString();
+	}
+}
+v_rec.Process_Log=v_log;
+return v_status + " | " + v_allocTotal.round(2) + " allocated | " + v_review.size() + " review item(s)";

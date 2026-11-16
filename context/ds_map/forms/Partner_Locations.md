@@ -1,7 +1,7 @@
 # Partner_Locations
 
 - Display name: Partner Locations
-- .ds line: 4327
+- .ds line: 4487
 - Fields (excluding sections): 9
 - Parent form: -
 
@@ -29,7 +29,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 36795
+- .ds line: 38490
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -42,7 +42,7 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 36951
+- .ds line: 38646
 - Fields read: ID, Partner_Link
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -55,7 +55,7 @@
 - Record event: on add
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 36814
+- .ds line: 38509
 - Fields read: Partner_Link, Partner_Location_Code
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -68,7 +68,7 @@
 - Record event: on add or edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 37421
+- .ds line: 39116
 - Fields read: Partner_Link, Partner_Location_Name
 - Fields set: Partner_Location_Label
 - Fields shown/hidden/enabled/disabled: -
@@ -81,7 +81,7 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: DISABLED
-- .ds line: 36884
+- .ds line: 38579
 - Fields read: ID, Partner_Link, Primary_Office
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -94,7 +94,7 @@
 - Record event: on add or edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 36979
+- .ds line: 38674
 - Fields read: ID, Partner_Link, Primary_Office
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -

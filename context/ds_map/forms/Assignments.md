@@ -2,7 +2,7 @@
 
 - Display name: -
 - .ds line: 111
-- Fields (excluding sections): 19
+- Fields (excluding sections): 21
 - Parent form: -
 
 ## Fields
@@ -30,6 +30,8 @@
 | Assignment_Notes | Assignment Notes | textarea | - |
 | Visit_Status_Section | Visit Status Section | section | - |
 | Visit_Status | Status | picklist | - |
+| Visit_Completed | Visit Completed | radiobuttons | - |
+| Not_Completed_Reason | Not Completed Reason | picklist | - |
 | System_Fields_Section | System Fields Section | section | - |
 | Assignment_ID | Assignment ID | text | - |
 | Assignment_ID_Stamp | Assignment ID Stamp | text | - |
@@ -43,7 +45,7 @@
 - Record event: on edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 37043
+- .ds line: 38738
 - Fields read: Assignment_ID, Assignment_Notes, Employee_Link, Facility_Name, Facility_Phone, Facility_Room_Number, ID, Patient_Address, Patient_Location
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -56,7 +58,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 37024
+- .ds line: 38719
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -69,7 +71,7 @@
 - Record event: on add or edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 37104
+- .ds line: 38799
 - Fields read: -
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Patient_DOB, Patient_First_Name, Patient_Last_Name
@@ -82,7 +84,7 @@
 - Record event: on add or edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 41346
+- .ds line: 43041
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -95,7 +97,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Referral_Link
 - Status: ENABLED
-- .ds line: 39931
+- .ds line: 41626
 - Fields read: Referral_Link
 - Fields set: Facility_Name, Facility_Phone, Facility_Room_Number, Patient_Address, Patient_DOB, Patient_First_Name, Patient_Last_Name, Patient_Location, Patient_Phone, Referral_Date, Referral_POC, Referral_Partner
 - Fields shown/hidden/enabled/disabled: -
@@ -108,7 +110,7 @@
 - Record event: on add or edit
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 40312
+- .ds line: 42007
 - Fields read: Employee_Link, Referral_Link
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -121,7 +123,7 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 37125
+- .ds line: 38820
 - Fields read: Employee_Link, ID, Referral_Link
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -134,7 +136,7 @@
 - Record event: on edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 39997
+- .ds line: 41692
 - Fields read: Referral_Link
 - Fields set: Visit_Status
 - Fields shown/hidden/enabled/disabled: -
@@ -147,7 +149,7 @@
 - Record event: on add or edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 37249
+- .ds line: 38944
 - Fields read: Patient_Location
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Facility_Name, Facility_Phone, Facility_Room_Number
@@ -160,10 +162,49 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Patient_Location
 - Status: ENABLED
-- .ds line: 37279
+- .ds line: 38974
 - Fields read: Patient_Location
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Facility_Name, Facility_Phone, Facility_Room_Number
+- Functions called: -
+- Other forms: -
+
+### Visit_Outcome_Reason_Requ
+
+- Display: Visit Outcome Reason Required
+- Record event: on add or edit
+- Form event: OnValidate
+- Status: ENABLED
+- .ds line: 43657
+- Fields read: Not_Completed_Reason, Visit_Completed
+- Fields set: -
+- Fields shown/hidden/enabled/disabled: -
+- Functions called: -
+- Other forms: -
+
+### Visit_Outcome_Show_Hide_O
+
+- Display: Visit Outcome Show Hide On Load
+- Record event: on add or edit
+- Form event: OnLoad
+- Status: ENABLED
+- .ds line: 43604
+- Fields read: Visit_Completed
+- Fields set: -
+- Fields shown/hidden/enabled/disabled: Not_Completed_Reason
+- Functions called: -
+- Other forms: -
+
+### Visit_Outcome_Show_Hide_O1
+
+- Display: Visit Outcome Show Hide On Input
+- Record event: on add or edit
+- Form event: OnUserInput of Visit_Completed
+- Status: ENABLED
+- .ds line: 43630
+- Fields read: Visit_Completed
+- Fields set: Not_Completed_Reason
+- Fields shown/hidden/enabled/disabled: -
 - Functions called: -
 - Other forms: -
 
@@ -171,7 +212,7 @@
 
 Every item that references a field of this form.
 
-- Assignments.Referral_Link: function backfill_referral_employee_link [fetch, read]; function dash_metrics [fetch, read]; function dash_metrics_range [fetch, read]; function diag_orphan_referral [fetch]; function diag_orphaned_records [read]; function diag_safe_test_referrals [fetch]; function diag_unnotified_referrals [fetch]; function process_new_referral [fetch, insert]; function send_assignment_notification [read]; function sos_referral_health [read]; function widget_today_visits [fetch, read]; workflow Assignments/Assignment_Pull_From_Refe1 [read, trigger]; workflow Assignments/Assignment_Referral_Emplo [read]; workflow Assignments/Assignment_Required_Refer [read]; workflow Assignments/Assignment_Visit_Status_C [read]
+- Assignments.Referral_Link: function backfill_referral_employee_link [fetch, read]; function dash_metrics [fetch, read]; function dash_metrics_range [fetch, read]; function diag_orphan_referral [fetch]; function diag_orphaned_records [read]; function diag_safe_test_referrals [fetch]; function diag_unnotified_referrals [fetch]; function process_new_referral [fetch, insert]; function send_3008_status [fetch]; function send_assignment_notification [read]; function sos_referral_health [read]; function widget_today_visits [fetch, read]; workflow Assignments/Assignment_Pull_From_Refe1 [read, trigger]; workflow Assignments/Assignment_Referral_Emplo [read]; workflow Assignments/Assignment_Required_Refer [read]; workflow Assignments/Assignment_Visit_Status_C [read]
 - Assignments.Referral_Date: page Drilldown_Data [read]; workflow Assignments/Assignment_Pull_From_Refe1 [set]
 - Assignments.Referral_Partner: page Drilldown_Data [read]; workflow Assignments/Assignment_Pull_From_Refe1 [set]
 - Assignments.Referral_POC: workflow Assignments/Assignment_Pull_From_Refe1 [set]
@@ -184,9 +225,11 @@ Every item that references a field of this form.
 - Assignments.Patient_Address: function process_new_referral [insert]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Pull_From_Refe1 [set]
 - Assignments.Facility_Phone: function process_new_referral [insert]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Pull_From_Refe1 [set]; workflow Assignments/Show_Hide_Facility_Name_P [show/hide]; workflow Assignments/Show_Hide_Facility_Name_P1 [show/hide]
 - Assignments.Facility_Room_Number: function process_new_referral [insert]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Pull_From_Refe1 [set]; workflow Assignments/Show_Hide_Facility_Name_P [show/hide]; workflow Assignments/Show_Hide_Facility_Name_P1 [show/hide]
-- Assignments.Employee_Link: function backfill_referral_employee_link [fetch, read]; function dash_metrics [read]; function dash_metrics_range [read]; function send_assignment_notification [read]; function widget_today_visits [read]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Referral_Emplo [read]; workflow Assignments/Assignment_Required_Refer [read]
+- Assignments.Employee_Link: function backfill_referral_employee_link [fetch, read]; function dash_metrics [read]; function dash_metrics_range [read]; function send_3008_status [read]; function send_assignment_notification [read]; function widget_today_visits [read]; workflow Assignments/Assignment_Change_Log [read]; workflow Assignments/Assignment_Referral_Emplo [read]; workflow Assignments/Assignment_Required_Refer [read]
 - Assignments.Assignment_Notes: workflow Assignments/Assignment_Change_Log [read]
 - Assignments.Visit_Status: function dash_metrics [read]; function dash_metrics_range [read]; function widget_today_visits [read]; page Drilldown_Data [read]; workflow Assignments/Assignment_Visit_Status_C [set]
+- Assignments.Visit_Completed: function send_3008_status [read]; workflow Assignments/Visit_Outcome_Reason_Requ [read]; workflow Assignments/Visit_Outcome_Show_Hide_O [read]; workflow Assignments/Visit_Outcome_Show_Hide_O1 [read, trigger]
+- Assignments.Not_Completed_Reason: function send_3008_status [read]; workflow Assignments/Visit_Outcome_Reason_Requ [read]; workflow Assignments/Visit_Outcome_Show_Hide_O [show/hide]; workflow Assignments/Visit_Outcome_Show_Hide_O1 [set]
 - Assignments.Assignment_ID: function backfill_assignment_ids [read]; function diag_orphaned_records [read]; function diag_sequence_trackers [read]; function mint_assignment_id [read, update]; function send_assignment_notification [fetch, read]; function widget_today_visits [read]; page Drilldown_Data [read]; workflow Assignments/Assignment_Change_Log [read]
 - Assignments.Assignment_ID_Stamp: function mint_assignment_id [update]
 - Assignments.Notified_Employee_ID: function send_assignment_notification [read, update]

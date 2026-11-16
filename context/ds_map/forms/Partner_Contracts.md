@@ -1,7 +1,7 @@
 # Partner_Contracts
 
 - Display name: Partner Contracts
-- .ds line: 4199
+- .ds line: 4359
 - Fields (excluding sections): 8
 - Parent form: -
 
@@ -28,7 +28,7 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 37390
+- .ds line: 39085
 - Fields read: Partner_Link, Partner_Location_Link
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -41,7 +41,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 37371
+- .ds line: 39066
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -

@@ -1,9 +1,9 @@
 # ds_map index
 
 - Source: SOS_Referrals_App.ds
-- .ds export generated on (from .ds header): 21-Oct-2026 11:41:54
-- .ds file modified time: 2026-10-21 18:42:37
-- .ds SHA-256: 7303d038ce0cea41f73fab58c2049acf9c2b7a5ac8e4abf3f7dff86eba070a22
+- .ds export generated on (from .ds header): 16-Nov-2026 14:58:48
+- .ds file modified time: 2026-11-16 17:59:40
+- .ds SHA-256: c71d1faeada2760fadddfaa3158c8baa3bb8cba302c6188796e20743ca2e3713
 - STATUS: CURRENT
 
 Derived from the .ds. Wins over schema/ when they disagree. Open the .dg or .ds for ground truth before editing.
@@ -16,15 +16,15 @@ Files: forms/<Form>.md (fields, workflows, reverse index), functions.md, unresol
 
 | Item | Count |
 |---|---|
-| Forms | 39 |
-| Fields (excluding sections) | 521 |
-| Form workflows | 102 |
+| Forms | 41 |
+| Fields (excluding sections) | 545 |
+| Form workflows | 106 |
 | Form workflows disabled | 7 |
-| Functions | 288 |
+| Functions | 294 |
 | Schedules | 6 |
 | Batch workflows | 0 |
 | Approval workflows | 0 |
-| Reports | 49 |
+| Reports | 51 |
 | Report custom actions | 2 |
 | Pages | 7 |
 
@@ -33,7 +33,7 @@ Files: forms/<Form>.md (fields, workflows, reverse index), functions.md, unresol
 | Link name | Display name | Fields | Workflows | Parent form (subform) |
 |---|---|---|---|---|
 | API_Config | API Config | 7 | 0 | - |
-| Assignments | - | 19 | 10 | - |
+| Assignments | - | 21 | 13 | - |
 | Change_Log | Change Log | 8 | 0 | - |
 | Dashboard_Range | Dashboard Range | 2 | 1 | - |
 | Employees | - | 31 | 7 | - |
@@ -52,6 +52,7 @@ Files: forms/<Form>.md (fields, workflows, reverse index), functions.md, unresol
 | Invoices | - | 19 | 0 | - |
 | MPU_Reporting | MPU Reporting | 0 | 0 | - |
 | Messaging_Hub | Messaging Hub | 0 | 0 | - |
+| Notification_Log | Notification Log | 10 | 0 | - |
 | PVS_Fax_Review | PVS Fax Review | 15 | 5 | - |
 | Partner_Billing_Contacts | Partner Billing Contacts | 15 | 4 | - |
 | Partner_Contracts | Partner Contracts | 8 | 2 | - |
@@ -68,6 +69,7 @@ Files: forms/<Form>.md (fields, workflows, reverse index), functions.md, unresol
 | Referrals_Main | Referrals Main | 70 | 19 | - |
 | Referrals_Main2 | Referrals Main2 | 26 | 0 | - |
 | Referrals_Master | Referrals Master | 0 | 0 | - |
+| Remit_Intake | Remit Intake | 12 | 1 | - |
 | Schema_Snapshot | Schema Snapshot | 3 | 0 | - |
 | Sequence_Tracker | Sequence Tracker | 4 | 0 | - |
 | Services_Procedures | Services & Procedures | 0 | 0 | - |
@@ -185,6 +187,8 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | build_referral_email_html | Deluge | map | int p_recId |
 | build_zepto_attachments | Deluge | list | int p_refId, string p_token |
 | compute_data_issues | Deluge | string | int p_recId |
+| copy_pvs_ssn_from_referral | Deluge | string | string pMode, string pPvsIds |
+| create_3008_pvs | Deluge | string | string pMode, string pRows |
 | create_3008_pvs_july | Deluge | string | string pMode |
 | create_3008_pvs_sept | Deluge | string | string pMode |
 | create_books_customers | Deluge | string | - |
@@ -342,6 +346,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | preview_invoice_batch_pool | Deluge | string | string p_branchLabel, date p_from, date p_to |
 | process_new_referral | Deluge | string | string p_refKey, string p_notify |
 | relink_pvs_to_referral | Deluge | string | string p_mode |
+| remit_build_allocation | Deluge | string | string p_remit_id |
 | repair_fax_log_status | Deluge | string | bool p_commit |
 | repair_invoice_pvs_from_referral | Deluge | string | string p_invoiceNumbers, string p_mode |
 | repair_pvs_3008_import | Deluge | string | string p_mode |
@@ -370,6 +375,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | run_schema_monitor | Deluge | string | - |
 | seed_schema_to_github | Deluge | void | - |
 | send_3008_notification | Deluge | string | string p_refKey |
+| send_3008_status | Deluge | string | string p_from, string p_to, string p_send |
 | send_activity_digest | Deluge | string | string p_type, string p_from, string p_to |
 | send_assignment_notification | Deluge | string | string p_asgKey |
 | send_fax_digest | Deluge | string | - |
@@ -392,6 +398,8 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | set_pvs_provider | Deluge | string | string p_mode, string p_pvsId, string p_employeeEmail |
 | set_pvs_provider_batch | Deluge | string | string p_mode, string p_pvsIds, string p_employeeEmail |
 | set_pvs_referral_link | Deluge | string | string p_pvsId, string p_refId, string p_mode |
+| set_pvs_visit_date | Deluge | string | string p_mode, string p_pairs |
+| set_referral_source | Deluge | string | string p_mode, string p_refIds, string p_source |
 | sos_referral_health | Deluge | string | string p_mode, string p_scope, int p_limit |
 | sweep_unnotified_referrals | Deluge | string | string p_mode, string p_scope, int p_limit |
 | sync_pvs_branch_from_referral | Deluge | string | string p_pvsId, string p_mode |
@@ -417,6 +425,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | All_Assignments | list (default) | Assignments | - | - |
 | All_Employees | list (default) | Employees | - | - |
 | All_Files | list (default) | Referral_Files | - | - |
+| All_Intakes | list (default) | Remit_Intake | - | - |
 | All_Partner_Billing_Contacts | list (default) | Partner_Billing_Contacts | - | - |
 | All_Partners | list (default) | Partners | - | - |
 | All_Sequence_Trackers | list (default) | Sequence_Tracker | - | - |
@@ -439,6 +448,7 @@ Subforms: 0 detected. No subform field type is present in this .ds.
 | MPU_Reporting_Report | list (default) | MPU_Reporting | - | - |
 | Messaging_Hub_Report | list (default) | Messaging_Hub | - | - |
 | My_PVS_Notes | list | Encounter_PatientVisit | [Provider_Login_Email == zoho.loginuserid] | "Fax PVS" -> Fax_PVS_Button |
+| Notification_Log_Report | list | Notification_Log | - | - |
 | PVS_Addendum_Report | list (default) | Encounters_PVSAddendum | - | - |
 | PVS_Report | list (default) | Encounter_PatientVisit | - | "Fax PVS" -> Fax_PVS |
 | Partner_Contracts_Report | list (default) | Partner_Contracts | - | - |

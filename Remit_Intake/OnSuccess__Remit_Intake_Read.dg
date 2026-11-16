@@ -1,0 +1,162 @@
+v_id = input.ID;
+v_log = zoho.currenttime.toString("MM-dd-yyyy HH:mm:ss") + " Intake created";
+v_status = "Read";
+v_payer = "";
+v_ref = "";
+v_date = null;
+v_total = 0.0;
+v_sum = 0.0;
+v_linesTxt = "";
+v_count = 0;
+v_stop = false;
+if(input.Remit_File == null || input.Remit_File.toString().trim() == "")
+{
+	v_status = "Failed";
+	v_log = v_log + "\nNo remit file attached.";
+	v_stop = true;
+}
+if(!v_stop)
+{
+	v_prompt = "Read this payment remittance advice. Return ONLY a JSON object with no other text and exactly these keys: \"payer_name\" (text), \"payment_reference\" (text: the payment, check, ACH or EFT number), \"payment_date\" (text in yyyy-MM-dd format), \"payment_total\" (number), \"lines\" (array with one object per invoice paid, each having \"invoice_number\" (text exactly as printed) and \"amount\" (number paid on that invoice)). Write numbers without $ signs or commas. If a value is not on the document, use an empty string.";
+	v_raw = "";
+	try 
+	{
+		v_resp = zia
+		[
+			message:v_prompt
+			files:input.Remit_File
+			context:"You are an accounts receivable clerk extracting data from remittance advices. Copy values exactly as printed and never invent values."
+			parameters:{"temperature":0.1}
+		];
+		v_raw = v_resp.toString();
+	}	catch (e)
+	{
+		v_status = "Failed";
+		v_log = v_log + "\nZia call failed: " + e.toString();
+		v_stop = true;
+	}
+}
+if(!v_stop)
+{
+	v_txt = v_raw;
+	v_outer = Map();
+	try 
+	{
+		v_outer = v_raw.toMap();
+	}	catch (e)
+	{
+		v_outer = Map();
+	}
+	if(v_outer != null && v_outer.containKey("status") && v_outer.get("status").toString() == "false")
+	{
+		v_status = "Failed";
+		v_log = v_log + "\nZia returned an error: " + ifnull(v_outer.get("error"),"").toString();
+		v_stop = true;
+	}
+	else if(v_outer != null && v_outer.containKey("data"))
+	{
+		v_txt = v_outer.get("data").toString();
+	}
+}
+if(!v_stop)
+{
+	v_txt = v_txt.replaceAll("```json","").replaceAll("```","").trim();
+	v_s = v_txt.indexOf("{");
+	v_e = v_txt.lastIndexOf("}");
+	v_obj = Map();
+	if(v_s >= 0 && v_e > v_s)
+	{
+		try 
+		{
+			v_obj = v_txt.subString(v_s,v_e + 1).toMap();
+		}		catch (e)
+		{
+			v_obj = Map();
+		}
+	}
+	if(v_obj == null || !v_obj.containKey("lines"))
+	{
+		v_status = "Failed";
+		v_log = v_log + "\nCould not parse Zia reply. Raw reply: " + v_raw.left(2000);
+		v_stop = true;
+	}
+}
+if(!v_stop)
+{
+	v_payer = ifnull(v_obj.get("payer_name"),"").toString().trim();
+	v_ref = ifnull(v_obj.get("payment_reference"),"").toString().trim();
+	v_dTxt = ifnull(v_obj.get("payment_date"),"").toString().trim();
+	if(v_dTxt.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))
+	{
+		v_date = v_dTxt.toDate("yyyy-MM-dd");
+	}
+	else
+	{
+		v_log = v_log + "\nPayment date not read: " + v_dTxt;
+	}
+	v_tTxt = ifnull(v_obj.get("payment_total"),"").toString().replaceAll("[^0-9.\\-]","");
+	if(v_tTxt != "")
+	{
+		v_total = v_tTxt.toDecimal();
+	}
+	v_lines = ifnull(v_obj.get("lines"),"[]").toString().toJSONList();
+	for each  v_l in v_lines
+	{
+		v_lm = v_l.toString().toMap();
+		v_inv = ifnull(v_lm.get("invoice_number"),"").toString().trim();
+		v_aTxt = ifnull(v_lm.get("amount"),"").toString().replaceAll("[^0-9.\\-]","");
+		v_amt = 0.0;
+		if(v_aTxt != "")
+		{
+			v_amt = v_aTxt.toDecimal();
+		}
+		v_sum = v_sum + v_amt;
+		v_count = v_count + 1;
+		if(v_linesTxt != "")
+		{
+			v_linesTxt = v_linesTxt + "\n";
+		}
+		v_linesTxt = v_linesTxt + v_inv + " | " + v_amt.round(2).toString();
+	}
+	v_diff = v_total - v_sum;
+	if(v_diff < 0)
+	{
+		v_diff = 0 - v_diff;
+	}
+	if(v_count == 0)
+	{
+		v_status = "Needs Review";
+		v_log = v_log + "\nNo invoice lines read.";
+	}
+	else if(v_diff > 0.01)
+	{
+		v_status = "Needs Review";
+		v_log = v_log + "\nLines total " + v_sum.round(2).toString() + " does not match remit total " + v_total.round(2).toString() + ".";
+	}
+	else
+	{
+		v_log = v_log + "\nRead " + v_count + " lines totaling " + v_sum.round(2).toString() + "; ties to remit total.";
+	}
+}
+for each  v_r in Remit_Intake[ID == v_id]
+{
+	v_r.Payer_Name=v_payer;
+	v_r.Payment_Reference=v_ref;
+	if(v_date != null)
+	{
+		v_r.Payment_Date=v_date;
+	}
+	v_r.Payment_Total=v_total;
+	v_r.Extracted_Lines=v_linesTxt;
+	v_r.Remit_Status=v_status;
+	v_r.Process_Log=v_log;
+	if(v_r.Received_Time == null)
+	{
+		v_r.Received_Time=zoho.currenttime;
+	}
+	break;
+}
+if(v_status == "Read")
+{
+	v_allocResult = thisapp.remit_build_allocation(v_id.toString());
+}

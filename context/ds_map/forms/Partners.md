@@ -1,7 +1,7 @@
 # Partners
 
 - Display name: -
-- .ds line: 4918
+- .ds line: 5078
 - Fields (excluding sections): 12
 - Parent form: -
 
@@ -32,7 +32,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 36776
+- .ds line: 38471
 - Fields read: ID
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -45,7 +45,7 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 36912
+- .ds line: 38607
 - Fields read: ID
 - Fields set: Partner_Code
 - Fields shown/hidden/enabled/disabled: -

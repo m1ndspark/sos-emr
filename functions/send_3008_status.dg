@@ -1,0 +1,512 @@
+v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+if(v_cfg.count() == 0)
+{
+	return "aborted: no ZEPTOMAIL config";
+}
+v_token = ifnull(v_cfg.Zepto_Send_Token,"").trim();
+if(v_token == "")
+{
+	return "aborted: no Zepto send token";
+}
+v_fromStr = ifnull(p_from,"").trim();
+v_toStr = ifnull(p_to,"").trim();
+if(v_fromStr != "" && v_toStr != "")
+{
+	v_from = v_fromStr.toDate();
+	v_to = v_toStr.toDate();
+}
+else
+{
+	v_to = zoho.currentdate.toStartOfMonth().subDay(1);
+	v_from = v_to.toStartOfMonth();
+}
+if(v_from > v_to)
+{
+	return "aborted: from date is after to date";
+}
+v_live = ifnull(p_send,"").trim().toLowerCase() == "yes";
+v_label = v_from.toString("MM/dd/yyyy") + " to " + v_to.toString("MM/dd/yyyy");
+v_portal = "https://portal.sosreferrals.com/#Report:Referrals_Main_Report?Referral_ID=";
+v_td = "font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#000000; padding:8px 6px; border-bottom:1px solid #e6e6ef; vertical-align:top;";
+v_tdNum = v_td + " text-align:right;";
+v_th = "font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:14px; color:#4c4c89; text-transform:uppercase; letter-spacing:.05em; text-align:left; padding:8px 6px; border-bottom:2px solid #0b0b5b;";
+v_aStyle = "color:#2634a3; text-decoration:none; font-weight:bold;";
+v_skip = {"Duplicate","Cancelled","Folded"};
+v_byProv = Map();
+for each  v_p in Encounter_PatientVisit[Type_of_Entry == "3008" && Cares_3008_Completion_Date >= v_from && Cares_3008_Completion_Date <= v_to]
+{
+	v_rs = ifnull(v_p.Row_Status,"").toString().trim();
+	if(v_skip.contains(v_rs))
+	{
+		continue;
+	}
+	v_prov = ifnull(v_p.Employee_Full_Name,"").toString().trim();
+	if(v_prov == "" && v_p.Employee_Link != null)
+	{
+		v_emp = Employees[ID == v_p.Employee_Link];
+		if(v_emp.count() > 0)
+		{
+			v_prov = (ifnull(v_emp.Employee_First_Name,"").toString() + " " + ifnull(v_emp.Employee_Last_Name,"").toString()).trim();
+		}
+	}
+	if(v_prov == "")
+	{
+		v_prov = "Unassigned";
+	}
+	v_pat = ifnull(v_p.Patient_Full_Name_1,"").toString().trim();
+	if(v_pat == "")
+	{
+		v_pat = (ifnull(v_p.Patient_First_Name,"").toString() + " " + ifnull(v_p.Patient_Last_Name,"").toString()).trim();
+	}
+	v_rid = ifnull(v_p.Referral_ID,"").toString().trim();
+	v_ridCell = "(no Referral ID)";
+	if(v_rid != "")
+	{
+		v_ridCell = "<a href=\"" + v_portal + v_rid + "\" style=\"" + v_aStyle + "\">" + v_rid + "</a>";
+	}
+	v_pid = ifnull(v_p.PVS_ID,"").toString().trim();
+	if(v_pid == "")
+	{
+		v_pid = "(no PVS ID)";
+	}
+	v_ptn = ifnull(v_p.Partner_Location_Label,"").toString().trim();
+	v_row = v_p.Cares_3008_Completion_Date.toString("yyyyMMdd") + v_rid + "~|~<tr><td style=\"" + v_td + "\">" + v_p.Cares_3008_Completion_Date.toString("MM/dd/yyyy") + "</td><td style=\"" + v_td + "\">" + v_ridCell + "</td><td style=\"" + v_td + "\">" + v_pid + "</td><td style=\"" + v_td + "\">" + v_pat + "</td><td style=\"" + v_td + "\">" + v_ptn + "</td></tr>";
+	if(!v_byProv.containKey(v_prov))
+	{
+		v_byProv.put(v_prov,List());
+	}
+	v_lst = v_byProv.get(v_prov);
+	v_lst.add(v_row);
+}
+v_openBy = Map();
+v_ncBy = Map();
+v_ndBy = Map();
+for each  v_r in Referrals_Main[Referral_Type == "3008" && Referral_Date >= v_from && Referral_Date <= v_to]
+{
+	v_ridRaw = ifnull(v_r.Referral_ID,"").toString().trim();
+	v_ridCell = "(no Referral ID)";
+	if(v_ridRaw != "")
+	{
+		v_ridCell = "<a href=\"" + v_portal + v_ridRaw + "\" style=\"" + v_aStyle + "\">" + v_ridRaw + "</a>";
+	}
+	v_pat = ifnull(v_r.Patient_Full_Name,"").toString().trim();
+	if(v_pat == "")
+	{
+		v_pat = (ifnull(v_r.Patient_First_Name,"").toString() + " " + ifnull(v_r.Patient_Last_Name,"").toString()).trim();
+	}
+	v_ptn = ifnull(v_r.Partner_Location_Label,"").toString().trim();
+	v_rdt = v_r.Referral_Date.toString("MM/dd/yyyy");
+	v_key = v_r.Referral_Date.toString("yyyyMMdd") + v_ridRaw;
+	v_hasDone = false;
+	v_ndPid = "";
+	v_ndProv = "";
+	if(v_ridRaw != "")
+	{
+		v_pvs = Encounter_PatientVisit[Type_of_Entry == "3008" && Referral_Link == v_r.ID || Referral_ID == v_ridRaw];
+	}
+	else
+	{
+		v_pvs = Encounter_PatientVisit[Type_of_Entry == "3008" && Referral_Link == v_r.ID];
+	}
+	for each  v_p in v_pvs
+	{
+		v_rs = ifnull(v_p.Row_Status,"").toString().trim();
+		if(v_skip.contains(v_rs))
+		{
+			continue;
+		}
+		if(v_p.Cares_3008_Completion_Date != null)
+		{
+			v_hasDone = true;
+		}
+		else if(v_ndPid == "")
+		{
+			v_ndPid = ifnull(v_p.PVS_ID,"").toString().trim();
+			if(v_ndPid == "")
+			{
+				v_ndPid = "(no PVS ID)";
+			}
+			v_ndProv = ifnull(v_p.Employee_Full_Name,"").toString().trim();
+			if(v_ndProv == "")
+			{
+				v_ndProv = "Unassigned";
+			}
+		}
+	}
+	if(v_hasDone)
+	{
+		continue;
+	}
+	if(v_ndPid != "")
+	{
+		if(!v_ndBy.containKey(v_ndProv))
+		{
+			v_ndBy.put(v_ndProv,List());
+		}
+		v_lst = v_ndBy.get(v_ndProv);
+		v_lst.add(v_key + "~|~<tr><td style=\"" + v_td + "\">" + v_rdt + "</td><td style=\"" + v_td + "\">" + v_ridCell + "</td><td style=\"" + v_td + "\">" + v_ndPid + "</td><td style=\"" + v_td + "\">" + v_pat + "</td><td style=\"" + v_td + "\">" + v_ptn + "</td><td style=\"" + v_td + "\">" + v_ndProv + "</td></tr>");
+		continue;
+	}
+	v_vc = "";
+	v_why = "";
+	v_who = "";
+	for each  v_a in Assignments[Referral_Link == v_r.ID]
+	{
+		if(ifnull(v_a.Visit_Completed,"").toString() == "No")
+		{
+			v_vc = "No";
+			v_why = ifnull(v_a.Not_Completed_Reason,"").toString();
+		}
+		if(v_who == "" && v_a.Employee_Link != null)
+		{
+			v_e = Employees[ID == v_a.Employee_Link];
+			if(v_e.count() > 0)
+			{
+				v_who = (ifnull(v_e.Employee_First_Name,"").toString() + " " + ifnull(v_e.Employee_Last_Name,"").toString()).trim();
+			}
+		}
+	}
+	if(v_who == "")
+	{
+		v_who = "Unassigned";
+	}
+	if(v_vc == "No")
+	{
+		if(!v_ncBy.containKey(v_who))
+		{
+			v_ncBy.put(v_who,List());
+		}
+		v_lst = v_ncBy.get(v_who);
+		v_lst.add(v_key + "~|~<tr><td style=\"" + v_td + "\">" + v_rdt + "</td><td style=\"" + v_td + "\">" + v_ridCell + "</td><td style=\"" + v_td + "\">" + v_pat + "</td><td style=\"" + v_td + "\">" + v_ptn + "</td><td style=\"" + v_td + "\">" + v_why + "</td></tr>");
+	}
+	else
+	{
+		if(!v_openBy.containKey(v_who))
+		{
+			v_openBy.put(v_who,List());
+		}
+		v_lst = v_openBy.get(v_who);
+		v_lst.add(v_key + "~|~<tr><td style=\"" + v_td + "\">" + v_rdt + "</td><td style=\"" + v_td + "\">" + v_ridCell + "</td><td style=\"" + v_td + "\">" + v_pat + "</td><td style=\"" + v_td + "\">" + v_ptn + "</td><td style=\"" + v_td + "\">" + v_who + "</td></tr>");
+	}
+}
+v_secStyle = "background-color:#0b0b5b; padding:10px 24px; font-family:Arial,Helvetica,sans-serif; font-size:13px; font-weight:bold; color:#ffffff; letter-spacing:.05em; text-transform:uppercase;";
+v_cellOpen = "<tr><td style=\"padding:8px 24px 18px 24px;\">";
+v_tblOpen = "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\">";
+v_pStyle = "font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:22px; color:#000000; margin:0 0 14px 0;";
+v_noneStyle = "font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:20px; color:#4c4c89; margin:0;";
+v_attName = "SOS_3008_Recap_Updates_" + v_to.toString("yyyy-MM") + ".xlsx";
+v_recipMap = Map();
+v_recipMap.put("Ann Smith","asmith@sosmmc.com");
+v_recipMap.put("Kayla Kolanko","kayla.kolanko@sosmmc.com");
+v_versions = List();
+v_versions.add("ALL");
+for each  v_k in v_recipMap.keys()
+{
+	v_versions.add(v_k);
+}
+v_results = List();
+for each  v_ver in v_versions
+{
+	v_isAll = v_ver == "ALL";
+	v_pk = List();
+	if(v_isAll)
+	{
+		for each  v_k in v_byProv.keys()
+		{
+			v_pk.add(v_k);
+		}
+	}
+	else if(v_byProv.containKey(v_ver))
+	{
+		v_pk.add(v_ver);
+	}
+	v_pk.sort();
+	v_cnt = 0;
+	v_sumRows = "";
+	for each  v_k in v_pk
+	{
+		v_n = v_byProv.get(v_k).size();
+		v_cnt = v_cnt + v_n;
+		v_sumRows = v_sumRows + "<tr><td style=\"" + v_td + "\">" + v_k + "</td><td style=\"" + v_tdNum + "\">" + v_n + "</td></tr>";
+	}
+	v_sumRows = v_sumRows + "<tr><td style=\"" + v_td + " font-weight:bold; background-color:#f0f0ff;\">Total</td><td style=\"" + v_tdNum + " font-weight:bold; background-color:#f0f0ff;\">" + v_cnt + "</td></tr>";
+	v_oRows = List();
+	v_nRows = List();
+	v_dRows = List();
+	if(v_isAll)
+	{
+		for each  v_k in v_openBy.keys()
+		{
+			v_oRows.addAll(v_openBy.get(v_k));
+		}
+		for each  v_k in v_ncBy.keys()
+		{
+			v_nRows.addAll(v_ncBy.get(v_k));
+		}
+		for each  v_k in v_ndBy.keys()
+		{
+			v_dRows.addAll(v_ndBy.get(v_k));
+		}
+	}
+	else
+	{
+		if(v_openBy.containKey(v_ver))
+		{
+			v_oRows.addAll(v_openBy.get(v_ver));
+		}
+		if(v_ncBy.containKey(v_ver))
+		{
+			v_nRows.addAll(v_ncBy.get(v_ver));
+		}
+		if(v_ndBy.containKey(v_ver))
+		{
+			v_dRows.addAll(v_ndBy.get(v_ver));
+		}
+	}
+	v_verName = v_ver;
+	v_greet = "Hi " + v_ver.getPrefix(" ") + ",";
+	if(v_ver.getPrefix(" ") == null || v_ver.getPrefix(" ") == "")
+	{
+		v_greet = "Hi " + v_ver + ",";
+	}
+	if(v_isAll)
+	{
+		v_verName = "Full copy";
+		v_greet = "Full copy: all providers, including unassigned items.";
+	}
+	v_body = "";
+	v_body = v_body + "<tr><td style=\"padding:22px 24px 6px 24px;\">";
+	v_body = v_body + "<p style=\"" + v_pStyle + " font-weight:bold;\">" + v_greet + "</p>";
+	v_body = v_body + "<p style=\"" + v_pStyle + "\">Here is your monthly 3008 recap for " + v_label + ", pulled directly from our new billing system. It lists only the 3008s recorded under your name.</p>";
+	v_body = v_body + "<p style=\"" + v_pStyle + "\">We can't fully reconcile and close the month until every 3008 is accounted for. Any 3008 that was completed but isn't in the system, or has the wrong date or provider, holds up month-end billing for everyone.</p>";
+	v_body = v_body + "<p style=\"" + v_pStyle + "\">Please review your completed 3008s and any open items below. If anything is missing or needs an update, email Neil at <a href=\"mailto:neil.heird@sosmmc.com\" style=\"" + v_aStyle + "\">neil.heird@sosmmc.com</a> with the Referral ID(s), or fill in the attached update sheet and send it back.</p>";
+	v_body = v_body + "</td></tr>";
+	v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">Completed 3008s by Provider</td></tr>";
+	v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Provider</td><td style=\"" + v_th + " text-align:right;\">Completed</td></tr>" + v_sumRows + "</table></td></tr>";
+	for each  v_k in v_pk
+	{
+		v_lst = v_byProv.get(v_k);
+		v_lst.sort();
+		v_rows = "";
+		for each  v_s in v_lst
+		{
+			v_rows = v_rows + v_s.getSuffix("~|~");
+		}
+		v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">" + v_k + " (" + v_lst.size() + ")</td></tr>";
+		v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Completed</td><td style=\"" + v_th + "\">Referral ID</td><td style=\"" + v_th + "\">PVS ID</td><td style=\"" + v_th + "\">Patient</td><td style=\"" + v_th + "\">Partner</td></tr>" + v_rows + "</table></td></tr>";
+	}
+	v_oRows.sort();
+	v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">Open 3008 Referrals, No PVS (" + v_oRows.size() + ")</td></tr>";
+	if(v_oRows.size() > 0)
+	{
+		v_rows = "";
+		for each  v_s in v_oRows
+		{
+			v_rows = v_rows + v_s.getSuffix("~|~");
+		}
+		v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Referral Date</td><td style=\"" + v_th + "\">Referral ID</td><td style=\"" + v_th + "\">Patient</td><td style=\"" + v_th + "\">Partner</td><td style=\"" + v_th + "\">Assigned To</td></tr>" + v_rows + "</table></td></tr>";
+	}
+	else
+	{
+		v_body = v_body + v_cellOpen + "<p style=\"" + v_noneStyle + "\">None.</p></td></tr>";
+	}
+	v_nRows.sort();
+	v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">Not Completed (" + v_nRows.size() + ")</td></tr>";
+	if(v_nRows.size() > 0)
+	{
+		v_rows = "";
+		for each  v_s in v_nRows
+		{
+			v_rows = v_rows + v_s.getSuffix("~|~");
+		}
+		v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Referral Date</td><td style=\"" + v_th + "\">Referral ID</td><td style=\"" + v_th + "\">Patient</td><td style=\"" + v_th + "\">Partner</td><td style=\"" + v_th + "\">Reason</td></tr>" + v_rows + "</table></td></tr>";
+	}
+	else
+	{
+		v_body = v_body + v_cellOpen + "<p style=\"" + v_noneStyle + "\">None.</p></td></tr>";
+	}
+	v_dRows.sort();
+	v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">PVS Missing Completion Date (" + v_dRows.size() + ")</td></tr>";
+	if(v_dRows.size() > 0)
+	{
+		v_rows = "";
+		for each  v_s in v_dRows
+		{
+			v_rows = v_rows + v_s.getSuffix("~|~");
+		}
+		v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Referral Date</td><td style=\"" + v_th + "\">Referral ID</td><td style=\"" + v_th + "\">PVS ID</td><td style=\"" + v_th + "\">Patient</td><td style=\"" + v_th + "\">Partner</td><td style=\"" + v_th + "\">Provider</td></tr>" + v_rows + "</table></td></tr>";
+	}
+	else
+	{
+		v_body = v_body + v_cellOpen + "<p style=\"" + v_noneStyle + "\">None.</p></td></tr>";
+	}
+	v_pill = "<span style=\"display:inline-block; background-color:#fcf2e7; color:#000000; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:16px; font-weight:bold; padding:3px 10px; border-radius:10px;\">3008</span>";
+	v_heroSub = v_label;
+	if(!v_isAll)
+	{
+		v_heroSub = v_ver + " &nbsp;&bull;&nbsp; " + v_label;
+	}
+	v_html = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+	v_html = v_html + "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head>";
+	v_html = v_html + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />";
+	v_html = v_html + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />";
+	v_html = v_html + "<title>Monthly 3008 Recap</title>";
+	v_html = v_html + "<style type=\"text/css\">@media only screen and (max-width:600px){.container{width:100% !important;}.hero{font-size:19px !important;line-height:25px !important;}}</style>";
+	v_html = v_html + "</head><body style=\"margin:0; padding:0; background-color:#eef0f6;\">";
+	v_html = v_html + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#eef0f6;\"><tr><td align=\"center\" style=\"padding:20px 10px 32px 10px;\">";
+	v_html = v_html + "<table role=\"presentation\" class=\"container\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff;\">";
+	if(!v_live)
+	{
+		v_html = v_html + "<tr><td style=\"background-color:#fff4e5; border:1px solid #b26b00; padding:10px 24px; font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; font-weight:bold; color:#b26b00;\">PREVIEW ONLY (" + v_verName + "). Sent to Neil only and not logged. Run send_3008_status with Send Email = Yes to send the live versions.</td></tr>";
+	}
+	v_html = v_html + "<tr><td style=\"background-color:#00003c; padding:20px 24px;\">";
+	v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#8d8db8; letter-spacing:.06em; text-transform:uppercase;\">SOS Mobile Medical Care</div>";
+	v_html = v_html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">Monthly 3008 Recap</div>";
+	v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_heroSub + "</div>";
+	v_html = v_html + "<div style=\"padding-top:10px;\">" + v_pill + "</div>";
+	v_html = v_html + "</td></tr>";
+	v_html = v_html + v_body;
+	v_html = v_html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
+	v_html = v_html + "</table></td></tr></table></body></html>";
+	v_subject = "Monthly 3008 Recap  |  " + v_label;
+	if(!v_isAll)
+	{
+		v_subject = v_subject + "  |  " + v_ver;
+	}
+	v_recips = List();
+	if(!v_live)
+	{
+		v_subject = "PREVIEW  |  " + v_subject + "  |  " + v_verName;
+		v_recips.add("neil.heird@sosmmc.com");
+	}
+	else if(v_isAll)
+	{
+		v_recips.add("neil.heird@sosmmc.com");
+	}
+	else
+	{
+		v_recips.add(v_recipMap.get(v_ver));
+	}
+	v_attach = List();
+	v_attNote = "template NOT attached";
+	try 
+	{
+		v_tpl = invokeurl
+		[
+			url :"https://workdrive.zoho.com/api/v1/download/oizckb2ee8535c42c4b609ea87fc165baa36d"
+			type :GET
+			connection:"sos_workdrive"
+		];
+		v_fh = Map();
+		v_fh.put("Authorization","Zoho-enczapikey " + v_token);
+		v_fh.put("Content-Type","text/plain");
+		v_up = invokeurl
+		[
+			url :"https://api.zeptomail.com/v1.1/files?name=" + zoho.encryption.urlEncode(v_attName)
+			type :POST
+			body:v_tpl
+			headers:v_fh
+			detailed:true
+		];
+		v_upCode = v_up.get("responseCode");
+		if(v_upCode == 200 || v_upCode == 201)
+		{
+			v_upTxt = v_up.get("responseText").toString();
+			if(v_upTxt.contains("file_cache_key"))
+			{
+				v_ck = ifnull(v_upTxt.toMap().get("file_cache_key"),"").toString().trim();
+				if(v_ck != "")
+				{
+					v_att = Map();
+					v_att.put("file_cache_key",v_ck);
+					v_att.put("name",v_attName);
+					v_attach.add(v_att);
+					v_attNote = "template attached";
+				}
+			}
+		}
+	}		catch (e)
+	{
+		v_attNote = "template NOT attached: " + e.message.toString();
+	}
+	v_toList = List();
+	for each  v_addr in v_recips
+	{
+		v_addrMap = Map();
+		v_addrMap.put("address",v_addr);
+		v_entry = Map();
+		v_entry.put("email_address",v_addrMap);
+		v_toList.add(v_entry);
+	}
+	v_fromMap = Map();
+	v_fromMap.put("address","notifications@sosreferrals.com");
+	v_fromMap.put("name","SOS Mobile Medical Care");
+	v_payload = Map();
+	v_payload.put("from",v_fromMap);
+	v_payload.put("to",v_toList);
+	v_payload.put("subject",v_subject);
+	v_payload.put("htmlbody",v_html);
+	if(v_attach.size() > 0)
+	{
+		v_payload.put("attachments",v_attach);
+	}
+	v_hdr = Map();
+	v_hdr.put("Accept","application/json");
+	v_hdr.put("Content-Type","application/json");
+	v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+	v_status = "Failed";
+	v_respTxt = "";
+	try 
+	{
+		v_resp = invokeurl
+		[
+			url :"https://api.zeptomail.com/v1.1/email"
+			type :POST
+			body:v_payload.toString()
+			headers:v_hdr
+			detailed:true
+		];
+		v_respTxt = v_resp.toString();
+		if(v_resp.get("responseCode") == 201)
+		{
+			v_status = "Sent";
+		}
+	}		catch (e)
+	{
+		v_respTxt = "exception: " + e.message.toString();
+	}
+	if(v_live)
+	{
+		v_logBody = v_html;
+		if(v_logBody.length() > 60000)
+		{
+			v_logBody = v_logBody.subString(0,60000);
+		}
+		v_logResp = v_attNote + "\n" + v_respTxt;
+		if(v_logResp.length() > 60000)
+		{
+			v_logResp = v_logResp.subString(0,60000);
+		}
+		v_log = insert into Notification_Log
+		[
+			Added_User=zoho.loginuser
+			Notification_Type="3008 Monthly Status"
+			Sent_At=zoho.currenttime
+			Period_From=v_from
+			Period_To=v_to
+			Recipients=v_recips.toString("\n")
+			Subject1=v_subject
+			Body_HTML=v_logBody
+			Record_Count=v_cnt
+			Send_Status=v_status
+			Send_Response=v_logResp
+		];
+	}
+	v_results.add(v_verName + ": " + v_status + " to " + v_recips.toString(", ") + " (" + v_attNote + ") completed " + v_cnt + ", open " + v_oRows.size() + ", not completed " + v_nRows.size() + ", missing date " + v_dRows.size());
+}
+v_mode = "PREVIEW";
+if(v_live)
+{
+	v_mode = "LIVE";
+}
+return v_mode + " " + v_label + "\n" + v_results.toString("\n");

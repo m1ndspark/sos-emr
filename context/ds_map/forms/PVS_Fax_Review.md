@@ -1,7 +1,7 @@
 # PVS_Fax_Review
 
 - Display name: PVS Fax Review
-- .ds line: 5365
+- .ds line: 5525
 - Fields (excluding sections): 15
 - Parent form: -
 
@@ -34,7 +34,7 @@
 - Record event: -
 - Form event: OnClick (button Fax_Now)
 - Status: ENABLED
-- .ds line: 40527
+- .ds line: 42222
 - Fields read: Destination_Fax, Destination_Name, Override_Fax, Override_Fax_Confirm, Override_Reason, Override_Unlock, PVS_Link, Patient_Name, Referral_ID
 - Fields set: Result_Message
 - Fields shown/hidden/enabled/disabled: -
@@ -47,7 +47,7 @@
 - Record event: on add
 - Form event: OnUserInput of Override_Fax
 - Status: ENABLED
-- .ds line: 41185
+- .ds line: 42880
 - Fields read: -
 - Fields set: Override_Fax
 - Fields shown/hidden/enabled/disabled: -
@@ -60,7 +60,7 @@
 - Record event: on add
 - Form event: OnUserInput of Override_Fax_Confirm
 - Status: ENABLED
-- .ds line: 41225
+- .ds line: 42920
 - Fields read: -
 - Fields set: Override_Fax_Confirm
 - Fields shown/hidden/enabled/disabled: -
@@ -73,7 +73,7 @@
 - Record event: on add
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 39748
+- .ds line: 41443
 - Fields read: -
 - Fields set: Destination_Fax, Destination_Name, Gate_Message, Note_Preview, Patient_Name, Referral_ID, Result_Message
 - Fields shown/hidden/enabled/disabled: Attachments_Select, Cover_Remarks, Override_Fax, Override_Fax_Confirm, Override_Reason, Override_Unlock, PVS_Link, Patient_Display
@@ -86,7 +86,7 @@
 - Record event: on add
 - Form event: OnUserInput of Override_Unlock
 - Status: ENABLED
-- .ds line: 40671
+- .ds line: 42366
 - Fields read: Override_Unlock
 - Fields set: Override_Fax, Override_Fax_Confirm, Override_Reason, Result_Message
 - Fields shown/hidden/enabled/disabled: -

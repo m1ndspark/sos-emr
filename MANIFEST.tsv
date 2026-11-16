@@ -71,6 +71,8 @@ functions/build_referral_confirmation_html.dg	build_referral_confirmation_html		
 functions/build_referral_email_html.dg	build_referral_email_html		function					Referrals_Main		a8589a4e
 functions/build_zepto_attachments.dg	build_zepto_attachments		function					Referrals_Main	HTTP	ce2e8095
 functions/compute_data_issues.dg	compute_data_issues		function		parse_patient_dob			Referrals_Main	AppFunc	23602929
+functions/copy_pvs_ssn_from_referral.dg	copy_pvs_ssn_from_referral		function					Encounter_PatientVisit;Referrals_Main		dbdbe128
+functions/create_3008_pvs.dg	create_3008_pvs		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		c650116a
 functions/create_3008_pvs_july.dg	create_3008_pvs_july		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		efb09763
 functions/create_3008_pvs_sept.dg	create_3008_pvs_sept		function					Employees;Encounter_PatientVisit;Partner_Rates;Referrals_Main;Sequence_Tracker		0a9493b1
 functions/create_books_customers.dg	create_books_customers		function					Partner_Billing_Contacts;Partner_Locations	HTTP	9fc3b29b
@@ -228,6 +230,7 @@ functions/prepare_month_for_billing.dg	prepare_month_for_billing		function					E
 functions/preview_invoice_batch_pool.dg	preview_invoice_batch_pool		function					Encounter_PatientVisit;Partner_Locations		9e046071
 functions/process_new_referral.dg	process_new_referral		function		mint_assignment_id;mint_referral_id;parse_patient_dob;partner_branch_values;resolve_branch_id;send_3008_notification;send_imaging_notification;send_referral_confirmation;send_referral_notification			Assignments;Partner_Locations;Partner_Referral_Contacts;Referrals_Main	AppFunc;HTTP	a1669334
 functions/relink_pvs_to_referral.dg	relink_pvs_to_referral		function					Encounter_PatientVisit;Referrals_Main		028ccd4f
+functions/remit_build_allocation.dg	remit_build_allocation		function					Remit_Intake	Books;HTTP	581fd3fa
 functions/repair_fax_log_status.dg	repair_fax_log_status		function		get_rc_token			Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	4309c986
 functions/repair_invoice_pvs_from_referral.dg	repair_invoice_pvs_from_referral		function					Encounter_PatientVisit;Referrals_Main		5c66d61c
 functions/repair_pvs_3008_import.dg	repair_pvs_3008_import		function					Encounter_PatientVisit;Partner_Locations;Partner_Rates		c61668f2
@@ -256,6 +259,7 @@ functions/run_pvs_exclusion_monitor.dg	run_pvs_exclusion_monitor		function		send
 functions/run_schema_monitor.dg	run_schema_monitor		function		send_via_sendgrid				AppFunc;HTTP	f14c8c36
 functions/seed_schema_to_github.dg	seed_schema_to_github		function						Email;HTTP	aac9159a
 functions/send_3008_notification.dg	send_3008_notification		function		build_3008_email_html;build_zepto_attachments;get_notification_recipients			Referrals_Main	AppFunc;HTTP	82aa2b0f
+functions/send_3008_status.dg	send_3008_status		function					Assignments;Employees;Encounter_PatientVisit;Referrals_Main	HTTP	67ef1d90
 functions/send_activity_digest.dg	send_activity_digest		function					Encounter_PatientVisit;Fax_Log;Referrals_Main	HTTP	afff7e36
 functions/send_assignment_notification.dg	send_assignment_notification		function		mint_assignment_id			Assignments;Employees;Referrals_Main	AppFunc;HTTP	c5cdb09d
 functions/send_fax_digest.dg	send_fax_digest		function		is_pvs_email_branch			Employees;Encounter_PatientVisit;Fax_Log	AppFunc;HTTP	08736048
@@ -278,6 +282,8 @@ functions/set_pvs_procedures.dg	set_pvs_procedures		function					Encounter_Patie
 functions/set_pvs_provider.dg	set_pvs_provider		function					Employees;Encounter_PatientVisit		7c741a74
 functions/set_pvs_provider_batch.dg	set_pvs_provider_batch		function		set_pvs_provider				AppFunc	23d55981
 functions/set_pvs_referral_link.dg	set_pvs_referral_link		function					Encounter_PatientVisit;Referrals_Main		8b69707c
+functions/set_pvs_visit_date.dg	set_pvs_visit_date		function					Encounter_PatientVisit		2bb676da
+functions/set_referral_source.dg	set_referral_source		function					Encounter_PatientVisit;Referrals_Main		f3221128
 functions/sos_referral_health.dg	sos_referral_health		function		parse_patient_dob;process_new_referral			Assignments;Encounter_PatientVisit;Referrals_Main	AppFunc	06196e3c
 functions/sweep_unnotified_referrals.dg	sweep_unnotified_referrals		function		process_new_referral			Referrals_Main	AppFunc;Email	029093ed
 functions/sync_pvs_branch_from_referral.dg	sync_pvs_branch_from_referral		function		partner_branch_values			Encounter_PatientVisit;Partner_Locations;Partner_Rates;Referrals_Main	AppFunc	36713cbd
@@ -290,13 +296,16 @@ functions/widget_today_visits.dg	widget_today_visits		function		is_portal_admin	
 Assignments/OnLoad__Assignment_Lock_Immutable_Fields.dg	Assignment_Lock_Immutable	Assignments	OnLoad			Patient_DOB;Patient_First_Name;Patient_Last_Name				87339ee6
 Assignments/OnLoad__Assignment_Visit_Status_Choices.dg	Assignment_Visit_Status_C	Assignments	OnLoad			Visit_Status	Referral_Link	Referrals_Main		fab451e6
 Assignments/OnLoad__Show_Hide_Facility_Name_P.dg	Show_Hide_Facility_Name_P	Assignments	OnLoad			Facility_Name;Facility_Phone;Facility_Room_Number	Patient_Location			643f2c3e
+Assignments/OnLoad__Visit_Outcome_Show_Hide_O.dg	Visit_Outcome_Show_Hide_O	Assignments	OnLoad			Not_Completed_Reason	Visit_Completed			e9d5895d
 Assignments/OnSuccess__Assignment_ID_Generator.dg	Assignment_ID_Generator	Assignments	OnSuccess		mint_assignment_id		ID		AppFunc	3a37234f
 Assignments/OnSuccess__Assignment_Notify_Provider.dg	Assignment_Notify_Provide	Assignments	OnSuccess		is_portal_admin;send_assignment_notification		ID		AppFunc	2a834196
 Assignments/OnSuccess__Assignment_Referral_Emp.dg	Assignment_Referral_Emplo	Assignments	OnSuccess				Employee_Link;Referral_Link	Referrals_Main		05a7f787
 Assignments/OnUserInput__Patient_Location__Show_Hide_Facility_Name_P1.dg	Show_Hide_Facility_Name_P1	Assignments	OnUserInput	Patient_Location		Facility_Name;Facility_Phone;Facility_Room_Number	Patient_Location			643f2c3e
 Assignments/OnUserInput__Referral_Link__Assignment_Pull_From_Referral.dg	Assignment_Pull_From_Refe1	Assignments	OnUserInput	Referral_Link		Facility_Name;Facility_Phone;Facility_Room_Number;Patient_Address;Patient_DOB;Patient_First_Name;Patient_Last_Name;Patient_Location;Patient_Phone;Referral_Date;Referral_POC;Referral_Partner	Referral_Link	Referrals_Main		47d32192
+Assignments/OnUserInput__Visit_Completed__Visit_Outcome_Show_Hide_O1.dg	Visit_Outcome_Show_Hide_O1	Assignments	OnUserInput	Visit_Completed		Not_Completed_Reason	Visit_Completed			74d05df0
 Assignments/OnValidate__Assignment_Change_Log.dg	Assignment_Change_Log	Assignments	OnValidate		log_change		Assignment_ID;Assignment_Notes;Employee_Link;Facility_Name;Facility_Phone;Facility_Room_Number;ID;Patient_Address;Patient_Location	Assignments;Employees	AppFunc	064faff0
 Assignments/OnValidate__Assignment_Required_Referral.dg	Assignment_Required_Refer	Assignments	OnValidate				Employee_Link;ID;Referral_Link	Assignments		d8a0ce56
+Assignments/OnValidate__Visit_Outcome_Reason_Requ.dg	Visit_Outcome_Reason_Requ	Assignments	OnValidate				Not_Completed_Reason;Visit_Completed			9f3ba12b
 Employees/OnSuccess__Employee_ID_Generator.dg	Employee_ID_Generator	Employees	OnSuccess		mint_employee_id		ID		AppFunc	0c4b5ef2
 Employees/OnSuccess__Employee_Initials_Generator.dg	Employee_Initials_Generat	Employees	OnSuccess			Employee_Initials	Employee_First_Name;Employee_Last_Name			fd360383
 Employees/OnSuccess__Employee_Name_Title_Generator.dg	Employee_Name_Title_Gener1	Employees	OnSuccess			Employee_Name_Title	Employee_First_Name;Employee_Last_Name;Employee_Title			95e69cc6
@@ -389,3 +398,4 @@ Referrals_Main/OnUserInput__Patient_Address__Build_Full_Address.dg	Build_Patient
 Referrals_Main/OnUserInput__Patient_Phone__Format.dg	Patient_Phone_Format1	Referrals_Main	OnUserInput	Patient_Phone		Patient_Phone				79124e82
 Referrals_Main/OnUserInput__Patient_SSN__Format.dg	SSN_Format1	Referrals_Main	OnUserInput	Patient_SSN		Patient_SSN				518381ab
 Referrals_Main/OnValidate__Referral_Resolves_Partner_On_Save.dg	Referral_Resolves_Partner	Referrals_Main	OnValidate		partner_branch_values;resolve_branch_id	Partner_Branch;Partner_Branch_Link;Partner_Branch_Submitted;Partner_ID;Partner_ID_Stamp;Partner_Link;Partner_Location_Label;Partner_Organization	Partner_POC_Email	Partner_Locations	AppFunc	6f75406b
+Remit_Intake/OnSuccess__Remit_Intake_Read.dg	Remit_Intake_Read	Remit_Intake	OnSuccess		remit_build_allocation		ID;Remit_File	Remit_Intake	AppFunc	59d5b082

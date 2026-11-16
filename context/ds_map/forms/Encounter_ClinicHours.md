@@ -1,7 +1,7 @@
 # Encounter_ClinicHours
 
 - Display name: Clinic Hours
-- .ds line: 507
+- .ds line: 527
 - Fields (excluding sections): 0
 - Parent form: -
 

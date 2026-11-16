@@ -1,0 +1,110 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Today = zoho.currentdate;
+v_Set = List();
+v_Kept = List();
+v_Skip = List();
+v_Missing = List();
+v_Bad = List();
+v_List = ifnull(p_pairs,"").toList(";");
+for each  v_Raw in v_List
+{
+	v_Pair = v_Raw.trim();
+	if(v_Pair == "")
+	{
+		continue;
+	}
+	v_Id = v_Pair.getPrefix("=");
+	v_DateStr = v_Pair.getSuffix("=");
+	if(v_Id == null || v_DateStr == null)
+	{
+		v_Bad.add(v_Pair);
+		continue;
+	}
+	v_Id = v_Id.trim();
+	v_DateStr = v_DateStr.trim();
+	if(!v_DateStr.matches("^[0-9]{2}-[0-9]{2}-[0-9]{4}$"))
+	{
+		v_Bad.add(v_Pair);
+		continue;
+	}
+	v_D = null;
+	try 
+	{
+		v_D = toDate(v_DateStr,"MM-dd-yyyy");
+	}		catch (e)
+	{
+		v_D = null;
+	}
+	if(v_D == null)
+	{
+		v_Bad.add(v_Pair);
+		continue;
+	}
+	if(v_D.toString("MM-dd-yyyy") != v_DateStr)
+	{
+		v_Bad.add(v_Pair);
+		continue;
+	}
+	if(v_D > v_Today)
+	{
+		v_Bad.add(v_Pair + " (future date)");
+		continue;
+	}
+	v_Found = false;
+	for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+	{
+		v_Found = true;
+		v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+		if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+		{
+			v_Skip.add(v_Id + " [Row Status " + v_Rs + "]");
+			continue;
+		}
+		v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+		if(v_Type == "3008")
+		{
+			v_Skip.add(v_Id + " [3008 entry - uses 3008 Completion Date]");
+			continue;
+		}
+		if(v_P.Visit_Completion_Date != null)
+		{
+			v_Kept.add(v_Id + " [" + v_P.Visit_Completion_Date.toString("MM-dd-yyyy") + "]");
+			continue;
+		}
+		v_Set.add(v_Id + " -> " + v_DateStr);
+		if(v_Mode == "COMMIT")
+		{
+			v_P.Visit_Completion_Date=v_D;
+		}
+	}
+	if(!v_Found)
+	{
+		v_Missing.add(v_Id);
+	}
+}
+v_Out = v_Mode + " | set " + v_Set.size() + " | already dated " + v_Kept.size() + " | skipped " + v_Skip.size() + " | not found " + v_Missing.size() + " | invalid " + v_Bad.size();
+if(v_Set.size() > 0)
+{
+	v_Out = v_Out + "\nSET:\n" + v_Set.toString("\n");
+}
+if(v_Kept.size() > 0)
+{
+	v_Out = v_Out + "\nALREADY DATED:\n" + v_Kept.toString("\n");
+}
+if(v_Skip.size() > 0)
+{
+	v_Out = v_Out + "\nSKIPPED:\n" + v_Skip.toString("\n");
+}
+if(v_Missing.size() > 0)
+{
+	v_Out = v_Out + "\nNOT FOUND: " + v_Missing.toString(", ");
+}
+if(v_Bad.size() > 0)
+{
+	v_Out = v_Out + "\nINVALID: " + v_Bad.toString(" ; ");
+}
+return v_Out;

@@ -1,0 +1,160 @@
+v_mode = ifnull(pMode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: pMode must be PREVIEW or COMMIT.";
+}
+v_raw = ifnull(pRows,"").replaceAll("\r","").replaceAll("\n",";");
+v_rows = v_raw.toList(";");
+v_made = 0;
+v_skipDup = 0;
+v_noRef = 0;
+v_noRate = 0;
+v_noEmp = 0;
+v_bad = 0;
+v_total = 0.0;
+v_log = List();
+for each  v_line in v_rows
+{
+	v_l = v_line.trim();
+	if(v_l == "")
+	{
+		continue;
+	}
+	v_parts = v_l.toList("|");
+	if(v_parts.size() != 3)
+	{
+		v_bad = v_bad + 1;
+		v_log.add(v_l + " bad row format");
+		continue;
+	}
+	v_rid = v_parts.get(0).toString().trim();
+	v_dStr = v_parts.get(1).toString().trim();
+	v_who = v_parts.get(2).toString().trim();
+	v_done = null;
+	if(v_dStr.matches("^[0-9]{2}-[0-9]{2}-[0-9]{4}$"))
+	{
+		v_done = v_dStr.toDate("MM-dd-yyyy");
+	}
+	if(v_rid == "" || v_who == "" || v_done == null)
+	{
+		v_bad = v_bad + 1;
+		v_log.add(v_l + " missing Referral ID, date (MM-dd-yyyy) or provider");
+		continue;
+	}
+	v_first = v_who.getPrefix(" ").trim();
+	v_last = v_who.getSuffix(" ").trim();
+	v_ref = Referrals_Main[Referral_ID == v_rid];
+	if(v_ref.count() == 0)
+	{
+		v_noRef = v_noRef + 1;
+		v_log.add(v_rid + " no referral");
+		continue;
+	}
+	if(ifnull(v_ref.Referral_Type,"").toString().trim() != "3008")
+	{
+		v_noRef = v_noRef + 1;
+		v_log.add(v_rid + " is not a 3008 referral");
+		continue;
+	}
+	v_dup = Encounter_PatientVisit[Referral_Link == v_ref.ID && Type_of_Entry == "3008"];
+	if(v_dup.count() > 0)
+	{
+		v_skipDup = v_skipDup + 1;
+		v_log.add(v_rid + " skipped, 3008 PVS already exists");
+		continue;
+	}
+	v_emp = Employees[Employee_First_Name == v_first && Employee_Last_Name == v_last && Employee_Status == "Active"];
+	if(v_emp.count() == 0)
+	{
+		v_noEmp = v_noEmp + 1;
+		v_log.add(v_rid + " no active employee " + v_who);
+		continue;
+	}
+	v_rate = 0;
+	for each  v_r in Partner_Rates[Partner_Location_Link == v_ref.Partner_Branch_Link && Rate_Type == "Cares 3008 Assessment" && Current_Rate == "Yes"]
+	{
+		v_rate = v_r.Rate_Amount;
+	}
+	if(v_rate == 0)
+	{
+		v_noRate = v_noRate + 1;
+		v_log.add(v_rid + " no 3008 rate on " + v_ref.Partner_Location_Label);
+		continue;
+	}
+	v_seq = 0;
+	for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
+	{
+		v_seq = v_st.Object_Sequence;
+		break;
+	}
+	if(v_mode == "COMMIT")
+	{
+		for each  v_st2 in Sequence_Tracker[Object_Prefix == "PVS"]
+		{
+			v_st2.Object_Sequence=v_seq + 1;
+			break;
+		}
+		v_new = insert into Encounter_PatientVisit
+		[
+			PVS_ID="PVS-" + v_seq + "-" + v_emp.Employee_Initials
+			Has_Referral_ID="Yes"
+			Referral_Link=v_ref.ID
+			Type_of_Entry="3008"
+			Patient_Full_Name_1=v_ref.Patient_Full_Name
+			Patient_Full_Name_2=v_ref.Patient_Full_Name
+			Patient_First_Name=v_ref.Patient_First_Name
+			Patient_MI=v_ref.Patient_MI
+			Patient_Last_Name=v_ref.Patient_Last_Name
+			Patient_DOB=v_ref.Patient_DOB
+			Patient_Gender=v_ref.Patient_Gender
+			Patient_Hospice_ID=v_ref.Patient_Hospice_ID
+			Patient_Phone=v_ref.Patient_Phone
+			Patient_Location=v_ref.Patient_Location
+			Facility_Name=v_ref.Facility_Name
+			Facility_Phone=v_ref.Facility_Phone
+			Facility_Room_Number=v_ref.Facility_Room_Number
+			Patient_Full_Address=v_ref.Patient_Full_Address
+			Reason_for_Referral=v_ref.Referral_Reason
+			Was_3008_Completed="Yes"
+			Cares_3008_Completion_Date=v_done
+			Visit_Completion_Date=v_done
+			Complexity_Level="Cares 3008 Assessment"
+			Complexity_Charge=v_rate
+			Employee_Link=v_emp.ID
+			Employee_First_Name=v_emp.Employee_First_Name
+			Employee_Last_Name=v_emp.Employee_Last_Name
+			Employee_Title=v_emp.Employee_Title
+			Employee_Initials=v_emp.Employee_Initials
+			Employee_Email=v_emp.Employee_Email
+			Employee_Name_Title=v_emp.Employee_Name_Title
+			Employee_Full_Name=v_emp.Employee_First_Name + " " + v_emp.Employee_Last_Name
+			Partner_Organization=v_ref.Partner_Organization
+			Partner_Branch=v_ref.Partner_Branch
+			Partner_POC_Name_Title=v_ref.Partner_POC_Name_Title
+			Partner_POC_Team=v_ref.Partner_POC_Team
+			Partner_POC_Phone=v_ref.Partner_POC_Phone
+			Partner_POC_Email=v_ref.Partner_POC_Email
+			Billing_Branch=v_ref.Partner_Branch_Link
+			Referral_ID=v_rid
+			Partner_ID=v_ref.Partner_ID
+			Invoice_Status="Draft"
+			Hold_From_Invoicing="No"
+			Row_Status="Counted"
+			Added_User=zoho.loginuser
+		];
+		v_log.add(v_rid + " created PVS-" + v_seq + "-" + v_emp.Employee_Initials + " " + v_dStr + " $" + v_rate);
+	}
+	else
+	{
+		v_log.add(v_rid + " OK " + v_ref.Patient_Full_Name + " | " + v_ref.Partner_Location_Label + " | " + v_dStr + " | " + v_who + " | $" + v_rate);
+	}
+	v_made = v_made + 1;
+	v_total = v_total + v_rate.toDecimal();
+}
+v_out = v_mode + " | create " + v_made + " ($" + v_total + ") | duplicates skipped " + v_skipDup + " | missing/not 3008 referral " + v_noRef + " | missing employee " + v_noEmp + " | missing 3008 rate " + v_noRate + " | bad rows " + v_bad;
+if(v_log.size() > 0)
+{
+	v_out = v_out + "\n" + v_log.toString("\n");
+}
+info v_out;
+return v_out;

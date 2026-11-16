@@ -1,0 +1,9 @@
+if(input.Visit_Completed == "No")
+{
+	show Not_Completed_Reason;
+}
+else
+{
+	hide Not_Completed_Reason;
+	input.Not_Completed_Reason = null;
+}

@@ -1,7 +1,7 @@
 # Invoice_Batch
 
 - Display name: Invoice Batch
-- .ds line: 2132
+- .ds line: 2152
 - Fields (excluding sections): 10
 - Parent form: -
 
@@ -29,7 +29,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 39148
+- .ds line: 40843
 - Fields read: ID, Max_Invoice_Total
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -42,7 +42,7 @@
 - Record event: on add or edit
 - Form event: OnLoad
 - Status: ENABLED
-- .ds line: 39127
+- .ds line: 40822
 - Fields read: -
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: Batch_Status, Invoice_Link, Result_Message

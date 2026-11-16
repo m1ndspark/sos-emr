@@ -1,0 +1,5 @@
+if(input.Visit_Completed == "No" && input.Not_Completed_Reason == null)
+{
+	alert "Select a Not Completed Reason when the visit was not completed.";
+	cancel submit;
+}

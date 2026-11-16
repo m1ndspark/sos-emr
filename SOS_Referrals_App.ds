@@ -1,6 +1,6 @@
 /*
  * Author       : sosmmc
- * Generated on : 21-Oct-2026 11:41:54
+ * Generated on : 16-Nov-2026 14:58:48
  * Version      : 1.0
  */
  application "SOS Referrals App"
@@ -338,6 +338,26 @@
 				displayname = "Status"
 				maxchar = 100
 				values = {"Received","Contacted","Scheduled","Awaiting Equipment","Pending Results","Ordered","Report Sent","Pending Info","Completed"}
+	 			row = 5
+	 			column = 1   
+				width = medium
+			)
+			Visit_Completed
+			(
+				type = radiobuttons
+				displayname = "Visit Completed"
+				maxchar = 100
+				values = {"No","Yes"}
+	 			row = 5
+	 			column = 1   
+				width = medium
+			)
+			Not_Completed_Reason
+			(
+				type = picklist
+				displayname = "Not Completed Reason"
+				maxchar = 100
+				values = {"Cancelled by Partner","Cancelled by Patient","Cancelled by SOS","Duplicate Referral"}
 	 			row = 5
 	 			column = 1   
 				width = medium
@@ -3957,6 +3977,146 @@
 				}
 			}
 		}
+		form Notification_Log
+		{
+			displayname = "Notification Log"
+			success message = "Data Added Successfully!"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Notification_Type
+			(
+    			type = text
+				displayname = "Notification Type"
+				initial value = "3008 Monthly Status"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Sent_At
+			(
+    			type = datetime
+				displayname = "Sent At"
+				timedisplayoptions = "hh:mm:ss"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Period_From
+			(
+    			type = date
+				displayname = "Period From"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Period_To
+			(
+    			type = date
+				displayname = "Period To"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Recipients
+			(
+    			type = textarea
+				height = 100px
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Subject1
+			(
+    			type = text
+				displayname = "Subject"
+				initial value = "TEST ROW DELETE"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Body_HTML
+			(
+    			type = richtext
+				displayname = "Body HTML"
+				height = 200px
+				toolbar = enable
+				[
+					style, font-color, background-color, link, bullets-and-numbering, 
+					font-size : {1, 2, 3, 4, 5, 6, 7}
+				]
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Record_Count
+			(
+				type = number
+				displayname = "Record Count"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Send_Status
+			(
+    			type = text
+				displayname = "Send Status"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Send_Response
+			(
+    			type = richtext
+				displayname = "Send Response"
+				height = 200px
+				toolbar = enable
+				[
+					style, font-color, background-color, link, bullets-and-numbering, 
+					font-size : {1, 2, 3, 4, 5, 6, 7}
+				]
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Submit"
+					)
+					reset
+					(
+   						type = reset
+   						displayname = "Reset"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
 		form Partner_Billing_Contacts
 		{
 			displayname = "Partner Billing Contacts"
@@ -7013,6 +7173,150 @@
 				}
 			}
 		}
+		form Remit_Intake
+		{
+			displayname = "Remit Intake"
+			success message = "Intake Remitted Successfully"
+			Section
+			(
+				type = section
+	 			row = 1
+	 			column = 0   
+				width = medium
+			)
+			Remit_File
+			(
+    			type = upload file
+				displayname = "Remit File"
+				browse = local_drive
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			unique Source_Email_ID
+			(
+    			type = text
+				displayname = "Source Email ID"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Received_Time
+			(
+    			type = datetime
+				displayname = "Received Time"
+				timedisplayoptions = "hh:mm:ss"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Payer_Name
+			(
+    			type = text
+				displayname = "Payer Name"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Payment_Reference
+			(
+    			type = text
+				displayname = "Payment Reference"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Payment_Date
+			(
+    			type = date
+				displayname = "Payment Date"
+				alloweddays = 0,1,2,3,4,5,6
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Payment_Total
+			(
+				displayname = "Payment Total"
+				type = USD
+				format = commadotwestern
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Extracted_Lines
+			(
+    			type = textarea
+				displayname = "Extracted Lines"
+				height = 100px
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Proposed_Allocation
+			(
+    			type = textarea
+				displayname = "Proposed Allocation"
+				height = 100px
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Remit_Status
+			(
+				type = picklist
+				displayname = "Remit Status"
+				maxchar = 100
+				values = {"Received","Read","Needs Review","Ready to Approve","Posted","Failed"}
+				initial value = "Received"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Books_Payment_IDs
+			(
+    			type = text
+				displayname = "Books Payment IDs"
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+			Process_Log
+			(
+    			type = textarea
+				displayname = "Process Log"
+				height = 100px
+	 			row = 1
+	 			column = 1   
+				width = medium
+			)
+	
+			actions
+			{
+				on add
+				{
+					submit
+					(
+   						type = submit
+   						displayname = "Remit"
+					)
+				}
+				on edit
+				{
+					update
+					(
+   						type = submit
+   						displayname = "Update"
+					)
+					cancel
+					(
+   						type = cancel
+   						displayname = "Cancel"
+					)
+				}
+			}
+		}
 		form Schema_Snapshot
 		{
 			displayname = "Schema Snapshot"
@@ -7198,7 +7502,7 @@
 	 			)
 				Partner_Phone as "Partner Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_Code as "Partner Code"
 				Partner_Contract_Effective_Date as "Partner Contract Effective Date"
@@ -7208,6 +7512,7 @@
 				Partner_Display_Name as "Partner Display Name"
 				Rate_Structure as "Rate Structure"
 			)
+
 		}
 		default list All_Employees
 		{
@@ -7247,11 +7552,12 @@
 				Emergency_Contact_Name as "Emergency Contact Name"
 				Emergency_Contact_Phone as "Emergency Contact Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Employee_SSN as "Employee SSN"
 				Portal_Access_Types as "Portal Access Types"
 			)
+
 		}
 		default list Referrals_Main_Report
 		{
@@ -7331,6 +7637,7 @@
 				Notified_Time as "Notified Time"
 				Assignment_Status as "Assignment Status"
 			)
+
 			sort by
 			(
 				Referral_ID descending
@@ -7364,6 +7671,7 @@
 		{
 			displayName = "Referrals_Master Report"
 			show all rows from Referrals_Master    
+
 		}
 		default list Partner_Locations_Report
 		{
@@ -7382,7 +7690,7 @@
 				Partner_Link.Partner_Code as "Partner Code"
 				Partner_Link.Partner_Phone as "Phone"
 				(
-					displayformat = formattednumber 
+					displayformat = formattednumber
 				)
 				Partner_Link.Partner_Address  as "Address"
 	 			(
@@ -7397,6 +7705,7 @@
 				Partner_Location_Label as "Partner Location Label"
 				Books_Customer_ID as "Books Customer ID"
 			)
+
 		}
 		default list PVS_Report
 		{
@@ -7465,7 +7774,7 @@
 				Employee_Initials as "Employee Initials"
 				Partner_POC_Phone as "PR POC Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_POC_Email as "PR POC Email"
 				Partner_POC_Name_Title as "Partner POC"
@@ -7474,7 +7783,7 @@
 				Facility_Name as "Facility Name"
 				Facility_Phone as "Facility Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Facility_Room_Number as "Facility Room #"
 				Referral_Link as "Referral Link"
@@ -7569,6 +7878,7 @@
 					width = 333px
 				)
 			)
+
 			sort by
 			(
 				Referral_ID descending
@@ -7602,6 +7912,7 @@
 		{
 			displayName = "Clinic Hours Report"
 			show all rows from Encounter_ClinicHours    
+
 		}
 		default list All_Assignments
 		{
@@ -7631,27 +7942,34 @@
 				Facility_Phone as "Facility Phone"
 				Visit_Status as "Status"
 				Notified_Employee_ID as "Notified Employee ID"
+				Visit_Completed as "Visit Completed"
+				Not_Completed_Reason as "Not Completed Reason"
 			)
+
 		}
 		default list Procedure_Templates_Report
 		{
 			displayName = "Procedure_Templates Report"
 			show all rows from Procedure_Templates    
+
 		}
 		default list Messaging_Hub_Report
 		{
 			displayName = "Messaging_Hub Report"
 			show all rows from Messaging_Hub    
+
 		}
 		default list Imaging_Request_Report
 		{
 			displayName = "Imaging Request Report"
 			show all rows from Imaging_Order    
+
 		}
 		default list Lab_Request_Report
 		{
 			displayName = "Lab Request Report"
 			show all rows from Encounter_LabRequest    
+
 		}
 		default list All_Partner_Billing_Contacts
 		{
@@ -7681,10 +7999,11 @@
 				Partner_Location_Link.Partner_Location_Name as "Partner Loc Name"
 				Partner_PVS_Fax as "Partner PVS Fax"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_PVS_Delivery as "PVS Delivery"
 			)
+
 		}
 		default list PVS_Addendum_Report
 		{
@@ -7707,6 +8026,7 @@
 				Parent_PVS_Timestamp as "Parent PVS Timestamp"
 				Type_of_Procedure as "Type of Procedure(s)"
 			)
+
 		}
 		default list All_Sequence_Trackers
 		{
@@ -7718,6 +8038,7 @@
 				Object_Sequence as "Object Sequence"
 				Object_Lock_Status as "Object Lock Status"
 			)
+
 		}
 		default list Partner_Rates_Report
 		{
@@ -7735,6 +8056,7 @@
 				Partner_Location_Link.Partner_Location_Label as "Partner Location Label"
 				Partner_Location_Link as "Partner Location Name"
 			)
+
 		}
 		default list Change_Log_Report
 		{
@@ -7750,6 +8072,7 @@
 				Changed_By as "Changed By"
 				Change_Log_ID_Stamp as "Change Log ID Stamp"
 			)
+
 		}
 		default list Partner_Contracts_Report
 		{
@@ -7765,6 +8088,7 @@
 				Contract_Notes as "Contract Notes"
 				Partner_Contract_ID_Stamp_Generator as "Partner Contract ID Stamp Generator"
 			)
+
 		}
 		default list Imaging_Orders_Report
 		{
@@ -7778,7 +8102,7 @@
 				Send_X_Ray_Results as "Where to Send X-Ray Results"
 				X_Ray_Results_Fax as "Fax"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				X_Ray_Results_Email as "Email"
 				Provider_Signature_Link as "Provider Signature Link"
@@ -7811,6 +8135,7 @@
 				Patient_Phone as "Patient Phone"
 				Facility_Phone as "Facility Phone"
 			)
+
 		}
 		default list Schema_Snapshot_Report
 		{
@@ -7821,6 +8146,7 @@
 				Captured_On as "Captured On"
 				Change_Summary as "Change Summary"
 			)
+
 		}
 		default list ICD_10_Codes_Report
 		{
@@ -7836,6 +8162,7 @@
 				Category
 				Source_FY
 			)
+
 		}
 		default list Partner_Referral_Contacts_Report
 		{
@@ -7848,7 +8175,7 @@
 				Partner_POC_Title as "Partner POC Title"
 				Partner_POC_Phone as "Partner POC Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_Organization as "Partner*"
 				Partner_Branch as "Billing Branch"
@@ -7861,6 +8188,7 @@
 				Partner_POC_Name_Title as "Partner POC Name & Title*"
 				Added_Time as "Added Time"
 			)
+
 			sort by
 			(
 				Added_Time descending
@@ -7880,6 +8208,7 @@
 				Laterality_Applicable as "Laterality Applicable"
 				Status
 			)
+
 		}
 		default list Fax_Address_Book_Report
 		{
@@ -7892,11 +8221,13 @@
 				Recipient_Category as "Recipient Category"
 				Recipient_Notes as "Recipient Notes"
 			)
+
 		}
 		default list Services_Procedures_Report
 		{
 			displayName = "Services & Procedures Report"
 			show all rows from Services_Procedures    
+
 		}
 		default list Referral_Categories_Report
 		{
@@ -7907,6 +8238,7 @@
 				Referral_Status as "Referral Status"
 				Referral_Keywords as "Referral Keywords"
 			)
+
 		}
 		default list Invoices_Report
 		{
@@ -7934,6 +8266,7 @@
 				Revision_Date as "Revision Date"
 				Replaces_Invoice_Number as "Replaces Invoice Number"
 			)
+
 			sort by
 			(
 				Partner_Link.Added_Time descending
@@ -7957,10 +8290,10 @@
 				Batch_Reason as "Batch Reason"
 				Replaces_Invoice_Number as "Replaces Invoice Number"
 			)
+
 			sort by
 			(
-				Partner_Link.Added_Time descending
-				ID descending
+				Date_From descending
 			)
 		}
 		default list Partner_Referral_Contact_Lookup_Report
@@ -7972,6 +8305,7 @@
 				Partner_Referral_Contact_Last_Name as "Last Name"
 				Partner_POC_Email as "Email"
 			)
+
 		}
 		default list Partner_Referral_Contact_Signup_Report
 		{
@@ -7984,16 +8318,18 @@
 				Partner_POC_Title as "Partner POC Title"
 				Partner_POC_Phone as "Partner POC Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_Link as "Partner Lookup"
 				Partner_Location_Link as "Partner Location Lookup"
 			)
+
 		}
 		default list MPU_Reporting_Report
 		{
 			displayName = "MPU Reporting Report"
 			show all rows from MPU_Reporting    
+
 		}
 		default list API_Config_Report
 		{
@@ -8008,6 +8344,7 @@
 				RC_Token_Expiry as "RC Token Expiry"
 				Zepto_Send_Token
 			)
+
 		}
 		default list Fax_Log_Report
 		{
@@ -8040,6 +8377,7 @@
 				Fax_Status as "Fax Status"
 				Partner_Link as "Partner Lookup"
 			)
+
 		}
 		default list All_Files
 		{
@@ -8052,6 +8390,7 @@
 				File_Name as "File Name"
 				File_Upload as "File Upload"
 			)
+
 		}
 		default list Referral_Sweep_Log_Report
 		{
@@ -8068,6 +8407,7 @@
 				FRun_Detail as "Full Run Detail"
 				Emailed
 			)
+
 		}
 		default list Referrals_Main2_Report
 		{
@@ -8083,7 +8423,7 @@
 				Partner_Clinical_Team as "Partner Clinical Team"
 				Partner_POC_Phone as "Partner POC Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Patient_First_Name as "Patient First Name"
 				Patient_Last_Name as "Patient Last Name"
@@ -8091,7 +8431,7 @@
 				Patient_Biological_Sex as "Patient Biological Sex"
 				Patient_Phone as "Patient Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_Branch2 as "Partner Branch"
 				Patient_Hospice_ID as "Patient Hospice ID"
@@ -8101,7 +8441,7 @@
 				AC_Last_Name as "AC Last Name"
 				AC_Phone as "AC Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				AC_Relationship_to_Patient as "AC Relationship to Patient"
 				Where_is_the_patient_now as "Where is the patient now?"
@@ -8113,9 +8453,10 @@
 				Facility_Room_Number as "Facility Room #"
 				Facility_Phone as "Facility Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 			)
+
 		}
 		list Fax_Log1
 		{
@@ -8149,6 +8490,7 @@
 				Original_Fax_Link as "Original Fax Lookup"
 				Referral_Link.Referral_ID as "Referral ID"
 			)
+
 			sort by
 			(
 				Submitted_Time descending
@@ -8166,6 +8508,7 @@
 				Source_PVS_Link as "Source PVS"
 				Sequence_Number as "Sequence Number"
 			)
+
 		}
 		list Fax_Attachments_Report1
 		{
@@ -8181,6 +8524,7 @@
 				Fax_Log.Added_Time as "Added Time"
 				Source_PVS_Link.Patient_Full_Name_2 as "Patient Name"
 			)
+
 			sort by
 			(
 				Fax_Log.Added_Time descending
@@ -8212,14 +8556,14 @@
 				Patient_SSN as "Patient SSN"
 				Patient_Phone as "Patient Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Patient_Email as "Patient Email"
 				Patient_Location as "Patient Location"
 				Facility_Name as "Facility Name"
 				Facility_Phone as "Facility Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Facility_Room_Number as "Facility Room Number"
 				Patient_Address  as "Patient Address"
@@ -8271,7 +8615,7 @@
 				Partner_POC_Title as "PR POC Title"
 				Partner_POC_Phone as "PR POC Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_POC_Email as "PR POC Email"
 				Partner_Location_Label as "Partner Location Label"
@@ -8303,6 +8647,7 @@
 				column header = "Fax PVS"
 				)
 			)
+
 		}
 		list MPU_Export
 		{
@@ -8360,6 +8705,7 @@
 				Referral_Link.Partner_Organization as "Partner Organization"
 				Added_Time as "Added Time"
 			)
+
 		}
 		list MPU_Export_Referrals
 		{
@@ -8397,6 +8743,7 @@
 				Referral_Added_Time as "Referral Added Time"
 				Added_Time as "Added Time"
 			)
+
 		}
 		list API_PVS_All
 		{
@@ -8424,14 +8771,14 @@
 				Patient_SSN as "Patient SSN"
 				Patient_Phone as "Patient Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Patient_Email as "Patient Email"
 				Patient_Location as "Patient Location"
 				Facility_Name as "Facility Name"
 				Facility_Phone as "Facility Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Facility_Room_Number as "Facility Room Number"
 				Patient_Address  as "Patient Address"
@@ -8483,7 +8830,7 @@
 				Partner_POC_Title as "PR POC Title"
 				Partner_POC_Phone as "PR POC Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_POC_Email as "PR POC Email"
 				Partner_Location_Label as "Partner Location Label"
@@ -8521,6 +8868,7 @@
 				Referral_Date as "Referral Date"
 				Referral_Source as "Referral Source"
 			)
+
 		}
 		list API_Referrals_All
 		{
@@ -8601,6 +8949,7 @@
 				Partner_Branch_Submitted as "Partner Branch Submitted"
 				Notified_Time as "Notified Time"
 			)
+
 		}
 		list API_Invoices_All
 		{
@@ -8627,6 +8976,7 @@
 				Invoice_ID as "Invoice ID"
 				Invoice_ID_Stamp as "Invoice ID Stamp"
 			)
+
 		}
 		list API_Invoice_Batch_All
 		{
@@ -8644,6 +8994,7 @@
 				Result_Message as "Result Message"
 				Invoice_Link as "Invoice Lookup"
 			)
+
 		}
 		list API_Partner_Rates_All
 		{
@@ -8660,6 +9011,7 @@
 				Partner_Rate_Status as "Partner Rate Status"
 				Partner_Rate_ID_Stamp as "Partner Rate ID Stamp"
 			)
+
 		}
 		list API_Partner_Locations_All
 		{
@@ -8676,6 +9028,7 @@
 				Partner_Location_ID_Stamp as "Partner Location ID Stamp"
 				Partner_Location_Label as "Partner Location Label"
 			)
+
 		}
 		list API_Partners_All
 		{
@@ -8688,7 +9041,7 @@
 				Partner_Code as "Partner Code"
 				Partner_Phone as "Partner Phone"
 				(
-					displayformat = plainnumber 
+					displayformat = plainnumber
 				)
 				Partner_Address  as "Partner Address"
 	 			(
@@ -8701,6 +9054,42 @@
 				Partner_ID as "Partner ID"
 				Partner_ID_Stamp as "Partner ID Stamp"
 			)
+
+		}
+		default list All_Intakes
+		{
+			displayName = "All Intakes"
+			show all rows from Remit_Intake    
+			(
+				Remit_File as "Remit File"
+				Source_Email_ID as "Source Email ID"
+				Received_Time as "Received Time"
+				Payer_Name as "Payer Name"
+				Payment_Reference as "Payment Reference"
+				Payment_Date as "Payment Date"
+				Payment_Total as "Payment Total"
+				Extracted_Lines as "Extracted Lines"
+				Proposed_Allocation as "Proposed Allocation"
+				Remit_Status as "Remit Status"
+				Books_Payment_IDs as "Books Payment IDs"
+				Process_Log as "Process Log"
+			)
+
+		}
+		list Notification_Log_Report
+		{
+			displayName = "Notification_Log Report"
+			show all rows from Notification_Log    
+			(
+				Notification_Type as "Notification Type"
+				Sent_At as "Sent At"
+				Period_From as "Period From"
+				Period_To as "Period To"
+				Subject1 as "Subject"
+				Record_Count as "Record Count"
+				Send_Status as "Send Status"
+			)
+
 		}
 	}
 	pages
@@ -16189,6 +16578,241 @@
                  		return "";
                  	}
                  	return v_Issues.toString("; ");
+                 }
+				 string copy_pvs_ssn_from_referral(string pMode, string pPvsIds)
+                 {
+                 	v_mode = ifnull(pMode,"").trim().toUpperCase();
+                 	if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+                 	{
+                 		return "ERROR: pMode must be PREVIEW or COMMIT.";
+                 	}
+                 	v_ids = ifnull(pPvsIds,"").replaceAll("\r","").replaceAll("\n",";").toList(";");
+                 	v_set = 0;
+                 	v_had = 0;
+                 	v_noPvs = 0;
+                 	v_noSrc = 0;
+                 	v_log = List();
+                 	for each  v_raw in v_ids
+                 	{
+                 		v_pid = v_raw.trim();
+                 		if(v_pid == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_p = Encounter_PatientVisit[PVS_ID == v_pid];
+                 		if(v_p.count() == 0)
+                 		{
+                 			v_noPvs = v_noPvs + 1;
+                 			v_log.add(v_pid + " PVS not found");
+                 			continue;
+                 		}
+                 		if(ifnull(v_p.Patient_SSN,"").toString().trim() != "")
+                 		{
+                 			v_had = v_had + 1;
+                 			v_log.add(v_pid + " already has SSN, skipped");
+                 			continue;
+                 		}
+                 		if(v_p.Referral_Link == null)
+                 		{
+                 			v_noSrc = v_noSrc + 1;
+                 			v_log.add(v_pid + " no linked referral");
+                 			continue;
+                 		}
+                 		v_ref = Referrals_Main[ID == v_p.Referral_Link];
+                 		if(v_ref.count() == 0)
+                 		{
+                 			v_noSrc = v_noSrc + 1;
+                 			v_log.add(v_pid + " linked referral not found");
+                 			continue;
+                 		}
+                 		v_ssn = ifnull(v_ref.Patient_SSN,"").toString().trim();
+                 		if(v_ssn == "")
+                 		{
+                 			v_noSrc = v_noSrc + 1;
+                 			v_log.add(v_pid + " referral " + ifnull(v_ref.Referral_ID,"") + " has no SSN");
+                 			continue;
+                 		}
+                 		if(v_mode == "COMMIT")
+                 		{
+                 			v_p.Patient_SSN=v_ssn;
+                 			v_log.add(v_pid + " SSN copied from " + ifnull(v_ref.Referral_ID,""));
+                 		}
+                 		else
+                 		{
+                 			v_log.add(v_pid + " would copy SSN from " + ifnull(v_ref.Referral_ID,""));
+                 		}
+                 		v_set = v_set + 1;
+                 	}
+                 	v_out = v_mode + " | copy " + v_set + " | already had SSN " + v_had + " | PVS not found " + v_noPvs + " | no source SSN " + v_noSrc;
+                 	if(v_log.size() > 0)
+                 	{
+                 		v_out = v_out + "\n" + v_log.toString("\n");
+                 	}
+                 	info v_out;
+                 	return v_out;
+                 }
+				 string create_3008_pvs(string pMode, string pRows)
+                 {
+                 	v_mode = ifnull(pMode,"").trim().toUpperCase();
+                 	if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+                 	{
+                 		return "ERROR: pMode must be PREVIEW or COMMIT.";
+                 	}
+                 	v_raw = ifnull(pRows,"").replaceAll("\r","").replaceAll("\n",";");
+                 	v_rows = v_raw.toList(";");
+                 	v_made = 0;
+                 	v_skipDup = 0;
+                 	v_noRef = 0;
+                 	v_noRate = 0;
+                 	v_noEmp = 0;
+                 	v_bad = 0;
+                 	v_total = 0.0;
+                 	v_log = List();
+                 	for each  v_line in v_rows
+                 	{
+                 		v_l = v_line.trim();
+                 		if(v_l == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_parts = v_l.toList("|");
+                 		if(v_parts.size() != 3)
+                 		{
+                 			v_bad = v_bad + 1;
+                 			v_log.add(v_l + " bad row format");
+                 			continue;
+                 		}
+                 		v_rid = v_parts.get(0).toString().trim();
+                 		v_dStr = v_parts.get(1).toString().trim();
+                 		v_who = v_parts.get(2).toString().trim();
+                 		v_done = null;
+                 		if(v_dStr.matches("^[0-9]{2}-[0-9]{2}-[0-9]{4}$"))
+                 		{
+                 			v_done = v_dStr.toDate("MM-dd-yyyy");
+                 		}
+                 		if(v_rid == "" || v_who == "" || v_done == null)
+                 		{
+                 			v_bad = v_bad + 1;
+                 			v_log.add(v_l + " missing Referral ID, date (MM-dd-yyyy) or provider");
+                 			continue;
+                 		}
+                 		v_first = v_who.getPrefix(" ").trim();
+                 		v_last = v_who.getSuffix(" ").trim();
+                 		v_ref = Referrals_Main[Referral_ID == v_rid];
+                 		if(v_ref.count() == 0)
+                 		{
+                 			v_noRef = v_noRef + 1;
+                 			v_log.add(v_rid + " no referral");
+                 			continue;
+                 		}
+                 		if(ifnull(v_ref.Referral_Type,"").toString().trim() != "3008")
+                 		{
+                 			v_noRef = v_noRef + 1;
+                 			v_log.add(v_rid + " is not a 3008 referral");
+                 			continue;
+                 		}
+                 		v_dup = Encounter_PatientVisit[Referral_Link == v_ref.ID && Type_of_Entry == "3008"];
+                 		if(v_dup.count() > 0)
+                 		{
+                 			v_skipDup = v_skipDup + 1;
+                 			v_log.add(v_rid + " skipped, 3008 PVS already exists");
+                 			continue;
+                 		}
+                 		v_emp = Employees[Employee_First_Name == v_first && Employee_Last_Name == v_last && Employee_Status == "Active"];
+                 		if(v_emp.count() == 0)
+                 		{
+                 			v_noEmp = v_noEmp + 1;
+                 			v_log.add(v_rid + " no active employee " + v_who);
+                 			continue;
+                 		}
+                 		v_rate = 0;
+                 		for each  v_r in Partner_Rates[Partner_Location_Link == v_ref.Partner_Branch_Link && Rate_Type == "Cares 3008 Assessment" && Current_Rate == "Yes"]
+                 		{
+                 			v_rate = v_r.Rate_Amount;
+                 		}
+                 		if(v_rate == 0)
+                 		{
+                 			v_noRate = v_noRate + 1;
+                 			v_log.add(v_rid + " no 3008 rate on " + v_ref.Partner_Location_Label);
+                 			continue;
+                 		}
+                 		v_seq = 0;
+                 		for each  v_st in Sequence_Tracker[Object_Prefix == "PVS"]
+                 		{
+                 			v_seq = v_st.Object_Sequence;
+                 			break;
+                 		}
+                 		if(v_mode == "COMMIT")
+                 		{
+                 			for each  v_st2 in Sequence_Tracker[Object_Prefix == "PVS"]
+                 			{
+                 				v_st2.Object_Sequence=v_seq + 1;
+                 				break;
+                 			}
+                 			v_new = insert into Encounter_PatientVisit
+                 			[
+                 				PVS_ID="PVS-" + v_seq + "-" + v_emp.Employee_Initials
+                 				Has_Referral_ID="Yes"
+                 				Referral_Link=v_ref.ID
+                 				Type_of_Entry="3008"
+                 				Patient_Full_Name_1=v_ref.Patient_Full_Name
+                 				Patient_Full_Name_2=v_ref.Patient_Full_Name
+                 				Patient_First_Name=v_ref.Patient_First_Name
+                 				Patient_MI=v_ref.Patient_MI
+                 				Patient_Last_Name=v_ref.Patient_Last_Name
+                 				Patient_DOB=v_ref.Patient_DOB
+                 				Patient_Gender=v_ref.Patient_Gender
+                 				Patient_Hospice_ID=v_ref.Patient_Hospice_ID
+                 				Patient_Phone=v_ref.Patient_Phone
+                 				Patient_Location=v_ref.Patient_Location
+                 				Facility_Name=v_ref.Facility_Name
+                 				Facility_Phone=v_ref.Facility_Phone
+                 				Facility_Room_Number=v_ref.Facility_Room_Number
+                 				Patient_Full_Address=v_ref.Patient_Full_Address
+                 				Reason_for_Referral=v_ref.Referral_Reason
+                 				Was_3008_Completed="Yes"
+                 				Cares_3008_Completion_Date=v_done
+                 				Visit_Completion_Date=v_done
+                 				Complexity_Level="Cares 3008 Assessment"
+                 				Complexity_Charge=v_rate
+                 				Employee_Link=v_emp.ID
+                 				Employee_First_Name=v_emp.Employee_First_Name
+                 				Employee_Last_Name=v_emp.Employee_Last_Name
+                 				Employee_Title=v_emp.Employee_Title
+                 				Employee_Initials=v_emp.Employee_Initials
+                 				Employee_Email=v_emp.Employee_Email
+                 				Employee_Name_Title=v_emp.Employee_Name_Title
+                 				Employee_Full_Name=v_emp.Employee_First_Name + " " + v_emp.Employee_Last_Name
+                 				Partner_Organization=v_ref.Partner_Organization
+                 				Partner_Branch=v_ref.Partner_Branch
+                 				Partner_POC_Name_Title=v_ref.Partner_POC_Name_Title
+                 				Partner_POC_Team=v_ref.Partner_POC_Team
+                 				Partner_POC_Phone=v_ref.Partner_POC_Phone
+                 				Partner_POC_Email=v_ref.Partner_POC_Email
+                 				Billing_Branch=v_ref.Partner_Branch_Link
+                 				Referral_ID=v_rid
+                 				Partner_ID=v_ref.Partner_ID
+                 				Invoice_Status="Draft"
+                 				Hold_From_Invoicing="No"
+                 				Row_Status="Counted"
+                 				Added_User=zoho.loginuser
+                 			];
+                 			v_log.add(v_rid + " created PVS-" + v_seq + "-" + v_emp.Employee_Initials + " " + v_dStr + " $" + v_rate);
+                 		}
+                 		else
+                 		{
+                 			v_log.add(v_rid + " OK " + v_ref.Patient_Full_Name + " | " + v_ref.Partner_Location_Label + " | " + v_dStr + " | " + v_who + " | $" + v_rate);
+                 		}
+                 		v_made = v_made + 1;
+                 		v_total = v_total + v_rate.toDecimal();
+                 	}
+                 	v_out = v_mode + " | create " + v_made + " ($" + v_total + ") | duplicates skipped " + v_skipDup + " | missing/not 3008 referral " + v_noRef + " | missing employee " + v_noEmp + " | missing 3008 rate " + v_noRate + " | bad rows " + v_bad;
+                 	if(v_log.size() > 0)
+                 	{
+                 		v_out = v_out + "\n" + v_log.toString("\n");
+                 	}
+                 	info v_out;
+                 	return v_out;
                  }
 				 string create_3008_pvs_july(string pMode)
                  {
@@ -27894,6 +28518,353 @@
                  	}
                  	return v_Out;
                  }
+				 string remit_build_allocation(string p_remit_id)
+                 {
+                 	v_org = "911048634";
+                 	v_base = "https://www.zohoapis.com/books/v3/";
+                 	v_rec = Remit_Intake[ID == p_remit_id.toLong()];
+                 	if(v_rec.ID == null)
+                 	{
+                 		return "Remit Intake record " + p_remit_id + " not found.";
+                 	}
+                 	v_log = ifnull(v_rec.Process_Log,"");
+                 	v_log = v_log + "\n" + zoho.currenttime.toString("MM-dd-yyyy HH:mm:ss") + " Building allocation";
+                 	v_review = List();
+                 	v_ref = ifnull(v_rec.Payment_Reference,"").toString().trim();
+                 	v_payer = ifnull(v_rec.Payer_Name,"").toString().trim();
+                 	v_total = ifnull(v_rec.Payment_Total,0).toString().toDecimal();
+                 	if(v_ref != "")
+                 	{
+                 		v_pr = invokeurl
+                 		[
+                 			url :v_base + "customerpayments?organization_id=" + v_org + "&reference_number=" + zoho.encryption.urlEncode(v_ref)
+                 			type :GET
+                 			connection:"zoho_books_partners"
+                 		];
+                 		if(v_pr.get("code") == 0)
+                 		{
+                 			for each  v_p in v_pr.get("customerpayments")
+                 			{
+                 				if(ifnull(v_p.get("reference_number"),"").toString().trim() == v_ref)
+                 				{
+                 					v_review.add("Reference " + v_ref + " is already recorded in Books as payment " + v_p.get("payment_number") + " (" + v_p.get("customer_name") + ", " + v_p.get("amount") + ").");
+                 				}
+                 			}
+                 		}
+                 		else
+                 		{
+                 			v_review.add("Could not check Books for an existing payment: " + v_pr.get("message"));
+                 		}
+                 	}
+                 	else
+                 	{
+                 		v_review.add("No payment reference was read from the remit.");
+                 	}
+                 	v_bal = Map();
+                 	v_alloc = Map();
+                 	v_invNum = Map();
+                 	v_invCust = Map();
+                 	v_custName = Map();
+                 	v_pool = Map();
+                 	v_custOrder = List();
+                 	v_lines = ifnull(v_rec.Extracted_Lines,"").toString().toList("\n");
+                 	for each  v_ln in v_lines
+                 	{
+                 		if(v_ln.trim() != "" && v_ln.contains("|"))
+                 		{
+                 			v_parts = v_ln.toList("|");
+                 			v_num = v_parts.get(0).trim();
+                 			v_amt = v_parts.get(1).trim().toDecimal();
+                 			v_ir = invokeurl
+                 			[
+                 				url :v_base + "invoices?organization_id=" + v_org + "&invoice_number=" + zoho.encryption.urlEncode(v_num)
+                 				type :GET
+                 				connection:"zoho_books_partners"
+                 			];
+                 			v_found = Map();
+                 			if(v_ir.get("code") == 0)
+                 			{
+                 				for each  v_i in v_ir.get("invoices")
+                 				{
+                 					if(v_i.get("invoice_number").toString().equalsIgnoreCase(v_num))
+                 					{
+                 						v_found = v_i;
+                 					}
+                 				}
+                 			}
+                 			if(v_found.isEmpty())
+                 			{
+                 				v_review.add("Invoice " + v_num + " (" + v_amt + ") was not found in Books.");
+                 			}
+                 			else
+                 			{
+                 				v_iid = v_found.get("invoice_id").toString();
+                 				v_cid = v_found.get("customer_id").toString();
+                 				if(!v_custOrder.contains(v_cid))
+                 				{
+                 					v_custOrder.add(v_cid);
+                 					v_custName.put(v_cid,v_found.get("customer_name").toString());
+                 				}
+                 				v_st = v_found.get("status").toString();
+                 				v_b = v_found.get("balance").toString().toDecimal();
+                 				if(v_bal.containKey(v_iid))
+                 				{
+                 					v_b = v_bal.get(v_iid).toString().toDecimal();
+                 				}
+                 				v_apply = 0.0;
+                 				if(v_st != "void" && v_st != "draft" && v_b > 0)
+                 				{
+                 					v_apply = v_amt;
+                 					if(v_b < v_amt)
+                 					{
+                 						v_apply = v_b;
+                 					}
+                 				}
+                 				if(v_apply > 0)
+                 				{
+                 					v_prev = 0.0;
+                 					if(v_alloc.containKey(v_iid))
+                 					{
+                 						v_prev = v_alloc.get(v_iid).toString().toDecimal();
+                 					}
+                 					v_alloc.put(v_iid,v_prev + v_apply);
+                 					v_bal.put(v_iid,v_b - v_apply);
+                 					v_invNum.put(v_iid,v_num);
+                 					v_invCust.put(v_iid,v_cid);
+                 				}
+                 				v_left = v_amt - v_apply;
+                 				if(v_left > 0.009)
+                 				{
+                 					v_poolPrev = 0.0;
+                 					if(v_pool.containKey(v_cid))
+                 					{
+                 						v_poolPrev = v_pool.get(v_cid).toString().toDecimal();
+                 					}
+                 					v_pool.put(v_cid,v_poolPrev + v_left);
+                 					v_log = v_log + "\n" + v_num + " is " + v_st + " with balance " + v_b + "; " + v_left + " moved to oldest open invoices.";
+                 				}
+                 			}
+                 		}
+                 	}
+                 	for each  v_cid in v_pool.keys()
+                 	{
+                 		v_rem = v_pool.get(v_cid).toString().toDecimal();
+                 		v_or = invokeurl
+                 		[
+                 			url :v_base + "invoices?organization_id=" + v_org + "&customer_id=" + v_cid + "&filter_by=Status.Unpaid&sort_column=date&sort_order=A&per_page=200"
+                 			type :GET
+                 			connection:"zoho_books_partners"
+                 		];
+                 		if(v_or.get("code") == 0)
+                 		{
+                 			for each  v_i in v_or.get("invoices")
+                 			{
+                 				if(v_rem > 0.009)
+                 				{
+                 					v_iid = v_i.get("invoice_id").toString();
+                 					v_b = v_i.get("balance").toString().toDecimal();
+                 					if(v_bal.containKey(v_iid))
+                 					{
+                 						v_b = v_bal.get(v_iid).toString().toDecimal();
+                 					}
+                 					if(v_b > 0.009)
+                 					{
+                 						v_a = v_rem;
+                 						if(v_b < v_rem)
+                 						{
+                 							v_a = v_b;
+                 						}
+                 						v_prev = 0.0;
+                 						if(v_alloc.containKey(v_iid))
+                 						{
+                 							v_prev = v_alloc.get(v_iid).toString().toDecimal();
+                 						}
+                 						v_alloc.put(v_iid,v_prev + v_a);
+                 						v_bal.put(v_iid,v_b - v_a);
+                 						v_invNum.put(v_iid,v_i.get("invoice_number").toString());
+                 						v_invCust.put(v_iid,v_cid);
+                 						v_rem = v_rem - v_a;
+                 					}
+                 				}
+                 			}
+                 		}
+                 		else
+                 		{
+                 			v_review.add("Could not load open invoices for " + v_custName.get(v_cid) + ": " + v_or.get("message"));
+                 		}
+                 		if(v_rem > 0.009)
+                 		{
+                 			v_review.add(v_custName.get(v_cid) + " has " + v_rem.round(2) + " left with no open invoice to apply it to.");
+                 		}
+                 	}
+                 	v_text = "";
+                 	v_jsonParts = List();
+                 	v_custCount = 0;
+                 	v_allocTotal = 0.0;
+                 	v_htmlRows = "";
+                 	for each  v_cid in v_custOrder
+                 	{
+                 		v_ct = 0.0;
+                 		v_cl = List();
+                 		v_rows = "";
+                 		v_hRows = "";
+                 		for each  v_iid in v_alloc.keys()
+                 		{
+                 			if(v_invCust.get(v_iid) == v_cid)
+                 			{
+                 				v_a = v_alloc.get(v_iid).toString().toDecimal().round(2);
+                 				v_ct = v_ct + v_a;
+                 				v_m = Map();
+                 				v_m.put("invoice_id",v_iid);
+                 				v_m.put("invoice_number",v_invNum.get(v_iid));
+                 				v_m.put("amount_applied",v_a);
+                 				v_cl.add(v_m);
+                 				v_rows = v_rows + "\n   " + v_invNum.get(v_iid) + " | " + v_a;
+                 				v_hRows = v_hRows + "<tr><td style=\"padding:4px 10px 4px 24px;\">" + v_invNum.get(v_iid) + "</td><td style=\"padding:4px 10px;text-align:right;\">$" + v_a + "</td></tr>";
+                 			}
+                 		}
+                 		if(v_cl.size() > 0)
+                 		{
+                 			v_ct = v_ct.round(2);
+                 			v_allocTotal = v_allocTotal + v_ct;
+                 			v_custCount = v_custCount + 1;
+                 			v_text = v_text + v_custName.get(v_cid) + " | " + v_ct + v_rows + "\n";
+                 			v_htmlRows = v_htmlRows + "<tr style=\"background:#f2f4f7;\"><td style=\"padding:6px 10px;font-weight:bold;\">" + v_custName.get(v_cid) + "</td><td style=\"padding:6px 10px;text-align:right;font-weight:bold;\">$" + v_ct + "</td></tr>" + v_hRows;
+                 			v_c = Map();
+                 			v_c.put("customer_id",v_cid);
+                 			v_c.put("customer_name",v_custName.get(v_cid));
+                 			v_c.put("amount",v_ct);
+                 			v_c.put("invoices",v_cl);
+                 			v_jsonParts.add(v_c.toString());
+                 		}
+                 	}
+                 	v_jsonTxt = "[" + v_jsonParts.toString(",") + "]";
+                 	v_diff = v_total - v_allocTotal;
+                 	if(v_diff < 0)
+                 	{
+                 		v_diff = 0 - v_diff;
+                 	}
+                 	if(v_diff > 0.01)
+                 	{
+                 		v_review.add("Allocated " + v_allocTotal.round(2) + " does not equal remit total " + v_total.round(2) + ".");
+                 	}
+                 	v_status = "Ready to Approve";
+                 	v_reviewHtml = "";
+                 	if(v_review.size() > 0)
+                 	{
+                 		v_status = "Needs Review";
+                 		for each  v_r in v_review
+                 		{
+                 			v_log = v_log + "\nREVIEW: " + v_r;
+                 			v_reviewHtml = v_reviewHtml + "<li>" + v_r + "</li>";
+                 		}
+                 	}
+                 	v_log = v_log + "\nAllocation built: " + v_allocTotal.round(2) + " across " + v_custCount + " customer(s). Status " + v_status + ".";
+                 	v_rec.Proposed_Allocation=v_text + "\nJSON:" + v_jsonTxt;
+                 	v_rec.Remit_Status=v_status;
+                 	v_amtStr = v_total.round(2).toString();
+                 	v_dot = v_amtStr.indexOf(".");
+                 	v_intStr = v_amtStr;
+                 	v_decStr = "00";
+                 	if(v_dot >= 0)
+                 	{
+                 		v_intStr = v_amtStr.subString(0,v_dot);
+                 		v_decStr = v_amtStr.subString(v_dot + 1,v_amtStr.length());
+                 	}
+                 	v_len = v_intStr.length();
+                 	if(v_len > 6)
+                 	{
+                 		v_intStr = v_intStr.subString(0,v_len - 6) + "," + v_intStr.subString(v_len - 6,v_len - 3) + "," + v_intStr.subString(v_len - 3,v_len);
+                 	}
+                 	else if(v_len > 3)
+                 	{
+                 		v_intStr = v_intStr.subString(0,v_len - 3) + "," + v_intStr.subString(v_len - 3,v_len);
+                 	}
+                 	v_totalTxt = v_intStr + "." + v_decStr;
+                 	v_prefix = "Remit Ready";
+                 	if(v_status == "Needs Review")
+                 	{
+                 		v_prefix = "Remit Needs Review";
+                 	}
+                 	v_subj = v_prefix + ": " + v_payer + " | Ref " + v_ref + " | $" + v_totalTxt;
+                 	v_link = "https://portal.sosreferrals.com/#Report:All_Intakes?ID=" + v_rec.ID.toString();
+                 	v_pDate = "";
+                 	if(v_rec.Payment_Date != null)
+                 	{
+                 		v_pDate = v_rec.Payment_Date.toString("MM/dd/yyyy");
+                 	}
+                 	v_html = "<div style=\"font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#222;\">";
+                 	v_html = v_html + "<p><b>" + v_prefix + "</b></p>";
+                 	v_html = v_html + "<p>Payer: " + v_payer + "<br/>Reference: " + v_ref + "<br/>Payment date: " + v_pDate + "<br/>Remit total: $" + v_totalTxt + "<br/>Allocated: $" + v_allocTotal.round(2) + "</p>";
+                 	if(v_htmlRows != "")
+                 	{
+                 		v_html = v_html + "<table style=\"border-collapse:collapse;font-size:14px;\">" + v_htmlRows + "</table>";
+                 	}
+                 	else
+                 	{
+                 		v_html = v_html + "<p>No payments proposed.</p>";
+                 	}
+                 	if(v_reviewHtml != "")
+                 	{
+                 		v_html = v_html + "<p style=\"margin-top:16px;\"><b>Needs your review:</b></p><ul>" + v_reviewHtml + "</ul>";
+                 	}
+                 	v_html = v_html + "<p style=\"margin-top:16px;\"><a href=\"" + v_link + "\">Open in Creator</a></p></div>";
+                 	v_token = "";
+                 	v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+                 	if(v_cfg.count() > 0)
+                 	{
+                 		v_token = ifnull(v_cfg.Zepto_Send_Token,"").toString().trim();
+                 	}
+                 	if(v_token == "")
+                 	{
+                 		v_log = v_log + "\nEmail NOT sent: no ZEPTOMAIL send token in API_Config.";
+                 	}
+                 	else
+                 	{
+                 		try 
+                 		{
+                 			v_fromMap = Map();
+                 			v_fromMap.put("address","notifications@sosreferrals.com");
+                 			v_fromMap.put("name","SOS Mobile Medical Care");
+                 			v_addrMap = Map();
+                 			v_addrMap.put("address","neil.heird@sosmmc.com");
+                 			v_entry = Map();
+                 			v_entry.put("email_address",v_addrMap);
+                 			v_toList = List();
+                 			v_toList.add(v_entry);
+                 			v_payload = Map();
+                 			v_payload.put("from",v_fromMap);
+                 			v_payload.put("to",v_toList);
+                 			v_payload.put("subject",v_subj);
+                 			v_payload.put("htmlbody",v_html);
+                 			v_hdr = Map();
+                 			v_hdr.put("Accept","application/json");
+                 			v_hdr.put("Content-Type","application/json");
+                 			v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+                 			v_resp = invokeurl
+                 			[
+                 				url :"https://api.zeptomail.com/v1.1/email"
+                 				type :POST
+                 				body:v_payload.toString()
+                 				headers:v_hdr
+                 				detailed:true
+                 			];
+                 			if(v_resp.get("responseCode") == 201)
+                 			{
+                 				v_log = v_log + "\nEmail sent via ZeptoMail: " + v_subj;
+                 			}
+                 			else
+                 			{
+                 				v_log = v_log + "\nEmail FAILED via ZeptoMail: " + v_resp.get("responseText").toString().left(500);
+                 			}
+                 		}		catch (e)
+                 		{
+                 			v_log = v_log + "\nEmail FAILED via ZeptoMail: " + e.toString();
+                 		}
+                 	}
+                 	v_rec.Process_Log=v_log;
+                 	return v_status + " | " + v_allocTotal.round(2) + " allocated | " + v_review.size() + " review item(s)";
+                 }
 				 string repair_fax_log_status(bool p_commit)
                  {
                  	v_token = thisapp.get_rc_token();
@@ -32138,6 +33109,521 @@
                  	}
                  	return "FAIL " + v_refid + " " + v_resp.toString();
                  }
+				 string send_3008_status(string p_from, string p_to, string p_send)
+                 {
+                 	v_cfg = API_Config[Config_Name == "ZEPTOMAIL"];
+                 	if(v_cfg.count() == 0)
+                 	{
+                 		return "aborted: no ZEPTOMAIL config";
+                 	}
+                 	v_token = ifnull(v_cfg.Zepto_Send_Token,"").trim();
+                 	if(v_token == "")
+                 	{
+                 		return "aborted: no Zepto send token";
+                 	}
+                 	v_fromStr = ifnull(p_from,"").trim();
+                 	v_toStr = ifnull(p_to,"").trim();
+                 	if(v_fromStr != "" && v_toStr != "")
+                 	{
+                 		v_from = v_fromStr.toDate();
+                 		v_to = v_toStr.toDate();
+                 	}
+                 	else
+                 	{
+                 		v_to = zoho.currentdate.toStartOfMonth().subDay(1);
+                 		v_from = v_to.toStartOfMonth();
+                 	}
+                 	if(v_from > v_to)
+                 	{
+                 		return "aborted: from date is after to date";
+                 	}
+                 	v_live = ifnull(p_send,"").trim().toLowerCase() == "yes";
+                 	v_label = v_from.toString("MM/dd/yyyy") + " to " + v_to.toString("MM/dd/yyyy");
+                 	v_portal = "https://portal.sosreferrals.com/#Report:Referrals_Main_Report?Referral_ID=";
+                 	v_td = "font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#000000; padding:8px 6px; border-bottom:1px solid #e6e6ef; vertical-align:top;";
+                 	v_tdNum = v_td + " text-align:right;";
+                 	v_th = "font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:14px; color:#4c4c89; text-transform:uppercase; letter-spacing:.05em; text-align:left; padding:8px 6px; border-bottom:2px solid #0b0b5b;";
+                 	v_aStyle = "color:#2634a3; text-decoration:none; font-weight:bold;";
+                 	v_skip = {"Duplicate","Cancelled","Folded"};
+                 	v_byProv = Map();
+                 	for each  v_p in Encounter_PatientVisit[Type_of_Entry == "3008" && Cares_3008_Completion_Date >= v_from && Cares_3008_Completion_Date <= v_to]
+                 	{
+                 		v_rs = ifnull(v_p.Row_Status,"").toString().trim();
+                 		if(v_skip.contains(v_rs))
+                 		{
+                 			continue;
+                 		}
+                 		v_prov = ifnull(v_p.Employee_Full_Name,"").toString().trim();
+                 		if(v_prov == "" && v_p.Employee_Link != null)
+                 		{
+                 			v_emp = Employees[ID == v_p.Employee_Link];
+                 			if(v_emp.count() > 0)
+                 			{
+                 				v_prov = (ifnull(v_emp.Employee_First_Name,"").toString() + " " + ifnull(v_emp.Employee_Last_Name,"").toString()).trim();
+                 			}
+                 		}
+                 		if(v_prov == "")
+                 		{
+                 			v_prov = "Unassigned";
+                 		}
+                 		v_pat = ifnull(v_p.Patient_Full_Name_1,"").toString().trim();
+                 		if(v_pat == "")
+                 		{
+                 			v_pat = (ifnull(v_p.Patient_First_Name,"").toString() + " " + ifnull(v_p.Patient_Last_Name,"").toString()).trim();
+                 		}
+                 		v_rid = ifnull(v_p.Referral_ID,"").toString().trim();
+                 		v_ridCell = "(no Referral ID)";
+                 		if(v_rid != "")
+                 		{
+                 			v_ridCell = "<a href=\"" + v_portal + v_rid + "\" style=\"" + v_aStyle + "\">" + v_rid + "</a>";
+                 		}
+                 		v_pid = ifnull(v_p.PVS_ID,"").toString().trim();
+                 		if(v_pid == "")
+                 		{
+                 			v_pid = "(no PVS ID)";
+                 		}
+                 		v_ptn = ifnull(v_p.Partner_Location_Label,"").toString().trim();
+                 		v_row = v_p.Cares_3008_Completion_Date.toString("yyyyMMdd") + v_rid + "~|~<tr><td style=\"" + v_td + "\">" + v_p.Cares_3008_Completion_Date.toString("MM/dd/yyyy") + "</td><td style=\"" + v_td + "\">" + v_ridCell + "</td><td style=\"" + v_td + "\">" + v_pid + "</td><td style=\"" + v_td + "\">" + v_pat + "</td><td style=\"" + v_td + "\">" + v_ptn + "</td></tr>";
+                 		if(!v_byProv.containKey(v_prov))
+                 		{
+                 			v_byProv.put(v_prov,List());
+                 		}
+                 		v_lst = v_byProv.get(v_prov);
+                 		v_lst.add(v_row);
+                 	}
+                 	v_openBy = Map();
+                 	v_ncBy = Map();
+                 	v_ndBy = Map();
+                 	for each  v_r in Referrals_Main[Referral_Type == "3008" && Referral_Date >= v_from && Referral_Date <= v_to]
+                 	{
+                 		v_ridRaw = ifnull(v_r.Referral_ID,"").toString().trim();
+                 		v_ridCell = "(no Referral ID)";
+                 		if(v_ridRaw != "")
+                 		{
+                 			v_ridCell = "<a href=\"" + v_portal + v_ridRaw + "\" style=\"" + v_aStyle + "\">" + v_ridRaw + "</a>";
+                 		}
+                 		v_pat = ifnull(v_r.Patient_Full_Name,"").toString().trim();
+                 		if(v_pat == "")
+                 		{
+                 			v_pat = (ifnull(v_r.Patient_First_Name,"").toString() + " " + ifnull(v_r.Patient_Last_Name,"").toString()).trim();
+                 		}
+                 		v_ptn = ifnull(v_r.Partner_Location_Label,"").toString().trim();
+                 		v_rdt = v_r.Referral_Date.toString("MM/dd/yyyy");
+                 		v_key = v_r.Referral_Date.toString("yyyyMMdd") + v_ridRaw;
+                 		v_hasDone = false;
+                 		v_ndPid = "";
+                 		v_ndProv = "";
+                 		if(v_ridRaw != "")
+                 		{
+                 			v_pvs = Encounter_PatientVisit[Type_of_Entry == "3008" && Referral_Link == v_r.ID || Referral_ID == v_ridRaw];
+                 		}
+                 		else
+                 		{
+                 			v_pvs = Encounter_PatientVisit[Type_of_Entry == "3008" && Referral_Link == v_r.ID];
+                 		}
+                 		for each  v_p in v_pvs
+                 		{
+                 			v_rs = ifnull(v_p.Row_Status,"").toString().trim();
+                 			if(v_skip.contains(v_rs))
+                 			{
+                 				continue;
+                 			}
+                 			if(v_p.Cares_3008_Completion_Date != null)
+                 			{
+                 				v_hasDone = true;
+                 			}
+                 			else if(v_ndPid == "")
+                 			{
+                 				v_ndPid = ifnull(v_p.PVS_ID,"").toString().trim();
+                 				if(v_ndPid == "")
+                 				{
+                 					v_ndPid = "(no PVS ID)";
+                 				}
+                 				v_ndProv = ifnull(v_p.Employee_Full_Name,"").toString().trim();
+                 				if(v_ndProv == "")
+                 				{
+                 					v_ndProv = "Unassigned";
+                 				}
+                 			}
+                 		}
+                 		if(v_hasDone)
+                 		{
+                 			continue;
+                 		}
+                 		if(v_ndPid != "")
+                 		{
+                 			if(!v_ndBy.containKey(v_ndProv))
+                 			{
+                 				v_ndBy.put(v_ndProv,List());
+                 			}
+                 			v_lst = v_ndBy.get(v_ndProv);
+                 			v_lst.add(v_key + "~|~<tr><td style=\"" + v_td + "\">" + v_rdt + "</td><td style=\"" + v_td + "\">" + v_ridCell + "</td><td style=\"" + v_td + "\">" + v_ndPid + "</td><td style=\"" + v_td + "\">" + v_pat + "</td><td style=\"" + v_td + "\">" + v_ptn + "</td><td style=\"" + v_td + "\">" + v_ndProv + "</td></tr>");
+                 			continue;
+                 		}
+                 		v_vc = "";
+                 		v_why = "";
+                 		v_who = "";
+                 		for each  v_a in Assignments[Referral_Link == v_r.ID]
+                 		{
+                 			if(ifnull(v_a.Visit_Completed,"").toString() == "No")
+                 			{
+                 				v_vc = "No";
+                 				v_why = ifnull(v_a.Not_Completed_Reason,"").toString();
+                 			}
+                 			if(v_who == "" && v_a.Employee_Link != null)
+                 			{
+                 				v_e = Employees[ID == v_a.Employee_Link];
+                 				if(v_e.count() > 0)
+                 				{
+                 					v_who = (ifnull(v_e.Employee_First_Name,"").toString() + " " + ifnull(v_e.Employee_Last_Name,"").toString()).trim();
+                 				}
+                 			}
+                 		}
+                 		if(v_who == "")
+                 		{
+                 			v_who = "Unassigned";
+                 		}
+                 		if(v_vc == "No")
+                 		{
+                 			if(!v_ncBy.containKey(v_who))
+                 			{
+                 				v_ncBy.put(v_who,List());
+                 			}
+                 			v_lst = v_ncBy.get(v_who);
+                 			v_lst.add(v_key + "~|~<tr><td style=\"" + v_td + "\">" + v_rdt + "</td><td style=\"" + v_td + "\">" + v_ridCell + "</td><td style=\"" + v_td + "\">" + v_pat + "</td><td style=\"" + v_td + "\">" + v_ptn + "</td><td style=\"" + v_td + "\">" + v_why + "</td></tr>");
+                 		}
+                 		else
+                 		{
+                 			if(!v_openBy.containKey(v_who))
+                 			{
+                 				v_openBy.put(v_who,List());
+                 			}
+                 			v_lst = v_openBy.get(v_who);
+                 			v_lst.add(v_key + "~|~<tr><td style=\"" + v_td + "\">" + v_rdt + "</td><td style=\"" + v_td + "\">" + v_ridCell + "</td><td style=\"" + v_td + "\">" + v_pat + "</td><td style=\"" + v_td + "\">" + v_ptn + "</td><td style=\"" + v_td + "\">" + v_who + "</td></tr>");
+                 		}
+                 	}
+                 	v_secStyle = "background-color:#0b0b5b; padding:10px 24px; font-family:Arial,Helvetica,sans-serif; font-size:13px; font-weight:bold; color:#ffffff; letter-spacing:.05em; text-transform:uppercase;";
+                 	v_cellOpen = "<tr><td style=\"padding:8px 24px 18px 24px;\">";
+                 	v_tblOpen = "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\">";
+                 	v_pStyle = "font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:22px; color:#000000; margin:0 0 14px 0;";
+                 	v_noneStyle = "font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:20px; color:#4c4c89; margin:0;";
+                 	v_attName = "SOS_3008_Recap_Updates_" + v_to.toString("yyyy-MM") + ".xlsx";
+                 	v_recipMap = Map();
+                 	v_recipMap.put("Ann Smith","asmith@sosmmc.com");
+                 	v_recipMap.put("Kayla Kolanko","kayla.kolanko@sosmmc.com");
+                 	v_versions = List();
+                 	v_versions.add("ALL");
+                 	for each  v_k in v_recipMap.keys()
+                 	{
+                 		v_versions.add(v_k);
+                 	}
+                 	v_results = List();
+                 	for each  v_ver in v_versions
+                 	{
+                 		v_isAll = v_ver == "ALL";
+                 		v_pk = List();
+                 		if(v_isAll)
+                 		{
+                 			for each  v_k in v_byProv.keys()
+                 			{
+                 				v_pk.add(v_k);
+                 			}
+                 		}
+                 		else if(v_byProv.containKey(v_ver))
+                 		{
+                 			v_pk.add(v_ver);
+                 		}
+                 		v_pk.sort();
+                 		v_cnt = 0;
+                 		v_sumRows = "";
+                 		for each  v_k in v_pk
+                 		{
+                 			v_n = v_byProv.get(v_k).size();
+                 			v_cnt = v_cnt + v_n;
+                 			v_sumRows = v_sumRows + "<tr><td style=\"" + v_td + "\">" + v_k + "</td><td style=\"" + v_tdNum + "\">" + v_n + "</td></tr>";
+                 		}
+                 		v_sumRows = v_sumRows + "<tr><td style=\"" + v_td + " font-weight:bold; background-color:#f0f0ff;\">Total</td><td style=\"" + v_tdNum + " font-weight:bold; background-color:#f0f0ff;\">" + v_cnt + "</td></tr>";
+                 		v_oRows = List();
+                 		v_nRows = List();
+                 		v_dRows = List();
+                 		if(v_isAll)
+                 		{
+                 			for each  v_k in v_openBy.keys()
+                 			{
+                 				v_oRows.addAll(v_openBy.get(v_k));
+                 			}
+                 			for each  v_k in v_ncBy.keys()
+                 			{
+                 				v_nRows.addAll(v_ncBy.get(v_k));
+                 			}
+                 			for each  v_k in v_ndBy.keys()
+                 			{
+                 				v_dRows.addAll(v_ndBy.get(v_k));
+                 			}
+                 		}
+                 		else
+                 		{
+                 			if(v_openBy.containKey(v_ver))
+                 			{
+                 				v_oRows.addAll(v_openBy.get(v_ver));
+                 			}
+                 			if(v_ncBy.containKey(v_ver))
+                 			{
+                 				v_nRows.addAll(v_ncBy.get(v_ver));
+                 			}
+                 			if(v_ndBy.containKey(v_ver))
+                 			{
+                 				v_dRows.addAll(v_ndBy.get(v_ver));
+                 			}
+                 		}
+                 		v_verName = v_ver;
+                 		v_greet = "Hi " + v_ver.getPrefix(" ") + ",";
+                 		if(v_ver.getPrefix(" ") == null || v_ver.getPrefix(" ") == "")
+                 		{
+                 			v_greet = "Hi " + v_ver + ",";
+                 		}
+                 		if(v_isAll)
+                 		{
+                 			v_verName = "Full copy";
+                 			v_greet = "Full copy: all providers, including unassigned items.";
+                 		}
+                 		v_body = "";
+                 		v_body = v_body + "<tr><td style=\"padding:22px 24px 6px 24px;\">";
+                 		v_body = v_body + "<p style=\"" + v_pStyle + " font-weight:bold;\">" + v_greet + "</p>";
+                 		v_body = v_body + "<p style=\"" + v_pStyle + "\">Here is your monthly 3008 recap for " + v_label + ", pulled directly from our new billing system. It lists only the 3008s recorded under your name.</p>";
+                 		v_body = v_body + "<p style=\"" + v_pStyle + "\">We can't fully reconcile and close the month until every 3008 is accounted for. Any 3008 that was completed but isn't in the system, or has the wrong date or provider, holds up month-end billing for everyone.</p>";
+                 		v_body = v_body + "<p style=\"" + v_pStyle + "\">Please review your completed 3008s and any open items below. If anything is missing or needs an update, email Neil at <a href=\"mailto:neil.heird@sosmmc.com\" style=\"" + v_aStyle + "\">neil.heird@sosmmc.com</a> with the Referral ID(s), or fill in the attached update sheet and send it back.</p>";
+                 		v_body = v_body + "</td></tr>";
+                 		v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">Completed 3008s by Provider</td></tr>";
+                 		v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Provider</td><td style=\"" + v_th + " text-align:right;\">Completed</td></tr>" + v_sumRows + "</table></td></tr>";
+                 		for each  v_k in v_pk
+                 		{
+                 			v_lst = v_byProv.get(v_k);
+                 			v_lst.sort();
+                 			v_rows = "";
+                 			for each  v_s in v_lst
+                 			{
+                 				v_rows = v_rows + v_s.getSuffix("~|~");
+                 			}
+                 			v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">" + v_k + " (" + v_lst.size() + ")</td></tr>";
+                 			v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Completed</td><td style=\"" + v_th + "\">Referral ID</td><td style=\"" + v_th + "\">PVS ID</td><td style=\"" + v_th + "\">Patient</td><td style=\"" + v_th + "\">Partner</td></tr>" + v_rows + "</table></td></tr>";
+                 		}
+                 		v_oRows.sort();
+                 		v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">Open 3008 Referrals, No PVS (" + v_oRows.size() + ")</td></tr>";
+                 		if(v_oRows.size() > 0)
+                 		{
+                 			v_rows = "";
+                 			for each  v_s in v_oRows
+                 			{
+                 				v_rows = v_rows + v_s.getSuffix("~|~");
+                 			}
+                 			v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Referral Date</td><td style=\"" + v_th + "\">Referral ID</td><td style=\"" + v_th + "\">Patient</td><td style=\"" + v_th + "\">Partner</td><td style=\"" + v_th + "\">Assigned To</td></tr>" + v_rows + "</table></td></tr>";
+                 		}
+                 		else
+                 		{
+                 			v_body = v_body + v_cellOpen + "<p style=\"" + v_noneStyle + "\">None.</p></td></tr>";
+                 		}
+                 		v_nRows.sort();
+                 		v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">Not Completed (" + v_nRows.size() + ")</td></tr>";
+                 		if(v_nRows.size() > 0)
+                 		{
+                 			v_rows = "";
+                 			for each  v_s in v_nRows
+                 			{
+                 				v_rows = v_rows + v_s.getSuffix("~|~");
+                 			}
+                 			v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Referral Date</td><td style=\"" + v_th + "\">Referral ID</td><td style=\"" + v_th + "\">Patient</td><td style=\"" + v_th + "\">Partner</td><td style=\"" + v_th + "\">Reason</td></tr>" + v_rows + "</table></td></tr>";
+                 		}
+                 		else
+                 		{
+                 			v_body = v_body + v_cellOpen + "<p style=\"" + v_noneStyle + "\">None.</p></td></tr>";
+                 		}
+                 		v_dRows.sort();
+                 		v_body = v_body + "<tr><td style=\"" + v_secStyle + "\">PVS Missing Completion Date (" + v_dRows.size() + ")</td></tr>";
+                 		if(v_dRows.size() > 0)
+                 		{
+                 			v_rows = "";
+                 			for each  v_s in v_dRows
+                 			{
+                 				v_rows = v_rows + v_s.getSuffix("~|~");
+                 			}
+                 			v_body = v_body + v_cellOpen + v_tblOpen + "<tr><td style=\"" + v_th + "\">Referral Date</td><td style=\"" + v_th + "\">Referral ID</td><td style=\"" + v_th + "\">PVS ID</td><td style=\"" + v_th + "\">Patient</td><td style=\"" + v_th + "\">Partner</td><td style=\"" + v_th + "\">Provider</td></tr>" + v_rows + "</table></td></tr>";
+                 		}
+                 		else
+                 		{
+                 			v_body = v_body + v_cellOpen + "<p style=\"" + v_noneStyle + "\">None.</p></td></tr>";
+                 		}
+                 		v_pill = "<span style=\"display:inline-block; background-color:#fcf2e7; color:#000000; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:16px; font-weight:bold; padding:3px 10px; border-radius:10px;\">3008</span>";
+                 		v_heroSub = v_label;
+                 		if(!v_isAll)
+                 		{
+                 			v_heroSub = v_ver + " &nbsp;&bull;&nbsp; " + v_label;
+                 		}
+                 		v_html = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+                 		v_html = v_html + "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head>";
+                 		v_html = v_html + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />";
+                 		v_html = v_html + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />";
+                 		v_html = v_html + "<title>Monthly 3008 Recap</title>";
+                 		v_html = v_html + "<style type=\"text/css\">@media only screen and (max-width:600px){.container{width:100% !important;}.hero{font-size:19px !important;line-height:25px !important;}}</style>";
+                 		v_html = v_html + "</head><body style=\"margin:0; padding:0; background-color:#eef0f6;\">";
+                 		v_html = v_html + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#eef0f6;\"><tr><td align=\"center\" style=\"padding:20px 10px 32px 10px;\">";
+                 		v_html = v_html + "<table role=\"presentation\" class=\"container\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%; max-width:600px; background-color:#ffffff;\">";
+                 		if(!v_live)
+                 		{
+                 			v_html = v_html + "<tr><td style=\"background-color:#fff4e5; border:1px solid #b26b00; padding:10px 24px; font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; font-weight:bold; color:#b26b00;\">PREVIEW ONLY (" + v_verName + "). Sent to Neil only and not logged. Run send_3008_status with Send Email = Yes to send the live versions.</td></tr>";
+                 		}
+                 		v_html = v_html + "<tr><td style=\"background-color:#00003c; padding:20px 24px;\">";
+                 		v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:18px; color:#8d8db8; letter-spacing:.06em; text-transform:uppercase;\">SOS Mobile Medical Care</div>";
+                 		v_html = v_html + "<div class=\"hero\" style=\"font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#ffffff; padding-top:4px;\">Monthly 3008 Recap</div>";
+                 		v_html = v_html + "<div style=\"font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:21px; color:#cfcfe7; padding-top:6px;\">" + v_heroSub + "</div>";
+                 		v_html = v_html + "<div style=\"padding-top:10px;\">" + v_pill + "</div>";
+                 		v_html = v_html + "</td></tr>";
+                 		v_html = v_html + v_body;
+                 		v_html = v_html + "<tr><td style=\"padding:20px 24px 24px 24px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:17px; color:#888888; border-top:1px solid #e6e6ef;\">Confidential. This message contains protected health information intended only for the named recipient. If you received it in error, delete it and notify the sender.</td></tr>";
+                 		v_html = v_html + "</table></td></tr></table></body></html>";
+                 		v_subject = "Monthly 3008 Recap  |  " + v_label;
+                 		if(!v_isAll)
+                 		{
+                 			v_subject = v_subject + "  |  " + v_ver;
+                 		}
+                 		v_recips = List();
+                 		if(!v_live)
+                 		{
+                 			v_subject = "PREVIEW  |  " + v_subject + "  |  " + v_verName;
+                 			v_recips.add("neil.heird@sosmmc.com");
+                 		}
+                 		else if(v_isAll)
+                 		{
+                 			v_recips.add("neil.heird@sosmmc.com");
+                 		}
+                 		else
+                 		{
+                 			v_recips.add(v_recipMap.get(v_ver));
+                 		}
+                 		v_attach = List();
+                 		v_attNote = "template NOT attached";
+                 		try 
+                 		{
+                 			v_tpl = invokeurl
+                 			[
+                 				url :"https://workdrive.zoho.com/api/v1/download/oizckb2ee8535c42c4b609ea87fc165baa36d"
+                 				type :GET
+                 				connection:"sos_workdrive"
+                 			];
+                 			v_fh = Map();
+                 			v_fh.put("Authorization","Zoho-enczapikey " + v_token);
+                 			v_fh.put("Content-Type","text/plain");
+                 			v_up = invokeurl
+                 			[
+                 				url :"https://api.zeptomail.com/v1.1/files?name=" + zoho.encryption.urlEncode(v_attName)
+                 				type :POST
+                 				body:v_tpl
+                 				headers:v_fh
+                 				detailed:true
+                 			];
+                 			v_upCode = v_up.get("responseCode");
+                 			if(v_upCode == 200 || v_upCode == 201)
+                 			{
+                 				v_upTxt = v_up.get("responseText").toString();
+                 				if(v_upTxt.contains("file_cache_key"))
+                 				{
+                 					v_ck = ifnull(v_upTxt.toMap().get("file_cache_key"),"").toString().trim();
+                 					if(v_ck != "")
+                 					{
+                 						v_att = Map();
+                 						v_att.put("file_cache_key",v_ck);
+                 						v_att.put("name",v_attName);
+                 						v_attach.add(v_att);
+                 						v_attNote = "template attached";
+                 					}
+                 				}
+                 			}
+                 		}		catch (e)
+                 		{
+                 			v_attNote = "template NOT attached: " + e.message.toString();
+                 		}
+                 		v_toList = List();
+                 		for each  v_addr in v_recips
+                 		{
+                 			v_addrMap = Map();
+                 			v_addrMap.put("address",v_addr);
+                 			v_entry = Map();
+                 			v_entry.put("email_address",v_addrMap);
+                 			v_toList.add(v_entry);
+                 		}
+                 		v_fromMap = Map();
+                 		v_fromMap.put("address","notifications@sosreferrals.com");
+                 		v_fromMap.put("name","SOS Mobile Medical Care");
+                 		v_payload = Map();
+                 		v_payload.put("from",v_fromMap);
+                 		v_payload.put("to",v_toList);
+                 		v_payload.put("subject",v_subject);
+                 		v_payload.put("htmlbody",v_html);
+                 		if(v_attach.size() > 0)
+                 		{
+                 			v_payload.put("attachments",v_attach);
+                 		}
+                 		v_hdr = Map();
+                 		v_hdr.put("Accept","application/json");
+                 		v_hdr.put("Content-Type","application/json");
+                 		v_hdr.put("Authorization","Zoho-enczapikey " + v_token);
+                 		v_status = "Failed";
+                 		v_respTxt = "";
+                 		try 
+                 		{
+                 			v_resp = invokeurl
+                 			[
+                 				url :"https://api.zeptomail.com/v1.1/email"
+                 				type :POST
+                 				body:v_payload.toString()
+                 				headers:v_hdr
+                 				detailed:true
+                 			];
+                 			v_respTxt = v_resp.toString();
+                 			if(v_resp.get("responseCode") == 201)
+                 			{
+                 				v_status = "Sent";
+                 			}
+                 		}		catch (e)
+                 		{
+                 			v_respTxt = "exception: " + e.message.toString();
+                 		}
+                 		if(v_live)
+                 		{
+                 			v_logBody = v_html;
+                 			if(v_logBody.length() > 60000)
+                 			{
+                 				v_logBody = v_logBody.subString(0,60000);
+                 			}
+                 			v_logResp = v_attNote + "\n" + v_respTxt;
+                 			if(v_logResp.length() > 60000)
+                 			{
+                 				v_logResp = v_logResp.subString(0,60000);
+                 			}
+                 			v_log = insert into Notification_Log
+                 			[
+                 				Added_User=zoho.loginuser
+                 				Notification_Type="3008 Monthly Status"
+                 				Sent_At=zoho.currenttime
+                 				Period_From=v_from
+                 				Period_To=v_to
+                 				Recipients=v_recips.toString("\n")
+                 				Subject1=v_subject
+                 				Body_HTML=v_logBody
+                 				Record_Count=v_cnt
+                 				Send_Status=v_status
+                 				Send_Response=v_logResp
+                 			];
+                 		}
+                 		v_results.add(v_verName + ": " + v_status + " to " + v_recips.toString(", ") + " (" + v_attNote + ") completed " + v_cnt + ", open " + v_oRows.size() + ", not completed " + v_nRows.size() + ", missing date " + v_dRows.size());
+                 	}
+                 	v_mode = "PREVIEW";
+                 	if(v_live)
+                 	{
+                 		v_mode = "LIVE";
+                 	}
+                 	return v_mode + " " + v_label + "\n" + v_results.toString("\n");
+                 }
 				 string send_activity_digest(string p_type, string p_from, string p_to)
                  {
                  	v_type = ifnull(p_type,"").trim().toLowerCase();
@@ -35036,6 +36522,215 @@
                  		v_P.Referral_Link=v_R.ID;
                  	}
                  	return v_Mode + " | " + v_PvsId + " | Referral_Link " + v_Current + " -> " + v_RefId + " | DOB match " + v_P.Patient_DOB.toString("M/d/yyyy") + " | written=" + if(v_Mode == "COMMIT",1,0);
+                 }
+				 string set_pvs_visit_date(string p_mode, string p_pairs)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_Today = zoho.currentdate;
+                 	v_Set = List();
+                 	v_Kept = List();
+                 	v_Skip = List();
+                 	v_Missing = List();
+                 	v_Bad = List();
+                 	v_List = ifnull(p_pairs,"").toList(";");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Pair = v_Raw.trim();
+                 		if(v_Pair == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Id = v_Pair.getPrefix("=");
+                 		v_DateStr = v_Pair.getSuffix("=");
+                 		if(v_Id == null || v_DateStr == null)
+                 		{
+                 			v_Bad.add(v_Pair);
+                 			continue;
+                 		}
+                 		v_Id = v_Id.trim();
+                 		v_DateStr = v_DateStr.trim();
+                 		if(!v_DateStr.matches("^[0-9]{2}-[0-9]{2}-[0-9]{4}$"))
+                 		{
+                 			v_Bad.add(v_Pair);
+                 			continue;
+                 		}
+                 		v_D = null;
+                 		try 
+                 		{
+                 			v_D = toDate(v_DateStr,"MM-dd-yyyy");
+                 		}		catch (e)
+                 		{
+                 			v_D = null;
+                 		}
+                 		if(v_D == null)
+                 		{
+                 			v_Bad.add(v_Pair);
+                 			continue;
+                 		}
+                 		if(v_D.toString("MM-dd-yyyy") != v_DateStr)
+                 		{
+                 			v_Bad.add(v_Pair);
+                 			continue;
+                 		}
+                 		if(v_D > v_Today)
+                 		{
+                 			v_Bad.add(v_Pair + " (future date)");
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_P in Encounter_PatientVisit[PVS_ID == v_Id]
+                 		{
+                 			v_Found = true;
+                 			v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 			if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+                 			{
+                 				v_Skip.add(v_Id + " [Row Status " + v_Rs + "]");
+                 				continue;
+                 			}
+                 			v_Type = ifnull(v_P.Type_of_Entry,"").toString().trim();
+                 			if(v_Type == "3008")
+                 			{
+                 				v_Skip.add(v_Id + " [3008 entry - uses 3008 Completion Date]");
+                 				continue;
+                 			}
+                 			if(v_P.Visit_Completion_Date != null)
+                 			{
+                 				v_Kept.add(v_Id + " [" + v_P.Visit_Completion_Date.toString("MM-dd-yyyy") + "]");
+                 				continue;
+                 			}
+                 			v_Set.add(v_Id + " -> " + v_DateStr);
+                 			if(v_Mode == "COMMIT")
+                 			{
+                 				v_P.Visit_Completion_Date=v_D;
+                 			}
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Missing.add(v_Id);
+                 		}
+                 	}
+                 	v_Out = v_Mode + " | set " + v_Set.size() + " | already dated " + v_Kept.size() + " | skipped " + v_Skip.size() + " | not found " + v_Missing.size() + " | invalid " + v_Bad.size();
+                 	if(v_Set.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nSET:\n" + v_Set.toString("\n");
+                 	}
+                 	if(v_Kept.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nALREADY DATED:\n" + v_Kept.toString("\n");
+                 	}
+                 	if(v_Skip.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nSKIPPED:\n" + v_Skip.toString("\n");
+                 	}
+                 	if(v_Missing.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nNOT FOUND: " + v_Missing.toString(", ");
+                 	}
+                 	if(v_Bad.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nINVALID: " + v_Bad.toString(" ; ");
+                 	}
+                 	return v_Out;
+                 }
+				 string set_referral_source(string p_mode, string p_refIds, string p_source)
+                 {
+                 	v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+                 	if(v_Mode != "COMMIT")
+                 	{
+                 		v_Mode = "PREVIEW";
+                 	}
+                 	v_Src = ifnull(p_source,"").toString().trim();
+                 	v_Allowed = {"Contracted Partner","Direct/Individual","SOS Internal"};
+                 	if(!v_Allowed.contains(v_Src))
+                 	{
+                 		return "Invalid source. Use Contracted Partner, Direct/Individual or SOS Internal.";
+                 	}
+                 	v_RefSet = List();
+                 	v_RefKept = List();
+                 	v_PvsSet = List();
+                 	v_PvsKept = List();
+                 	v_PvsSkip = List();
+                 	v_Missing = List();
+                 	v_List = ifnull(p_refIds,"").toList(",");
+                 	for each  v_Raw in v_List
+                 	{
+                 		v_Key = v_Raw.trim();
+                 		if(v_Key == "")
+                 		{
+                 			continue;
+                 		}
+                 		v_Found = false;
+                 		for each  v_R in Referrals_Main[Referral_ID == v_Key]
+                 		{
+                 			v_Found = true;
+                 			v_Cur = ifnull(v_R.Referral_Source,"").toString().trim();
+                 			if(v_Cur == v_Src)
+                 			{
+                 				v_RefKept.add(v_Key);
+                 			}
+                 			else
+                 			{
+                 				v_RefSet.add(v_Key + " [" + v_Cur + "] -> [" + v_Src + "]");
+                 				if(v_Mode == "COMMIT")
+                 				{
+                 					v_R.Referral_Source=v_Src;
+                 				}
+                 			}
+                 			for each  v_P in Encounter_PatientVisit[Referral_Link == v_R.ID]
+                 			{
+                 				v_Pid = ifnull(v_P.PVS_ID,"").toString().trim();
+                 				v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+                 				if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+                 				{
+                 					v_PvsSkip.add(v_Pid + " [Row Status " + v_Rs + "]");
+                 					continue;
+                 				}
+                 				v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+                 				if(v_Inv == "Final")
+                 				{
+                 					v_PvsSkip.add(v_Pid + " [invoiced]");
+                 					continue;
+                 				}
+                 				v_PCur = ifnull(v_P.Referral_Source,"").toString().trim();
+                 				if(v_PCur == v_Src)
+                 				{
+                 					v_PvsKept.add(v_Pid);
+                 					continue;
+                 				}
+                 				v_PvsSet.add(v_Pid + " [" + v_PCur + "] -> [" + v_Src + "]");
+                 				if(v_Mode == "COMMIT")
+                 				{
+                 					v_P.Referral_Source=v_Src;
+                 				}
+                 			}
+                 		}
+                 		if(!v_Found)
+                 		{
+                 			v_Missing.add(v_Key);
+                 		}
+                 	}
+                 	v_Out = v_Mode + " | referrals set " + v_RefSet.size() + " | referrals already " + v_RefKept.size() + " | PVS set " + v_PvsSet.size() + " | PVS already " + v_PvsKept.size() + " | PVS skipped " + v_PvsSkip.size() + " | not found " + v_Missing.size();
+                 	if(v_RefSet.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nREFERRALS:\n" + v_RefSet.toString("\n");
+                 	}
+                 	if(v_PvsSet.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nPVS:\n" + v_PvsSet.toString("\n");
+                 	}
+                 	if(v_PvsSkip.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nSKIPPED:\n" + v_PvsSkip.toString("\n");
+                 	}
+                 	if(v_Missing.size() > 0)
+                 	{
+                 		v_Out = v_Out + "\nNOT FOUND: " + v_Missing.toString(", ");
+                 	}
+                 	return v_Out;
                  }
 				 string sos_referral_health(string p_mode, string p_scope, int p_limit)
                  {
@@ -41726,6 +43421,262 @@
 					}
 				}
 			}
+			Remit_Intake_Read as "Remit Intake Read"
+			{
+				type =  form
+				form = Remit_Intake
+
+				record event = on add
+
+				on success
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											v_id = input.ID;
+										v_log = zoho.currenttime.toString("MM-dd-yyyy HH:mm:ss") + " Intake created";
+										v_status = "Read";
+										v_payer = "";
+										v_ref = "";
+										v_date = null;
+										v_total = 0.0;
+										v_sum = 0.0;
+										v_linesTxt = "";
+										v_count = 0;
+										v_stop = false;
+										if(input.Remit_File == null || input.Remit_File.toString().trim() == "")
+										{
+											v_status = "Failed";
+											v_log = v_log + "\nNo remit file attached.";
+											v_stop = true;
+										}
+										if(!v_stop)
+										{
+											v_prompt = "Read this payment remittance advice. Return ONLY a JSON object with no other text and exactly these keys: \"payer_name\" (text), \"payment_reference\" (text: the payment, check, ACH or EFT number), \"payment_date\" (text in yyyy-MM-dd format), \"payment_total\" (number), \"lines\" (array with one object per invoice paid, each having \"invoice_number\" (text exactly as printed) and \"amount\" (number paid on that invoice)). Write numbers without $ signs or commas. If a value is not on the document, use an empty string.";
+											v_raw = "";
+											try 
+											{
+												v_resp = zia
+												[
+													message:v_prompt
+													files:input.Remit_File
+													context:"You are an accounts receivable clerk extracting data from remittance advices. Copy values exactly as printed and never invent values."
+													parameters:{"temperature":0.1}
+												];
+												v_raw = v_resp.toString();
+											}	catch (e)
+											{
+												v_status = "Failed";
+												v_log = v_log + "\nZia call failed: " + e.toString();
+												v_stop = true;
+											}
+										}
+										if(!v_stop)
+										{
+											v_txt = v_raw;
+											v_outer = Map();
+											try 
+											{
+												v_outer = v_raw.toMap();
+											}	catch (e)
+											{
+												v_outer = Map();
+											}
+											if(v_outer != null && v_outer.containKey("status") && v_outer.get("status").toString() == "false")
+											{
+												v_status = "Failed";
+												v_log = v_log + "\nZia returned an error: " + ifnull(v_outer.get("error"),"").toString();
+												v_stop = true;
+											}
+											else if(v_outer != null && v_outer.containKey("data"))
+											{
+												v_txt = v_outer.get("data").toString();
+											}
+										}
+										if(!v_stop)
+										{
+											v_txt = v_txt.replaceAll("```json","").replaceAll("```","").trim();
+											v_s = v_txt.indexOf("{");
+											v_e = v_txt.lastIndexOf("}");
+											v_obj = Map();
+											if(v_s >= 0 && v_e > v_s)
+											{
+												try 
+												{
+													v_obj = v_txt.subString(v_s,v_e + 1).toMap();
+												}		catch (e)
+												{
+													v_obj = Map();
+												}
+											}
+											if(v_obj == null || !v_obj.containKey("lines"))
+											{
+												v_status = "Failed";
+												v_log = v_log + "\nCould not parse Zia reply. Raw reply: " + v_raw.left(2000);
+												v_stop = true;
+											}
+										}
+										if(!v_stop)
+										{
+											v_payer = ifnull(v_obj.get("payer_name"),"").toString().trim();
+											v_ref = ifnull(v_obj.get("payment_reference"),"").toString().trim();
+											v_dTxt = ifnull(v_obj.get("payment_date"),"").toString().trim();
+											if(v_dTxt.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))
+											{
+												v_date = v_dTxt.toDate("yyyy-MM-dd");
+											}
+											else
+											{
+												v_log = v_log + "\nPayment date not read: " + v_dTxt;
+											}
+											v_tTxt = ifnull(v_obj.get("payment_total"),"").toString().replaceAll("[^0-9.\\-]","");
+											if(v_tTxt != "")
+											{
+												v_total = v_tTxt.toDecimal();
+											}
+											v_lines = ifnull(v_obj.get("lines"),"[]").toString().toJSONList();
+											for each  v_l in v_lines
+											{
+												v_lm = v_l.toString().toMap();
+												v_inv = ifnull(v_lm.get("invoice_number"),"").toString().trim();
+												v_aTxt = ifnull(v_lm.get("amount"),"").toString().replaceAll("[^0-9.\\-]","");
+												v_amt = 0.0;
+												if(v_aTxt != "")
+												{
+													v_amt = v_aTxt.toDecimal();
+												}
+												v_sum = v_sum + v_amt;
+												v_count = v_count + 1;
+												if(v_linesTxt != "")
+												{
+													v_linesTxt = v_linesTxt + "\n";
+												}
+												v_linesTxt = v_linesTxt + v_inv + " | " + v_amt.round(2).toString();
+											}
+											v_diff = v_total - v_sum;
+											if(v_diff < 0)
+											{
+												v_diff = 0 - v_diff;
+											}
+											if(v_count == 0)
+											{
+												v_status = "Needs Review";
+												v_log = v_log + "\nNo invoice lines read.";
+											}
+											else if(v_diff > 0.01)
+											{
+												v_status = "Needs Review";
+												v_log = v_log + "\nLines total " + v_sum.round(2).toString() + " does not match remit total " + v_total.round(2).toString() + ".";
+											}
+											else
+											{
+												v_log = v_log + "\nRead " + v_count + " lines totaling " + v_sum.round(2).toString() + "; ties to remit total.";
+											}
+										}
+										for each  v_r in Remit_Intake[ID == v_id]
+										{
+											v_r.Payer_Name=v_payer;
+											v_r.Payment_Reference=v_ref;
+											if(v_date != null)
+											{
+												v_r.Payment_Date=v_date;
+											}
+											v_r.Payment_Total=v_total;
+											v_r.Extracted_Lines=v_linesTxt;
+											v_r.Remit_Status=v_status;
+											v_r.Process_Log=v_log;
+											if(v_r.Received_Time == null)
+											{
+												v_r.Received_Time=zoho.currenttime;
+											}
+											break;
+										}
+										if(v_status == "Read")
+										{
+											v_allocResult = thisapp.remit_build_allocation(v_id.toString());
+										}
+						)
+					}
+				}
+
+			}
+			Visit_Outcome_Show_Hide_O as "Visit Outcome Show Hide On Load"
+			{
+				type =  form
+				form = Assignments
+
+				record event = on add or edit
+
+				on load
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											if(input.Visit_Completed == "No")
+										{
+											show Not_Completed_Reason;
+										}
+										else
+										{
+											hide Not_Completed_Reason;
+										}
+						)
+					}
+				}
+
+			}
+			Visit_Outcome_Show_Hide_O1 as "Visit Outcome Show Hide On Input"
+			{
+				type =  form
+				form = Assignments
+
+				record event = on add or edit
+
+				on user input of Visit_Completed
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											if(input.Visit_Completed == "No")
+										{
+											show Not_Completed_Reason;
+										}
+										else
+										{
+											hide Not_Completed_Reason;
+											input.Not_Completed_Reason = null;
+										}
+						)
+					}
+				}
+
+			}
+			Visit_Outcome_Reason_Requ as "Visit Outcome Reason Required"
+			{
+				type =  form
+				form = Assignments
+
+				record event = on add or edit
+
+				on validate
+				{
+					actions 
+					{
+						custom deluge script
+						(
+											if(input.Visit_Completed == "No" && input.Not_Completed_Reason == null)
+										{
+											alert "Select a Not Completed Reason when the visit was not completed.";
+											cancel submit;
+										}
+						)
+					}
+				}
+
+			}
 		}
 
 		schedule
@@ -42034,11 +43985,11 @@
 						}
 						FieldPermissions
 						{
-							Change_Summary{visibility:true,readonly:false}
+							Change_Summary{visibility:true,readonly:false,allowdownload:false}
 							ZC_Record_Type{visibility:false}
-							Section{visibility:false,readonly:false}
-							Captured_On{visibility:true,readonly:false}
-							Snapshot_Data{visibility:true,readonly:false}
+							Section{visibility:false,readonly:false,allowdownload:false}
+							Captured_On{visibility:true,readonly:false,allowdownload:false}
+							Snapshot_Data{visibility:true,readonly:false,allowdownload:false}
 						}
 					}
 					Partner_Locations
@@ -42227,18 +44178,18 @@
 						FieldPermissions
 						{
 							ZC_Record_Type{visibility:false}
-							Partner_Rates_Effective_Date{visibility:true,readonly:false}
-							Partner_Rate_ID_Stamp{visibility:true,readonly:false}
-							Rate_Amount{visibility:true,readonly:false}
-							Partner_Section{visibility:false,readonly:false}
-							System_Fields_Section{visibility:false,readonly:false}
-							Current_Rate{visibility:true,readonly:false}
-							Partner_Location_Link{visibility:true,readonly:false}
-							Partner_Link{visibility:true,readonly:false}
-							Rate_Type{visibility:true,readonly:false}
-							Rate_Category{visibility:true,readonly:false}
-							Partner_Rate_Status{visibility:true,readonly:false}
-							Partner_Rates_Section{visibility:false,readonly:false}
+							Partner_Rates_Effective_Date{visibility:true,readonly:false,allowdownload:false}
+							Partner_Rate_ID_Stamp{visibility:true,readonly:false,allowdownload:false}
+							Rate_Amount{visibility:true,readonly:false,allowdownload:false}
+							Partner_Section{visibility:false,readonly:false,allowdownload:false}
+							System_Fields_Section{visibility:false,readonly:false,allowdownload:false}
+							Current_Rate{visibility:true,readonly:false,allowdownload:false}
+							Partner_Location_Link{visibility:true,readonly:false,allowdownload:false}
+							Partner_Link{visibility:true,readonly:false,allowdownload:false}
+							Rate_Type{visibility:true,readonly:false,allowdownload:false}
+							Rate_Category{visibility:true,readonly:false,allowdownload:false}
+							Partner_Rate_Status{visibility:true,readonly:false,allowdownload:false}
+							Partner_Rates_Section{visibility:false,readonly:false,allowdownload:false}
 						}
 					}
 					Partners
@@ -42592,31 +44543,33 @@
 						FieldPermissions
 						{
 							ZC_Record_Type{visibility:false}
-							Assignment_ID_Stamp{visibility:true,readonly:false}
-							Patient_Location{visibility:true,readonly:false}
-							Referral_Details_Section{visibility:false,readonly:false}
-							Employee_Link{visibility:true,readonly:false}
-							Referral_Link{visibility:true,readonly:false}
-							Visit_Status{visibility:true,readonly:false}
-							Referral_Date{visibility:true,readonly:false}
-							Visit_Status_Section{visibility:false,readonly:false}
-							Patient_Details_Section{visibility:false,readonly:false}
-							Referral_Partner{visibility:true,readonly:false}
-							Assignment_Notes{visibility:true,readonly:false}
-							Assignment_Details{visibility:false,readonly:false}
-							Facility_Room_Number{visibility:true,readonly:false}
-							System_Fields_Section{visibility:false,readonly:false}
-							Notified_Employee_ID{visibility:true,readonly:false}
-							Assignment_ID{visibility:true,readonly:false}
-							Patient_Last_Name{visibility:true,readonly:false}
-							Employee_Details{visibility:false,readonly:false}
-							Patient_First_Name{visibility:true,readonly:false}
-							Facility_Phone{visibility:true,readonly:false}
-							Referral_POC{visibility:true,readonly:false}
-							Patient_Address{visibility:true,readonly:false}
-							Facility_Name{visibility:true,readonly:false}
-							Patient_Phone{visibility:true,readonly:false}
-							Patient_DOB{visibility:true,readonly:false}
+							Assignment_ID_Stamp{visibility:true,readonly:false,allowdownload:false}
+							Patient_Location{visibility:true,readonly:false,allowdownload:false}
+							Visit_Completed{visibility:false,readonly:false,allowdownload:false}
+							Referral_Details_Section{visibility:false,readonly:false,allowdownload:false}
+							Employee_Link{visibility:true,readonly:false,allowdownload:false}
+							Referral_Link{visibility:true,readonly:false,allowdownload:false}
+							Visit_Status{visibility:true,readonly:false,allowdownload:false}
+							Referral_Date{visibility:true,readonly:false,allowdownload:false}
+							Visit_Status_Section{visibility:false,readonly:false,allowdownload:false}
+							Patient_Details_Section{visibility:false,readonly:false,allowdownload:false}
+							Referral_Partner{visibility:true,readonly:false,allowdownload:false}
+							Assignment_Notes{visibility:true,readonly:false,allowdownload:false}
+							Assignment_Details{visibility:false,readonly:false,allowdownload:false}
+							Facility_Room_Number{visibility:true,readonly:false,allowdownload:false}
+							Not_Completed_Reason{visibility:false,readonly:false,allowdownload:false}
+							System_Fields_Section{visibility:false,readonly:false,allowdownload:false}
+							Notified_Employee_ID{visibility:true,readonly:false,allowdownload:false}
+							Assignment_ID{visibility:true,readonly:false,allowdownload:false}
+							Patient_Last_Name{visibility:true,readonly:false,allowdownload:false}
+							Employee_Details{visibility:false,readonly:false,allowdownload:false}
+							Patient_First_Name{visibility:true,readonly:false,allowdownload:false}
+							Facility_Phone{visibility:true,readonly:false,allowdownload:false}
+							Referral_POC{visibility:true,readonly:false,allowdownload:false}
+							Patient_Address{visibility:true,readonly:false,allowdownload:false}
+							Facility_Name{visibility:true,readonly:false,allowdownload:false}
+							Patient_Phone{visibility:true,readonly:false,allowdownload:false}
+							Patient_DOB{visibility:true,readonly:false,allowdownload:false}
 						}
 					}
 					Employees
@@ -42628,46 +44581,46 @@
 						}
 						FieldPermissions
 						{
-							License_Information{visibility:false,readonly:false}
+							License_Information{visibility:false,readonly:false,allowdownload:false}
 							ZC_Record_Type{visibility:false}
-							License_Issued_Date{visibility:true,readonly:false}
-							Employee_ID_Stamp{visibility:true,readonly:false}
-							Employee_Start_Date{visibility:true,readonly:false}
-							Pay_Type{visibility:true,readonly:false}
-							Employee_Name_Title{visibility:true,readonly:false}
-							Emergency_Contact_Details{visibility:false,readonly:false}
-							Employee_Title{visibility:true,readonly:false}
-							Compensation_Section{visibility:false,readonly:false}
-							Employee_ID{visibility:true,readonly:false}
-							Employee_Job_Title{visibility:true,readonly:false}
-							Employee_Phone{visibility:true,readonly:false}
-							Provider_NPI{visibility:true,readonly:false}
-							License_Expiration_Date{visibility:true,readonly:false}
-							Employment_Details_Section{visibility:false,readonly:false}
-							Employee_Status{visibility:true,readonly:false}
-							License_Number{visibility:true,readonly:false}
-							Employee_Initials{visibility:true,readonly:false}
-							Employee_Identity_Section{visibility:false,readonly:false}
-							Employment_Type{visibility:true,readonly:false}
-							License_File_Upload{visibility:true,readonly:false}
-							Pay_Rate{visibility:true,readonly:false}
-							License_Type{visibility:true,readonly:false}
-							Emergency_Contact_Name{visibility:true,readonly:false}
-							Emergency_Contact_Phone{visibility:true,readonly:false}
-							License_State{visibility:true,readonly:false}
-							Employee_First_Name{visibility:true,readonly:false}
-							Employee_Address{visibility:true,readonly:false}
-							System_Fields_Section{visibility:false,readonly:false}
-							Employee_Notifications_Section{visibility:false,readonly:false}
-							Employee_Term_Date{visibility:true,readonly:false}
-							Employee_Portal_Email{visibility:true,readonly:false}
-							Email_Notification_Types{visibility:true,readonly:false}
-							Employee_Last_Name{visibility:true,readonly:false}
-							Employee_Term_Reason{visibility:true,readonly:false}
-							Employee_Email{visibility:true,readonly:false}
-							Employee_SSN{visibility:true,readonly:false}
-							Employee_Address_Contact{visibility:false,readonly:false}
-							Portal_Access_Types{visibility:true,readonly:false}
+							License_Issued_Date{visibility:true,readonly:false,allowdownload:false}
+							Employee_ID_Stamp{visibility:true,readonly:false,allowdownload:false}
+							Employee_Start_Date{visibility:true,readonly:false,allowdownload:false}
+							Pay_Type{visibility:true,readonly:false,allowdownload:false}
+							Employee_Name_Title{visibility:true,readonly:false,allowdownload:false}
+							Emergency_Contact_Details{visibility:false,readonly:false,allowdownload:false}
+							Employee_Title{visibility:true,readonly:false,allowdownload:false}
+							Compensation_Section{visibility:false,readonly:false,allowdownload:false}
+							Employee_ID{visibility:true,readonly:false,allowdownload:false}
+							Employee_Job_Title{visibility:true,readonly:false,allowdownload:false}
+							Employee_Phone{visibility:true,readonly:false,allowdownload:false}
+							Provider_NPI{visibility:true,readonly:false,allowdownload:false}
+							License_Expiration_Date{visibility:true,readonly:false,allowdownload:false}
+							Employment_Details_Section{visibility:false,readonly:false,allowdownload:false}
+							Employee_Status{visibility:true,readonly:false,allowdownload:false}
+							License_Number{visibility:true,readonly:false,allowdownload:false}
+							Employee_Initials{visibility:true,readonly:false,allowdownload:false}
+							Employee_Identity_Section{visibility:false,readonly:false,allowdownload:false}
+							Employment_Type{visibility:true,readonly:false,allowdownload:false}
+							License_File_Upload{visibility:true,readonly:false,allowdownload:true}
+							Pay_Rate{visibility:true,readonly:false,allowdownload:false}
+							License_Type{visibility:true,readonly:false,allowdownload:false}
+							Emergency_Contact_Name{visibility:true,readonly:false,allowdownload:false}
+							Emergency_Contact_Phone{visibility:true,readonly:false,allowdownload:false}
+							License_State{visibility:true,readonly:false,allowdownload:false}
+							Employee_First_Name{visibility:true,readonly:false,allowdownload:false}
+							Employee_Address{visibility:true,readonly:false,allowdownload:false}
+							System_Fields_Section{visibility:false,readonly:false,allowdownload:false}
+							Employee_Notifications_Section{visibility:false,readonly:false,allowdownload:false}
+							Employee_Term_Date{visibility:true,readonly:false,allowdownload:false}
+							Employee_Portal_Email{visibility:true,readonly:false,allowdownload:false}
+							Email_Notification_Types{visibility:true,readonly:false,allowdownload:false}
+							Employee_Last_Name{visibility:true,readonly:false,allowdownload:false}
+							Employee_Term_Reason{visibility:true,readonly:false,allowdownload:false}
+							Employee_Email{visibility:true,readonly:false,allowdownload:false}
+							Employee_SSN{visibility:true,readonly:false,allowdownload:false}
+							Employee_Address_Contact{visibility:false,readonly:false,allowdownload:false}
+							Portal_Access_Types{visibility:true,readonly:false,allowdownload:false}
 						}
 					}
 					Invoices
@@ -42683,140 +44636,140 @@
 						}
 						FieldPermissions
 						{
-							Lab_Order_Indication{visibility:true,readonly:false}
-							Partner_POC_Last_Name{visibility:true,readonly:false}
-							Employee_Title{visibility:true,readonly:false}
-							Other_Charges_Details{visibility:true,readonly:false}
-							Additional_Information{visibility:true,readonly:false}
-							Referral_Source{visibility:true,readonly:false}
-							Provider_Signature_Section{visibility:false,readonly:false}
-							Imaging_Order_Indication{visibility:true,readonly:false}
-							Visit_Completion_Date{visibility:true,readonly:false}
-							Complexity_Level{visibility:true,readonly:false}
-							Hold_From_Invoicing{visibility:true,readonly:false}
-							List_Patient_Anticoagulants{visibility:true,readonly:false}
-							Type_of_Procedures{visibility:true,readonly:false}
-							Employee_Full_Name{visibility:true,readonly:false}
-							Patient_Location_Section{visibility:false,readonly:false}
-							Partner_Location_Label{visibility:true,readonly:false}
-							Provider_Login_Email{visibility:true,readonly:false}
-							Invoice_Status{visibility:true,readonly:false}
-							Facility_Room_Number{visibility:true,readonly:false}
-							Partner_Branch{visibility:true,readonly:false}
-							Partner_POC_Name_Title{visibility:true,readonly:false}
-							Partner_POC_First_Name{visibility:true,readonly:false}
-							Referral_ID{visibility:true,readonly:false}
-							Diversion_Tracking_Section{visibility:false,readonly:false}
-							Edit_Needed{visibility:true,readonly:false}
-							Cares_3008_Completion_Date{visibility:true,readonly:false}
-							Super_Stat_Fee{visibility:true,readonly:false}
-							Type_of_Diversion{visibility:true,readonly:false}
-							spacer10{visibility:false,readonly:false}
-							PVS_File_Upload{visibility:true,readonly:false}
+							Lab_Order_Indication{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_Last_Name{visibility:true,readonly:false,allowdownload:false}
+							Employee_Title{visibility:true,readonly:false,allowdownload:false}
+							Other_Charges_Details{visibility:true,readonly:false,allowdownload:false}
+							Additional_Information{visibility:true,readonly:false,allowdownload:false}
+							Referral_Source{visibility:true,readonly:false,allowdownload:false}
+							Provider_Signature_Section{visibility:false,readonly:false,allowdownload:false}
+							Imaging_Order_Indication{visibility:true,readonly:false,allowdownload:false}
+							Visit_Completion_Date{visibility:true,readonly:false,allowdownload:false}
+							Complexity_Level{visibility:true,readonly:false,allowdownload:false}
+							Hold_From_Invoicing{visibility:true,readonly:false,allowdownload:false}
+							List_Patient_Anticoagulants{visibility:true,readonly:false,allowdownload:false}
+							Type_of_Procedures{visibility:true,readonly:false,allowdownload:false}
+							Employee_Full_Name{visibility:true,readonly:false,allowdownload:false}
+							Patient_Location_Section{visibility:false,readonly:false,allowdownload:false}
+							Partner_Location_Label{visibility:true,readonly:false,allowdownload:false}
+							Provider_Login_Email{visibility:true,readonly:false,allowdownload:false}
+							Invoice_Status{visibility:true,readonly:false,allowdownload:false}
+							Facility_Room_Number{visibility:true,readonly:false,allowdownload:false}
+							Partner_Branch{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_Name_Title{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_First_Name{visibility:true,readonly:false,allowdownload:false}
+							Referral_ID{visibility:true,readonly:false,allowdownload:false}
+							Diversion_Tracking_Section{visibility:false,readonly:false,allowdownload:false}
+							Edit_Needed{visibility:true,readonly:false,allowdownload:false}
+							Cares_3008_Completion_Date{visibility:true,readonly:false,allowdownload:false}
+							Super_Stat_Fee{visibility:true,readonly:false,allowdownload:false}
+							Type_of_Diversion{visibility:true,readonly:false,allowdownload:false}
+							spacer10{visibility:false,readonly:false,allowdownload:false}
+							PVS_File_Upload{visibility:true,readonly:false,allowdownload:true}
 							ZC_Record_Type{visibility:false}
-							spacer11{visibility:false,readonly:false}
-							Final_Clinical_Note{visibility:true,readonly:false}
-							Upload_Imaging_Order_Files{visibility:true,readonly:false}
-							Additional_Charges{visibility:true,readonly:false}
-							Partner_Organization{visibility:true,readonly:false}
-							Employee_Link{visibility:true,readonly:false}
-							Patient_Full_Name_2{visibility:true,readonly:false}
-							General_Files_Upload{visibility:true,readonly:false}
-							Patient_Full_Name_1{visibility:true,readonly:false}
-							Visit_Cost_Drivers_Section{visibility:false,readonly:false}
-							Patient_SSN{visibility:true,readonly:false}
-							Imaging_Orders_Section{visibility:false,readonly:false}
-							Duplicate_Of_PVS_ID{visibility:true,readonly:false}
-							Patient_Details_Section{visibility:false,readonly:false}
-							Referral_ID_Stamp{visibility:true,readonly:false}
-							Diversion_Tracking{visibility:true,readonly:false}
-							Patient_Full_Address{visibility:true,readonly:false}
-							Employee_Last_Name{visibility:true,readonly:false}
-							Goals_of_Care{visibility:true,readonly:false}
-							Clinical_Note_Type{visibility:true,readonly:false}
-							Employee_Email{visibility:true,readonly:false}
-							Fax_Override_Unlock{visibility:true,readonly:false}
-							Notes_3008{visibility:true,readonly:false}
-							Clinical_Note_File_Upload{visibility:true,readonly:false}
-							Referral_Lookup_Section{visibility:false,readonly:false}
-							Patient_Address{visibility:true,readonly:false}
-							Partner_POC_Phone{visibility:true,readonly:false}
-							Patient_Gender{visibility:true,readonly:false}
-							Lab_Order_Date{visibility:true,readonly:false}
-							Patient_DOB{visibility:true,readonly:false}
-							Patient_DOB1{visibility:true,readonly:false}
-							Requested_Lab_Vendor{visibility:true,readonly:false}
-							Invoice_Link{visibility:true,readonly:false}
-							Reason_for_Referral{visibility:true,readonly:false}
-							Cares_3008_Completion_Section{visibility:false,readonly:false}
-							Provider_ICD_Print{visibility:true,readonly:false}
-							Partner_POC_Email{visibility:true,readonly:false}
-							Provider_ICD10_Codes_Link{visibility:true,readonly:false}
-							Referral_Link{visibility:true,readonly:false}
-							List_Patient_Allergies{visibility:true,readonly:false}
-							Patient_Email{visibility:true,readonly:false}
-							Visit_Status{visibility:true,readonly:false}
-							Patient_Hospice_ID{visibility:true,readonly:false}
-							After_Hours_Fee{visibility:true,readonly:false}
-							spacer1{visibility:false,readonly:false}
-							spacer2{visibility:false,readonly:false}
-							spacer3{visibility:false,readonly:false}
-							Equipment_Charge_Details{visibility:true,readonly:false}
-							Employee_Initials{visibility:true,readonly:false}
-							spacer4{visibility:false,readonly:false}
-							spacer5{visibility:false,readonly:false}
-							spacer6{visibility:false,readonly:false}
-							Row_Status_Note{visibility:true,readonly:false}
-							Imaging_Ordered_Date{visibility:true,readonly:false}
-							spacer7{visibility:false,readonly:false}
-							spacer8{visibility:false,readonly:false}
-							spacer9{visibility:false,readonly:false}
-							Partner_POC_Title{visibility:true,readonly:false}
-							Charges_Section{visibility:false,readonly:false}
-							Lab_Orders_Section{visibility:false,readonly:false}
-							Fax_This_Note{visibility:true,readonly:false}
-							Fax_Status{visibility:true,readonly:false}
-							Employee_First_Name{visibility:true,readonly:false}
-							System_Fields_Section{visibility:false,readonly:false}
-							Equipment_Charge_Amount{visibility:true,readonly:false}
-							Patient_Last_Name{visibility:true,readonly:false}
-							Facility_Phone{visibility:true,readonly:false}
-							Row_Status{visibility:true,readonly:false}
-							Other_Charges_Amount{visibility:true,readonly:false}
-							Fax_Preview_Section{visibility:false,readonly:false}
-							Referral_Partner_Section{visibility:false,readonly:false}
-							Facility_Name{visibility:true,readonly:false}
-							Patient_Phone{visibility:true,readonly:false}
-							Partner_ICD_Codes{visibility:true,readonly:false}
-							Final_Clinical_Note_Section{visibility:false,readonly:false}
-							PVS_Referral_ID{visibility:true,readonly:false}
-							Patient_MI{visibility:true,readonly:false}
-							Lab_Type_Orders{visibility:true,readonly:false}
-							Employee_Name_Title{visibility:true,readonly:false}
-							Note_Finalized_Time{visibility:true,readonly:false}
-							Patient_Location{visibility:true,readonly:false}
-							Lab_Files_Upload{visibility:true,readonly:false}
-							Was_3008_Completed{visibility:true,readonly:false}
-							Fax_Override_Number{visibility:true,readonly:false}
-							Partner_POC_Team{visibility:true,readonly:false}
-							Print_Preview{visibility:true,readonly:false}
-							Referral_Details_Section{visibility:false,readonly:false}
-							Fax_Override_Reason{visibility:true,readonly:false}
-							Referral_Date{visibility:true,readonly:false}
-							Billing_Branch{visibility:true,readonly:false}
-							Imaging_Orders{visibility:true,readonly:false}
-							Complexity_Charge{visibility:true,readonly:false}
-							Partner_ID{visibility:true,readonly:false}
-							QC_Reviewed{visibility:true,readonly:false}
-							PVS_ID{visibility:true,readonly:false}
-							Type_of_Procedure_Section{visibility:false,readonly:false}
-							Has_Referral_ID{visibility:true,readonly:false}
-							Partner_ID_Stamp{visibility:true,readonly:false}
-							Files_Upload_Section{visibility:false,readonly:false}
-							Type_of_Entry{visibility:true,readonly:false}
-							Patient_First_Name{visibility:true,readonly:false}
-							PVS_3008_Upload{visibility:true,readonly:false}
-							Advanced_Directives_Details{visibility:true,readonly:false}
+							spacer11{visibility:false,readonly:false,allowdownload:false}
+							Final_Clinical_Note{visibility:true,readonly:false,allowdownload:false}
+							Upload_Imaging_Order_Files{visibility:true,readonly:false,allowdownload:true}
+							Additional_Charges{visibility:true,readonly:false,allowdownload:false}
+							Partner_Organization{visibility:true,readonly:false,allowdownload:false}
+							Employee_Link{visibility:true,readonly:false,allowdownload:false}
+							Patient_Full_Name_2{visibility:true,readonly:false,allowdownload:false}
+							General_Files_Upload{visibility:true,readonly:false,allowdownload:true}
+							Patient_Full_Name_1{visibility:true,readonly:false,allowdownload:false}
+							Visit_Cost_Drivers_Section{visibility:false,readonly:false,allowdownload:false}
+							Patient_SSN{visibility:true,readonly:false,allowdownload:false}
+							Imaging_Orders_Section{visibility:false,readonly:false,allowdownload:false}
+							Duplicate_Of_PVS_ID{visibility:true,readonly:false,allowdownload:false}
+							Patient_Details_Section{visibility:false,readonly:false,allowdownload:false}
+							Referral_ID_Stamp{visibility:true,readonly:false,allowdownload:false}
+							Diversion_Tracking{visibility:true,readonly:false,allowdownload:false}
+							Patient_Full_Address{visibility:true,readonly:false,allowdownload:false}
+							Employee_Last_Name{visibility:true,readonly:false,allowdownload:false}
+							Goals_of_Care{visibility:true,readonly:false,allowdownload:false}
+							Clinical_Note_Type{visibility:true,readonly:false,allowdownload:false}
+							Employee_Email{visibility:true,readonly:false,allowdownload:false}
+							Fax_Override_Unlock{visibility:true,readonly:false,allowdownload:false}
+							Notes_3008{visibility:true,readonly:false,allowdownload:false}
+							Clinical_Note_File_Upload{visibility:true,readonly:false,allowdownload:true}
+							Referral_Lookup_Section{visibility:false,readonly:false,allowdownload:false}
+							Patient_Address{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_Phone{visibility:true,readonly:false,allowdownload:false}
+							Patient_Gender{visibility:true,readonly:false,allowdownload:false}
+							Lab_Order_Date{visibility:true,readonly:false,allowdownload:false}
+							Patient_DOB{visibility:true,readonly:false,allowdownload:false}
+							Patient_DOB1{visibility:true,readonly:false,allowdownload:false}
+							Requested_Lab_Vendor{visibility:true,readonly:false,allowdownload:false}
+							Invoice_Link{visibility:true,readonly:false,allowdownload:false}
+							Reason_for_Referral{visibility:true,readonly:false,allowdownload:false}
+							Cares_3008_Completion_Section{visibility:false,readonly:false,allowdownload:false}
+							Provider_ICD_Print{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_Email{visibility:true,readonly:false,allowdownload:false}
+							Provider_ICD10_Codes_Link{visibility:true,readonly:false,allowdownload:false}
+							Referral_Link{visibility:true,readonly:false,allowdownload:false}
+							List_Patient_Allergies{visibility:true,readonly:false,allowdownload:false}
+							Patient_Email{visibility:true,readonly:false,allowdownload:false}
+							Visit_Status{visibility:true,readonly:false,allowdownload:false}
+							Patient_Hospice_ID{visibility:true,readonly:false,allowdownload:false}
+							After_Hours_Fee{visibility:true,readonly:false,allowdownload:false}
+							spacer1{visibility:false,readonly:false,allowdownload:false}
+							spacer2{visibility:false,readonly:false,allowdownload:false}
+							spacer3{visibility:false,readonly:false,allowdownload:false}
+							Equipment_Charge_Details{visibility:true,readonly:false,allowdownload:false}
+							Employee_Initials{visibility:true,readonly:false,allowdownload:false}
+							spacer4{visibility:false,readonly:false,allowdownload:false}
+							spacer5{visibility:false,readonly:false,allowdownload:false}
+							spacer6{visibility:false,readonly:false,allowdownload:false}
+							Row_Status_Note{visibility:true,readonly:false,allowdownload:false}
+							Imaging_Ordered_Date{visibility:true,readonly:false,allowdownload:false}
+							spacer7{visibility:false,readonly:false,allowdownload:false}
+							spacer8{visibility:false,readonly:false,allowdownload:false}
+							spacer9{visibility:false,readonly:false,allowdownload:false}
+							Partner_POC_Title{visibility:true,readonly:false,allowdownload:false}
+							Charges_Section{visibility:false,readonly:false,allowdownload:false}
+							Lab_Orders_Section{visibility:false,readonly:false,allowdownload:false}
+							Fax_This_Note{visibility:true,readonly:false,allowdownload:false}
+							Fax_Status{visibility:true,readonly:false,allowdownload:false}
+							Employee_First_Name{visibility:true,readonly:false,allowdownload:false}
+							System_Fields_Section{visibility:false,readonly:false,allowdownload:false}
+							Equipment_Charge_Amount{visibility:true,readonly:false,allowdownload:false}
+							Patient_Last_Name{visibility:true,readonly:false,allowdownload:false}
+							Facility_Phone{visibility:true,readonly:false,allowdownload:false}
+							Row_Status{visibility:true,readonly:false,allowdownload:false}
+							Other_Charges_Amount{visibility:true,readonly:false,allowdownload:false}
+							Fax_Preview_Section{visibility:false,readonly:false,allowdownload:false}
+							Referral_Partner_Section{visibility:false,readonly:false,allowdownload:false}
+							Facility_Name{visibility:true,readonly:false,allowdownload:false}
+							Patient_Phone{visibility:true,readonly:false,allowdownload:false}
+							Partner_ICD_Codes{visibility:true,readonly:false,allowdownload:false}
+							Final_Clinical_Note_Section{visibility:false,readonly:false,allowdownload:false}
+							PVS_Referral_ID{visibility:true,readonly:false,allowdownload:false}
+							Patient_MI{visibility:true,readonly:false,allowdownload:false}
+							Lab_Type_Orders{visibility:true,readonly:false,allowdownload:false}
+							Employee_Name_Title{visibility:true,readonly:false,allowdownload:false}
+							Note_Finalized_Time{visibility:true,readonly:false,allowdownload:false}
+							Patient_Location{visibility:true,readonly:false,allowdownload:false}
+							Lab_Files_Upload{visibility:true,readonly:false,allowdownload:true}
+							Was_3008_Completed{visibility:true,readonly:false,allowdownload:false}
+							Fax_Override_Number{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_Team{visibility:true,readonly:false,allowdownload:false}
+							Print_Preview{visibility:true,readonly:false,allowdownload:false}
+							Referral_Details_Section{visibility:false,readonly:false,allowdownload:false}
+							Fax_Override_Reason{visibility:true,readonly:false,allowdownload:false}
+							Referral_Date{visibility:true,readonly:false,allowdownload:false}
+							Billing_Branch{visibility:true,readonly:false,allowdownload:false}
+							Imaging_Orders{visibility:true,readonly:false,allowdownload:false}
+							Complexity_Charge{visibility:true,readonly:false,allowdownload:false}
+							Partner_ID{visibility:true,readonly:false,allowdownload:false}
+							QC_Reviewed{visibility:true,readonly:false,allowdownload:false}
+							PVS_ID{visibility:true,readonly:false,allowdownload:false}
+							Type_of_Procedure_Section{visibility:false,readonly:false,allowdownload:false}
+							Has_Referral_ID{visibility:true,readonly:false,allowdownload:false}
+							Partner_ID_Stamp{visibility:true,readonly:false,allowdownload:false}
+							Files_Upload_Section{visibility:false,readonly:false,allowdownload:false}
+							Type_of_Entry{visibility:true,readonly:false,allowdownload:false}
+							Patient_First_Name{visibility:true,readonly:false,allowdownload:false}
+							PVS_3008_Upload{visibility:true,readonly:false,allowdownload:true}
+							Advanced_Directives_Details{visibility:true,readonly:false,allowdownload:false}
 						}
 					}
 					Exam_Catalog
@@ -42859,13 +44812,13 @@
 						}
 						FieldPermissions
 						{
-							Form_Token{visibility:true,readonly:false}
-							File_Upload{visibility:true,readonly:false}
+							Form_Token{visibility:true,readonly:false,allowdownload:false}
+							File_Upload{visibility:true,readonly:false,allowdownload:true}
 							ZC_Record_Type{visibility:false}
-							File_Name{visibility:true,readonly:false}
-							File_Category{visibility:true,readonly:false}
-							Referrals_Main{visibility:true,readonly:false}
-							Section{visibility:false,readonly:false}
+							File_Name{visibility:true,readonly:false,allowdownload:false}
+							File_Category{visibility:true,readonly:false,allowdownload:false}
+							Referrals_Main{visibility:true,readonly:false,allowdownload:false}
+							Section{visibility:false,readonly:false,allowdownload:false}
 						}
 					}
 					API_Config
@@ -42885,89 +44838,89 @@
 						}
 						FieldPermissions
 						{
-							Referral_Reason{visibility:true,readonly:false}
-							Patient_DOB1{visibility:true,readonly:false}
-							Partner_POC_Last_Name{visibility:true,readonly:false}
-							Referral_Source{visibility:true,readonly:false}
-							Additional_Information{visibility:true,readonly:false}
-							Assignment_Status{visibility:false,readonly:false}
-							Partner_POC_Email{visibility:true,readonly:false}
-							Imaging_Order_Indication{visibility:true,readonly:false}
-							List_Patient_Allergies{visibility:true,readonly:false}
-							List_Patient_Anticoagulants{visibility:true,readonly:false}
-							Patient_Has_Allergies{visibility:true,readonly:false}
-							Patient_Hospice_ID{visibility:true,readonly:false}
-							AC_Relationship_to_Patient{visibility:true,readonly:false}
-							Details_Section_3008{visibility:false,readonly:false}
-							Patient_Location_Section{visibility:false,readonly:false}
-							Data_Issues{visibility:true,readonly:false}
-							Referral_Attachments_Section{visibility:false,readonly:false}
-							Partner_POC_Title{visibility:true,readonly:false}
-							Partner_Location_Label{visibility:true,readonly:false}
-							Imaging_Body_Site{visibility:true,readonly:false}
-							Facility_Room_Number{visibility:true,readonly:false}
-							General_Information_Section{visibility:false,readonly:false}
-							System_Fields_Section{visibility:false,readonly:false}
-							AC_Last_Name{visibility:true,readonly:false}
-							Partner_Branch{visibility:true,readonly:false}
-							Partner_POC_Name_Title{visibility:true,readonly:false}
-							Partner_Link{visibility:true,readonly:false}
-							Patient_Last_Name{visibility:true,readonly:false}
-							Partner_POC_First_Name{visibility:true,readonly:false}
-							Referral_ID{visibility:true,readonly:false}
-							Facility_Phone{visibility:true,readonly:false}
-							File_Upload_3008{visibility:true,readonly:false}
-							Patient_MBI{visibility:true,readonly:false}
-							Notified_Time{visibility:false,readonly:false}
-							Facility_Name{visibility:true,readonly:false}
-							Files_3008_URLs{visibility:true,readonly:false}
-							Patient_Phone{visibility:true,readonly:false}
-							Partner_ICD_Codes{visibility:true,readonly:false}
-							Form_Token{visibility:true,readonly:false}
-							Patient_MI{visibility:true,readonly:false}
+							Referral_Reason{visibility:true,readonly:false,allowdownload:false}
+							Patient_DOB1{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_Last_Name{visibility:true,readonly:false,allowdownload:false}
+							Referral_Source{visibility:true,readonly:false,allowdownload:false}
+							Additional_Information{visibility:true,readonly:false,allowdownload:false}
+							Assignment_Status{visibility:false,readonly:false,allowdownload:false}
+							Partner_POC_Email{visibility:true,readonly:false,allowdownload:false}
+							Imaging_Order_Indication{visibility:true,readonly:false,allowdownload:false}
+							List_Patient_Allergies{visibility:true,readonly:false,allowdownload:false}
+							List_Patient_Anticoagulants{visibility:true,readonly:false,allowdownload:false}
+							Patient_Has_Allergies{visibility:true,readonly:false,allowdownload:false}
+							Patient_Hospice_ID{visibility:true,readonly:false,allowdownload:false}
+							AC_Relationship_to_Patient{visibility:true,readonly:false,allowdownload:false}
+							Details_Section_3008{visibility:false,readonly:false,allowdownload:false}
+							Patient_Location_Section{visibility:false,readonly:false,allowdownload:false}
+							Data_Issues{visibility:true,readonly:false,allowdownload:false}
+							Referral_Attachments_Section{visibility:false,readonly:false,allowdownload:false}
+							Partner_POC_Title{visibility:true,readonly:false,allowdownload:false}
+							Partner_Location_Label{visibility:true,readonly:false,allowdownload:false}
+							Imaging_Body_Site{visibility:true,readonly:false,allowdownload:false}
+							Facility_Room_Number{visibility:true,readonly:false,allowdownload:false}
+							General_Information_Section{visibility:false,readonly:false,allowdownload:false}
+							System_Fields_Section{visibility:false,readonly:false,allowdownload:false}
+							AC_Last_Name{visibility:true,readonly:false,allowdownload:false}
+							Partner_Branch{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_Name_Title{visibility:true,readonly:false,allowdownload:false}
+							Partner_Link{visibility:true,readonly:false,allowdownload:false}
+							Patient_Last_Name{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_First_Name{visibility:true,readonly:false,allowdownload:false}
+							Referral_ID{visibility:true,readonly:false,allowdownload:false}
+							Facility_Phone{visibility:true,readonly:false,allowdownload:false}
+							File_Upload_3008{visibility:true,readonly:false,allowdownload:true}
+							Patient_MBI{visibility:true,readonly:false,allowdownload:false}
+							Notified_Time{visibility:false,readonly:false,allowdownload:false}
+							Facility_Name{visibility:true,readonly:false,allowdownload:false}
+							Files_3008_URLs{visibility:true,readonly:false,allowdownload:false}
+							Patient_Phone{visibility:true,readonly:false,allowdownload:false}
+							Partner_ICD_Codes{visibility:true,readonly:false,allowdownload:false}
+							Form_Token{visibility:true,readonly:false,allowdownload:false}
+							Patient_MI{visibility:true,readonly:false,allowdownload:false}
 							ZC_Record_Type{visibility:false}
-							Referral_Date1{visibility:true,readonly:false}
-							Patient_Location{visibility:true,readonly:false}
-							Partner_Organization{visibility:true,readonly:false}
-							Partner_POC_Team{visibility:true,readonly:false}
-							Patient_Has_Anticoagulants{visibility:true,readonly:false}
-							Employee_Link{visibility:false,readonly:false}
-							Referral_Type{visibility:true,readonly:false}
-							General_Files_URLs{visibility:true,readonly:false}
-							Referral_Added_Time{visibility:true,readonly:false}
-							Referral_Type_Section{visibility:false,readonly:false}
-							General_Files_Upload{visibility:true,readonly:false}
-							AC_Phone{visibility:true,readonly:false}
-							Patient_SSN{visibility:true,readonly:false}
-							Imaging_Orders_URLs{visibility:true,readonly:false}
-							Referral_Date{visibility:true,readonly:false}
-							Patient_Details_Section{visibility:false,readonly:false}
-							Imaging_Orders_Upload{visibility:true,readonly:false}
-							Referral_ID_Stamp{visibility:true,readonly:false}
-							Imaging_Order_Details{visibility:false,readonly:false}
-							Partner_ID{visibility:true,readonly:false}
-							Partner_Branch_Link{visibility:true,readonly:false}
-							Patient_Medical_Details_Section{visibility:false,readonly:false}
-							Cognito_Referral_ID{visibility:false,readonly:false}
-							X_Ray_Needed{visibility:true,readonly:false}
-							Patient_Full_Address{visibility:true,readonly:false}
-							Partner_ID_Stamp{visibility:true,readonly:false}
-							Partner_Branch_Submitted{visibility:false,readonly:false}
-							Patient_Full_Name{visibility:true,readonly:false}
-							Patient_First_Name{visibility:true,readonly:false}
-							Has_Additional_Contact{visibility:true,readonly:false}
-							Patient_Has_Advanced_Directives{visibility:true,readonly:false}
-							Referral_Partner_Details_Section{visibility:false,readonly:false}
-							Additional_Contact_Section{visibility:false,readonly:false}
-							AC_First_Name{visibility:true,readonly:false}
-							Patient_Address{visibility:true,readonly:false}
-							Imaging_Type_Order{visibility:true,readonly:false}
-							AC_Full_Name{visibility:true,readonly:false}
-							Patient_Advanced_Directives_Section{visibility:false,readonly:false}
-							Partner_POC_Phone{visibility:true,readonly:false}
-							Patient_Gender{visibility:true,readonly:false}
-							Patient_DOB{visibility:true,readonly:false}
-							Advanced_Directives_Details{visibility:true,readonly:false}
+							Referral_Date1{visibility:true,readonly:false,allowdownload:false}
+							Patient_Location{visibility:true,readonly:false,allowdownload:false}
+							Partner_Organization{visibility:true,readonly:false,allowdownload:false}
+							Partner_POC_Team{visibility:true,readonly:false,allowdownload:false}
+							Patient_Has_Anticoagulants{visibility:true,readonly:false,allowdownload:false}
+							Employee_Link{visibility:false,readonly:false,allowdownload:false}
+							Referral_Type{visibility:true,readonly:false,allowdownload:false}
+							General_Files_URLs{visibility:true,readonly:false,allowdownload:false}
+							Referral_Added_Time{visibility:true,readonly:false,allowdownload:false}
+							Referral_Type_Section{visibility:false,readonly:false,allowdownload:false}
+							General_Files_Upload{visibility:true,readonly:false,allowdownload:true}
+							AC_Phone{visibility:true,readonly:false,allowdownload:false}
+							Patient_SSN{visibility:true,readonly:false,allowdownload:false}
+							Imaging_Orders_URLs{visibility:true,readonly:false,allowdownload:false}
+							Referral_Date{visibility:true,readonly:false,allowdownload:false}
+							Patient_Details_Section{visibility:false,readonly:false,allowdownload:false}
+							Imaging_Orders_Upload{visibility:true,readonly:false,allowdownload:true}
+							Referral_ID_Stamp{visibility:true,readonly:false,allowdownload:false}
+							Imaging_Order_Details{visibility:false,readonly:false,allowdownload:false}
+							Partner_ID{visibility:true,readonly:false,allowdownload:false}
+							Partner_Branch_Link{visibility:true,readonly:false,allowdownload:false}
+							Patient_Medical_Details_Section{visibility:false,readonly:false,allowdownload:false}
+							Cognito_Referral_ID{visibility:false,readonly:false,allowdownload:false}
+							X_Ray_Needed{visibility:true,readonly:false,allowdownload:false}
+							Patient_Full_Address{visibility:true,readonly:false,allowdownload:false}
+							Partner_ID_Stamp{visibility:true,readonly:false,allowdownload:false}
+							Partner_Branch_Submitted{visibility:false,readonly:false,allowdownload:false}
+							Patient_Full_Name{visibility:true,readonly:false,allowdownload:false}
+							Patient_First_Name{visibility:true,readonly:false,allowdownload:false}
+							Has_Additional_Contact{visibility:true,readonly:false,allowdownload:false}
+							Patient_Has_Advanced_Directives{visibility:true,readonly:false,allowdownload:false}
+							Referral_Partner_Details_Section{visibility:false,readonly:false,allowdownload:false}
+							Additional_Contact_Section{visibility:false,readonly:false,allowdownload:false}
+							AC_First_Name{visibility:true,readonly:false,allowdownload:false}
+							Patient_Address{visibility:true,readonly:false,allowdownload:false}
+							Imaging_Type_Order{visibility:true,readonly:false,allowdownload:false}
+							AC_Full_Name{visibility:true,readonly:false,allowdownload:false}
+							Patient_Advanced_Directives_Section{visibility:false,readonly:false,allowdownload:false}
+							Partner_POC_Phone{visibility:true,readonly:false,allowdownload:false}
+							Patient_Gender{visibility:true,readonly:false,allowdownload:false}
+							Patient_DOB{visibility:true,readonly:false,allowdownload:false}
+							Advanced_Directives_Details{visibility:true,readonly:false,allowdownload:false}
 						}
 					}
 					Referral_Categories
@@ -42980,11 +44933,11 @@
 						FieldPermissions
 						{
 							ZC_Record_Type{visibility:false}
-							Referral_Keywords{visibility:true,readonly:false}
-							Referral_Categories_Section{visibility:false,readonly:false}
-							Referral_Status{visibility:true,readonly:false}
-							Referral_Category{visibility:true,readonly:false}
-							Section{visibility:false,readonly:false}
+							Referral_Keywords{visibility:true,readonly:false,allowdownload:false}
+							Referral_Categories_Section{visibility:false,readonly:false,allowdownload:false}
+							Referral_Status{visibility:true,readonly:false,allowdownload:false}
+							Referral_Category{visibility:true,readonly:false,allowdownload:false}
+							Section{visibility:false,readonly:false,allowdownload:false}
 						}
 					}
 					Imaging_Orders
@@ -43249,6 +45202,10 @@
 			{
 				label placement = left
 			}
+			form Notification_Log
+			{
+				label placement = left
+			}
 			form Partner_Billing_Contacts
 			{
 				label placement = left
@@ -43317,6 +45274,10 @@
 			{
 				label placement = left
 			}
+			form Remit_Intake
+			{
+				label placement = left
+			}
 			form Schema_Snapshot
 			{
 				label placement = left
@@ -43362,23 +45323,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -43461,23 +45422,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -43606,23 +45567,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -43734,23 +45695,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -43805,23 +45766,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -43907,9 +45868,9 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
 							"Fax PVS"
     					)
 						)
@@ -43917,14 +45878,14 @@
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44076,23 +46037,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44147,23 +46108,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44195,6 +46156,8 @@
 								Facility_Phone as "Facility Phone"
 								Visit_Status as "Status"
 								Notified_Employee_ID as "Notified Employee ID"
+								Visit_Completed as "Visit Completed"
+								Not_Completed_Reason as "Not Completed Reason"
 							)
 						)
 					)
@@ -44230,23 +46193,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44291,23 +46254,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44352,23 +46315,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44413,23 +46376,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44484,23 +46447,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44573,23 +46536,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44659,23 +46622,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44738,23 +46701,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44821,23 +46784,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44903,23 +46866,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -44985,23 +46948,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45088,23 +47051,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45165,23 +47128,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45245,23 +47208,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45333,23 +47296,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45413,23 +47376,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45482,23 +47445,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45549,23 +47512,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45632,23 +47595,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45727,23 +47690,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45807,23 +47770,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45884,23 +47847,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -45955,23 +47918,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46026,23 +47989,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46107,23 +48070,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46204,23 +48167,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46283,23 +48246,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46366,23 +48329,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46473,23 +48436,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46554,23 +48517,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46635,23 +48598,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46725,23 +48688,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -46913,23 +48876,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -47034,23 +48997,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -47235,23 +49198,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -47477,23 +49440,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -47633,23 +49596,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -47729,23 +49692,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -47815,23 +49778,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -47900,23 +49863,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -47988,23 +49951,23 @@
 							)
 						record
 						(
-							Edit   	   
-							Duplicate   	   
-							Delete   	   
+							Edit 
+							Duplicate 
+							Delete 
     					)
 						)
     				action
     				(
 						on click
 						(
-							View Record   	   
+							View Record 
     					)
 						on right click
 						(
-							Edit   	   
-							Delete   	   
-							Duplicate   	   
-							View Record   	   
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
     					)
      				)
 				)
@@ -48038,6 +50001,178 @@
 							(
 								Edit 
 								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report All_Intakes
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Remit_File as "Remit File"
+								Source_Email_ID as "Source Email ID"
+								Received_Time as "Received Time"
+								Payer_Name as "Payer Name"
+								Payment_Reference as "Payment Reference"
+								Payment_Date as "Payment Date"
+								Payment_Total as "Payment Total"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						record
+						(
+							Edit 
+							Duplicate 
+							Delete 
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record 
+    					)
+						on right click
+						(
+							Edit 
+							Delete 
+							Duplicate 
+							View Record 
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Remit_File as "Remit File"
+								Source_Email_ID as "Source Email ID"
+								Received_Time as "Received Time"
+								Payer_Name as "Payer Name"
+								Payment_Reference as "Payment Reference"
+								Payment_Date as "Payment Date"
+								Payment_Total as "Payment Total"
+								Extracted_Lines as "Extracted Lines"
+								Proposed_Allocation as "Proposed Allocation"
+								Remit_Status as "Remit Status"
+								Books_Payment_IDs as "Books Payment IDs"
+								Process_Log as "Process Log"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+							)
+						)
+				)
+			}
+			report Notification_Log_Report
+			{
+				quickview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Notification_Type as "Notification Type"
+								Sent_At as "Sent At"
+								Period_From as "Period From"
+								Period_To as "Period To"
+								Subject1 as "Subject"
+								Record_Count as "Record Count"
+								Send_Status as "Send Status"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Delete 
+								Add 
+								Print 
+								Import 
+								Export 
+							)
+						record
+						(
+							Edit 
+							Duplicate 
+							Print 
+							Delete 
+    					)
+						)
+    				action
+    				(
+						on click
+						(
+							View Record 
+    					)
+						on right click
+						(
+							Edit 
+							Delete 
+							Duplicate 
+							Print 
+							View Record 
+    					)
+     				)
+				)
+
+				detailview
+				(
+					layout
+					(
+						datablock1
+						(
+							fields
+							(
+								Notification_Type as "Notification Type"
+								Sent_At as "Sent At"
+								Period_From as "Period From"
+								Period_To as "Period To"
+								Subject1 as "Subject"
+								Record_Count as "Record Count"
+								Send_Status as "Send Status"
+							)
+						)
+					)
+						menu
+						(
+							header
+							(
+								Edit 
+								Duplicate 
+								Print 
 								Delete 
 							)
 						)
@@ -48501,6 +50636,32 @@
 						icon = "users-multiple-19"
 					}
 				}
+				section Intakes
+				{
+					displayname = "Intakes"
+					icon = "tech-desktop"
+					form  Remit_Intake
+					{
+						icon = "sport-supplement"
+					}
+					report All_Intakes
+					{
+						icon = "tech-desktop"
+					}
+				}
+				section Notification_Log
+				{
+					displayname = "Notification_Log"
+					icon = "tech-desktop"
+					form  Notification_Log
+					{
+						icon = "tech-desktop"
+					}
+					report Notification_Log_Report
+					{
+						icon = "business-laptop-71"
+					}
+				}
 			}
 			preference
 			{
@@ -48679,6 +50840,10 @@
 			{
 				label placement = auto
 			}
+			form Remit_Intake
+			{
+				label placement = auto
+			}
 			form Schema_Snapshot
 			{
 				label placement = auto
@@ -48852,6 +51017,10 @@
 				label placement = auto
 			}
 			form Referrals_Master
+			{
+				label placement = auto
+			}
+			form Remit_Intake
 			{
 				label placement = auto
 			}

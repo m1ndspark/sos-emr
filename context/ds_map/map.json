@@ -1,5 +1,5 @@
 {
- "ds_sha256": "7303d038ce0cea41f73fab58c2049acf9c2b7a5ac8e4abf3f7dff86eba070a22",
+ "ds_sha256": "c71d1faeada2760fadddfaa3158c8baa3bb8cba302c6188796e20743ca2e3713",
  "forms": {
   "API_Config": {
    "display": "API Config",
@@ -94,6 +94,11 @@
      "Facility Room Number",
      ""
     ],
+    "Not_Completed_Reason": [
+     "picklist",
+     "Not Completed Reason",
+     ""
+    ],
     "Notified_Employee_ID": [
      "text",
      "Notified Employee ID",
@@ -162,6 +167,11 @@
     "System_Fields_Section": [
      "section",
      "System Fields Section",
+     ""
+    ],
+    "Visit_Completed": [
+     "radiobuttons",
+     "Visit Completed",
      ""
     ],
     "Visit_Status": [
@@ -1937,6 +1947,66 @@
    "display": "Messaging Hub",
    "fields": {}
   },
+  "Notification_Log": {
+   "display": "Notification Log",
+   "fields": {
+    "Body_HTML": [
+     "richtext",
+     "Body HTML",
+     ""
+    ],
+    "Notification_Type": [
+     "text",
+     "Notification Type",
+     ""
+    ],
+    "Period_From": [
+     "date",
+     "Period From",
+     ""
+    ],
+    "Period_To": [
+     "date",
+     "Period To",
+     ""
+    ],
+    "Recipients": [
+     "textarea",
+     "",
+     ""
+    ],
+    "Record_Count": [
+     "number",
+     "Record Count",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Send_Response": [
+     "richtext",
+     "Send Response",
+     ""
+    ],
+    "Send_Status": [
+     "text",
+     "Send Status",
+     ""
+    ],
+    "Sent_At": [
+     "datetime",
+     "Sent At",
+     ""
+    ],
+    "Subject1": [
+     "text",
+     "Subject",
+     ""
+    ]
+   }
+  },
   "PVS_Fax_Review": {
    "display": "PVS Fax Review",
    "fields": {
@@ -3210,6 +3280,76 @@
    "display": "Referrals Master",
    "fields": {}
   },
+  "Remit_Intake": {
+   "display": "Remit Intake",
+   "fields": {
+    "Books_Payment_IDs": [
+     "text",
+     "Books Payment IDs",
+     ""
+    ],
+    "Extracted_Lines": [
+     "textarea",
+     "Extracted Lines",
+     ""
+    ],
+    "Payer_Name": [
+     "text",
+     "Payer Name",
+     ""
+    ],
+    "Payment_Date": [
+     "date",
+     "Payment Date",
+     ""
+    ],
+    "Payment_Reference": [
+     "text",
+     "Payment Reference",
+     ""
+    ],
+    "Payment_Total": [
+     "USD",
+     "Payment Total",
+     ""
+    ],
+    "Process_Log": [
+     "textarea",
+     "Process Log",
+     ""
+    ],
+    "Proposed_Allocation": [
+     "textarea",
+     "Proposed Allocation",
+     ""
+    ],
+    "Received_Time": [
+     "datetime",
+     "Received Time",
+     ""
+    ],
+    "Remit_File": [
+     "upload file",
+     "Remit File",
+     ""
+    ],
+    "Remit_Status": [
+     "picklist",
+     "Remit Status",
+     ""
+    ],
+    "Section": [
+     "section",
+     "",
+     ""
+    ],
+    "Source_Email_ID": [
+     "text",
+     "Source Email ID",
+     ""
+    ]
+   }
+  },
   "Schema_Snapshot": {
    "display": "Schema Snapshot",
    "fields": {
@@ -3630,6 +3770,16 @@
    "23602929",
    "string",
    "int p_recId"
+  ],
+  "copy_pvs_ssn_from_referral": [
+   "dbdbe128",
+   "string",
+   "string pMode, string pPvsIds"
+  ],
+  "create_3008_pvs": [
+   "c650116a",
+   "string",
+   "string pMode, string pRows"
   ],
   "create_3008_pvs_july": [
    "efb09763",
@@ -4416,6 +4566,11 @@
    "string",
    "string p_mode"
   ],
+  "remit_build_allocation": [
+   "581fd3fa",
+   "string",
+   "string p_remit_id"
+  ],
   "repair_fax_log_status": [
    "4309c986",
    "string",
@@ -4556,6 +4711,11 @@
    "string",
    "string p_refKey"
   ],
+  "send_3008_status": [
+   "67ef1d90",
+   "string",
+   "string p_from, string p_to, string p_send"
+  ],
   "send_activity_digest": [
    "afff7e36",
    "string",
@@ -4665,6 +4825,16 @@
    "8b69707c",
    "string",
    "string p_pvsId, string p_refId, string p_mode"
+  ],
+  "set_pvs_visit_date": [
+   "2bb676da",
+   "string",
+   "string p_mode, string p_pairs"
+  ],
+  "set_referral_source": [
+   "f3221128",
+   "string",
+   "string p_mode, string p_refIds, string p_source"
   ],
   "sos_referral_health": [
    "06196e3c",
@@ -4820,6 +4990,11 @@
    "",
    ""
   ],
+  "All_Intakes": [
+   "Remit_Intake",
+   "",
+   ""
+  ],
   "All_Partner_Billing_Contacts": [
    "Partner_Billing_Contacts",
    "",
@@ -4929,6 +5104,11 @@
    "Encounter_PatientVisit",
    "[Provider_Login_Email == zoho.loginuserid]",
    "Fax PVS=Fax_PVS_Button"
+  ],
+  "Notification_Log_Report": [
+   "Notification_Log",
+   "",
+   ""
   ],
   "PVS_Addendum_Report": [
    "Encounters_PVSAddendum",
@@ -5169,6 +5349,36 @@
    "on add or edit",
    "OnUserInput",
    "Patient_Location",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Visit_Outcome_Reason_Requ": [
+   "9f3ba12b",
+   "on add or edit",
+   "OnValidate",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Visit_Outcome_Show_Hide_O": [
+   "e9d5895d",
+   "on add or edit",
+   "OnLoad",
+   "",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Assignments/Visit_Outcome_Show_Hide_O1": [
+   "74d05df0",
+   "on add or edit",
+   "OnUserInput",
+   "Visit_Completed",
    "enabled",
    "",
    "",
@@ -6089,6 +6299,16 @@
    "on add or edit",
    "OnUserInput",
    "Partner_POC_Email",
+   "enabled",
+   "",
+   "",
+   ""
+  ],
+  "Remit_Intake/Remit_Intake_Read": [
+   "59d5b082",
+   "on add",
+   "OnSuccess",
+   "",
    "enabled",
    "",
    "",

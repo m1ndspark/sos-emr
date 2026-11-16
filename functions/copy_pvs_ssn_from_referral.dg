@@ -1,0 +1,69 @@
+v_mode = ifnull(pMode,"").trim().toUpperCase();
+if(v_mode != "PREVIEW" && v_mode != "COMMIT")
+{
+	return "ERROR: pMode must be PREVIEW or COMMIT.";
+}
+v_ids = ifnull(pPvsIds,"").replaceAll("\r","").replaceAll("\n",";").toList(";");
+v_set = 0;
+v_had = 0;
+v_noPvs = 0;
+v_noSrc = 0;
+v_log = List();
+for each  v_raw in v_ids
+{
+	v_pid = v_raw.trim();
+	if(v_pid == "")
+	{
+		continue;
+	}
+	v_p = Encounter_PatientVisit[PVS_ID == v_pid];
+	if(v_p.count() == 0)
+	{
+		v_noPvs = v_noPvs + 1;
+		v_log.add(v_pid + " PVS not found");
+		continue;
+	}
+	if(ifnull(v_p.Patient_SSN,"").toString().trim() != "")
+	{
+		v_had = v_had + 1;
+		v_log.add(v_pid + " already has SSN, skipped");
+		continue;
+	}
+	if(v_p.Referral_Link == null)
+	{
+		v_noSrc = v_noSrc + 1;
+		v_log.add(v_pid + " no linked referral");
+		continue;
+	}
+	v_ref = Referrals_Main[ID == v_p.Referral_Link];
+	if(v_ref.count() == 0)
+	{
+		v_noSrc = v_noSrc + 1;
+		v_log.add(v_pid + " linked referral not found");
+		continue;
+	}
+	v_ssn = ifnull(v_ref.Patient_SSN,"").toString().trim();
+	if(v_ssn == "")
+	{
+		v_noSrc = v_noSrc + 1;
+		v_log.add(v_pid + " referral " + ifnull(v_ref.Referral_ID,"") + " has no SSN");
+		continue;
+	}
+	if(v_mode == "COMMIT")
+	{
+		v_p.Patient_SSN=v_ssn;
+		v_log.add(v_pid + " SSN copied from " + ifnull(v_ref.Referral_ID,""));
+	}
+	else
+	{
+		v_log.add(v_pid + " would copy SSN from " + ifnull(v_ref.Referral_ID,""));
+	}
+	v_set = v_set + 1;
+}
+v_out = v_mode + " | copy " + v_set + " | already had SSN " + v_had + " | PVS not found " + v_noPvs + " | no source SSN " + v_noSrc;
+if(v_log.size() > 0)
+{
+	v_out = v_out + "\n" + v_log.toString("\n");
+}
+info v_out;
+return v_out;

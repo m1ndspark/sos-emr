@@ -1,0 +1,93 @@
+v_Mode = ifnull(p_mode,"").toString().trim().toUpperCase();
+if(v_Mode != "COMMIT")
+{
+	v_Mode = "PREVIEW";
+}
+v_Src = ifnull(p_source,"").toString().trim();
+v_Allowed = {"Contracted Partner","Direct/Individual","SOS Internal"};
+if(!v_Allowed.contains(v_Src))
+{
+	return "Invalid source. Use Contracted Partner, Direct/Individual or SOS Internal.";
+}
+v_RefSet = List();
+v_RefKept = List();
+v_PvsSet = List();
+v_PvsKept = List();
+v_PvsSkip = List();
+v_Missing = List();
+v_List = ifnull(p_refIds,"").toList(",");
+for each  v_Raw in v_List
+{
+	v_Key = v_Raw.trim();
+	if(v_Key == "")
+	{
+		continue;
+	}
+	v_Found = false;
+	for each  v_R in Referrals_Main[Referral_ID == v_Key]
+	{
+		v_Found = true;
+		v_Cur = ifnull(v_R.Referral_Source,"").toString().trim();
+		if(v_Cur == v_Src)
+		{
+			v_RefKept.add(v_Key);
+		}
+		else
+		{
+			v_RefSet.add(v_Key + " [" + v_Cur + "] -> [" + v_Src + "]");
+			if(v_Mode == "COMMIT")
+			{
+				v_R.Referral_Source=v_Src;
+			}
+		}
+		for each  v_P in Encounter_PatientVisit[Referral_Link == v_R.ID]
+		{
+			v_Pid = ifnull(v_P.PVS_ID,"").toString().trim();
+			v_Rs = ifnull(v_P.Row_Status,"").toString().trim();
+			if(v_Rs == "Duplicate" || v_Rs == "Cancelled" || v_Rs == "Folded")
+			{
+				v_PvsSkip.add(v_Pid + " [Row Status " + v_Rs + "]");
+				continue;
+			}
+			v_Inv = ifnull(v_P.Invoice_Status,"").toString().trim();
+			if(v_Inv == "Final")
+			{
+				v_PvsSkip.add(v_Pid + " [invoiced]");
+				continue;
+			}
+			v_PCur = ifnull(v_P.Referral_Source,"").toString().trim();
+			if(v_PCur == v_Src)
+			{
+				v_PvsKept.add(v_Pid);
+				continue;
+			}
+			v_PvsSet.add(v_Pid + " [" + v_PCur + "] -> [" + v_Src + "]");
+			if(v_Mode == "COMMIT")
+			{
+				v_P.Referral_Source=v_Src;
+			}
+		}
+	}
+	if(!v_Found)
+	{
+		v_Missing.add(v_Key);
+	}
+}
+v_Out = v_Mode + " | referrals set " + v_RefSet.size() + " | referrals already " + v_RefKept.size() + " | PVS set " + v_PvsSet.size() + " | PVS already " + v_PvsKept.size() + " | PVS skipped " + v_PvsSkip.size() + " | not found " + v_Missing.size();
+if(v_RefSet.size() > 0)
+{
+	v_Out = v_Out + "\nREFERRALS:\n" + v_RefSet.toString("\n");
+}
+if(v_PvsSet.size() > 0)
+{
+	v_Out = v_Out + "\nPVS:\n" + v_PvsSet.toString("\n");
+}
+if(v_PvsSkip.size() > 0)
+{
+	v_Out = v_Out + "\nSKIPPED:\n" + v_PvsSkip.toString("\n");
+}
+if(v_Missing.size() > 0)
+{
+	v_Out = v_Out + "\nNOT FOUND: " + v_Missing.toString(", ");
+}
+return v_Out;

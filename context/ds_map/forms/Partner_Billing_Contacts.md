@@ -1,7 +1,7 @@
 # Partner_Billing_Contacts
 
 - Display name: Partner Billing Contacts
-- .ds line: 3960
+- .ds line: 4120
 - Fields (excluding sections): 15
 - Parent form: -
 
@@ -35,7 +35,7 @@
 - Record event: on add or edit
 - Form event: OnValidate
 - Status: ENABLED
-- .ds line: 37458
+- .ds line: 39153
 - Fields read: Partner_Billing_POC_Fax, Partner_Billing_POC_Phone, Partner_Link, Partner_Location_Link
 - Fields set: -
 - Fields shown/hidden/enabled/disabled: -
@@ -48,7 +48,7 @@
 - Record event: on add
 - Form event: OnSuccess
 - Status: ENABLED
-- .ds line: 36865
+- .ds line: 38560
 - Fields read: ID
 - Fields set: Partner_Billing_Contact_ID_Stamp
 - Fields shown/hidden/enabled/disabled: -
@@ -61,7 +61,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Partner_Billing_POC_Fax
 - Status: ENABLED
-- .ds line: 37719
+- .ds line: 39414
 - Fields read: -
 - Fields set: Partner_Billing_POC_Fax
 - Fields shown/hidden/enabled/disabled: -
@@ -74,7 +74,7 @@
 - Record event: on add or edit
 - Form event: OnUserInput of Partner_Billing_POC_Phone
 - Status: ENABLED
-- .ds line: 37685
+- .ds line: 39380
 - Fields read: -
 - Fields set: Partner_Billing_POC_Phone
 - Fields shown/hidden/enabled/disabled: -
