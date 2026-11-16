@@ -1,0 +1,103 @@
+SOS Code - SOS Session Log - November 16, 2026 (Session 65) - EOD
+
+Span: 2026-11-15 to 2026-11-16. App: SOS Referrals App (sosmmc/sos-referrals-app), Zoho Creator v6.
+Focus: October 2026 EOM. Billing went out 11/15-11/16.
+Ground truth .ds: v68 (2026-10-21). Functions and the form built this session are NOT in v68; export v69 next.
+IDs only in this log; no patient names or DOBs.
+
+=====================================================================
+1. OCTOBER INVOICING
+=====================================================================
+- Readiness verified before batching; batches run one branch at a time by Neil from Invoice_Batch.
+- MISS: first Empath batches ran without the cap. reset_invoice on INV-000146, 147, 148, 149; re-batched with Max Invoice Total 2999. INV-000150 (Empath - Trustbridge) left as is by Neil.
+- Neil reviewed and sent all October invoices.
+- Final check: no billable PVS through 10/31 left in Draft except PVS-1758-JK (Josh list) and $0 rows.
+- REF-1657 (imaging-only, Empath - Marion, 10/03): no PVS and on no Books invoice (verified by Books line search, with a known-billed control).
+
+=====================================================================
+2. OCTOBER 3008s
+=====================================================================
+- 102 October 3008 referrals: 73 completed, 29 open at the first count.
+- MISS: did not tie the open 3008s to Neil's "revenue seems low" comment with a count and dollar figure. Rule added.
+- Ann's 20: create_3008_pvs PREVIEW then COMMIT; batched and billed.
+- Ann's 20 had blank branch/system fields from the insert; backfilled all 20 and create_3008_pvs fixed to set them.
+- SSN on the 20: copy_pvs_ssn_from_referral (one-time) COMMIT copied 20. Claude does not write SSNs itself.
+- Kayla's 8 still open (about $1,400): REF-1730, 1731, 1732, 1733, 1766, 1782, 1831, 1832. Waiting on her completion dates.
+
+=====================================================================
+3. 3008 RECAP EMAIL (send_3008_status)
+=====================================================================
+- send_3008_status(string p_from, string p_to, string p_send). "No" = preview to Neil only; "Yes" = live.
+- Personalized: each provider sees only her records; Neil gets the full copy incl. Unassigned items.
+- SOS branded; portal links on Referral IDs; update template (SOS_3008_Recap_Updates_Template.xlsx, WorkDrive team folder SOS MMC) attached via ZeptoMail file cache.
+- Live sends logged to Notification_Log.
+- Recipients hardcoded: Ann Smith, Kayla Kolanko, Neil.
+- The 11/15 8:18 PM 3008 Status email to Ann and Kayla could not be recalled (ZeptoMail has no recall); that drove the personalization rebuild.
+- Preview tested by Neil. Live October send ON HOLD.
+- Learned: never initialize a variable to null and later use it as an invokeurl body (save error, line 422); keep download and upload in one try block.
+
+=====================================================================
+4. NOTIFICATION_LOG FORM
+=====================================================================
+- Created by CSV import (Design > + > Form > Import with data); Neil fixed types (Body_HTML and Send_Response Rich Text). Subject link name is Subject1.
+- Notification_Log_Report does not return Body_HTML, Recipients or Send_Response (task 9).
+
+=====================================================================
+5. OCTOBER DATA CLEANUP
+=====================================================================
+- 12 October referrals with no PVS, sent as Oct_Referrals_No_PVS_12.xlsx: imaging-only REF-1657, 1684, 1837, 1856, 1872; visits REF-1687, 1701, 1727, 1738, 1824, 1841, 1876.
+- Six duplicate referrals (REF-1663, 1686, 1689, 1704, 1750, 1751): "Duplicate Referral" added to Assignments.Not_Completed_Reason; outcomes set by Neil.
+- Referral Date stays the Creator submission date. Cognito trumps Creator for patient data when the original Cognito data is kept. DOB corrected on REF-1879 / PVS-2123-JK.
+- PVS-1823-JK Hold Yes; PVS-1759-JK Cancelled + Hold Yes.
+- Deleted (Neil approved): PVS-1307-JK-M and PVS-1910-JK (test records).
+- Hold Yes: PVS-1521-JK, 1523-JK, 1532-JK, 1957-JK.
+- Verified: no October Draft PVS is unheld and not Counted.
+- FOUND: 13 August cancelled PVS (Josh, $0) have a blank Hold; a "Hold != Yes" criteria misses them (null trap). Left for after EOM close.
+
+=====================================================================
+6. EOM PREP RUNBOOK
+=====================================================================
+- context/35_eom_runbook.md (repo, uncommitted) and project doc claude/SOS_EOM_Prep_Runbook.md.
+- Compiled from every rule on record (context docs, logs S28-S63, project docs, memory) plus this session.
+
+=====================================================================
+7. JOSH FOLLOW-UP
+=====================================================================
+- Josh_Followup_2026-11-16.xlsx sent to Josh by Neil, 10 rows read live from Creator: REF-1619 (no PVS); PVS-2038-JK (blank template); PVS-2040-JK and PVS-2039-JK (unfilled brackets); PVS-2041-JK / 2042-JK (one visit or two); REF-1855 (junk POC); PVS-2124-JK date; PVS-1990-JK level; PVS-1824-JK DOB placeholder; PVS-1758-JK (filler note, no date).
+
+=====================================================================
+8. RULES SAVED THIS SESSION
+=====================================================================
+- Current month first during EOM; prior-month adjustments wait until EOM is officially closed.
+- Report every count with its list and names.
+- When revenue looks low, state open items with count, names and dollar impact.
+- Cancelled visits are neither counted nor billed; services billed at $0 are counted and billed.
+- Cancelled rows get Hold Yes; test and bogus records are deleted with approval.
+- Empath invoices stay under $3,000 (Max Invoice Total 2999).
+- Imaging-only referrals need no provider assignment; the PVS is completed when results are faxed; EOM flags imaging-only with no PVS.
+- Referral Date = Creator submission date; Cognito trumps Creator for patient data.
+- Spreadsheets for Josh, not email.
+- Claude never enters SSNs; a Deluge function Neil runs may copy them.
+
+=====================================================================
+9. MISSES
+=====================================================================
+- Ran Empath batches without the cap.
+- Did not connect the open 3008s to the low-revenue comment.
+- Said no imaging step creates a PVS; the PVS is due at fax time.
+- Answered with code when Neil asked about the paragraph copy.
+- create_3008_pvs inserted PVS with blank branch/system fields.
+- First cleanup check used "Hold != Yes" only and missed blank-Hold rows.
+
+=====================================================================
+10. OPEN / NEXT
+=====================================================================
+1. Kayla's 8 open 3008s: get dates, create_3008_pvs, supplemental Orlando invoice.
+2. 12 no-PVS October referrals: answers back, PVS entered, supplemental invoices.
+3. Josh follow-up answers (10 rows).
+4. 3008 recap live send: send_3008_status("10-01-2026","10-31-2026","Yes") when Neil is ready.
+5. Task 8: run_invoice_batch Row_Status skip, re-confirm need.
+6. Task 9: Notification_Log_Report columns; clear Subject initial value.
+7. Export v69 .ds and commit (create_3008_pvs, send_3008_status, copy_pvs_ssn_from_referral, Notification_Log, Duplicate Referral choice).
+8. Post-close list: 13 August cancelled PVS with blank Hold; PVS-1990-JK; PVS-1758-JK.
+9. SOS Finance flags: Empath paid voided INV-000110; no Empath/Suncoast payments since August; PVS-1308-NH $150 credit.
