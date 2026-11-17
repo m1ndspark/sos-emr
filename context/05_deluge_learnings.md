@@ -888,3 +888,22 @@ All NEW functions declare arguments in this order:
 5. Numbers (int) - e.g. p_limit, p_chars - always last.
 Existing functions keep their current order unless Neil says otherwise.
 Every run instruction lists the input boxes in the function's declared order.
+
+================================================================================
+ZOHO BOOKS + CREATOR FINDINGS (2026-11-16, Session 65b - remit close-out)
+================================================================================
+- Books customer payments have no draft state. A payment created through the API
+  applies to its invoices immediately; review must happen in Creator before posting.
+- The bank match lookup GET /banktransactions/uncategorized/{id}/match with
+  reference_number returns the posted customer payments as type customer_payment.
+  Their match transaction IDs differ from the payment IDs returned at creation; use
+  the IDs from the lookup in POST .../match (transactions_to_be_matched).
+- The bank transactions list date filter did not narrow results reliably; re-check
+  date and amount inside the loop.
+- openUrl as the last line of an On Success workflow did not redirect when the form
+  was opened from the app menu; it worked when the form was opened with + Add on the
+  report. Upload remits via + Add on All Intakes.
+- getReportMetadata (Creator API) lists a report's custom actions, criteria flag and
+  confirmation config; use it to verify a report button is attached.
+- No Duplicate Values does not block blank entries (Zoho doc: a blank field does not
+  fail submission).
